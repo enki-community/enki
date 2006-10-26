@@ -1,17 +1,19 @@
 /*
     Enki - a fast 2D robot simulator
-    Copyright (C) 1999-2005 Stephane Magnenat <nct@ysagoon.com>
-    Copyright (C) 2004-2005 Antoine Beyeler <antoine.beyeler@epfl.ch>
-    Copyright (C) 2005 Laboratory of Intelligent Systems, EPFL, Lausanne
+    Copyright (C) 1999-2006 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
+    Copyright (c) 2004-2005 Antoine Beyeler <antoine dot beyeler at epfl dot ch>
+    Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
+    Copyright (C) 2006 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
     This program is free software; the authors of any publication 
     arising from research using this software are asked to add the 
     following reference:
-    Enki - a fast 2D robot simulator part of the Teem framework
-    http://teem.epfl.ch
-    Stephane Magnenat <stephane.magnenat@epfl.ch>,
-    Markus Waibel <markus.waibel@epfl.ch>
+    Enki - a fast 2D robot simulator
+    http://lis.epfl.ch/enki
+    Stephane Magnenat <stephane at magnenat dot net>,
+    Markus Waibel <markus dot waibel at epfl dot ch>
     Laboratory of Intelligent Systems, EPFL, Lausanne.
 
     You can redistribute this program and/or modify
@@ -36,15 +38,14 @@
 #include <enki/interactions/IRSensor.h>
 #include <enki/interactions/CircularCam.h>
 #include <enki/interactions/Bluetooth.h>
-#include <enki/interactions/FullCircleCamera.h>
 
-/*!	\file Khepera.h
-	\brief Header of the Khepera robot
+/*!	\file EPuck.h
+	\brief Header of the E-puck robot
 */
 	
 namespace Enki
 {
-	//! A simple model of the Khepera robot. 
+	//! A simple model of the E-puck robot. 
 	/*! \ingroup robot */
 	class EPuck : public Robot
 	{
@@ -69,8 +70,6 @@ namespace Enki
 		CircularCam camera;
 		//! Bluetooth module
 		Bluetooth* bluetooth;
-		FullCircleCamera omniCam;
-		FullCircleCamera upperOmniCam;
 
 		
 	public:
@@ -82,7 +81,7 @@ namespace Enki
 	
 	protected:
 		//! Save of last position to compute encoders.
-		An::Vector oldPos;
+		Vector oldPos;
 		//! Save of last angle to compute encoders.
 		double oldAngle;
 		
@@ -96,14 +95,8 @@ namespace Enki
 			//! Camera: add a linear camera
 			CAPABILITY_CAMERA = 0x2,
 			//! Bluetooth: activate the bluetooth module (Requires the use of Bluetooth master)
-			CAPABILITY_BLUETOOTH = 0x4,
-			//! Omnidirectional camera
-			CAPABILITY_OMNICAM = 0x8,
-			//! Omnidirectional camera placed above the e-puck to see only bigger object
-			CAPABILITY_UPPERVISION = 0x10
+			CAPABILITY_BLUETOOTH = 0x4
 		};
-		
-		unsigned supportedCapabilities;
 
 	public:
 		//! Create a E-Puck with certain modules aka capabilities (basic)
@@ -114,10 +107,9 @@ namespace Enki
 		
 		//! Reset the encoder. Should be called when robot is moved manually.
 		void resetEncoders();
-	
-		void setLedRing(bool status);
 		
-		void addCapabilities(unsigned capabilities);
+		//! Set ring color (true = red, false = black) 
+		void setLedRing(bool status);
 	};
 }
 

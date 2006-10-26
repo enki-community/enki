@@ -1,17 +1,19 @@
 /*
     Enki - a fast 2D robot simulator
-    Copyright (C) 1999-2005 Stephane Magnenat <nct@ysagoon.com>
-    Copyright (C) 2004-2005 Markus Waibel <markus.waibel@epfl.ch>
-    Copyright (C) 2005 Laboratory of Intelligent Systems, EPFL, Lausanne
+    Copyright (C) 1999-2006 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
+    Copyright (c) 2004-2005 Antoine Beyeler <antoine dot beyeler at epfl dot ch>
+    Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
+    Copyright (C) 2006 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
     This program is free software; the authors of any publication 
     arising from research using this software are asked to add the 
     following reference:
-    Enki - a fast 2D robot simulator part of the Teem framework
-    http://teem.epfl.ch
-    Stephane Magnenat <stephane.magnenat@a3.epfl.ch>,
-    Markus Waibel <markus.waibel@epfl.ch>
+    Enki - a fast 2D robot simulator
+    http://lis.epfl.ch/enki
+    Stephane Magnenat <stephane at magnenat dot net>,
+    Markus Waibel <markus dot waibel at epfl dot ch>
     Laboratory of Intelligent Systems, EPFL, Lausanne.
 
     You can redistribute this program and/or modify
@@ -41,10 +43,9 @@
 
 namespace Enki
 {
-	using namespace An;
-
-	Microphone::Microphone(Robot *owner, An::Vector micRelPos, double range, 
-						 MicrophoneResponseModel micModel, unsigned channels) {
+	Microphone::Microphone(Robot *owner, Vector micRelPos, double range,
+						 MicrophoneResponseModel micModel, unsigned channels)
+	{
 		this->owner = owner;
  		this->r = range;
 		this->micModel = micModel;
@@ -52,40 +53,46 @@ namespace Enki
 		this->noOfChannels = channels;
 		this->acquiredSound = new double[noOfChannels];
 			
-		for (size_t i=0; i<noOfChannels; i++) acquiredSound[i] = 0.0;
+		for (size_t i=0; i<noOfChannels; i++)
+			acquiredSound[i] = 0.0;
 
 		Matrix22 rot(owner->angle);
 		micAbsPos = owner->pos + rot*micRelPos;
 	}
 
-	Microphone::~Microphone(void) { delete[] acquiredSound; }
-		
-	void Microphone::init()	{
+	Microphone::~Microphone(void)
+	{
+		delete[] acquiredSound;
+	}
+	
+	void Microphone::init()
+	{
 		Matrix22 rot(owner->angle);
 		micAbsPos = owner->pos + rot*micRelPos;
 		resetSound();
 	}
 
-	void Microphone::objectStep(double dt, PhysicalObject *po, World *w) {
-
+	void Microphone::objectStep(double dt, PhysicalObject *po, World *w)
+	{
 		// Current distance between the interacting physical object and 
 		// the sensor (used later in sound filtering)
 		double current_dist = (po->pos - micAbsPos).norm();
 	
 		// Get current object sound
 		double *currentSound = new double[noOfChannels];
-		if (currentSound == NULL) exit(1);
-		else {
-			ActiveSoundObject *so = dynamic_cast<ActiveSoundObject *>(po);
-			if (so) {
-				assert(noOfChannels == so->speaker.noOfChannels);
-				for (size_t i=0; i<noOfChannels; i++)
-					currentSound[i] = so->speaker.pitch[i];
-			}
-			else
-				for (size_t i=0; i<noOfChannels; i++) 
-					currentSound[i] = 0.0;
+		assert(currentSound);
+		
+		
+		ActiveSoundObject *so = dynamic_cast<ActiveSoundObject *>(po);
+		if (so)
+		{
+			assert(noOfChannels == so->speaker.noOfChannels);
+			for (size_t i=0; i<noOfChannels; i++)
+				currentSound[i] = so->speaker.pitch[i];
 		}
+		else
+			for (size_t i=0; i<noOfChannels; i++)
+				currentSound[i] = 0.0;
 		
 		// Apply sensor model to acquisition
 		for (size_t i=0; i<noOfChannels; i++)
@@ -106,75 +113,85 @@ namespace Enki
 
 	}
 
-	double* Microphone::getAcquiredSound(void) {
+	double* Microphone::getAcquiredSound(void)
+	{
 		return acquiredSound;
 	}
 
-	void Microphone::resetSound(){
+	void Microphone::resetSound()
+	{
 		for (size_t i=0; i<noOfChannels; i++) acquiredSound[i] = 0.0;
 	}
 
-	void Microphone::getMaxChannel(double *intensity, int *channel) {
+	void Microphone::getMaxChannel(double *intensity, int *channel)
+	{
 		*intensity = 0;
 		*channel = -1;
-		for (size_t i = 0; i < noOfChannels; i++ ) {
-			if ( acquiredSound[i] > *intensity ) {
+		for (size_t i = 0; i < noOfChannels; i++ )
+		{
+			if ( acquiredSound[i] > *intensity )
+			{
 				*intensity = acquiredSound[i];
 				*channel = i;
 			}
 		}
 	}
 
-	An::Vector Microphone::getMicAbsPos() {
+	Vector Microphone::getMicAbsPos()
+	{
 		return micAbsPos;
 	}
 		
 	FourWayMic::FourWayMic(Robot *owner, double micDist, double range, 
-						   MicrophoneResponseModel micModel, unsigned channels) {
+						   MicrophoneResponseModel micModel, unsigned channels)
+	{
 		this->owner = owner;
 		this->r = range;
 		this->micModel = micModel;
 		this->micDist = micDist;
 		this->noOfChannels = channels;
-		for (size_t i=0; i<4; i++) {
+		for (size_t i=0; i<4; i++)
+		{
 			this->acquiredSound[i] = new double[noOfChannels];
-			for (size_t j=0; j<noOfChannels; j++) 
+			for (size_t j=0; j<noOfChannels; j++)
 				acquiredSound[i][j] = 0.0;
 		}
 
 		Matrix22 rot(owner->angle);
-		allMicAbsPos[0] = owner->pos + rot*An::Vector( micDist, micDist);
-		allMicAbsPos[1] = owner->pos + rot*An::Vector( micDist,-micDist);
-		allMicAbsPos[2] = owner->pos + rot*An::Vector(-micDist, micDist);
-		allMicAbsPos[3] = owner->pos + rot*An::Vector(-micDist,-micDist);
+		allMicAbsPos[0] = owner->pos + rot*Vector( micDist, micDist);
+		allMicAbsPos[1] = owner->pos + rot*Vector( micDist,-micDist);
+		allMicAbsPos[2] = owner->pos + rot*Vector(-micDist, micDist);
+		allMicAbsPos[3] = owner->pos + rot*Vector(-micDist,-micDist);
 	}
 
-	FourWayMic::~FourWayMic(void) { 
+	FourWayMic::~FourWayMic(void)
+	{
 		for (unsigned i=0; i<4; i++)
 			delete[] acquiredSound[i];
 	}
 		
-	void FourWayMic::init()	{
+	void FourWayMic::init()
+	{
 		Matrix22 rot(owner->angle);
-		allMicAbsPos[0] = owner->pos + rot*An::Vector( micDist, micDist);
-		allMicAbsPos[1] = owner->pos + rot*An::Vector( micDist,-micDist);
-		allMicAbsPos[2] = owner->pos + rot*An::Vector(-micDist, micDist);
-		allMicAbsPos[3] = owner->pos + rot*An::Vector(-micDist,-micDist);
+		allMicAbsPos[0] = owner->pos + rot*Vector( micDist, micDist);
+		allMicAbsPos[1] = owner->pos + rot*Vector( micDist,-micDist);
+		allMicAbsPos[2] = owner->pos + rot*Vector(-micDist, micDist);
+		allMicAbsPos[3] = owner->pos + rot*Vector(-micDist,-micDist);
 		resetSound();
 	}
 
-	void FourWayMic::objectStep(double dt, PhysicalObject *po, World *w) {
-
+	void FourWayMic::objectStep(double dt, PhysicalObject *po, World *w)
+	{
 		// Get current object sound
 		double *currentSound = new double[noOfChannels];
-		if (currentSound == NULL) exit(1);
-		else {
-			ActiveSoundObject *so = dynamic_cast<ActiveSoundObject *>(po);
-			if (so) {
-				assert(noOfChannels == so->speaker.noOfChannels);
-				for (size_t i=0; i<noOfChannels; i++)
-					currentSound[i] = so->speaker.pitch[i];
-			}
+		assert(currentSound);
+		
+		ActiveSoundObject *so = dynamic_cast<ActiveSoundObject *>(po);
+		if (so)
+		{
+			assert(noOfChannels == so->speaker.noOfChannels);
+			for (size_t i=0; i<noOfChannels; i++)
+				currentSound[i] = so->speaker.pitch[i];
 		}
 		
 		// Current distance between the interacting physical object and 
@@ -182,10 +199,12 @@ namespace Enki
 		double current_dist;
 		double min_dist = 0xFFFFFFFF;
 		unsigned min_dist_micNo = 0;
-		for (size_t i=0; i<4; i++) {
+		for (size_t i=0; i<4; i++)
+		{
 			current_dist = (po->pos - allMicAbsPos[i]).norm();
 			// find mic closest to interacting physical object
-			if ( current_dist < min_dist ) {
+			if ( current_dist < min_dist )
+			{
 				min_dist = current_dist;
 				min_dist_micNo = i;
 			}
@@ -207,29 +226,34 @@ namespace Enki
 
 	}
 
-	double* FourWayMic::getAcquiredSound(unsigned micNo) {
+	double* FourWayMic::getAcquiredSound(unsigned micNo)
+	{
 		return acquiredSound[micNo];
 	}
 
-	void FourWayMic::resetSound(){
+	void FourWayMic::resetSound()
+	{
 		for (size_t i=0; i<4; i++) 
 			for (size_t j=0; j<noOfChannels; j++) 
 				acquiredSound[i][j] = 0.0;
 	}
 
-	void FourWayMic::getMaxChannel(unsigned micNo, double *intensity, int *channel) {
+	void FourWayMic::getMaxChannel(unsigned micNo, double *intensity, int *channel)
+	{
 		*intensity = 0;
 		*channel = -1;
-		for (size_t i = 0; i < noOfChannels; i++ ) {
-			if ( acquiredSound[micNo][i] > *intensity ) {
+		for (size_t i = 0; i < noOfChannels; i++ )
+		{
+			if ( acquiredSound[micNo][i] > *intensity )
+			{
 				*intensity = acquiredSound[micNo][i];
 				*channel = i;
 			}
 		}
 	}
 
-	An::Vector FourWayMic::getMicAbsPos(unsigned micNo) {
+	Vector FourWayMic::getMicAbsPos(unsigned micNo)
+	{
 		return allMicAbsPos[micNo];
 	}
-		
 }

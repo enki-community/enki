@@ -1,17 +1,19 @@
 /*
     Enki - a fast 2D robot simulator
-    Copyright (C) 1999-2005 Stephane Magnenat <nct@ysagoon.com>
-    Copyright (C) 2004-2005 Markus Waibel <markus.waibel@epfl.ch>
-    Copyright (C) 2005 Laboratory of Intelligent Systems, EPFL, Lausanne
+    Copyright (C) 1999-2006 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
+    Copyright (c) 2004-2005 Antoine Beyeler <antoine dot beyeler at epfl dot ch>
+    Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
+    Copyright (C) 2006 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
     This program is free software; the authors of any publication 
     arising from research using this software are asked to add the 
     following reference:
-    Enki - a fast 2D robot simulator part of the Teem framework
-    http://teem.epfl.ch
-    Stephane Magnenat <stephane.magnenat@a3.epfl.ch>,
-    Markus Waibel <markus.waibel@epfl.ch>
+    Enki - a fast 2D robot simulator
+    http://lis.epfl.ch/enki
+    Stephane Magnenat <stephane at magnenat dot net>,
+    Markus Waibel <markus dot waibel at epfl dot ch>
     Laboratory of Intelligent Systems, EPFL, Lausanne.
 
     You can redistribute this program and/or modify
@@ -54,7 +56,7 @@ namespace Enki
 		//! Virtual destructor, do nothing
 		virtual ~SensorResponseFunctor() {}
 		//! Return the response for a given distance and object color
-		virtual double operator()(double, const An::Color &) = 0;
+		virtual double operator()(double, const Color &) = 0;
 	};
 	
 	//! A generic infrared sensor
@@ -63,11 +65,11 @@ namespace Enki
 	{
 	protected:
 		//! Absolute position in the world, updated on init()
-		An::Vector absPos;
+		Vector absPos;
 		//! Absolute orientation in the world, updated on init()
 		double absOrientation;
 		//! Relative position on the robot
-		An::Vector pos;
+		Vector pos;
 		//! Height above ground, the sensor will not see any object of smaller height
 		double height;
 		//! Relative orientation on the robot
@@ -87,13 +89,13 @@ namespace Enki
 		//! Radius for the smallest circle enclosing all rays
 		double smartRadius;
 		//! Current position of the center of the smartRadius, i.e. center of the smallest circle enclosing all rays in relative (robot) coordinates
-		An::Point smartPos;
+		Point smartPos;
 		//! Current position of the center of the smartRadius in absolute (world) coordinates, updated on init()
-		An::Vector absSmartPos;
+		Vector absSmartPos;
 		//! Temporary ray values containing the lowest distance found up to now
 		std::valarray<double> rayValues;
 		//! Temporary ray values containing the color of the closest segment up to now
-		std::valarray<An::Color> rayColors;
+		std::valarray<Color> rayColors;
 		//! The angle for each ray relative to the sensor orientation in relative (robot) coordinates
 		std::valarray<double> rayAngles;
 		//! The angle for each ray relative to the sensor orientation in absolute (world) coordinates
@@ -107,7 +109,7 @@ namespace Enki
 		//! Constructor
 		//! e.g.: "left(this, Vector (0.95, 0.95), 1.2, M_PI/4, 2.5, M_PI/6, 3, AliceIRNormalSensorModel)"
 		//! i.e. for left: position on bot is x=0.95, y=0.95 from center of bot, height of sensor is 1.2, looking 45 deg to the left, +/-30 deg opening angle, 3cm max sensor range, a raycount of 3, SensorResponseFunctor in AliceIRNormalSensorModel array
-		IRSensor(Robot *owner, An::Vector pos, double height, double orientation, double range, double aperture, unsigned rayCount, SensorResponseFunctor **sensorResponseKernel);
+		IRSensor(Robot *owner, Vector pos, double height, double orientation, double range, double aperture, unsigned rayCount, SensorResponseFunctor **sensorResponseKernel);
 		//! Reset distance values
 		void init();
 		//! Check for all potential intersections using smartRadius of sensor and calculate and find closest distance for each ray.
@@ -118,7 +120,7 @@ namespace Enki
 		void finalize(double dt);
 		
 		//! Return the absolute position of the IR sensor, updated at each time step on init()
-		An::Point getAbsolutePosition(void) { return absPos; }
+		Point getAbsolutePosition(void) { return absPos; }
 		//! Return the absolute orientation of the IR sensor, updated at each time step on init()
 		double getAbsoluteOrientation(void) { return absOrientation; }
 		//! Return the number of rays
@@ -130,12 +132,12 @@ namespace Enki
 		//! Return the radius for the smallest circle enclosing all rays
 		double getSmartRadius(void) { return smartRadius; }
 		//! Return current position of the center of the smartRadius, i.e. center of the smallest circle enclosing all rays in relative (robot) coordinates
-		An::Point getAbsSmartPos(void) { return absSmartPos; }
+		Point getAbsSmartPos(void) { return absSmartPos; }
 	
 	private:
 		//! Returns distance to PhysicalObject po for angle rayAngle.
 		//! Note: The polygon MUST be convex and have vertices oriented counterclockwise (ccw). This code does not check for and verify these conditions. Returns distance to shortest intersection point or HUGE_VAL if there is no intersection
-		double distanceToPolygon(double rayAngle, const An::Polygone &p) const;
+		double distanceToPolygon(double rayAngle, const Polygone &p) const;
 	};
 }
 

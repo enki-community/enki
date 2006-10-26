@@ -1,17 +1,19 @@
 /*
     Enki - a fast 2D robot simulator
-    Copyright (C) 1999-2005 Stephane Magnenat <nct@ysagoon.com>
-    Copyright (C) 2004-2005 Markus Waibel <markus.waibel@epfl.ch>
-    Copyright (C) 2005 Laboratory of Intelligent Systems, EPFL, Lausanne
+    Copyright (C) 1999-2006 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
+    Copyright (c) 2004-2005 Antoine Beyeler <antoine dot beyeler at epfl dot ch>
+    Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
+    Copyright (C) 2006 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
     This program is free software; the authors of any publication 
     arising from research using this software are asked to add the 
     following reference:
-    Enki - a fast 2D robot simulator part of the Teem framework
-    http://teem.epfl.ch
-    Stephane Magnenat <stephane.magnenat@a3.epfl.ch>,
-    Markus Waibel <markus.waibel@epfl.ch>
+    Enki - a fast 2D robot simulator
+    http://lis.epfl.ch/enki
+    Stephane Magnenat <stephane at magnenat dot net>,
+    Markus Waibel <markus dot waibel at epfl dot ch>
     Laboratory of Intelligent Systems, EPFL, Lausanne.
 
     You can redistribute this program and/or modify
@@ -50,9 +52,9 @@ namespace Enki
 	{
 	protected:
 		//! The position of sensors through which the Alices communicate
-		std::vector<std::pair<An::Vector, double> > sensors;
+		std::vector<std::pair<Vector, double> > sensors;
 		//! The actual position of sensors, transformed by robot position and orientation
-		std::vector<An::Vector> realSensors;
+		std::vector<Vector> realSensors;
 		//! True if the realSensors reflect the actual real position of the robot
 		bool updatedRealSensors;
 		
@@ -82,7 +84,7 @@ namespace Enki
 		void objectStep(double dt, PhysicalObject *po, World *w);
 		
 		//! Add a new sensor at position pos of radius ray
-		void addSensor(An::Vector pos, double ray);
+		void addSensor(Vector pos, double ray);
 		//! The value to transmit
 		void setTransmitValue(unsigned val);
 		//! Turn transmission on or off

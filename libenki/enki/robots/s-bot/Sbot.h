@@ -1,16 +1,19 @@
 /*
     Enki - a fast 2D robot simulator
-    Copyright (C) 1999-2005 Stephane Magnenat <nct@ysagoon.com>
-    Copyright (C) 2005 Laboratory of Intelligent Systems, EPFL, Lausanne
+    Copyright (C) 1999-2006 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
+    Copyright (c) 2004-2005 Antoine Beyeler <antoine dot beyeler at epfl dot ch>
+    Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
+    Copyright (C) 2006 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
     This program is free software; the authors of any publication 
     arising from research using this software are asked to add the 
     following reference:
-    Enki - a fast 2D robot simulator part of the Teem framework
-    http://teem.epfl.ch
-    Stephane Magnenat <stephane.magnenat@a3.epfl.ch>,
-    Markus Waibel <markus.waibel@epfl.ch>
+    Enki - a fast 2D robot simulator
+    http://lis.epfl.ch/enki
+    Stephane Magnenat <stephane at magnenat dot net>,
+    Markus Waibel <markus dot waibel at epfl dot ch>
     Laboratory of Intelligent Systems, EPFL, Lausanne.
 
     You can redistribute this program and/or modify
@@ -33,8 +36,8 @@
 
 #include <enki/PhysicalEngine.h>
 #include <enki/interactions/Microphone.h>
+#include <enki/interactions/ActiveSoundSource.h>
 #include <enki/robots/s-bot/SbotCam.h>
-#include <enki/robots/s-bot/ActiveSoundObject.h>
 #include <enki/robots/s-bot/SbotObject.h>
 
 /*!	\file Sbot.h
@@ -71,33 +74,18 @@ namespace Enki
 
 	//! Specific microphone for S-bots
 	/*! This microphone checks whether there are sounds coming from
-	  sound-emitting objects, and also other s-bots
-	class SbotMicrophone : public Microphone	{
-	public:
-		//! Constructor
-		//! e.g.: Microphone(this, An::Vector(0.5, 0.5), 5, micStepModel, 20);
-		//! meaning: the mic is (0.5, 0.5) away from robot center, can hear sounds up to
-		//! 5 units away, uses a step model to detect sounds and can distinguish 20 frequencies
-		SbotMicrophone(Robot *owner, An::Vector micRelPos, double range, 
-					   MicrophoneResponseModel micModel, unsigned channels) :
-			Microphone(owner, micRelPos, range, micModel, channels) {}
-		//! Check for local interactions with other physical objects
-		void objectStep(double dt, PhysicalObject *po, World *w);
-	};
+		sound-emitting objects, and also other s-bots
+		\ingroup interaction
 	*/
-
-	//! Specific microphone for S-bots
-	/*! This microphone checks whether there are sounds coming from
-	  sound-emitting objects, and also other s-bots
-	*/
-	class SbotMicrophone : public FourWayMic {
+	class SbotMicrophone : public FourWayMic
+	{
 	public:
 		//! Constructor
 		//! e.g.: FourWayMic(this, 0.5, 5, micStepModel, 20);
 		//! meaning: the 4 mics are 0.5 away from robot center, can
-		//hear sounds up to ! 5 units away, uses a step model to
-		//detect sounds and can distinguish 20 frequencies
-		SbotMicrophone(Robot *owner, double micDist, double range, 
+		//! hear sounds up to ! 5 units away, uses a step model to
+		//! detect sounds and can distinguish 20 frequencies
+		SbotMicrophone(Robot *owner, double micDist, double range,
 					   MicrophoneResponseModel micModel, unsigned channels) :
 			FourWayMic(owner, micDist, range, micModel, channels) {}
 		//! Check for local interactions with other physical objects
@@ -130,8 +118,6 @@ namespace Enki
 	};
 
 
-	// TODO : handle this nicely
-	
 	//! An "improved" Sbot that can interact with SbotActiveObject.
 	/*! It is a hack for my experiments, should be removed one day.
 		\ingroup robot
@@ -156,18 +142,11 @@ namespace Enki
 	//! This Sbot version has sound capabilities inherited from
 	//! ActiveSoundObject, as well as the feeding and usual capabilities
 	//! of an Sbot.
-	/*\ingroup robot*/
-
+	/*! \ingroup robot */
 	class SoundSbot : public FeedableSbot
 	{
 	public:
 		//! 4 microphones
-		/*
-		SbotMicrophone mic0;
-		SbotMicrophone mic1;
-		SbotMicrophone mic2;
-		SbotMicrophone mic3;
-		*/
 		SbotMicrophone mic;
 		//! 1 speaker
 		ActiveSoundSource speaker;

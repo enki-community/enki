@@ -1,32 +1,35 @@
 /*
- Copyright (C) 1999-2005 Stephane Magnenat <nct@ysagoon.com>
- Copyright (C) 2004-2005 Antoine Beyeler <antoine.beyeler@epfl.ch>
- Copyright (C) 2005 Laboratory of Intelligent Systems, EPFL, Lausanne
- See AUTHORS for details
- 
- This program is free software; the authors of any publication 
- arising from research using this software are asked to add the 
- following reference:
- Enki - a fast 2D robot simulator part of the Teem framework
- http://teem.epfl.ch
- Stephane Magnenat <stephane.magnenat@epfl.ch>,
- Markus Waibel <markus.waibel@epfl.ch>
- Laboratory of Intelligent Systems, EPFL, Lausanne.
- 
- You can redistribute this program and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
- 
- You should have received a copy of the GNU General Public License
- along with this program; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
+    Enki - a fast 2D robot simulator
+    Copyright (C) 1999-2006 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
+    Copyright (c) 2004-2005 Antoine Beyeler <antoine dot beyeler at epfl dot ch>
+    Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
+    Copyright (C) 2006 Laboratory of Robotics Systems, EPFL, Lausanne
+    See AUTHORS for details
+
+    This program is free software; the authors of any publication 
+    arising from research using this software are asked to add the 
+    following reference:
+    Enki - a fast 2D robot simulator
+    http://lis.epfl.ch/enki
+    Stephane Magnenat <stephane at magnenat dot net>,
+    Markus Waibel <markus dot waibel at epfl dot ch>
+    Laboratory of Intelligent Systems, EPFL, Lausanne.
+
+    You can redistribute this program and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
 #include "EPuck.h"
 #include <limits.h>
@@ -36,8 +39,6 @@
 */
 namespace Enki
 {
-	using namespace An;
-	
 	//! Calculate the signal strength as a function of the distance.
 	/*! The nearer we are, the higher the sensor activation.
 	This model is very simple and not very good but sufficient for simple demonstration.
@@ -45,7 +46,7 @@ namespace Enki
 	*/
 	struct EPuckIRSensorModel : public SensorResponseFunctor
 	{
-		virtual double operator()(double dist, const An::Color &color)
+		virtual double operator()(double dist, const Color &color)
 		{
 			if (dist<0.5)
 				dist=-440*dist+3000;
@@ -61,12 +62,6 @@ namespace Enki
 		}
 				
 	};
-	/*	double KheperaIRSensorModel(double dist)
-	{
-		// add proportional noise; +/-3% and fit
-		dist *= (0.97 + random.getRange(0.06));
-		return 1100.0 * exp(-dist / 2.5);
-	}*/
 	
 	
 	//! We use only one ray per sensor for the e-puck.
@@ -84,10 +79,7 @@ namespace Enki
 		infraredSensor6(this, Vector(2.6, 2.6), 0.0, M_PI/4.0,  12, 0, 1, &epuckIRSensorModelPtr),  // IR 6 (Half front left)
 		infraredSensor7(this, Vector(3.0, 0.9), 0.0, 4*M_PI/45.0,  12, 0, 1, &epuckIRSensorModelPtr),    // IR 7 (Front left)
 		camera(this, Vector(3.7, 0.0), 0.0, 0.0, M_PI/6.0, 60),     // height should be 2.2
-		bluetooth(NULL),
-		omniCam(this, 64),
-		upperOmniCam(this,64),
-		supportedCapabilities(capabilities)
+		bluetooth(NULL)
 	{
 			oldAngle=angle;
 			reflection=1.0;   // 0.6 would be more realistic
@@ -120,17 +112,8 @@ namespace Enki
 				bluetooth = new Bluetooth(this,1000,7,100,100,random.get()%UINT_MAX);
 				addGlobalInteraction(bluetooth);
 			}
-			
-			if (capabilities & CAPABILITY_OMNICAM)
-				addLocalInteraction(&omniCam);
-			
-			if (capabilities & CAPABILITY_UPPERVISION) {
-				upperOmniCam.setHeight(5.0);
-				addLocalInteraction(&upperOmniCam);
-			}
-			
-			leftSpeed=0;
-			rightSpeed=0;
+			leftSpeed = 0;
+			rightSpeed = 0;
 			
 			leftEncoder = rightEncoder = 0;
 			leftSpeed = rightSpeed = 0;
@@ -194,43 +177,9 @@ namespace Enki
 		leftEncoder = rightEncoder = 0.0;
 	}
 	
-	void EPuck::setLedRing(bool status) {
-		color=status ? An::Color::red : An::Color::black;
-	}
-	
-	void EPuck::addCapabilities(unsigned capabilities) {
-			if (capabilities & CAPABILITY_BASIC_SENSORS)
-			{
-				addLocalInteraction(&infraredSensor0);
-				addLocalInteraction(&infraredSensor1);
-				addLocalInteraction(&infraredSensor2);
-				addLocalInteraction(&infraredSensor3);
-				addLocalInteraction(&infraredSensor4);
-				addLocalInteraction(&infraredSensor5);
-				addLocalInteraction(&infraredSensor6);
-				addLocalInteraction(&infraredSensor7);
-			}
-			
-			if (capabilities & CAPABILITY_CAMERA)
-			{
-				addLocalInteraction(&camera);
-			}
-			
-			if (capabilities & CAPABILITY_BLUETOOTH)
-			{
-				bluetooth = new Bluetooth(this,1000,7,100,100,random.get()%UINT_MAX);
-				addGlobalInteraction(bluetooth);
-			}
-			
-			if (capabilities & CAPABILITY_OMNICAM)
-				addLocalInteraction(&omniCam);
-			
-			if (capabilities & CAPABILITY_UPPERVISION) {
-				upperOmniCam.setHeight(5.0);
-				addLocalInteraction(&upperOmniCam);
-			}
-			
-			supportedCapabilities=supportedCapabilities | capabilities;
+	void EPuck::setLedRing(bool status)
+	{
+		color = status ? Color::red : Color::black;
 	}
 }
 

@@ -1,17 +1,19 @@
 /*
     Enki - a fast 2D robot simulator
-    Copyright (C) 1999-2005 Stephane Magnenat <nct@ysagoon.com>
-    Copyright (C) 2004-2005 Markus Waibel <markus.waibel@epfl.ch>
-    Copyright (C) 2005 Laboratory of Intelligent Systems, EPFL, Lausanne
+    Copyright (C) 1999-2006 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
+    Copyright (c) 2004-2005 Antoine Beyeler <antoine dot beyeler at epfl dot ch>
+    Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
+    Copyright (C) 2006 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
     This program is free software; the authors of any publication 
     arising from research using this software are asked to add the 
     following reference:
-    Enki - a fast 2D robot simulator part of the Teem framework
-    http://teem.epfl.ch
-    Stephane Magnenat <stephane.magnenat@a3.epfl.ch>,
-    Markus Waibel <markus.waibel@epfl.ch>
+    Enki - a fast 2D robot simulator
+    http://lis.epfl.ch/enki
+    Stephane Magnenat <stephane at magnenat dot net>,
+    Markus Waibel <markus dot waibel at epfl dot ch>
     Laboratory of Intelligent Systems, EPFL, Lausanne.
 
     You can redistribute this program and/or modify
@@ -41,8 +43,6 @@
 
 namespace Enki
 {
-	using namespace An;
-
 	IRSensor::IRSensor(Robot *owner, Vector pos, double height, double orientation, 
 					   double range, double aperture, unsigned rayCount, 
 					   SensorResponseFunctor **sensorResponseKernel)
@@ -87,7 +87,7 @@ namespace Enki
 	{
 		// fill initial values with very large value; will be replaced if smaller distance is found
 		std::fill(&rayValues[0], &rayValues[rayCount], HUGE_VAL);
-		std::fill(&rayColors[0], &rayColors[rayCount], An::Color::white);
+		std::fill(&rayColors[0], &rayColors[rayCount], Color::white);
 		
 		// compute absolute position and orientation
 		Matrix22 rot(owner->angle);
@@ -110,7 +110,7 @@ namespace Enki
 	// This code does not check for and verify these conditions.
 	// Return: distance to shortest intersection point
 	//   or HUGE_VAL if there's no intersection
-	double IRSensor::distanceToPolygon(double rayAngle, const An::Polygone &p) const 
+	double IRSensor::distanceToPolygon(double rayAngle, const Polygone &p) const 
 	{
 		// compute ray segment in global coordinates
 		Point absEnd = absPos + Vector(cos(rayAngle), sin(rayAngle)) * range;
@@ -239,7 +239,7 @@ namespace Enki
 		if ((absPos.x<0) || (absPos.x>w->w) || (absPos.y<0) || (absPos.y>w->h))
 		{
 			std::fill(&rayValues[0], &rayValues[rayCount], 0);
-			std::fill(&rayColors[0], &rayColors[rayCount], An::Color::white);
+			std::fill(&rayColors[0], &rayColors[rayCount], Color::white);
 			return;
 		}
 
@@ -273,7 +273,7 @@ namespace Enki
 			if (newDist < rayValues[i])
 			{
 				rayValues[i] = newDist;
-				rayColors[i] = An::Color::white; // FIXME :get wall color if required
+				rayColors[i] = Color::white; // FIXME :get wall color if required
 			}
 		}
 	}

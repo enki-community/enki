@@ -1,1 +1,1 @@
-SUBDIRS = khepera alice s-bot mav e-puck
+SUBDIRS = khepera alice s-bot e-puck

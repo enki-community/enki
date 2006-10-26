@@ -2,9 +2,9 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.5)
-AC_INIT(libenki, svn, nct@ysagoon.com)
+AC_INIT(libenki, 1.1)
 AC_CONFIG_SRCDIR([enki/PhysicalEngine.cpp])
-AM_INIT_AUTOMAKE(libenki, svn)
+AM_INIT_AUTOMAKE(libenki, 1.1)
 
 # Set flags
 CXXFLAGS="$CXXFLAGS -Wall"
@@ -14,18 +14,6 @@ AC_LANG([C++])
 AC_PROG_CXX
 AC_PROG_RANLIB
 
-# Check for an
-AC_CHECK_HEADER([an/Geometry.h],,AC_MSG_ERROR([An library not found. Please install An library. Configure aborted]))
-
-# Checks for typedefs, structures, and compiler characteristics.
-
-# Checks for library functions.
-LIBS="-lan $LIBS"
-AC_TRY_LINK([#include <an/Types.h>],[An::Color c = An::Color::red;],
-        [AC_MSG_NOTICE([checking for liban test program, working])],
-        [AC_MSG_ERROR([An library not found. Please install An library. Configure aborted])])
-
-
 AC_CONFIG_FILES([Makefile
 				 enki/Makefile
 				 enki/interactions/Makefile
@@ -33,7 +21,6 @@ AC_CONFIG_FILES([Makefile
 				 enki/robots/khepera/Makefile
 				 enki/robots/alice/Makefile
 				 enki/robots/s-bot/Makefile
-				 enki/robots/mav/Makefile
 				 enki/robots/e-puck/Makefile
 				 docsource/Makefile
 				 examples/Makefile])

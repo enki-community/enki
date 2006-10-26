@@ -1,17 +1,19 @@
 /*
     Enki - a fast 2D robot simulator
-    Copyright (C) 1999-2005 Stephane Magnenat <nct@ysagoon.com>
-    Copyright (C) 2004-2005 Markus Waibel <markus.waibel@epfl.ch>
-    Copyright (C) 2005 Laboratory of Intelligent Systems, EPFL, Lausanne
+    Copyright (C) 1999-2006 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
+    Copyright (c) 2004-2005 Antoine Beyeler <antoine dot beyeler at epfl dot ch>
+    Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
+    Copyright (C) 2006 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
     This program is free software; the authors of any publication 
     arising from research using this software are asked to add the 
     following reference:
-    Enki - a fast 2D robot simulator part of the Teem framework
-    http://teem.epfl.ch
-    Stephane Magnenat <stephane.magnenat@a3.epfl.ch>,
-    Markus Waibel <markus.waibel@epfl.ch>
+    Enki - a fast 2D robot simulator
+    http://lis.epfl.ch/enki
+    Stephane Magnenat <stephane at magnenat dot net>,
+    Markus Waibel <markus dot waibel at epfl dot ch>
     Laboratory of Intelligent Systems, EPFL, Lausanne.
 
     You can redistribute this program and/or modify
@@ -37,8 +39,6 @@
 
 namespace Enki
 {
-	using namespace An;
-	
 	 //In our case, the sensormodelfunction is of the form a*exp(-b*x)-c*exp(-d*x)+e, where e is a global offset, sometimes adjusted with respect to sensorOffsetNoise.
 	
 	//! The bounding surface of an Alice
@@ -47,58 +47,59 @@ namespace Enki
 		//! The polygone containing the surface
 		Polygone p;
 
-		//! The constructor, fill p with (-1,-1) (1,-1) (1,1) (-1,1)
+		//! The constructor, create the physical shape of the alice
 		AliceBoundingSurface()
 		{
+			// Alice physical shape. If you have alice with different shapes
+			// or what to some particular bias in your simulation, you can change
+			// this.
+			
 			// Basic
-//FIXME
-// 			p.push_back(Point(-1.25,-1));
-// 			p.push_back(Point(1.25,-1));
-// 			p.push_back(Point(1.25,1));
-// 			p.push_back(Point(-1.25,1));
+			p.push_back(Point(-1.25,-1));
+			p.push_back(Point(1.25,-1));
+			p.push_back(Point(1.25,1));
+			p.push_back(Point(-1.25,1));
 			
+			/*
 			// Snowplough
-// 			p.push_back(Point(-1.25,-1));
-// 			p.push_back(Point(1.05,-1));
-// 			p.push_back(Point(1.26,0));
-// 			p.push_back(Point(1.05,1));
-// 			p.push_back(Point(-1.25,1));
-			
+			p.push_back(Point(-1.25,-1));
+			p.push_back(Point(1.05,-1));
+			p.push_back(Point(1.26,0));
+			p.push_back(Point(1.05,1));
+			p.push_back(Point(-1.25,1));
+			*//*
 			// Double Snowplough
-// 			p.push_back(Point(-1.15,-1));
-// 			p.push_back(Point(1.15,-1));
-// 			p.push_back(Point(1.25,0));
-// 			p.push_back(Point(1.15,1));
-// 			p.push_back(Point(-1.15,1));
-// 			p.push_back(Point(-1.25,0));
-			
+			p.push_back(Point(-1.15,-1));
+			p.push_back(Point(1.15,-1));
+			p.push_back(Point(1.25,0));
+			p.push_back(Point(1.15,1));
+			p.push_back(Point(-1.15,1));
+			p.push_back(Point(-1.25,0));
+			*//*
 			// Cut-off Corners
-// 			p.push_back(Point(-1.25,-1));
-// 			p.push_back(Point(1.0,-1));
-// 			p.push_back(Point(1.25,-.75));
-// 			p.push_back(Point(1.25,.75));
-// 			p.push_back(Point(1.0,1));
-// 			p.push_back(Point(-1.25,1));
-
-
-			std::cerr << "\n\n alice structure changed";
-
-//FIXME
+			p.push_back(Point(-1.25,-1));
+			p.push_back(Point(1.0,-1));
+			p.push_back(Point(1.25,-.75));
+			p.push_back(Point(1.25,.75));
+			p.push_back(Point(1.0,1));
+			p.push_back(Point(-1.25,1));
+			*//*
 			// Double-quadruple cut-off corners
 			p.push_back(Point(-1.0,-1));
 			p.push_back(Point(1.0,-1));
-// 			p.push_back(Point(1.2,-.7));
+ 			//p.push_back(Point(1.2,-.7));
 			
-// 			p.push_back(Point(1.25 + (-0.1 + random.getRange(0.2)),-.1 - (random.getRange(0.6))));
-// 			p.push_back(Point(1.25 + (-0.1 + random.getRange(0.2)),.1 + (random.getRange(0.6))));
+			//p.push_back(Point(1.25 + (-0.1 + random.getRange(0.2)),-.1 - (random.getRange(0.6))));
+			//p.push_back(Point(1.25 + (-0.1 + random.getRange(0.2)),.1 + (random.getRange(0.6))));
 
 			p.push_back(Point(1.25 + (-1 + random.getRange(3)),-.1 - (random.getRange(0.6))));
 			p.push_back(Point(1.25 + (-1 + random.getRange(3)),.1 + (random.getRange(0.6))));
 			
-// 			p.push_back(Point(1.2,.7));
+			//p.push_back(Point(1.2,.7));
 			p.push_back(Point(1.0,1));
 			p.push_back(Point(-1.0,1));
 			p.push_back(Point(-1.2,0));
+			*/
  		}
 	} aliceBoundingSurface;
 
@@ -119,7 +120,7 @@ namespace Enki
 			this->shift = shift;
 		}
 
-		virtual double operator()(double dist, const An::Color &color)
+		virtual double operator()(double dist, const Color &color)
 		{
 			// last term adjusts for half of overall offset so noise is +/-
 			return shift + mult * (230.973 * exp (-1.49667*dist) - 108.396 * exp (-5.43925*dist) + 1.0 - 1.5);
@@ -144,7 +145,7 @@ namespace Enki
 			this->shift = shift;
 		}
 
-		virtual double operator()(double dist, const An::Color &color)
+		virtual double operator()(double dist, const Color &color)
 		{
 			// last term adjusts for half of overall offset so noise is +/-
 			// FIXME: shifted dist by a factor -.14 to get interlaced values right (around 50 for large object)
@@ -170,7 +171,7 @@ namespace Enki
 			this->shift = shift;
 		}
 
-		virtual double operator()(double dist, const An::Color &color)
+		virtual double operator()(double dist, const Color &color)
 		{
 			// last term adjusts for half of overall offset so noise is +/-
 			// FIXME: shifted dist by a factor -.14 to get interlaced values right (around 50 for large object)
@@ -196,12 +197,12 @@ namespace Enki
 			this->shift = shift;
 		}
 
-		virtual double operator()(double dist, const An::Color &color)
+		virtual double operator()(double dist, const Color &color)
 		{
 			// high sensor reflection is a function of the object color (independent of the textures seen by the camera!)
 			// if the other object is black and does not reflect well (e.g. Alices) we use the first function ...
 			// FIXME: added .90 to have overall lower sensor values in simulation than reality for more reactivity in reality
-			if (color==An::Color::black)
+			if (color==Color::black)
 				return shift + mult * .90 * (119.695 * exp (-0.248*dist) - 86.276 * exp (-3.5*dist) + 0 - 3.5);
 			// ... else we assume its color is white and use the second function (e.g. Walls)
 			// we also add a linear (shift) and multiplicative (mult) offset calculated at initialisation of sensormodel	
@@ -217,12 +218,12 @@ namespace Enki
 	struct ZeroSensorModel : public SensorResponseFunctor
 	{
 		//! Return zero
-		virtual double operator()(double dist, const An::Color &color) { return 0; }
+		virtual double operator()(double dist, const Color &color) { return 0; }
 	};
 
 	Alice::SensorModels::SensorModels()
 	{
-// FIXME
+		// Each sensor has some specific noise in response
 		frontleft[0] = new AliceIRLeftSensorModel(0.305098, random.getRange(3.0));
 		frontleft[1] = new AliceIRLeftSensorModel(0.309804, random.getRange(3.0));
 		frontleft[2] = new AliceIRLeftSensorModel(0.340098, random.getRange(3.0));
@@ -235,18 +236,22 @@ namespace Enki
 		high[0] = new AliceIRHighSensorModel(0.3451, random.getRange(4.0));
 		high[1] = new AliceIRHighSensorModel(0.309804, random.getRange(4.0));
 		high[2] = new AliceIRHighSensorModel(0.3451, random.getRange(4.0));
-// 		frontleft[0] = new AliceIRLeftSensorModel(0.305098, 0);
-// 		frontleft[1] = new AliceIRLeftSensorModel(0.309804, 0);
-// 		frontleft[2] = new AliceIRLeftSensorModel(0.340098, 0);
-// 		frontright[0] = new AliceIRRightSensorModel(0.340098, 0);
-// 		frontright[1] = new AliceIRRightSensorModel(0.309804, 0);
-// 		frontright[2] = new AliceIRRightSensorModel(0.305098, 0);
-// 		normal[0] = new AliceIRNormalSensorModel(0.345098, 0);
-// 		normal[1] = new AliceIRNormalSensorModel(0.309804, 0);
-// 		normal[2] = new AliceIRNormalSensorModel(0.345098, 0);
-// 		high[0] = new AliceIRHighSensorModel(0.3451, 0);
-// 		high[1] = new AliceIRHighSensorModel(0.309804, 0);
-// 		high[2] = new AliceIRHighSensorModel(0.3451, 0);
+		
+		// If you want all sensor with the same model, use this version
+		/*
+		frontleft[0] = new AliceIRLeftSensorModel(0.305098, 0);
+		frontleft[1] = new AliceIRLeftSensorModel(0.309804, 0);
+		frontleft[2] = new AliceIRLeftSensorModel(0.340098, 0);
+		frontright[0] = new AliceIRRightSensorModel(0.340098, 0);
+		frontright[1] = new AliceIRRightSensorModel(0.309804, 0);
+		frontright[2] = new AliceIRRightSensorModel(0.305098, 0);
+		normal[0] = new AliceIRNormalSensorModel(0.345098, 0);
+		normal[1] = new AliceIRNormalSensorModel(0.309804, 0);
+		normal[2] = new AliceIRNormalSensorModel(0.345098, 0);
+		high[0] = new AliceIRHighSensorModel(0.3451, 0);
+		high[1] = new AliceIRHighSensorModel(0.309804, 0);
+		high[2] = new AliceIRHighSensorModel(0.3451, 0);
+		*/
 	}
 
 	Alice::SensorModels::~SensorModels()
@@ -262,7 +267,7 @@ namespace Enki
 
 	Alice::Alice(unsigned capabilities) :
 		sensorModels(),
-	// IRSensor(Robot *owner, An::Vector pos, double height, double orientation, double range, double aperture, unsigned rayCount, double *rayCombinationKernel, SensorResponseFunction sensorModel);
+	// IRSensor(Robot *owner, Vector pos, double height, double orientation, double range, double aperture, unsigned rayCount, double *rayCombinationKernel, SensorResponseFunction sensorModel);
 	// the radius is the max range of the IR Sensor.
 		// old values: orientation: 0.73030; aperture: 0.77883
 		left(this, Vector (0.788235 + (-0.15 + random.getRange(0.3)), 0.944118 + (-0.05 + random.getRange(0.1))),     1.2, 0.77030 + (-0.1745 + random.getRange(0.3490)),   2.5,  0.73883,  3, sensorModels.frontleft), 
@@ -274,29 +279,34 @@ namespace Enki
 		// back left sensor of the new ext module; global angle of 160 deg.
 		backleft(this, Vector (-0.95 + (-0.15 + random.getRange(0.3)), 1.05 + (-0.05 + random.getRange(0.1))), 1.2, 8*M_PI/9 + (-0.1745 + random.getRange(0.3490)), 2.5,  M_PI/6,  3, sensorModels.frontleft),
 		backright(this, Vector(-0.95 + (-0.15 + random.getRange(0.3)), -1.05 + (-0.05 + random.getRange(0.1))),1.2, -8*M_PI/9 + (-0.1745 + random.getRange(0.3490)),  2.5,  M_PI/6,  3, sensorModels.frontright),
-		// CircularCam(Robot *owner, An::Vector pos, double height = 0, double orientation, double fieldOfView, unsigned pixelCount);
+		// CircularCam(Robot *owner, Vector pos, double height = 0, double orientation, double fieldOfView, unsigned pixelCount);
 		circcam(this, Vector (0, 0), 3, 0, M_PI/10, 6),
 		comm(4.6, this)
 	{
 		mass = 10;
 		height = 4;
 
+		/*
+		// Create a slightly different bounding surface for each alice
 		AP.push_back(Point(-1.0,-1));
 		AP.push_back(Point(1.0,-1));
-			
+		
 		AP.push_back(Point(1.30 + (-0.1 + random.getRange(0.2)),-.2 - (random.getRange(0.5))));
 		AP.push_back(Point(1.30 + (-0.1 + random.getRange(0.2)),.2 + (random.getRange(0.5))));
 
-		
 		AP.push_back(Point(1.0,1));
 		AP.push_back(Point(-1.0,1));
 		AP.push_back(Point(-1.35 + (-0.15 + random.getRange(0.3)),(-0.4 + random.getRange(0.8))));
 		setBoundingSurface(&AP);
+		*/
+		// Use a predefined bounding surface
+		setBoundingSurface(&aliceBoundingSurface.p);
+		
 		for (unsigned i=0; i<boundingSurface->size(); i++)
-			textures[i].resize(1, An::Color::blue);
+			textures[i].resize(1, Color::blue);
 
 		// set high static friction threshold to exclude Alices pushed by disks and 
-		// delay Alice-Alice pushing (factor 2 slowdown; since collisions are symmetric, 
+		// delay Alice-Alice pushing (factor 2 slowdown; since collisions are symmetric,
 		// we don't know which Alice is pushing which one)
 		staticFrictionThreshold = 1.0;
 		collisionAngularFrictionFactor = 1.7;
@@ -350,18 +360,13 @@ namespace Enki
 			// we apply an inversely proportional motor noise to the speeds between 
 			// -4 and +4; the noise is of the order of +/- 5% for the maximum speed, 
 			// for +/- 3cm/s it is +/- 10%
-// FIXME: noise!
 			realLeftSpeed = 4 * leftSpeed * (0.95 + random.getRange(0.05));
-// 			realLeftSpeed = 4 * leftSpeed ;
 
 		if (fabs(rightSpeed) < 0.625)
 			realRightSpeed = 0;
 		else
 			// same as above
-// FIXME: noise!
 			realRightSpeed = 4 * rightSpeed * (0.95 + random.getRange(0.05));
-// 			realRightSpeed = 4 * rightSpeed;
-
 
 		// forward component
 		double forwardSpeed = (realLeftSpeed+realRightSpeed) / 2;

@@ -1,9 +1,17 @@
+Enki - a fast 2D robot simulator
+http://lis.epfl.ch/enki
+
 Lead programmer and software architect:
-Stephane Magnenat <stephane.magnenat@epfl.ch>
+Stephane Magnenat <stephane at magnenat dot net>
 
 Other main programmer:
-Markus Waibel <markus.waibel@epfl.ch>
+Markus Waibel <markus dot waibel at epfl dot ch>
+
+While working at
+Laboratory of Intelligent Systems, EPFL, Lausanne (http://lis.epfl.ch)
+Laboratory of Robotics Systems, EPFL, Lausannse (http://lsro.epfl.ch)
 
 Contributors:
+Antoine Beyeler <antoine dot beyeler at epfl dot ch>
 Vincent Porchet
 Michele Bongiovanni

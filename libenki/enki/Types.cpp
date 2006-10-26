@@ -31,67 +31,17 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#include "AliceCam.h"
-#include <iostream>
+#include <Types.h>
 
-/*! \file AliceCam.cpp
-	\brief Implementation of the Alice 2 pixels camera interaction
+/*!	\file Types.cpp
+	\brief Constants for basic usefull types
 */
 
 namespace Enki
 {
-	AliceCam::AliceCam (Robot *me)
-	{
-		this->owner = me;
-		this->cvaluestarboard = -1;
-		this->cvalueport = -1;
-	}
-
-	void AliceCam::step(double dt, World *w)
-	{
-		Vector v1 = Vector(w->w,w->h)-this->owner->pos;
-		Vector v2 = Vector(0,w->h)-this->owner->pos;
-
-		// camera port
-		Vector dir(cos(this->owner->angle - M_PI/10), sin(this->owner->angle - M_PI/10));
-
-		if ( (dir.cross(v1) < 0) && (dir.cross(v2) > 0))
-		{
-			// nest
-			cvalueport = 1;
-		}
-		else
-		{
-			// not nest
-			cvalueport = 0;
-		}
-
-		// camera starboard
-		dir=Vector(cos(this->owner->angle + M_PI/10), sin(this->owner->angle + M_PI/10));
-
-		if ( (dir.cross(v1) < 0) && (dir.cross(v2) > 0))
-		{
-			// nest
-			cvaluestarboard = 1;
-		}
-		else
-		{
-			// not nest
-			cvaluestarboard = 0;
-		}
-
-	}
-
-	double AliceCam::getCValueStarboard()
-	{
-		return cvaluestarboard;
-	}
-	
-	double AliceCam::getCValuePort()
-	{
-		return cvalueport;
-	}
-
+	const Color Color::black(0, 0, 0);
+	const Color Color::white(1, 1, 1);
+	const Color Color::red(1, 0, 0);
+	const Color Color::green(0, 1, 0);
+	const Color Color::blue(0, 0, 1);
 }
-
-

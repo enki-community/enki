@@ -1,0 +1,74 @@
+/*! \page CodingConventions Coding Convetions
+
+The purprose of this page is to describe the Enki coding conventions. They exist to ensure readable and high-quality code, so please follow them. If you read Enki's code, you'll perhaps notice some parts that do not follow those conventions. Should this happen, feel free to clean the code and submit patch with a compliant version.
+
+\section Indentation
+
+Code should be indented by tabs. A tab should be equivalent to 4 spaces. Please note that in the code below, non-breaking spaces are used because tabs don't display correctly in web pages.
+
+\section ClassAndStructNaming Class and struct naming
+
+Classes should begin with capitals, new words should be denoted by a capital, and words should not be separated by underscores or dashes. In other words,
+\code
+class TotoIsMyFriend { }; // correct
+\endcode
+instead of:
+\code 
+class toto_is_my_friend { }; // wrong
+\endcode
+
+Class members, variables, and C function follow the same convention but without the initial capital:
+\code 
+void totoIsMyFriend(void); // correct
+\endcode
+instead of:
+\code 
+void Toto-is-my-friend(void); // wrong
+\endcode
+
+\section BracketPlacement Bracket placement
+
+Brackets {} should be placed alone on a line, except if there is no or only one function call within them.
+\code
+class Toto
+{
+    int i;
+    void totoIsMyFriend(void) { return i; };
+}; // correct
+\endcode
+instead of:
+\code
+class Toto {
+    int i;
+    void Toto-is-my-friend(void) {
+        return i;
+    };
+}; // wrong
+\endcode
+
+\section Emacs
+
+If you use Emacs as your editor, you can make it apply these rules to Enki files by putting the following in the .emacs file in your home directory:
+\code
+(defconst enki-c-style
+ '((c-basic-offset      . 4)
+   (c-offsets-alist            . ((substatement-open . 0)
+                                   (inline-open . 0)
+                                   ))
+   )
+ "Enki programming style")
+
+;; Customizations for all modes in CC Mode.
+(defun enki-c-mode-common-hook ()
+ (c-add-style "enki" enki-c-style)
+ )
+
+(add-hook 'c-mode-common-hook 'enki-c-mode-common-hook)
+\endcode
+
+And adding the following to the top line of each of your source files:
+\code 
+// emacs settings information: -*- mode: c++; tab-width: 4; c-file-style: "enki"; -*-
+\endcode
+
+*/

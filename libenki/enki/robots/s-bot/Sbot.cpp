@@ -1,16 +1,19 @@
 /*
     Enki - a fast 2D robot simulator
-    Copyright (C) 1999-2005 Stephane Magnenat <nct@ysagoon.com>
-    Copyright (C) 2005 Laboratory of Intelligent Systems, EPFL, Lausanne
+    Copyright (C) 1999-2006 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
+    Copyright (c) 2004-2005 Antoine Beyeler <antoine dot beyeler at epfl dot ch>
+    Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
+    Copyright (C) 2006 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
     This program is free software; the authors of any publication 
     arising from research using this software are asked to add the 
     following reference:
-    Enki - a fast 2D robot simulator part of the Teem framework
-    http://teem.epfl.ch
-    Stephane Magnenat <stephane.magnenat@a3.epfl.ch>,
-    Markus Waibel <markus.waibel@epfl.ch>
+    Enki - a fast 2D robot simulator
+    http://lis.epfl.ch/enki
+    Stephane Magnenat <stephane at magnenat dot net>,
+    Markus Waibel <markus dot waibel at epfl dot ch>
     Laboratory of Intelligent Systems, EPFL, Lausanne.
 
     You can redistribute this program and/or modify
@@ -36,8 +39,6 @@
 
 namespace Enki
 {
-	using namespace An;
-
 	double MicrophonePseudoRealResponseModel(double signal, double distance)
 	{
 		//apply filter to signal
@@ -53,38 +54,45 @@ namespace Enki
 		return Lp;
 	}
 	
-	void SbotMicrophone::objectStep(double dt, PhysicalObject *po, World *w) {
-
+	void SbotMicrophone::objectStep(double dt, PhysicalObject *po, World *w)
+	{
 		// Get current object sound
 		double *currentSound = new double[noOfChannels];
-		if (currentSound == NULL) exit(1);
-		else {
-			SbotActiveSoundObject *so = dynamic_cast<SbotActiveSoundObject *>(po);
-			if (so) {
-				assert(noOfChannels==so->speaker.noOfChannels);
-				for (size_t i=0; i<noOfChannels; i++) {
-					currentSound[i] = so->speaker.pitch[i];
-				}
+		assert(currentSound);
+		
+		SbotActiveSoundObject *so = dynamic_cast<SbotActiveSoundObject *>(po);
+		if (so)
+		{
+			assert(noOfChannels==so->speaker.noOfChannels);
+			for (size_t i=0; i<noOfChannels; i++)
+			{
+				currentSound[i] = so->speaker.pitch[i];
 			}
-			else { 
-				SoundSbot *ss = dynamic_cast<SoundSbot *>(po);
-				if (ss) {
-					assert(noOfChannels==ss->speaker.noOfChannels);
-					for (size_t i=0; i<noOfChannels; i++) {
-						currentSound[i] = ss->speaker.pitch[i];
-					}
+		}
+		else
+		{
+			SoundSbot *ss = dynamic_cast<SoundSbot *>(po);
+			if (ss)
+			{
+				assert(noOfChannels==ss->speaker.noOfChannels);
+				for (size_t i=0; i<noOfChannels; i++)
+				{
+					currentSound[i] = ss->speaker.pitch[i];
 				}
 			}
 		}
+		
 		// Current distance between the interacting physical object and 
 		// the sensor (used later in sound filtering)
 		double current_dist;
 		double min_dist = 0xFFFFFFFF;
 		unsigned min_dist_micNo = 0;
-		for (size_t i=0; i<4; i++) {
+		for (size_t i=0; i<4; i++)
+		{
 			current_dist = (po->pos - allMicAbsPos[i]).norm();
 			// find mic closest to interacting physical object
-			if ( current_dist < min_dist ) {
+			if ( current_dist < min_dist )
+			{
 				min_dist = current_dist;
 				min_dist_micNo = i;
 			}
@@ -92,10 +100,11 @@ namespace Enki
 		
 		// Apply sensor model to acquisition
 		// Acquired sound is always the sum of all contributes after model filtering
-		for (size_t j=0; j<noOfChannels; j++) {
+		for (size_t j=0; j<noOfChannels; j++)
+		{
 			acquiredSound[min_dist_micNo][j] += micModel(currentSound[j], min_dist);
 		}
-			
+		
 		delete[] currentSound;
 	}
 	
@@ -149,22 +158,10 @@ namespace Enki
 
 	SoundSbot::SoundSbot() :
 		//microphones can pick up sound reaching up to 1m away
-		/*
-		mic0(this, An::Vector( 6,  6), 150, MicrophonePseudoRealResponseModel, 25),
-		mic1(this, An::Vector(-6,  6), 150, MicrophonePseudoRealResponseModel, 25),
-		mic2(this, An::Vector(-6, -6), 150, MicrophonePseudoRealResponseModel, 25),
-		mic3(this, An::Vector( 6, -6), 150, MicrophonePseudoRealResponseModel, 25),
-		*/
 		mic(this, 6.0, 150, MicrophonePseudoRealResponseModel, 25),
 		//speaker can produce sounds heard by a microphone 1m + micrange away
 		speaker(this, 0, 25)
 	{
-		/*
-		addLocalInteraction(&mic0);
-		addLocalInteraction(&mic1);
-		addLocalInteraction(&mic2);
-		addLocalInteraction(&mic3);
-		*/
 		addLocalInteraction(&mic);
 		addLocalInteraction(&speaker);
 	}

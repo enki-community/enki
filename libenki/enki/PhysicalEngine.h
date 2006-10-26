@@ -1,17 +1,19 @@
 /*
     Enki - a fast 2D robot simulator
-    Copyright (C) 1999-2005 Stephane Magnenat <nct@ysagoon.com>
-    Copyright (C) 2004-2005 Markus Waibel <markus.waibel@epfl.ch>
-    Copyright (C) 2005 Laboratory of Intelligent Systems, EPFL, Lausanne
+    Copyright (C) 1999-2006 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
+    Copyright (c) 2004-2005 Antoine Beyeler <antoine dot beyeler at epfl dot ch>
+    Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
+    Copyright (C) 2006 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
     This program is free software; the authors of any publication 
     arising from research using this software are asked to add the 
     following reference:
-    Enki - a fast 2D robot simulator part of the Teem framework
-    http://teem.epfl.ch
-    Stephane Magnenat <stephane.magnenat@a3.epfl.ch>,
-    Markus Waibel <markus.waibel@epfl.ch>
+    Enki - a fast 2D robot simulator
+    http://lis.epfl.ch/enki
+    Stephane Magnenat <stephane at magnenat dot net>,
+    Markus Waibel <markus dot waibel at epfl dot ch>
     Laboratory of Intelligent Systems, EPFL, Lausanne.
 
     You can redistribute this program and/or modify
@@ -35,9 +37,9 @@
 #include <iostream>
 #include <vector>
 #include <valarray>
-#include <an/Types.h>
-#include <an/Geometry.h>
-#include <an/Random.h>
+#include "Types.h"
+#include "Geometry.h"
+#include "Random.h"
 #include "Interaction.h"
 #include "BluetoothBase.h"
 
@@ -69,6 +71,8 @@
 	\section usage Usage
 	A quick start to most important classes is given in the \ref Cookbook.
 	
+	If you want to extend Enki, do not forget to read and follow the \ref CodingConventions.
+	
 	\section designChoices Design choices
 	The basic datatype is double. It is used everywhere excepted if another datatype
 	specifically makes sense.
@@ -90,24 +94,23 @@
 	
 	\section state Development state
 	
-	The core, the IRSensor, and the basic Alice and Sbot features reflect real hardware and thus
-	won't change much.
+	The core, the IRSensor, and the basic Khepera, EPuck, Alice and Sbot features reflect real hardware and thus won't change much.
 	
-	The Alice sound source and sensor and the Sbot camera don't reflect real hardware and thus are subject to change.
+	The sound sources and Sbot camera don't reflect directly real hardware and thus are subject to change.
 	
 	\section feedback Feedback
 	If you have any comments or suggestions, do not hesitate to send them to
-	Stephane Magnenat <stephane.magnenat@a3.epfl.ch>
+	Stephane Magnenat (stephane at magnenat dot net).
 	
 	\section license License
 	This program is free software released under the GNU General Public License version 2.
 	The authors of any publication arising from research using this software are asked to add the following reference:
 \verbatim
 Enki - an open source fast 2D robot simulator
-http://teem.epfl.ch
-Stephane Magnenat <stephane.magnenat@a3.epfl.ch>,
-Markus Waibel <markus.waibel@epfl.ch>
-Antoine Beyeler <antoine.beyeler@epfl.ch>
+http://lis.epfl.ch/enki
+Stephane Magnenat <stephane at magnenat dot net>,
+Markus Waibel <markus dot waibel at epfl dot ch>,
+Antoine Beyeler <antoine dot beyeler at epfl dot ch>
 Laboratory of Intelligent Systems, EPFL, Lausanne
 \endverbatim
 */
@@ -123,13 +126,13 @@ namespace Enki
 	{
 	public:
 		//! The position of the object.
-		An::Point pos;
+		Point pos;
 		//! The height of the object, used for interaction with robot's sensors.
 		double height;
 		//! The orientation of the object in the world, standard trigonometric orientation.
 		double angle;
 		//! The speed of the object.
-		An::Vector speed;
+		Vector speed;
 		//! The rotation speed of the object, standard trigonometric orientation.
 		double angSpeed;
 		//! The mass of the object. If below zero, the object can't move (infinite mass).
@@ -146,24 +149,24 @@ namespace Enki
 		//! Upon collision with static objects. The amount of rotation transmitted to the moving object. If zero, moving object slides over static one. If one, moving object is fully rotated.
 		double collisionAngularFrictionFactor;
 		//! The shape of the object in object coordinates. If NULL, the object is circular and its radius is given by r .
-		const An::Polygone *boundingSurface;
+		const Polygone *boundingSurface;
 		//! The shape of the object in world coordinates, updated on initLocalInteractions(). Invalid if boundingSurface is NULL.
-		An::Polygone absBoundingSurface;
+		Polygone absBoundingSurface;
 		//! The radius of circular objects. If boundingSurface is not NULL, it is automatically computed.
 		double r;
 		//! The reflection factor of the object. It acts only on proximity sensors. If one, the object is seen normally. If less than one, the range of vision of the object dimishes. If zero, the object is invisible to proximity sensors
 		double reflection;
 		//! The color of the object.
-		An::Color color;
+		Color color;
 		//! Texture for several faces of this object.
-		std::valarray<An::Texture> textures;
+		std::valarray<Texture> textures;
 		
 	protected:
 		//! Vector used for object collisions. If its norm is greater than staticFrictionThreshold, the object is moved.
-		An::Vector deinterlaceVector;
+		Vector deinterlaceVector;
 
 		//! Do the real rotation due to collision.
-		void collideWithStaticObject(const An::Vector &n);
+		void collideWithStaticObject(const Vector &n);
 		//! Compute the shape of its object in world coordinates.
 		void computeAbsBoundingSurface(void);
 
@@ -174,9 +177,9 @@ namespace Enki
 		virtual ~PhysicalObject();
 		
 		//! Set the shape of the object to bs, recompute r, assign color to faces. bs must exists during all object's life.
-		void setBoundingSurface(const An::Polygone *bs);
+		void setBoundingSurface(const Polygone *bs);
 		//! Return the shape of the object in object coordinates.
-		const An::Polygone &getTrueBoundingSurface(void) const { return absBoundingSurface; }
+		const Polygone &getTrueBoundingSurface(void) const { return absBoundingSurface; }
 
 		// Physical Actions
 		//! A simulation step for this object. It is considered as deinterlaced. The position and orientation are updated, and speed is reduced according to global dynamic friction coefficient.
@@ -199,9 +202,9 @@ namespace Enki
 		virtual void finalizeGlobalInteractions() { }
 
 		//! Dynamics for collision with a static object at points cp1 and cp2 with normals vectors n1 and n2 and a penetrated distance of dist.
-		void collideWithStaticObject(const An::Point &cp1, const An::Point &cp2, const An::Vector &n1, const An::Vector &n2, const An::Vector &dist);
+		void collideWithStaticObject(const Point &cp1, const Point &cp2, const Vector &n1, const Vector &n2, const Vector &dist);
 		//! Dynamics for collision with object at point cp with a penetrated distance of dist.
-		void collideWithObject(PhysicalObject &object, const An::Point &cp, const An::Vector &dist);
+		void collideWithObject(PhysicalObject &object, const Point &cp, const Vector &dist);
 		//! Returns if the object collided with a wall during the last time step.
 		bool getCollideWithWalls() { return collisionWithWalls; }
 	};
@@ -259,20 +262,20 @@ namespace Enki
 		//! The height of the world
 		const double h;
 		//! Texture of walls
-		An::Texture wallTextures[4];
+		Texture wallTextures[4];
 		//! Base for the Bluetooth connections between robots
 		class BluetoothBase* bluetoothBase;
 
 		//! Return collideEven
 		bool getCollideEven() {return collideEven;}
 		//! Do the collision of a circular object with one with a different shape (convex boundingsurface)
-		void collideCircleWithBS(PhysicalObject *circle, PhysicalObject *objectBS, const An::Polygone &bs);
+		void collideCircleWithBS(PhysicalObject *circle, PhysicalObject *objectBS, const Polygone &bs);
 		//! Collide two objects. Correct functions will be called depending on type of object (circular or other shape).
 		void collideObjects(PhysicalObject *object1, PhysicalObject *object2);
 		//! Collide the object with walls.
 		void collideWithWalls(PhysicalObject *object);
 		//! Return true if point p of object of center c is inside polygone bs and return deinterlacement distVector.
-		bool isPointInside(const An::Point &p, const An::Point &c, const An::Polygone &bs, An::Vector *distVector);
+		bool isPointInside(const Point &p, const Point &c, const Polygone &bs, Vector *distVector);
 
 	public:
 		//! Constructor, takes width and height of the world arena in cm.
@@ -297,7 +300,7 @@ namespace Enki
 	};
 	
 	//! Fast random for use by Enki
-	extern An::FastRandom random;
+	extern FastRandom random;
 }
 
 #endif

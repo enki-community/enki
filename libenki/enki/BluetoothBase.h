@@ -1,55 +1,62 @@
 /*
- Enki - a fast 2D robot simulator
- Copyright (C) 1999-2005 Stephane Magnenat <nct@ysagoon.com>
- Copyright (C) 2004-2005 Markus Waibel <markus.waibel@epfl.ch>
- Copyright (C) 2005 Laboratory of Intelligent Systems, EPFL, Lausanne
- See AUTHORS for details
- 
- This program is free software; the authors of any publication 
- arising from research using this software are asked to add the 
- following reference:
- Enki - a fast 2D robot simulator part of the Teem framework
- http://teem.epfl.ch
- Stephane Magnenat <stephane.magnenat@a3.epfl.ch>,
- Markus Waibel <markus.waibel@epfl.ch>
- Laboratory of Intelligent Systems, EPFL, Lausanne.
- 
- You can redistribute this program and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
- 
- You should have received a copy of the GNU General Public License
- along with this program; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
+    Enki - a fast 2D robot simulator
+    Copyright (C) 1999-2006 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
+    Copyright (c) 2004-2005 Antoine Beyeler <antoine dot beyeler at epfl dot ch>
+    Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
+    Copyright (C) 2006 Laboratory of Robotics Systems, EPFL, Lausanne
+    See AUTHORS for details
+
+    This program is free software; the authors of any publication 
+    arising from research using this software are asked to add the 
+    following reference:
+    Enki - a fast 2D robot simulator
+    http://lis.epfl.ch/enki
+    Stephane Magnenat <stephane at magnenat dot net>,
+    Markus Waibel <markus dot waibel at epfl dot ch>
+    Laboratory of Intelligent Systems, EPFL, Lausanne.
+
+    You can redistribute this program and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
 #ifndef __BLUETOOTH_BASE_H
 #define __BLUETOOTH_BASE_H
 
 #include "PhysicalEngine.h"
 
-
 #include <valarray>
 #include <list>
 #include <queue>
 
 
+/*!	\file BluetoothBase.h
+	\brief Header of the bluetooth base
+*/
+
 namespace Enki
-{	
+{
 	class Bluetooth;
 
 	//! Implementation of a Bluetooth base coordinating the Bluetooth modules
 	/*! \ingroup interaction */
-	class BluetoothBase {
-protected:
+	class BluetoothBase
+	{
+	protected:
 		//! Structure associating a pointer to a bluetooth module to its address
-		struct btClients{
+		struct BtClients
+		{
 			//! Pointer to a bluetooth module
 			Bluetooth* owner;
 			//! Address of the associated bluetooth module
@@ -57,7 +64,8 @@ protected:
 		};
 		
 		//! Information needed to establish a connection or a disconnection
-		struct connections {
+		struct Connections
+		{
 			//! Pointer to the Bluetooth module acting as the source
 			Bluetooth* source;
 			//! Destination address of the connection
@@ -65,7 +73,8 @@ protected:
 		};
 		
 		//! Information needed to send data along an established connection
-		struct transmissions {
+		struct Transmissions
+		{
 			//! Pointer to the module sending the data
 			Bluetooth* source;
 			//! Address of the module receiving the data
@@ -77,13 +86,13 @@ protected:
 		};
 		
 		//! List of registered Bluetooth module
-		std::list<struct btClients> clients;
+		std::list<BtClients> clients;
 		//! Queue of the connection to be established
-		std::queue<struct connections> connectbuffer;
+		std::queue<Connections> connectbuffer;
 		//! Queue of the connection to be closed
-		std::queue<struct connections> disconnectbuffer;
+		std::queue<Connections> disconnectbuffer;
 		//! Queue of the data to be transmitted
-		std::queue<struct transmissions> transmissions;
+		std::queue<Transmissions> transmissions;
 		
 		//! Execute the previously scheduled transfer of data
 		bool bbSendDataTo(Bluetooth* source, unsigned address, char* data, unsigned size);
@@ -97,8 +106,7 @@ protected:
 		//! Check if the distance between the two modules is small enough for communication
 		bool checkDistance(Bluetooth* source, Bluetooth* destination);
 		
-		
-public:
+	public:
 		enum Errors
 		{
 			//! No error occured during the last step
@@ -133,10 +141,8 @@ public:
 		
 		//! Execute the previously scheduled operations.
 		virtual void step(double dt, World *w);
-		
 	};
 
 }
-
 
 #endif

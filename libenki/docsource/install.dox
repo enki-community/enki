@@ -6,8 +6,7 @@ This section explains how to install libenki from the source distribution.
 
 \subsection Prerequisites
 
-To compile libenki and programs who depend on it, you need a working and fairly recent c++ compiler (at least 3.4 when using g++ because gcc 3.3 or lower does not yet understand some of the templates used), a working sh compatible shell and the following libraries:
-\li liban (http://lis.epfl.ch/resources/download/)
+To compile libenki and programs who depend on it, you need a working and fairly recent c++ compiler (at least 3.4 when using g++ because gcc 3.3 or lower does not yet understand some of the templates used). If you want to use the configure-based compilation method described below, you also need a working sh compatible shell
 
 \subsection Compilation
 
