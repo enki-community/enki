@@ -1,0 +1,34 @@
+Source distribution
+
+This section explains how to install libenki from the source distribution.
+
+Prerequisites
+
+To compile libenki and programs who depend on it, you need a working and fairly recent c++ compiler (at least 3.4 when using g++ because gcc 3.3 or lower does not yet understand some of the templates used), a working sh compatible shell and the following libraries:
+* liban (http://lis.epfl.ch/resources/download/)
+* libboost (http://www.boost.org/)
+
+Compilation
+
+Once you have downloaded and extracted the libenki source distribution, you have to configure it by typing:
+./configure
+in libenki's directory. Then you can make it by typing:
+make
+and install it system wide by typing (you need to be root for this step if your install destination folder (default /usr/local) is not writable from your normal user):
+make install
+
+SVN
+
+This section explains how to compile libenki from an SVN snapshot. It assumes that libenki is already extracted from SVN and does not explain how to use SVN. For an introduction to SVN, visit: http://subversion.tigris.org
+
+Prerequisites
+
+To bootstrap libenki from SVN, you need the following additional tools:
+* automake
+* autoconf
+
+Generating configure
+
+You first need to create the configure-file by doing:
+./bootstrap
+You can then follow the instructions found in the Compilation section above.

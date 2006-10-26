@@ -1,0 +1,2 @@
+SUBDIRS = enki docsource examples
+EXTRA_DIST = LICENSE AUTHORS README INSTALL Doxyfile

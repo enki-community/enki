@@ -1,0 +1,125 @@
+/*
+    Enki - a fast 2D robot simulator
+    Copyright (C) 1999-2005 Stephane Magnenat <nct@ysagoon.com>
+    Copyright (C) 2004-2005 Antoine Beyeler <antoine.beyeler@epfl.ch>
+    Copyright (C) 2005 Laboratory of Intelligent Systems, EPFL, Lausanne
+    See AUTHORS for details
+
+    This program is free software; the authors of any publication 
+    arising from research using this software are asked to add the 
+    following reference:
+    Enki - a fast 2D robot simulator part of the Teem framework
+    http://teem.epfl.ch
+    Stephane Magnenat <stephane.magnenat@epfl.ch>,
+    Markus Waibel <markus.waibel@epfl.ch>
+    Laboratory of Intelligent Systems, EPFL, Lausanne.
+
+    You can redistribute this program and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
+#ifndef __EPUCK_H
+#define __EPUCK_H
+
+#include <enki/PhysicalEngine.h>
+#include <enki/interactions/IRSensor.h>
+#include <enki/interactions/CircularCam.h>
+#include <enki/interactions/Bluetooth.h>
+#include <enki/interactions/FullCircleCamera.h>
+
+/*!	\file Khepera.h
+	\brief Header of the Khepera robot
+*/
+	
+namespace Enki
+{
+	//! A simple model of the Khepera robot. 
+	/*! \ingroup robot */
+	class EPuck : public Robot
+	{
+	public:
+		//! The infrared sensor 0 (left)
+		IRSensor infraredSensor0;
+		//! The infrared sensor 1 (front-left)
+		IRSensor infraredSensor1;
+		//! The infrared sensor 2 (front)
+		IRSensor infraredSensor2;
+		//! The infrared sensor 3 (front)
+		IRSensor infraredSensor3;
+		//! The infrared sensor 4 (front-right)
+		IRSensor infraredSensor4;
+		//! The infrared sensor 5 (right)
+		IRSensor infraredSensor5;
+		//! The infrared sensor 6 (back)
+		IRSensor infraredSensor6;
+		//! The infrared sensor 7 (back)
+		IRSensor infraredSensor7;
+		//! Linear camera
+		CircularCam camera;
+		//! Bluetooth module
+		Bluetooth* bluetooth;
+		FullCircleCamera omniCam;
+		FullCircleCamera upperOmniCam;
+
+		
+	public:
+		//! The bot's left and right wheel speed [1:100] cm/sec
+		double leftSpeed, rightSpeed;
+		//! The encoder for left and right wheel speed
+		double leftEncoder, rightEncoder;
+		
+	
+	protected:
+		//! Save of last position to compute encoders.
+		An::Vector oldPos;
+		//! Save of last angle to compute encoders.
+		double oldAngle;
+		
+	public:
+		enum Capabilities
+		{
+			//! The bot's capabilities. You can simply select a predefined set of sensors. These correspond to the different extension modules that exist for the E-Puck.
+			CAPABILITY_NONE = 0,
+			//! Basic_Sensors: Just the 8 IRSensors of the base module
+			CAPABILITY_BASIC_SENSORS = 0x1,
+			//! Camera: add a linear camera
+			CAPABILITY_CAMERA = 0x2,
+			//! Bluetooth: activate the bluetooth module (Requires the use of Bluetooth master)
+			CAPABILITY_BLUETOOTH = 0x4,
+			//! Omnidirectional camera
+			CAPABILITY_OMNICAM = 0x8,
+			//! Omnidirectional camera placed above the e-puck to see only bigger object
+			CAPABILITY_UPPERVISION = 0x10
+		};
+		
+		unsigned supportedCapabilities;
+
+	public:
+		//! Create a E-Puck with certain modules aka capabilities (basic)
+		EPuck(unsigned capabilities = CAPABILITY_BASIC_SENSORS);
+		~EPuck();
+		//! Call EPuck::controlStep and do all the calculations
+		void step(double dt);
+		
+		//! Reset the encoder. Should be called when robot is moved manually.
+		void resetEncoders();
+	
+		void setLedRing(bool status);
+		
+		void addCapabilities(unsigned capabilities);
+	};
+}
+
+#endif
+

@@ -1,0 +1,37 @@
+/*! \page Cookbook Cookbook
+
+This page will teach you how to use Enki step by step.
+
+\section Overview
+
+Enki is a robot simulator. Several objects (Enki::PhysicalObject) are placed in a virtual world (Enki::World). Some are passively obeying physical laws, but others are able to move and and interact with other objects by sending or receiving signals, they are robots (Enki::Robot). In the bare Enki distribution, there are four subclasses of robots, three true robots and one beacon:
+\li Enki::Khepera (http://www.k-team.com/robots/khepera)
+\li Enki::Alice (http://asl.epfl.ch/research/systems/Alice/alice.php)
+\li Enki::Sbot (http://lis.epfl.ch/research/projects/SwarmBots)
+\li Enki::SbotActiveObject, beacon for S-bot experiments
+
+Robots have members that can be set, such as leftSpeed and rightSpeed for Enki::Khepera, that will be used to compute their movements. World is updated on Enki::World::step() which defines the duration of the timestep in seconds.
+
+\section FirstProgram First program using Enki
+
+The following program initializes a world, adds a Khepera to it and runs the world for a while:
+
+\b testenki.cpp:
+\include testenki.cpp
+
+You can then compile this program, assuming its name is testenki.cpp, with the following command:
+
+\code
+g++-3.4 testenki.cpp -o testenki -lenkikhepera -lenkiinteractions -lenkicore -lan
+\endcode
+
+\section AddNotes Additional notes
+
+Please note that, by convention, units are:
+\li [cm] for distance
+\li [g] for mass
+\li [s] for time
+
+Although Enki's core is unit-independent, the existing robots use those conventions.
+
+*/
