@@ -62,7 +62,7 @@ namespace Enki
 		
 	public:
 		//! Constructor
-		SbotGlobalSound::SbotGlobalSound (Robot *me) { this->owner = me; }
+		SbotGlobalSound (Robot *me) { this->owner = me; }
 		//! Initialisation, set world frequencies to zero. Called one time for each robot, which could be optimised.
 		virtual void init() { worldFrequenciesState = 0; }
 		//! Emit our frequencies to the world

@@ -34,7 +34,7 @@
 #ifndef __BLUETOOTH_BASE_H
 #define __BLUETOOTH_BASE_H
 
-#include "PhysicalEngine.h"
+#include <enki/PhysicalEngine.h>
 
 #include <valarray>
 #include <list>
