@@ -1,0 +1,12 @@
+From lis branch to 1.1
+* removed mav robot
+* imported liban into Enki
+* improved documentation, added coding conventions page
+* cleaning some code to better fit coding conventions
+* cleaned microphone interaction (may break experiments)
+* cleaned camera orientation (may break experiments)
+
+
+From 1.0 to lis branch
+* added e-puck robot
+* added microphone interaction
