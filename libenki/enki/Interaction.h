@@ -2,7 +2,7 @@
     Enki - a fast 2D robot simulator
     Copyright (C) 1999-2006 Stephane Magnenat <stephane at magnenat dot net>
     Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
-    Copyright (c) 2004-2005 Antoine Beyeler <antoine dot beyeler at epfl dot ch>
+    Copyright (c) 2004-2005 Antoine Beyeler <abeyeler at ab-ware dot com>
     Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
     Copyright (C) 2006 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
@@ -31,8 +31,8 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef __INTERACTION_H
-#define __INTERACTION_H
+#ifndef __ENKI_INTERACTION_H
+#define __ENKI_INTERACTION_H
 
 /*!	\file Interaction.h
 	\brief The interfaces for the interactions
