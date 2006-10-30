@@ -5,6 +5,7 @@ AC_PREREQ(2.5)
 AC_INIT(libenki, 1.1)
 AC_CONFIG_SRCDIR([enki/PhysicalEngine.cpp])
 AM_INIT_AUTOMAKE(libenki, 1.1)
+AM_CONFIG_HEADER(config.h)
 
 # We do not use datarootdir, so we skip its check
 AC_DEFUN([AC_DATAROOTDIR_CHECKED])
