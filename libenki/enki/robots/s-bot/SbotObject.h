@@ -94,6 +94,7 @@ namespace Enki
 	public:
 		//! Constructor
 		SbotActiveSoundObject(double objectRadius, double actionRange);
+		//! Set the range of the sound interaction
 		void setSoundRange(double soundRange);
 	};
 }

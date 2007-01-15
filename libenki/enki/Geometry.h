@@ -44,7 +44,6 @@
 	\brief The mathematic classes for 2D geometry
 */
 
-//! An is the generic namespace for basic types and functions such as mathematical, random and geometrical one; as well as other usefull tools such as Formula, a formule parser
 namespace Enki
 {
 	//! A vector in a 2D space
@@ -57,8 +56,10 @@ namespace Enki
 	*/
 	struct Vector
 	{
-		//! components
-		double x, y; 
+		//! x component
+		double x;
+		//! y component
+		double y;
 	
 		//! Constructor, create vector with coordinates (0, 0)
 		Vector() { x = y = 0; }
@@ -114,8 +115,14 @@ namespace Enki
 	*/
 	struct Matrix22
 	{
-		//! components
-		double a, b, c, d;
+		//! 11 components
+		double a;
+		//! 21 components
+		double b;
+		//! 12 components
+		double c;
+		//! 22 components
+		double d;
 	
 		//! Constructor, create matrix with 0
 		Matrix22() { a = b = c = d = 0; }
@@ -158,8 +165,10 @@ namespace Enki
 		//! Constructor, create segment from point p1 to point p2
 		Segment(const Point &p1, const Point &p2) { a = p1; b = p2; }
 		
-		//! Start and stop of the segment
-		Point a, b;
+		//! Start point
+		Point a;
+		//! End point
+		Point b;
 	
 		//! Compute the distance of p to this segment
 		double dist(const Point &p) const

@@ -107,6 +107,7 @@ namespace Enki
 		bool checkDistance(Bluetooth* source, Bluetooth* destination);
 		
 	public:
+		//! Bluetooth transmission errors
 		enum Errors
 		{
 			//! No error occured during the last step

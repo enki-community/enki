@@ -53,12 +53,18 @@ namespace Enki
 		//! Container for sensor models for Alice
 		struct SensorModels
 		{
+			//! Response functions for the 3 rays of front left sensor
 			SensorResponseFunctor *frontleft[3];
+			//! Response functions for the 3 rays of front right sensor
 			SensorResponseFunctor *frontright[3];
+			//! Response functions for the 3 rays of front sensor
 			SensorResponseFunctor *normal[3];
+			//! Response functions for the 3 rays of front high sensors
 			SensorResponseFunctor *high[3];
 			
+			//! Create sensor models, use some noise to match diversity of real alices sensors
 			SensorModels();
+			//! Destroy sensor models
 			~SensorModels();
 		} sensorModels;
 	
@@ -86,13 +92,16 @@ namespace Enki
 
 
 	public:
-		//! The bot's left and right wheel speed
-		double leftSpeed, rightSpeed;
+		//! The bot's left wheel speed
+		double leftSpeed;
+		//! The bot's right wheel speed
+		double rightSpeed;
 		
 	public:
+		//! The bot's capabilities. You can simply select a predefined set of sensors. These correspond to the different extension modules that exist for the Alice.
 		enum Capabilities
 		{
-			//! The bot's capabilities. You can simply select a predefined set of sensors. These correspond to the different extension modules that exist for the Alice.
+			//! No sensor: not very useful
 			CAPABILITIY_NONE = 0,
 			//! Basic_Sensors: Just the 4 IRSensors of the base module
 			CAPABILITIY_BASIC_SENSORS = 0x1,

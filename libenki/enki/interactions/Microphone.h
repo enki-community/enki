@@ -49,19 +49,6 @@ namespace Enki
 	//! A function for manipulating acquired sound, normally to model saturation, distance decreasing or frequency response
 	typedef double (*MicrophoneResponseModel)(double, double);
 
-	/*!	\defgroup responsefunctor Response function classes
-	  Different response functions for different sensors
-	
-	//! Functor for the sensor response
-	! \ingroup responsefunctor 
-	struct SensorResponseFunctor
-	{
-		//! Virtual destructor, do nothing
-		virtual ~SensorResponseFunctor() {}
-		//! Return the response for a given distance and object color
-		virtual double operator()(double, const Color &) = 0;
-	};*/
-	
 	//! A generic sound sensor/microphone
 	/*! \ingroup interaction */
 	class Microphone : public LocalInteraction

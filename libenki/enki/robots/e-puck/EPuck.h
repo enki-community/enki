@@ -73,11 +73,14 @@ namespace Enki
 
 		
 	public:
-		//! The bot's left and right wheel speed [1:100] cm/sec
-		double leftSpeed, rightSpeed;
-		//! The encoder for left and right wheel speed
-		double leftEncoder, rightEncoder;
-		
+		//! The bot's left wheel speed [1:100] cm/sec
+		double leftSpeed;
+		//! The bot's right wheel speed [1:100] cm/sec
+		double rightSpeed;
+		//! The encoder for left wheel
+		double leftEncoder;
+		//! The encoder for right wheel
+		double rightEncoder;
 	
 	protected:
 		//! Save of last position to compute encoders.
@@ -86,9 +89,10 @@ namespace Enki
 		double oldAngle;
 		
 	public:
+		//! The bot's capabilities. You can simply select a predefined set of sensors. These correspond to the different extension modules that exist for the E-Puck.
 		enum Capabilities
 		{
-			//! The bot's capabilities. You can simply select a predefined set of sensors. These correspond to the different extension modules that exist for the E-Puck.
+			//! No sensor: not very useful
 			CAPABILITY_NONE = 0,
 			//! Basic_Sensors: Just the 8 IRSensors of the base module
 			CAPABILITY_BASIC_SENSORS = 0x1,

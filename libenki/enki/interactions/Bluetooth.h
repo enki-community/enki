@@ -108,6 +108,7 @@ protected:
 		void initAllData();
 		
 public:
+		//! Error that bluetooth communication can produce
 		enum Errors
 		{
 			//! No error occured during the last step

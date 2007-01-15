@@ -69,10 +69,15 @@ namespace Enki
 		virtual void init() {}
 		virtual void objectStep(double dt, PhysicalObject *po, World *w) {}
 		
+		//! Set the range of this sound interraction
 		void setSoundRange(double range);
+		//! Get the value associated with channel
 		double getSound(unsigned channel);
+		//! Get the maximum value, set channel to the channel where this maximum lies
 		double getMaxSound(int* channel);
+		//! Set the value of channel to signal using a simplified model
 		void setSound(unsigned channel, double signal);
+		//! Set the value of channel to signal using a more realistic model
 		void realisticSetSound(unsigned channel, double signal);
 	};
 	

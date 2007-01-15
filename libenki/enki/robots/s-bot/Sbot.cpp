@@ -39,6 +39,7 @@
 
 namespace Enki
 {
+	//! Response model for sound on s-bot
 	double MicrophonePseudoRealResponseModel(double signal, double distance)
 	{
 		//apply filter to signal

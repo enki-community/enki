@@ -105,8 +105,10 @@ namespace Enki
 		SbotGlobalSound globalSound;
 
 	public:
-		//! Speed of the robot
-		double leftSpeed, rightSpeed;
+		//! Left speed of the robot
+		double leftSpeed;
+		//! Reft speed of the robot
+		double rightSpeed;
 
 	public:
 		//! Constructor
