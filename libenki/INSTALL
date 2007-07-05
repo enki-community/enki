@@ -1,34 +1,31 @@
 Source distribution
 
-This section explains how to install libenki from the source distribution.
+This section explains how to compile libenki from the source distribution.
 
 Prerequisites
 
-To compile libenki and programs who depend on it, you need a working and fairly recent c++ compiler (at least 3.4 when using g++ because gcc 3.3 or lower does not yet understand some of the templates used), a working sh compatible shell and the following libraries:
-* liban (http://lis.epfl.ch/resources/download/)
-* libboost (http://www.boost.org/)
+To compile libenki and programs who depend on it, you need:
+* a working and fairly recent c++ compiler, such as GCC [1]
+* CMake [2]
+* A build environment compatible with CMake.
 
 Compilation
 
-Once you have downloaded and extracted the libenki source distribution, you have to configure it by typing:
-./configure
-in libenki's directory. Then you can make it by typing:
-make
-and install it system wide by typing (you need to be root for this step if your install destination folder (default /usr/local) is not writable from your normal user):
-make install
+Those short instructions assume that you want to use "make" to build Enki [3].
+If you want to use another build environment, such as Microsoft Visual Studio, please refer to cmake documentation [2].
+Once you have downloaded and extracted the libenki source distribution, either from a released version or from SVN [4], you can create the Makefiles by running:
+	cmake .
+and then build Enki by running:
+	make
 
-SVN
+You can also change the build options by running:
+	ccmake .
+prior to cmake.
 
-This section explains how to compile libenki from an SVN snapshot. It assumes that libenki is already extracted from SVN and does not explain how to use SVN. For an introduction to SVN, visit: http://subversion.tigris.org
 
-Prerequisites
+References
 
-To bootstrap libenki from SVN, you need the following additional tools:
-* automake
-* autoconf
-
-Generating configure
-
-You first need to create the configure-file by doing:
-./bootstrap
-You can then follow the instructions found in the Compilation section above.
+[1]		GCC homepage (http://gcc.gnu.org)
+[2]		cmake homepage (http://www.cmake.org)
+[3]		GNU make homepage (http://www.gnu.org/software/make/)
+[4]		For an introduction to SVN, visit its homepage (http://subversion.tigris.org)

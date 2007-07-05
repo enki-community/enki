@@ -1,0 +1,20 @@
+include_directories (${enki_SOURCE_DIR})
+
+add_library (enki
+	Types.cpp
+	PhysicalEngine.cpp
+	BluetoothBase.cpp
+	interactions/IRSensor.cpp
+	interactions/CircularCam.cpp
+	interactions/Bluetooth.cpp
+	interactions/ActiveSoundSource.cpp
+	interactions/Microphone.cpp
+	robots/khepera/Khepera.cpp
+	robots/e-puck/EPuck.cpp
+	robots/alice/Alice.cpp
+	robots/alice/AliceCommunication.cpp
+	robots/alice/AliceCam.cpp
+	robots/s-bot/Sbot.cpp
+	robots/s-bot/SbotCam.cpp
+	robots/s-bot/SbotObject.cpp
+)

@@ -34,8 +34,8 @@
 #ifndef __ENKI_ACTIVESOUNDOBJECT_H
 #define __ENKI_ACTIVESOUNDOBJECT_H
 
-#include <enki/Interaction.h>
-#include <enki/PhysicalEngine.h>
+#include "../Interaction.h"
+#include "../PhysicalEngine.h"
 
 /*!	\file ActiveSoundSource.h
 	\brief Header of sound emitter interaction

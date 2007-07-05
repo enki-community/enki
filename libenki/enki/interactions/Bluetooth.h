@@ -34,8 +34,8 @@
 #ifndef __ENKI_BLUETOOTH_H
 #define __ENKI_BLUETOOTH_H
 
-#include <enki/PhysicalEngine.h>
-#include <enki/Interaction.h>
+#include "../PhysicalEngine.h"
+#include "../Interaction.h"
 
 
 #include <queue>

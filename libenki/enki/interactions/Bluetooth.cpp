@@ -32,7 +32,7 @@
 */
 
 #include "Bluetooth.h"
-#include <enki/BluetoothBase.h>
+#include "../BluetoothBase.h"
 
 #include <limits.h>
 #include <assert.h>

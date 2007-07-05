@@ -37,11 +37,11 @@
 #include <iostream>
 #include <vector>
 #include <valarray>
-#include <enki/Types.h>
-#include <enki/Geometry.h>
-#include <enki/Random.h>
-#include <enki/Interaction.h>
-#include <enki/BluetoothBase.h>
+#include "Types.h"
+#include "Geometry.h"
+#include "Random.h"
+#include "Interaction.h"
+#include "BluetoothBase.h"
 
 /*!	\file PhysicalEngine.h
 	\brief The core of Enki.

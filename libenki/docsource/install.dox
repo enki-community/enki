@@ -2,43 +2,32 @@
 
 \section SourceDistribution Source distribution
 
-This section explains how to install libenki from the source distribution.
+This section explains how to compile libenki from the source distribution.
 
 \subsection Prerequisites
 
-To compile libenki and programs who depend on it, you need a working and fairly recent c++ compiler (at least 3.4 when using g++ because gcc 3.3 or lower does not yet understand some of the templates used). If you want to use the configure-based compilation method described below, you also need a working sh compatible shell
+To compile libenki and programs who depend on it, you need:
+\li a working and fairly recent c++ compiler, such as \url http://gcc.gnu.org "GCC"
+\li \url http://www.cmake.org "CMake"
+\li A build environment compatible with CMake.
 
 \subsection Compilation
 
-Once you have downloaded and extracted the libenki source distribution, you have to configure it by typing:
+Those short instructions assume that you want to use \url http://www.gnu.org/software/make/ "GNU make" to build Enki.
+If you want to use another build environment, such as Microsoft Visual Studio, please refer to \url http://www.cmake.org/HTML/Documentation.html "cmake documentation".
+Once you have downloaded and extracted the libenki source distribution, either from a released version or from \url http://subversion.tigris.org "SVN", you can create the Makefiles by running:
 \code
-./configure
+cmake .
 \endcode
-in libenki's directory. Then you can make it by typing:
+and then build Enki by running:
 \code
 make
 \endcode
-and install it system wide by typing (you need to be root for this step if your install destination folder (default /usr/local) is not writable from your normal user):
+
+You can also change the build options by running:
 \code
-make install
+ccmake .
 \endcode
-
-\section SVN
-
-This section explains how to compile libenki from an SVN snapshot. It assumes that libenki is already extracted from SVN and does not explain how to use SVN. For an introduction to SVN, visit: http://subversion.tigris.org
-
-\subsection Prerequisites
-
-To bootstrap libenki from SVN, you need the following additional tools:
-\li automake
-\li autoconf
-
-\subsection genconf Generating configure
-
-You first need to create the configure-file by doing:
-\code
-./bootstrap
-\endcode
-You can then follow the instructions found in the \ref Compilation section above.
+prior to cmake.
 
 */
