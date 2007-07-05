@@ -31,60 +31,50 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef __ENKI_KHEPERA_H
-#define __ENKI_KHEPERA_H
+#ifndef __ENKI_DIFFERENTIAL_WHEELED_H
+#define __ENKI_DIFFERENTIAL_WHEELED_H
 
-#include <enki/robots/DifferentialWheeled.h>
-#include <enki/interactions/IRSensor.h>
-#include <enki/interactions/CircularCam.h>
-
-/*!	\file Khepera.h
-	\brief Header of the Khepera robot
+/*!	\file DifferentialWheeled.h
+	\brief Header of the features of differential wheeled robots
 */
-	
+
+#include <enki/PhysicalEngine.h>
+
 namespace Enki
 {
-	//! A simple model of the Khepera robot. 
-	/*! \ingroup robot */
-	class Khepera : public DifferentialWheeled
+	class DifferentialWheeled: public Robot
 	{
 	public:
-		//! The infrared sensor 0 (left)
-		IRSensor infraredSensor0;
-		//! The infrared sensor 1 (front-left)
-		IRSensor infraredSensor1;
-		//! The infrared sensor 2 (front)
-		IRSensor infraredSensor2;
-		//! The infrared sensor 3 (front)
-		IRSensor infraredSensor3;
-		//! The infrared sensor 4 (front-right)
-		IRSensor infraredSensor4;
-		//! The infrared sensor 5 (right)
-		IRSensor infraredSensor5;
-		//! The infrared sensor 6 (back)
-		IRSensor infraredSensor6;
-		//! The infrared sensor 7 (back)
-		IRSensor infraredSensor7;
-		//! Linear camera
-		CircularCam camera;
+		//! Left speed of the robot
+		double leftSpeed;
+		//! Reft speed of the robot
+		double rightSpeed;
+		//! The encoder for left wheel
+		double leftEncoder;
+		//! The encoder for right wheel
+		double rightEncoder;
+		
+	protected:
+		//! Save of last position to compute encoders.
+		Vector oldPos;
+		//! Save of last angle to compute encoders.
+		double oldAngle;
+		
+		//! Distance between the left and right driving wheels
+		double distBetweenWheels;
+		//! Relative amount of motor noise
+		double noiseAmount;
 		
 	public:
-		//! The bot's capabilities. You can simply select a predefined set of sensors. These correspond to the different extension modules that exist for the Khepera.
-		enum Capabilities
-		{
-			//! No sensor: not very useful
-			CAPABILITIY_NONE = 0,
-			//! Basic_Sensors: Just the 8 IRSensors of the base module
-			CAPABILITIY_BASIC_SENSORS = 0x1,
-			//! Camera: add a linear camera
-			CAPABILITY_CAMERA = 0x2
-		};
-
-	public:
-		//! Create a Khepera with certain modules aka capabilities (basic)
-		Khepera(unsigned capabilities = CAPABILITIY_BASIC_SENSORS);
+		//! Constructor
+		DifferentialWheeled(double distBetweenWheels, double noiseAmount);
+		
+		//! Reset the encoder. Should be called when robot is moved manually.
+		void resetEncoders();
+		
+		//! Set the real speed of the robot given leftSpeed and rightSpeed. Add noise. Update encoders.
+		virtual void step(double dt);
 	};
 }
 
 #endif
-

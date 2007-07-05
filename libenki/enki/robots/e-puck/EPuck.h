@@ -34,7 +34,7 @@
 #ifndef __ENKI_EPUCK_H
 #define __ENKI_EPUCK_H
 
-#include <enki/PhysicalEngine.h>
+#include <enki/robots/DifferentialWheeled.h>
 #include <enki/interactions/IRSensor.h>
 #include <enki/interactions/CircularCam.h>
 #include <enki/interactions/Bluetooth.h>
@@ -47,7 +47,7 @@ namespace Enki
 {
 	//! A simple model of the E-puck robot. 
 	/*! \ingroup robot */
-	class EPuck : public Robot
+	class EPuck : public DifferentialWheeled
 	{
 	public:
 		//! The infrared sensor 0 (left)
@@ -70,23 +70,6 @@ namespace Enki
 		CircularCam camera;
 		//! Bluetooth module
 		Bluetooth* bluetooth;
-
-		
-	public:
-		//! The bot's left wheel speed [1:100] cm/sec
-		double leftSpeed;
-		//! The bot's right wheel speed [1:100] cm/sec
-		double rightSpeed;
-		//! The encoder for left wheel
-		double leftEncoder;
-		//! The encoder for right wheel
-		double rightEncoder;
-	
-	protected:
-		//! Save of last position to compute encoders.
-		Vector oldPos;
-		//! Save of last angle to compute encoders.
-		double oldAngle;
 		
 	public:
 		//! The bot's capabilities. You can simply select a predefined set of sensors. These correspond to the different extension modules that exist for the E-Puck.
@@ -105,12 +88,8 @@ namespace Enki
 	public:
 		//! Create a E-Puck with certain modules aka capabilities (basic)
 		EPuck(unsigned capabilities = CAPABILITY_BASIC_SENSORS);
+		//! Destructor
 		~EPuck();
-		//! Call EPuck::controlStep and do all the calculations
-		void step(double dt);
-		
-		//! Reset the encoder. Should be called when robot is moved manually.
-		void resetEncoders();
 		
 		//! Set ring color (true = red, false = black) 
 		void setLedRing(bool status);

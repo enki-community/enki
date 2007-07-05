@@ -113,6 +113,8 @@ namespace Enki
 		virtual void wallsStep(World *w);
 		virtual void finalize(double dt);
 		
+		//! Change the sight range of the camera
+		void setRange(double range);
 		//! Return the absolute position (world coordinates) of the camera, updated at each time step on init()
 		Point getAbsolutePosition(void) { return absPos; }
 		//! Return the absolute orientation (world coordinates) of the camera, updated at each time step on init()
@@ -143,18 +145,22 @@ namespace Enki
 		CircularCam cam1;
 
 	public :
-		//! Constructor, r is the vision radius and owner is the Sbot the camera belongs to
-		OmniCam(Robot *owner, unsigned halfPixelCount); 
+		//! Constructor
+		/*!
+			\param owner robot this camera is attached to
+			\param halfPixelCount half the number of pixel to cover the full 2*PI field of view
+		*/
+		OmniCam(Robot *owner, unsigned halfPixelCount);
 		//! Destructor
 		virtual ~OmniCam(){}
 		virtual void init();
 		virtual void objectStep (double dt, PhysicalObject *po, World *w);
 		virtual void wallsStep(World *w);
 		virtual void finalize(double dt);
+		//! Change the sight range of the camera
+		void setRange(double range);
 		//! Change the fog condition for this camera. If useFog is true, an exponential fog with density will be used. Additionally, a threshold can be applied on the resulting color
 		void setFogConditions(bool useFog, double density = 0.0, Color threshold = Color::black);
-		//! Change the sight range of this interaction
-		void setRange(double range);
 		//! Change the pixel operation functor
 		void setPixelOperationFunctor(PixelOperationFunctor *pixelOperationFunctor);
 	};

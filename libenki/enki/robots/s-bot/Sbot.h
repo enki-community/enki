@@ -34,7 +34,7 @@
 #ifndef __ENKI_SBOT_H
 #define __ENKI_SBOT_H
 
-#include <enki/PhysicalEngine.h>
+#include <enki/robots/DifferentialWheeled.h>
 #include <enki/interactions/CircularCam.h>
 #include <enki/interactions/Microphone.h>
 #include <enki/interactions/ActiveSoundSource.h>
@@ -96,7 +96,7 @@ namespace Enki
 	/*! Only implement a subset of the camera
 		\ingroup robot
 	*/
-	class Sbot : public Robot
+	class Sbot : public DifferentialWheeled
 	{
 	public:
 		//! The omnidirectional linear camera
@@ -105,18 +105,10 @@ namespace Enki
 		SbotGlobalSound globalSound;
 
 	public:
-		//! Left speed of the robot
-		double leftSpeed;
-		//! Reft speed of the robot
-		double rightSpeed;
-
-	public:
 		//! Constructor
 		Sbot();
 		//! Destructor
 		~Sbot() {}
-		//! Set the real speed of the robot given leftSpeed and rightSpeed. Add noise
-		virtual void step(double dt);
 	};
 
 
@@ -136,7 +128,7 @@ namespace Enki
 
 		//! Constructor
 		FeedableSbot() { energy=0; dEnergy=0; lastDEnergy=0; }
-		//! Call Sbot::step and compute the new energy
+		//! Call DifferentialWheeled::step and compute the new energy
 		virtual void step(double dt) ;
 	};
 

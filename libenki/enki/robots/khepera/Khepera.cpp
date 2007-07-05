@@ -81,6 +81,7 @@ namespace Enki
 	*/
 	
 	Khepera::Khepera(unsigned capabilities) :
+		DifferentialWheeled(5.2, 0.05),
 		infraredSensor0(this, Vector(1.0, 1.5),  1.8, M_PI/2, 10, 0, 1, &kheperaIRSensorModelPtr),
 		infraredSensor1(this, Vector(1.3, 1.3),  1.8, M_PI/4, 10, 0, 1, &kheperaIRSensorModelPtr),
 		infraredSensor2(this, Vector(1.6, 0.6),  1.8, 0,      10, 0, 1, &kheperaIRSensorModelPtr),
@@ -117,58 +118,6 @@ namespace Enki
 		
 		leftEncoder = rightEncoder = 0;
 		leftSpeed = rightSpeed = 0;
-	}
-	
-	void Khepera::step(double dt) 
-	{
-		// Khepera dist between wheels are 5.2 cm
-		double wheelDist = 5.2;
-
-		// +/- 5% motor noise
-		double realRightSpeed = rightSpeed * (0.95 + random.getRange(0.1));
-		double realLeftSpeed = leftSpeed * (0.95 + random.getRange(0.1));
-		
-		// speeds, according to Prof. Siegwart class material
-		double forwardSpeed = (realRightSpeed + realLeftSpeed) * 0.5;
-		angSpeed += (realRightSpeed-realLeftSpeed) / wheelDist;
-		speed = Vector(
-					forwardSpeed * cos(angle + angSpeed * dt * 0.5),
-					forwardSpeed * sin(angle + angSpeed * dt * 0.5));
-		
-		// PhysicalObject::step will actually move, and in next loop
-		// care will be taken regarding collision. So we have to compute
-		// the difference here.
-		Vector posDiff = pos - oldPos;
-		double norm = posDiff.norm();
-		double travelAngle = posDiff.angle();
-			
-		// we let only the component of the norm that is in the direction
-		// of the robot (the other component is the wheel sliding in the
-		// perpendicular direction). we take the mean angle as direction.
-		// angle and oldAngle are normalized, so we dont have problems here.
-		double meanAngle = (angle + oldAngle) * 0.5;
-		if(fabs(angle-oldAngle) > M_PI)
-			meanAngle += M_PI;	// this is not normalized but we dont care
-		norm = norm * cos(meanAngle - travelAngle);
-		
-		// Compute encoders
-		double angleDiff = normalizeAngle(angle - oldAngle);
-		leftEncoder = (norm - wheelDist * angleDiff * 0.5) / dt;
-		rightEncoder = (norm + wheelDist * angleDiff * 0.5) / dt;
-		
-		// Save values for next step.
-		oldPos = pos;
-		oldAngle = angle;
-		
-		// handle physic
-		PhysicalObject::step(dt);
-	}
-	
-	void Khepera::resetEncoders()
-	{
-		oldPos = pos;
-		oldAngle = angle;
-		leftEncoder = rightEncoder = 0.0;
 	}
 }
 

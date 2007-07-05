@@ -110,6 +110,7 @@ namespace Enki
 	}
 	
 	Sbot::Sbot() :
+		DifferentialWheeled(5, 0.02),
 		camera(this, 64),
 		globalSound(this)
 	{
@@ -119,25 +120,6 @@ namespace Enki
 		//addGlobalInteraction(&globalSound);
 		leftSpeed = 0;
 		rightSpeed = 0;
-	}
-
-	void Sbot::step(double dt)
-	{
-		// handle physics
-		PhysicalObject::step(dt);
-		
-		// +/- 2% motor noise
-		double realRightSpeed = rightSpeed * (0.98 + random.getRange(0.04));
-		double realLeftSpeed = leftSpeed * (0.98 + random.getRange(0.04));
-
-		double forwardSpeed = (realRightSpeed + realLeftSpeed) / 2;
-		double wheelDist = 5;
-
-		// forward component
-		speed = Vector(forwardSpeed * cos(angle), forwardSpeed * sin(angle));
-
-		// angle
-		angSpeed = (realRightSpeed-realLeftSpeed)/(2*wheelDist);
 	}
 	
 	unsigned SbotGlobalSound::worldFrequenciesState = 0;
@@ -149,40 +131,22 @@ namespace Enki
 		
 	void FeedableSbot::step(double dt)
 	{
-		Sbot::step(dt);
+		DifferentialWheeled::step(dt);
 		
-		// clear dEnegry for next step
+		// clear dEnergy for next step
 		energy += dEnergy * dt;
 		lastDEnergy = dEnergy;
 		dEnergy = 0;
 	}
 
 	SoundSbot::SoundSbot() :
-		//microphones can pick up sound reaching up to 1m away
+		// microphones can pick up sound reaching up to 1m away
 		mic(this, 6.0, 150, MicrophonePseudoRealResponseModel, 25),
-		//speaker can produce sounds heard by a microphone 1m + micrange away
+		// speaker can produce sounds heard by a microphone 1m + micrange away
 		speaker(this, 0, 25)
 	{
 		addLocalInteraction(&mic);
 		addLocalInteraction(&speaker);
-	}
-
-	void SoundSbot::step(double dt)
-	{
-		FeedableSbot::step(dt);
-		
-		// +/- 2% motor noise
-		double realRightSpeed = rightSpeed * (0.98 + random.getRange(0.04));
-		double realLeftSpeed = leftSpeed * (0.98 + random.getRange(0.04));
-
-		double forwardSpeed = (realRightSpeed + realLeftSpeed) / 2;
-		double wheelDist = 5;
-
-		// forward component
-		speed = Vector(forwardSpeed * cos(angle), forwardSpeed * sin(angle));
-
-		// angle
-		angSpeed = (realRightSpeed-realLeftSpeed)/(2*wheelDist);
 	}
 }
 

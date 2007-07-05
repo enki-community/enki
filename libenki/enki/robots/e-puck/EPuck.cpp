@@ -70,6 +70,7 @@ namespace Enki
 	SensorResponseFunctor *epuckIRSensorModelPtr = &epuckIRSensorModel;
 	
 	EPuck::EPuck(unsigned capabilities) :
+		DifferentialWheeled(5.1, 0.05),
 		infraredSensor0(this, Vector(3.0, -0.9),  0.0, -4*M_PI/45.0, 12, 0, 1, &epuckIRSensorModelPtr),   // IR 0 (Front right)    height should be 2.5 but all the other objects have a lower value so they are not seen...
 		infraredSensor1(this, Vector(2.6, -2.6),  0.0, -M_PI/4.0, 12, 0, 1, &epuckIRSensorModelPtr),   // IR 1 (Half front right)
 		infraredSensor2(this, Vector(0.0, -3.3),  0.0, -M_PI/2.0,      12, 0, 1, &epuckIRSensorModelPtr),     // IR 2 (Right side)
@@ -112,8 +113,6 @@ namespace Enki
 				bluetooth = new Bluetooth(this,1000,7,100,100,random.get()%UINT_MAX);
 				addGlobalInteraction(bluetooth);
 			}
-			leftSpeed = 0;
-			rightSpeed = 0;
 			
 			leftEncoder = rightEncoder = 0;
 			leftSpeed = rightSpeed = 0;
@@ -123,58 +122,6 @@ namespace Enki
 	{
 		if (bluetooth)
 			delete bluetooth;
-	}
-	
-	void EPuck::step(double dt) 
-	{
-		// E-Puck dist between wheels are 5.1 cm
-		double wheelDist = 5.1;
-		
-		// +/- 5% motor noise
-		double realRightSpeed = rightSpeed * (0.95 + random.getRange(0.1));
-		double realLeftSpeed = leftSpeed * (0.95 + random.getRange(0.1));
-		
-		// speeds, according to Prof. Siegwart class material
-		double forwardSpeed = (realRightSpeed + realLeftSpeed) * 0.5;
-		angSpeed += (realRightSpeed-realLeftSpeed) / wheelDist;
-		speed = Vector(
-					   forwardSpeed * cos(angle + angSpeed * dt * 0.5),
-					   forwardSpeed * sin(angle + angSpeed * dt * 0.5));
-		
-		// PhysicalObject::step will actually move, and in next loop
-		// care will be taken regarding collision. So we have to compute
-		// the difference here.
-		Vector posDiff = pos - oldPos;
-		double norm = posDiff.norm();
-		double travelAngle = posDiff.angle();
-		
-		// we let only the component of the norm that is in the direction
-		// of the robot (the other component is the wheel sliding in the
-		// perpendicular direction). we take the mean angle as direction.
-		// angle and oldAngle are normalized, so we dont have problems here.
-		double meanAngle = (angle + oldAngle) * 0.5;
-		if(fabs(angle-oldAngle) > M_PI)
-			meanAngle += M_PI;	// this is not normalized but we dont care
-		norm = norm * cos(meanAngle - travelAngle);
-		
-		// Compute encoders
-		double angleDiff = normalizeAngle(angle - oldAngle);
-		leftEncoder = (norm - wheelDist * angleDiff * 0.5) / dt;
-		rightEncoder = (norm + wheelDist * angleDiff * 0.5) / dt;
-		
-		// Save values for next step.
-		oldPos = pos;
-		oldAngle = angle;
-		
-		// handle physic
-		PhysicalObject::step(dt);
-	}
-	
-	void EPuck::resetEncoders()
-	{
-		oldPos = pos;
-		oldAngle = angle;
-		leftEncoder = rightEncoder = 0.0;
 	}
 	
 	void EPuck::setLedRing(bool status)

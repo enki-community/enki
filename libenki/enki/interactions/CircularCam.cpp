@@ -304,6 +304,13 @@ namespace Enki
 		}
 	}
 	
+	void CircularCam::setRange(double range)
+	{
+		this->r = range;
+		owner->sortLocalInteractions();
+	}
+	
+	
 	
 	OmniCam::OmniCam(Robot *owner, unsigned halfPixelCount) :
 		zbuffer(halfPixelCount * 2),
@@ -344,6 +351,12 @@ namespace Enki
 		std::copy(&cam1.image[0], &cam1.image[camPixelCount], &image[camPixelCount]);
 	}
 	
+	void OmniCam::setRange(double range)
+	{
+		this->r = range;
+		owner->sortLocalInteractions();
+	}
+	
 	void OmniCam::setFogConditions(bool useFog, double density, Color threshold)
 	{
 		cam0.useFog = useFog;
@@ -352,12 +365,6 @@ namespace Enki
 		cam1.useFog = useFog;
 		cam1.fogDensity = density;
 		cam1.lightThreshold = threshold;
-	}
-	
-	void OmniCam::setRange(double range)
-	{
-		this->r = range;
-		owner->sortLocalInteractions();
 	}
 	
 	void OmniCam::setPixelOperationFunctor(PixelOperationFunctor *pixelOperationFunctor)

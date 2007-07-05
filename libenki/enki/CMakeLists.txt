@@ -9,6 +9,7 @@ add_library (enki
 	interactions/Bluetooth.cpp
 	interactions/ActiveSoundSource.cpp
 	interactions/Microphone.cpp
+	robots/DifferentialWheeled.cpp
 	robots/khepera/Khepera.cpp
 	robots/e-puck/EPuck.cpp
 	robots/alice/Alice.cpp

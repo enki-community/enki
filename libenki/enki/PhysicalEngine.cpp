@@ -667,13 +667,7 @@ namespace Enki
 	{
 		objects.erase(o);
 	}
-	/*
-	bool World::isObject(PhysicalObject *o)
-	{
-		ObjectsIterator oIt = objects.find(o);
-		return oIt != objects.end();
-	}
-	*/
+	
 	void World::setRandomSeed(unsigned long seed)
 	{
 		random.setSeed(seed);
