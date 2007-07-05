@@ -317,9 +317,8 @@ namespace Enki
 
 	World::~World()
 	{
-		for (unsigned i=0; i<objects.size(); i++)
-			delete objects[i];
-		
+		for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
+			delete (*i);
 		
 		if (bluetoothBase)
 			delete bluetoothBase;
@@ -615,40 +614,45 @@ namespace Enki
 	void World::step(double dt)
 	{
 		// init interactions
-		for (unsigned i=0; i<objects.size(); i++)
+		for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 		{
-			objects[i]->initLocalInteractions();
-			objects[i]->initGlobalInteractions();
+			(*i)->initLocalInteractions();
+			(*i)->initGlobalInteractions();
 		}
 
 		// collide objects together
-		for (unsigned i=0; i<objects.size(); i++)
+		unsigned iCounter, jCounter;
+		iCounter = 0;
+		for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 		{
-			for (unsigned j=0; j<objects.size(); j++)
+			jCounter = 0;
+			for (ObjectsIterator j = objects.begin(); j != objects.end(); ++j)
 			{
-				if (i!=j)
+				if ((*i) != (*j))
 				{
-					//is it the first interaction between these objects in this world step?
+					// is it the first interaction between these objects in this world step?
 					if (collideEven)
-						objects[i]->doLocalInteractions(this, objects[j], dt, i<j);
+						(*i)->doLocalInteractions(this, (*j), dt, iCounter < jCounter);
 					else
-						objects[j]->doLocalInteractions(this, objects[i], dt, j<i);
+						(*j)->doLocalInteractions(this, (*i), dt, jCounter < iCounter);
 				}
+				jCounter++;
 			}
+			iCounter++;
 		}
 
 		collideEven = !collideEven;
 
 		// collide objects with walls and step
-		for (unsigned i=0; i<objects.size(); i++)
+		for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 		{
 			if (useWalls)
-				objects[i]->doLocalWallsInteraction(this);
-			objects[i]->doGlobalInteractions(this, dt);
+				(*i)->doLocalWallsInteraction(this);
+			(*i)->doGlobalInteractions(this, dt);
 			
-			objects[i]->finalizeLocalInteractions(dt);
-			objects[i]->finalizeGlobalInteractions();
-			objects[i]->step(dt);
+			(*i)->finalizeLocalInteractions(dt);
+			(*i)->finalizeGlobalInteractions();
+			(*i)->step(dt);
 		}
 		if (bluetoothBase)
 			bluetoothBase->step(dt,this);
@@ -656,34 +660,20 @@ namespace Enki
 	
 	void World::addObject(PhysicalObject *o)
 	{
-		if (!isObject(o))
-			objects.push_back(o);
+		objects.insert(o);
 	}
 
 	void World::removeObject(PhysicalObject *o)
 	{
-		// TODO : use a set for objects !
-		for (std::vector<PhysicalObject *>::iterator i=objects.begin(); i!=objects.end(); ++i)
-		{
-			if (*i == o)
-			{
-				objects.erase(i);
-				return;
-			}
-		}
+		objects.erase(o);
 	}
-	
+	/*
 	bool World::isObject(PhysicalObject *o)
 	{
-		// TODO : use a set for objects !
-		for (std::vector<PhysicalObject *>::iterator i=objects.begin(); i!=objects.end(); ++i)
-		{
-			if (*i == o)
-				return true;
-		}
-		return false;
+		ObjectsIterator oIt = objects.find(o);
+		return oIt != objects.end();
 	}
-	
+	*/
 	void World::setRandomSeed(unsigned long seed)
 	{
 		random.setSeed(seed);
@@ -691,13 +681,13 @@ namespace Enki
 	
 	void World::initBluetoothBase()
 	{
-		bluetoothBase=new BluetoothBase();
+		bluetoothBase = new BluetoothBase();
 	}
 	
 	BluetoothBase* World::getBluetoothBase()
 	{
 		if (!bluetoothBase)
-			bluetoothBase=new BluetoothBase();
+			bluetoothBase = new BluetoothBase();
 	
 		return bluetoothBase;
 	}

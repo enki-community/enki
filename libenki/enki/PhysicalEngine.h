@@ -35,6 +35,7 @@
 #define __ENKI_PHYSICALENGINE_H
 
 #include <iostream>
+#include <set>
 #include <vector>
 #include <valarray>
 #include "Types.h"
@@ -253,8 +254,10 @@ namespace Enki
 		bool collideEven;
 
 	public:
+		typedef std::set<PhysicalObject *> Objects;
+		typedef Objects::iterator ObjectsIterator;
 		//! All the objects in the world
-		std::vector<PhysicalObject *> objects;
+		Objects objects;
 		//! If true, use walls
 		bool useWalls;
 		//! The width of the world
@@ -289,8 +292,6 @@ namespace Enki
 		void addObject(PhysicalObject *o);
 		//! Remove an object from the world and destroy it. If object is not in the world, do nothing
 		void removeObject(PhysicalObject *o);
-		//! Return true if an object is in the world
-		bool isObject(PhysicalObject *o);
 		//! Set the seed of the random generator.
 		void setRandomSeed(unsigned long seed);
 		//! Initialise and activate the Bluetooth base
