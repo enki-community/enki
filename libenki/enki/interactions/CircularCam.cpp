@@ -55,7 +55,8 @@ namespace Enki
 		}
 	} depthTest; //!< Standard depth test instance
 	
-	CircularCam::CircularCam(Robot *owner, Vector pos, double height, double orientation, double fieldOfView, unsigned pixelCount) :
+	
+	CircularCam::CircularCam(Robot *owner, Vector pos, double height, double orientation, double halfFieldOfView, unsigned pixelCount) :
 		zbuffer(pixelCount),
 		image(pixelCount)
 	{
@@ -63,7 +64,7 @@ namespace Enki
 		this->owner = owner;
 		this->positionOffset = pos;
 		this->angleOffset = orientation;
-		this->fieldOfView = fieldOfView;
+		this->halfFieldOfView = halfFieldOfView;
 		this->height = height;
 		
 		useFog = false;
@@ -109,17 +110,17 @@ namespace Enki
 			double poBegin = poAngle - poAperture;
 			double poEnd = poAngle + poAperture;
 			
-			if (poBegin > fieldOfView || poEnd < -fieldOfView)
+			if (poBegin > halfFieldOfView || poEnd < -halfFieldOfView)
 				return;
 			
-			double beginAngle = std::max(poBegin, -fieldOfView);
-			double endAngle = std::min(poEnd, fieldOfView);
+			double beginAngle = std::max(poBegin, -halfFieldOfView);
+			double endAngle = std::min(poEnd, halfFieldOfView);
 			
 			// compute first pixel used
 			// formula is (beginAngle + fov) / pixelAngle, with
 			// pixelAngle = 2fov / (numPix-1)
-			size_t firstPixelUsed = static_cast<size_t>(floor((zbuffer.size() - 1) * 0.5 * (beginAngle / fieldOfView + 1)));
-			size_t lastPixelUsed = static_cast<size_t>(ceil((zbuffer.size() - 1) * 0.5 * (endAngle / fieldOfView + 1)));
+			size_t firstPixelUsed = static_cast<size_t>(floor((zbuffer.size() - 1) * 0.5 * (beginAngle / halfFieldOfView + 1)));
+			size_t lastPixelUsed = static_cast<size_t>(ceil((zbuffer.size() - 1) * 0.5 * (endAngle / halfFieldOfView + 1)));
 			
 			double poDist2 = poDist * poDist;
 			for (size_t i = firstPixelUsed; i <= lastPixelUsed; i++)
@@ -157,8 +158,8 @@ namespace Enki
 			invertTextureIndex = !invertTextureIndex;
 		}
 		
-		double beginAperture = -fieldOfView; 	// [-pi/2;0]
-		double endAperture = fieldOfView; 		// [0; pi/2]
+		double beginAperture = -halfFieldOfView; 	// [-pi/2;0]
+		double endAperture = halfFieldOfView; 		// [0; pi/2]
 		
 		// check if the line is going "behind us"
 		if (p1dir - p0dir > M_PI)
@@ -168,7 +169,7 @@ namespace Enki
 				return;
 			std::swap(p0dir, p1dir);
 			std::swap(p0c, p1c);
-			if (p1dir < -fieldOfView)
+			if (p1dir < -halfFieldOfView)
 				p1dir += 2*M_PI;
 			else
 				p0dir -= 2*M_PI;
@@ -184,7 +185,7 @@ namespace Enki
 		size_t pixelCount = zbuffer.size();
 		double beginAngle = std::max(p0dir, beginAperture);
 		double endAngle = std::min(p1dir, endAperture);
-		double dAngle = 2*fieldOfView / (pixelCount - 1);
+		double dAngle = 2*halfFieldOfView / (pixelCount - 1);
 		
 		// align begin and end angle to our sampled angles
  		double beginIndex = ceil((beginAngle-beginAperture) / dAngle);
@@ -301,6 +302,68 @@ namespace Enki
 				image[i].threshold(lightThreshold);
 			}
 		}
+	}
+	
+	
+	OmniCam::OmniCam(Robot *owner, unsigned halfPixelCount) :
+		zbuffer(halfPixelCount * 2),
+		image(halfPixelCount * 2),
+		cam0(owner, Point(0, 0), 0, -M_PI/2, M_PI/2, halfPixelCount),
+		cam1(owner, Point(0, 0), 0, M_PI/2, M_PI/2, halfPixelCount)
+	{
+		this->r = std::numeric_limits<double>::max();
+		this->owner = owner;
+	}
+
+	void OmniCam::objectStep(double dt, PhysicalObject *po, World *w) 
+	{
+		cam0.objectStep(dt, po, w);
+		cam1.objectStep(dt, po, w);
+	};
+
+	void OmniCam::init()
+	{
+		cam0.init();
+		cam1.init();
+	}
+	
+	void OmniCam::wallsStep(World *w)
+	{
+		cam0.wallsStep(w);
+		cam1.wallsStep(w);
+	}
+	
+	void OmniCam::finalize(double dt)
+	{
+		cam0.finalize(dt);
+		cam1.finalize(dt);
+		size_t camPixelCount = cam0.zbuffer.size();
+		std::copy(&cam0.zbuffer[0], &cam0.zbuffer[camPixelCount], &zbuffer[0]);
+		std::copy(&cam1.zbuffer[0], &cam1.zbuffer[camPixelCount], &zbuffer[camPixelCount]);
+		std::copy(&cam0.image[0], &cam0.image[camPixelCount], &image[0]);
+		std::copy(&cam1.image[0], &cam1.image[camPixelCount], &image[camPixelCount]);
+	}
+	
+	void OmniCam::setFogConditions(bool useFog, double density, Color threshold)
+	{
+		cam0.useFog = useFog;
+		cam0.fogDensity = density;
+		cam0.lightThreshold = threshold;
+		cam1.useFog = useFog;
+		cam1.fogDensity = density;
+		cam1.lightThreshold = threshold;
+	}
+	
+	void OmniCam::setRange(double range)
+	{
+		this->r = range;
+		owner->sortLocalInteractions();
+	}
+	
+	void OmniCam::setPixelOperationFunctor(PixelOperationFunctor *pixelOperationFunctor)
+	{
+		cam0.pixelOperation = pixelOperationFunctor;
+		cam1.pixelOperation = pixelOperationFunctor;
 	}
 }
 

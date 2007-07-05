@@ -35,9 +35,9 @@
 #define __ENKI_SBOT_H
 
 #include <enki/PhysicalEngine.h>
+#include <enki/interactions/CircularCam.h>
 #include <enki/interactions/Microphone.h>
 #include <enki/interactions/ActiveSoundSource.h>
-#include <enki/robots/s-bot/SbotCam.h>
 #include <enki/robots/s-bot/SbotObject.h>
 
 /*!	\file Sbot.h
@@ -100,7 +100,7 @@ namespace Enki
 	{
 	public:
 		//! The omnidirectional linear camera
-		SbotCam camera;
+		OmniCam camera;
 		//! the sound interaction, based on global frequencies
 		SbotGlobalSound globalSound;
 

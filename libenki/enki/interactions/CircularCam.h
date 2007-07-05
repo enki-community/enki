@@ -45,8 +45,10 @@
 namespace Enki
 {
 	//! Functor for pixel operation
-	/*! This functor is to be called for each pixel. It should perform pixel operations such as depth buffer test
-		\ingroup interaction */
+	/*!
+		This functor is to be called for each pixel. It should perform pixel operations such as depth buffer test.
+		\ingroup interaction
+	*/
 	struct PixelOperationFunctor
 	{
 		//! Virtual destructor, do nothing
@@ -55,8 +57,12 @@ namespace Enki
 		virtual void operator()(double &zBuffer2, Color &pixelBuffer, const double &objectDist2, const Color &objectColor) = 0;
 	};
 	
+	
 	//! 1D Circular camera
-	/*! \ingroup interaction */
+	/*!
+		The maximum aperture angle of this camera is PI, so this is not an omnicam.
+		\ingroup interaction
+	*/
 	class CircularCam : public LocalInteraction
 	{
 	protected:
@@ -74,8 +80,8 @@ namespace Enki
 		std::valarray<double> zbuffer;
 		//! Image (array of size pixelCount of Color)
 		std::valarray<Color> image;
-		//! Field of view = [-fieldOfView; + fieldOfView]. [0; PI/2]
-		double fieldOfView;
+		//! Field of view = [-halfFieldOfView; + halfFieldOfView]. [0; PI/2]
+		double halfFieldOfView;
 		//! Angular offset based on owner angle
 		double angleOffset;
 		
@@ -90,8 +96,16 @@ namespace Enki
 		PixelOperationFunctor *pixelOperation;
 
 	public :
-		//! Constructor. r is the vision radius and owner is the Sbot the camera belongs to
-		CircularCam(Robot *owner, Vector pos, double height, double orientation, double fieldOfView, unsigned pixelCount);
+		//! Constructor.
+		/*!
+			\param owner robot this camera is attached to
+			\param pos position of this camera on the robot
+			\param height height of this camera with respect to ground
+			\param orientation orientation of this camera with respect to the robot front
+			\param halfFieldOfView half aperture of the camera. The real field of view is twice this value [0; PI/2]
+			\param pixelCount number of pixel to cover the full field of view
+		*/
+		CircularCam(Robot *owner, Vector pos, double height, double orientation, double halfFieldOfView, unsigned pixelCount);
 		//! Destructor
 		virtual ~CircularCam(){}
 		virtual void init();
@@ -109,6 +123,40 @@ namespace Enki
 		double interpolateLinear(double s0, double s1, double sv, double d0, double d1);
 		//! Draw a textured line from point p0 to p1 using texture - WTF are p0 and p1??
 		void drawTexturedLine(const Point &p0, const Point &p1, const Texture &texture);
+	};
+	
+	
+	//! 1D omnidirectional circular camera, based on 2 CircularCam
+	/*! \ingroup interaction */
+	class OmniCam : public LocalInteraction
+	{
+	public:
+		//! zbuffer (array of size pixelCount of double)
+		std::valarray<double> zbuffer;
+		//! Image (array of size pixelCount of Color)
+		std::valarray<Color> image;
+		
+	protected:
+		//! Cameras doing the real job, first part
+		CircularCam cam0;
+		//! Cameras doing the real job, second part
+		CircularCam cam1;
+
+	public :
+		//! Constructor, r is the vision radius and owner is the Sbot the camera belongs to
+		OmniCam(Robot *owner, unsigned halfPixelCount); 
+		//! Destructor
+		virtual ~OmniCam(){}
+		virtual void init();
+		virtual void objectStep (double dt, PhysicalObject *po, World *w);
+		virtual void wallsStep(World *w);
+		virtual void finalize(double dt);
+		//! Change the fog condition for this camera. If useFog is true, an exponential fog with density will be used. Additionally, a threshold can be applied on the resulting color
+		void setFogConditions(bool useFog, double density = 0.0, Color threshold = Color::black);
+		//! Change the sight range of this interaction
+		void setRange(double range);
+		//! Change the pixel operation functor
+		void setPixelOperationFunctor(PixelOperationFunctor *pixelOperationFunctor);
 	};
 }
 #endif
