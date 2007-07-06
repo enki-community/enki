@@ -35,6 +35,7 @@
 #define __ENKI_ASEBA_MARXBOT_H
 
 #include <enki/robots/marxbot/Marxbot.h>
+#include <aseba/Network.h>
 
 /*!	\file AsebaMarxbot.h
 	\brief Header of the aseba-enabled marXbot robot
@@ -49,13 +50,18 @@ namespace Enki
 		This robot provides a tcp server connection on port ASEBA_DEFAULT_PORT
 		(currently 33333), or higher if other AsebaMarxbot already use it.
 		This allows the connection of Aseba Studio to this robot.
+		The feature is provided by inheriting from a Network server
 		\ingroup robot
 	*/
-	class AsebaMarxbot : public Marxbot
+	class AsebaMarxbot : public Marxbot, public NetworkServer
 	{
 	public:
 		//! In addition to DifferentialWheeled::step(), update aseba variables and initiate periodic events.
 		virtual void step(double dt);
+		
+		virtual void incomingData(Socket *socket);
+		virtual void incomingConnection(Socket *socket);
+		virtual void connectionClosed(Socket *socket);
 	};
 
 }

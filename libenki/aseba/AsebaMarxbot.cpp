@@ -48,5 +48,26 @@ namespace Enki
 		
 		DifferentialWheeled::step(dt);
 	}
+	
+	void AsebaMarxbot::incomingData(Socket *socket)
+	{
+		unsigned short len;
+		unsigned short source;
+		socket->read(&len, 2);
+		socket->read(&source, 2);
+		std::valarray<unsigned char> buffer(static_cast<size_t>(len) + 2);
+		socket->read(&buffer[0], buffer.size());
+		// TODO : call Aseba debugger
+	}
+	
+	void AsebaMarxbot::incomingConnection(Socket *socket)
+	{
+		// do nothing in addition to what is done by NetworkServer
+	}
+	
+	void AsebaMarxbot::connectionClosed(Socket *socket)
+	{
+		// do nothing in addition to what is done by NetworkServer
+	}
 }
 
