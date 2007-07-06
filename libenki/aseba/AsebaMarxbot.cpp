@@ -31,40 +31,22 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef __ENKI_MARXBOT_H
-#define __ENKI_MARXBOT_H
+#include "AsebaMarxbot.h"
+#include <set>
+#include <cassert>
 
-#include <enki/robots/DifferentialWheeled.h>
-#include <enki/interactions/CircularCam.h>
-
-/*!	\file Marxbot.h
-	\brief Header of the marXbot robot
+/*!	\file Marxbot.cpp
+	\brief Implementation of the aseba-enabled marXbot robot
 */
 
 namespace Enki
 {
+	static std::set<unsigned> usedPorts;
 	
-	//! A very simplified model of the Sbot mobile robot.
-	/*! Only implement distance sensors, both short and long range, using an omnicam.
-		The virtual bumper values are extracted out of the omnicam data. This is not
-		very precise but very efficient.
-		\ingroup robot
-	*/
-	class Marxbot : public DifferentialWheeled
+	void AsebaMarxbot::step(double dt)
 	{
-	public:
-		//! The rotating, long range distance sensor
-		OmniCam rotatingDistanceSensor;
 		
-	public:
-		//! Constructor
-		Marxbot();
-		//! Destructor
-		~Marxbot() {}
-		//! Return the value of a virtual bumper
-		double getVirtualBumper(unsigned number);
-	};
-
+		DifferentialWheeled::step(dt);
+	}
 }
-#endif
 

@@ -31,7 +31,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#include "enki/robots/s-bot/marXbot.h"
+#include "enki/robots/marxbot/Marxbot.h"
 #include <cassert>
 
 /*!	\file Marxbot.cpp
@@ -56,7 +56,7 @@ namespace Enki
 	
 	Marxbot::Marxbot() :
 		DifferentialWheeled(15, 0.02),
-		camera(this, 90)
+		rotatingDistanceSensor(this, 90)
 	{
 		mass = 1000;
 		r = 8.5;

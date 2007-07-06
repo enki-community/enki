@@ -17,4 +17,5 @@ add_library (enki
 	robots/alice/AliceCam.cpp
 	robots/s-bot/Sbot.cpp
 	robots/s-bot/SbotObject.cpp
+	robots/marxbot/Marxbot.cpp
 )
