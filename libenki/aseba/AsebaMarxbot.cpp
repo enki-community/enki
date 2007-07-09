@@ -32,8 +32,10 @@
 */
 
 #include "AsebaMarxbot.h"
+#include <common/consts.h>
 #include <set>
 #include <cassert>
+#include <algorithm>
 
 /*!	\file Marxbot.cpp
 	\brief Implementation of the aseba-enabled marXbot robot
@@ -41,23 +43,176 @@
 
 namespace Enki
 {
-	static std::set<unsigned> usedPorts;
+	AsebaMarxbot::Module::Module(unsigned short id)
+	{
+		bytecode.resize(512);
+		vm.bytecode = &bytecode[0];
+		vm.bytecodeSize = bytecode.size();
+		
+		stack.resize(64);
+		vm.stack = &stack[0];
+		vm.stackSize = stack.size();
+		
+		amountOfTimerEventInQueue = 0;
+		AsebaVMInit(&vm, id);
+	}
+	
+	// TODO: implement aseba callbacks
+	
+	AsebaMarxbot::AsebaMarxbot() :
+		leftMotor(1),
+		rightMotor(2),
+		proximitySensors(3),
+		distanceSensors(4)
+	{
+		// try to open a free port at or after ASEBA_DEFAULT_PORT
+		const unsigned amoutOfPortsToTry = 100;
+		for (unsigned port = ASEBA_DEFAULT_PORT; port < ASEBA_DEFAULT_PORT + amoutOfPortsToTry; port++)
+			if (listen(port))
+				break;
+		
+		// setup modules specific data
+		leftMotor.vm.variables = reinterpret_cast<sint16 *>(&leftMotorVariables);
+		leftMotor.vm.variablesSize = sizeof(leftMotorVariables);
+		modules.push_back(&leftMotor);
+		
+		rightMotor.vm.variables = reinterpret_cast<sint16 *>(&rightMotorVariables);
+		rightMotor.vm.variablesSize = sizeof(rightMotorVariables);
+		modules.push_back(&rightMotor);
+		
+		proximitySensors.vm.variables = reinterpret_cast<sint16 *>(&proximitySensorVariables);
+		proximitySensors.vm.variablesSize = sizeof(proximitySensorVariables);
+		modules.push_back(&proximitySensors);
+		
+		distanceSensors.vm.variables = reinterpret_cast<sint16 *>(&distanceSensorVariables);
+		distanceSensors.vm.variablesSize = sizeof(distanceSensorVariables);
+		modules.push_back(&distanceSensors);
+	}
 	
 	void AsebaMarxbot::step(double dt)
 	{
+		/*
+			Values mapping
+			
+			motor:
+				estimated 3000 == 30 cm/s
+			
+			encoders:
+				16 tick per motor turn
+				134 reduction
+				6 cm wheel diameter
+		*/
 		
+		// set physical variables
+		leftSpeed = static_cast<double>(leftMotorVariables.speed) / 100;
+		rightSpeed = static_cast<double>(rightMotorVariables.speed) / 100;
+		
+		// do motion
 		DifferentialWheeled::step(dt);
+		
+		// get physical variables
+		int odoLeft = static_cast<int>((leftEncoder * 16  * 134) / (2 * M_PI));
+		leftMotorVariables.odoLow = odoLeft & 0xffff;
+		leftMotorVariables.odoHigh = odoLeft >> 16;
+		
+		int odoRight = static_cast<int>((rightEncoder * 16  * 134) / (2 * M_PI));
+		leftMotorVariables.odoLow = odoRight & 0xffff;
+		leftMotorVariables.odoHigh = odoRight >> 16;
+		
+		for (size_t i = 0; i < 24; i++)
+			proximitySensorVariables.bumpers[i] = static_cast<sint16>(getVirtualBumper(i));
+		std::fill(proximitySensorVariables.ground, proximitySensorVariables.ground + 12, 0);
+		
+		for (size_t i = 0; i < 180; i++)
+			distanceSensorVariables.distances[i] = static_cast<sint16>(rotatingDistanceSensor.zbuffer[i]);
+		
+		// push on timer events
+		Event onTimer;
+		onTimer.id = ASEBA_EVENT_PERIODIC;
+		for (size_t i = 0; i < modules.size(); i++)
+		{
+			if (modules[i]->amountOfTimerEventInQueue == 0)
+			{
+				modules[i]->eventsQueue.push_back(onTimer);
+				modules[i]->amountOfTimerEventInQueue++;
+			}
+		}
+		
+		// process all events
+		while (true)
+		{
+			bool wasActivity = false;
+			
+			NetworkServer::step();
+			
+			for (size_t i = 0; i < modules.size(); i++)
+			{
+				// if events in queue and not blocked in a thread, execute new thread
+				if (!modules[i]->eventsQueue.empty() && !AsebaVMIsExecutingThread(&modules[i]->vm))
+				{
+					// copy event to vm
+					BaseVariables *vars = reinterpret_cast<BaseVariables*>(modules[i]->vm.variables);
+					const Event &event = modules[i]->eventsQueue.front();
+					size_t amount = std::min(event.data.size(), sizeof(vars->args) / sizeof(sint16));
+					std::copy(event.data.begin(), event.data.begin() + amount, vars->args);
+					AsebaVMSetupEvent(&modules[i]->vm, event.id);
+					
+					// pop event
+					if (event.id == ASEBA_EVENT_PERIODIC)
+						modules[i]->amountOfTimerEventInQueue--;
+					modules[i]->eventsQueue.pop_front();
+				}
+				
+				// try to run, notice if anything was run
+				if (AsebaVMRun(&modules[i]->vm))
+					wasActivity = true;
+			}
+			
+			if (!wasActivity)
+				break;
+		}
 	}
 	
 	void AsebaMarxbot::incomingData(Socket *socket)
 	{
 		unsigned short len;
+		unsigned short type;
 		unsigned short source;
 		socket->read(&len, 2);
 		socket->read(&source, 2);
-		std::valarray<unsigned char> buffer(static_cast<size_t>(len) + 2);
+		socket->read(&type, 2);
+		std::valarray<unsigned char> buffer(static_cast<size_t>(len));
 		socket->read(&buffer[0], buffer.size());
-		// TODO : call Aseba debugger
+		
+		signed short *dataPtr = reinterpret_cast<signed short *>(&buffer[0]);
+		
+		if (type < 0x8000)
+		{
+			// user type queue
+			assert(buffer.size() % 2 == 0);
+			
+			// create event
+			Event event;
+			event.id = type;
+			
+			for (size_t i = 0; i < buffer.size(); i++)
+				event.data.push_back(*dataPtr++);
+			
+			// push event in queus
+			for (size_t i = 0; i < modules.size(); i++)
+				modules[i]->eventsQueue.push_back(event);
+		}
+		else
+		{
+			// debug message
+			if (type >= 0x9000)
+			{
+				// not bootloader
+				assert(buffer.size() % 2 == 0);
+				for (size_t i = 0; i < modules.size(); i++)
+					AsebaVMDebugMessage(&modules[i]->vm, type, reinterpret_cast<uint16 *>(dataPtr), buffer.size() / 2);
+			}
+		}
 	}
 	
 	void AsebaMarxbot::incomingConnection(Socket *socket)

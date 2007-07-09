@@ -36,6 +36,8 @@
 
 #include <enki/robots/marxbot/Marxbot.h>
 #include <aseba/Network.h>
+#include <vm/vm.h>
+#include <deque>
 
 /*!	\file AsebaMarxbot.h
 	\brief Header of the aseba-enabled marXbot robot
@@ -55,7 +57,68 @@ namespace Enki
 	*/
 	class AsebaMarxbot : public Marxbot, public NetworkServer
 	{
+	protected:
+		struct Event
+		{
+			unsigned short id;
+			std::vector<signed short> data;
+		};
+		
+		struct Module
+		{
+			Module(unsigned short id);
+			
+			AsebaVMState vm;
+			std::valarray<unsigned short> bytecode;
+			std::valarray<signed short> stack;
+			std::deque<Event> eventsQueue;
+			unsigned amountOfTimerEventInQueue;
+		};
+		
+		struct BaseVariables
+		{
+			sint16 args[32];
+		};
+		
+		struct MotorVariables
+		{
+			sint16 args[32];
+			sint16 speed;
+			sint16 odoLow;
+			sint16 odoHigh;
+			sint16 user[220];
+		};
+		
+		struct ProximitySensorVariables
+		{
+			sint16 args[32];
+			sint16 bumpers[24];
+			sint16 ground[12];
+			sint16 user[188];
+		};
+		
+		struct DistanceSensorVariables
+		{
+			sint16 args[32];
+			sint16 distances[180];
+			sint16 user[44];
+		};
+		
+		MotorVariables leftMotorVariables;
+		MotorVariables rightMotorVariables;
+		ProximitySensorVariables proximitySensorVariables;
+		DistanceSensorVariables distanceSensorVariables;
+		
+		Module leftMotor;
+		Module rightMotor;
+		Module proximitySensors;
+		Module distanceSensors;
+		
+		std::vector<Module *> modules;
+		
 	public:
+		//! Constructor, try to open a free port
+		AsebaMarxbot();
 		//! In addition to DifferentialWheeled::step(), update aseba variables and initiate periodic events.
 		virtual void step(double dt);
 		
