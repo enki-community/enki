@@ -36,7 +36,9 @@
 
 #include <enki/robots/marxbot/Marxbot.h>
 #include <aseba/Network.h>
+#define ASEBA_ASSERT
 #include <vm/vm.h>
+#include <common/consts.h>
 #include <deque>
 
 /*!	\file AsebaMarxbot.h
@@ -55,7 +57,7 @@ namespace Enki
 		The feature is provided by inheriting from a Network server
 		\ingroup robot
 	*/
-	class AsebaMarxbot : public Marxbot, public NetworkServer
+	class AsebaMarxbot : public Marxbot, public NetworkClient
 	{
 	protected:
 		struct Event
@@ -84,8 +86,7 @@ namespace Enki
 		{
 			sint16 args[32];
 			sint16 speed;
-			sint16 odoLow;
-			sint16 odoHigh;
+			sint16 odo[2];
 			sint16 user[220];
 		};
 		
@@ -117,13 +118,14 @@ namespace Enki
 		std::vector<Module *> modules;
 		
 	public:
-		//! Constructor, try to open a free port
-		AsebaMarxbot();
+		//! Constructor, connect to a host and register VMs
+		AsebaMarxbot(const std::string &host = "localhost", unsigned short port = ASEBA_DEFAULT_PORT);
+		//! Destructor, unregister VMs
+		virtual ~AsebaMarxbot();
 		//! In addition to DifferentialWheeled::step(), update aseba variables and initiate periodic events.
 		virtual void step(double dt);
 		
 		virtual void incomingData(Socket *socket);
-		virtual void incomingConnection(Socket *socket);
 		virtual void connectionClosed(Socket *socket);
 	};
 

@@ -34,12 +34,164 @@
 #include "AsebaMarxbot.h"
 #include <common/consts.h>
 #include <set>
+#include <map>
 #include <cassert>
+#include <cstring>
 #include <algorithm>
 
 /*!	\file Marxbot.cpp
 	\brief Implementation of the aseba-enabled marXbot robot
 */
+
+// Implementation of aseba glue code
+
+// map for aseba glue code
+typedef std::map<AsebaVMState*, Enki::Socket*>  VmSocketMap;
+static VmSocketMap asebaSocketMaps;
+
+extern "C" void AsebaSendMessage(AsebaVMState *vm, uint16 id, void *data, uint16 size)
+{
+	Enki::Socket* socket = asebaSocketMaps[vm];
+	assert(socket);
+	
+	// write message
+	socket->write(&size, 2);
+	socket->write(&vm->nodeId, 2);
+	socket->write(&id, 2);
+	socket->write(data, size);
+	socket->flush();
+}
+
+void AsebaWriteString(Enki::Socket *socket, const char *s)
+{
+	size_t len = strlen(s);
+	uint8 lenUint8 = static_cast<uint8>(strlen(s));
+	socket->write(&lenUint8, 1);
+	socket->write(s, len);
+}
+
+extern "C" void AsebaSendDescription(AsebaVMState *vm)
+{
+	Enki::Socket* socket = asebaSocketMaps[vm];
+	assert(socket);
+	
+	socket->write(&vm->nodeId, 2);
+	
+	// write node name
+	switch (vm->nodeId)
+	{
+		case 1: AsebaWriteString(socket, "left motor"); break;
+		case 2: AsebaWriteString(socket, "right motor"); break;
+		case 3: AsebaWriteString(socket, "proximity sensors"); break;
+		case 4: AsebaWriteString(socket, "distance sensors"); break;
+		default: assert(false); break;
+	}
+	
+	// write sizes
+	socket->write(&vm->bytecodeSize, 2);
+	socket->write(&vm->stackSize, 2);
+	socket->write(&vm->variablesSize, 2);
+	
+	uint16 size;
+	switch (vm->nodeId)
+	{
+		case 1:
+		case 2:
+		{
+			// motors
+			size = 3;
+			socket->write(&size, 2);
+			
+			AsebaWriteString(socket, "args");
+			size = 32;
+			socket->write(&size, 2);
+			
+			AsebaWriteString(socket, "speed");
+			size = 1;
+			socket->write(&size, 2);
+			
+			AsebaWriteString(socket, "odo");
+			size = 2;
+			socket->write(&size, 2);
+		}
+		break;
+		
+		case 3:
+		{
+			// proximity sensors
+			size = 3;
+			socket->write(&size, 2);
+			
+			AsebaWriteString(socket, "args");
+			size = 32;
+			socket->write(&size, 2);
+			
+			AsebaWriteString(socket, "bumpers");
+			size = 24;
+			socket->write(&size, 2);
+			
+			AsebaWriteString(socket, "ground");
+			size = 12;
+			socket->write(&size, 2);
+		}
+		break;
+		
+		case 4:
+		{
+			// distance sensors
+			size = 2;
+			socket->write(&size, 2);
+			
+			AsebaWriteString(socket, "args");
+			size = 32;
+			socket->write(&size, 2);
+			
+			AsebaWriteString(socket, "distances");
+			size = 180;
+			socket->write(&size, 2);
+		}
+		break;
+		
+		default: assert(false);	break;
+	}
+	
+	socket->flush();
+}
+
+extern "C" void AsebaNativeFunction(AsebaVMState *vm, uint16 id)
+{
+	// no native functions for now
+}
+
+extern "C" void AsebaAssert(AsebaVMState *vm, AsebaAssertReason reason)
+{
+	std::cerr << "\nFatal error: ";
+	switch (vm->nodeId)
+	{
+		case 1: std::cerr << "left motor module"; break;
+		case 2:	std::cerr << "right motor module"; break;
+		case 3: std::cerr << "proximity sensors module"; break;
+		case 4: std::cerr << "distance sensors module"; break;
+		default: std::cerr << "unknown module"; break;
+	}
+	std::cerr << " has produced exception: ";
+	switch (vm->nodeId)
+	{
+		case ASEBA_ASSERT_UNKNOWN: std::cerr << "undefined"; break;
+		case ASEBA_ASSERT_UNKNOWN_BINARY_OPERATOR: std::cerr << "unknown binary operator"; break;
+		case ASEBA_ASSERT_UNKNOWN_BYTECODE: std::cerr << "unknown bytecode"; break;
+		case ASEBA_ASSERT_STACK_OVERFLOW: std::cerr << "stack overflow"; break;
+		case ASEBA_ASSERT_STACK_UNDERFLOW: std::cerr << "stack underflow"; break;
+		case ASEBA_ASSERT_OUT_OF_VARIABLES_BOUNDS: std::cerr << "out of variables bounds"; break;
+		case ASEBA_ASSERT_OUT_OF_BYTECODE_BOUNDS: std::cerr << "out of bytecode bounds"; break;
+		case ASEBA_ASSERT_STEP_OUT_OF_RUN: std::cerr << "step out of run"; break;
+		case ASEBA_ASSERT_BREAKPOINT_OUT_OF_BYTECODE_BOUNDS: std::cerr << "breakpoint out of bytecode bounds"; break;
+		default: std::cerr << "unknown exception"; break;
+	}
+	std::cerr << ".\npc = " << vm->pc << ", sp = " << vm->sp;
+	std::cerr << "Resetting VM" << std::endl;
+	AsebaVMInit(vm, vm->nodeId);
+}
 
 namespace Enki
 {
@@ -57,20 +209,13 @@ namespace Enki
 		AsebaVMInit(&vm, id);
 	}
 	
-	// TODO: implement aseba callbacks
-	
-	AsebaMarxbot::AsebaMarxbot() :
+	AsebaMarxbot::AsebaMarxbot(const std::string &host, unsigned short port) :
+		NetworkClient(host, port),
 		leftMotor(1),
 		rightMotor(2),
 		proximitySensors(3),
 		distanceSensors(4)
 	{
-		// try to open a free port at or after ASEBA_DEFAULT_PORT
-		const unsigned amoutOfPortsToTry = 100;
-		for (unsigned port = ASEBA_DEFAULT_PORT; port < ASEBA_DEFAULT_PORT + amoutOfPortsToTry; port++)
-			if (listen(port))
-				break;
-		
 		// setup modules specific data
 		leftMotor.vm.variables = reinterpret_cast<sint16 *>(&leftMotorVariables);
 		leftMotor.vm.variablesSize = sizeof(leftMotorVariables);
@@ -87,6 +232,21 @@ namespace Enki
 		distanceSensors.vm.variables = reinterpret_cast<sint16 *>(&distanceSensorVariables);
 		distanceSensors.vm.variablesSize = sizeof(distanceSensorVariables);
 		modules.push_back(&distanceSensors);
+		
+		// fill map
+		asebaSocketMaps[&leftMotor.vm] = socket;
+		asebaSocketMaps[&rightMotor.vm] = socket;
+		asebaSocketMaps[&proximitySensors.vm] = socket;
+		asebaSocketMaps[&distanceSensors.vm] = socket;
+	}
+	
+	AsebaMarxbot::~AsebaMarxbot()
+	{
+		// clean map
+		asebaSocketMaps.erase(&leftMotor.vm);
+		asebaSocketMaps.erase(&rightMotor.vm);
+		asebaSocketMaps.erase(&proximitySensors.vm);
+		asebaSocketMaps.erase(&distanceSensors.vm);
 	}
 	
 	void AsebaMarxbot::step(double dt)
@@ -112,12 +272,12 @@ namespace Enki
 		
 		// get physical variables
 		int odoLeft = static_cast<int>((leftEncoder * 16  * 134) / (2 * M_PI));
-		leftMotorVariables.odoLow = odoLeft & 0xffff;
-		leftMotorVariables.odoHigh = odoLeft >> 16;
+		leftMotorVariables.odo[0] = odoLeft & 0xffff;
+		leftMotorVariables.odo[1] = odoLeft >> 16;
 		
 		int odoRight = static_cast<int>((rightEncoder * 16  * 134) / (2 * M_PI));
-		leftMotorVariables.odoLow = odoRight & 0xffff;
-		leftMotorVariables.odoHigh = odoRight >> 16;
+		leftMotorVariables.odo[0] = odoRight & 0xffff;
+		leftMotorVariables.odo[1] = odoRight >> 16;
 		
 		for (size_t i = 0; i < 24; i++)
 			proximitySensorVariables.bumpers[i] = static_cast<sint16>(getVirtualBumper(i));
@@ -143,7 +303,7 @@ namespace Enki
 		{
 			bool wasActivity = false;
 			
-			NetworkServer::step();
+			NetworkClient::step();
 			
 			for (size_t i = 0; i < modules.size(); i++)
 			{
@@ -215,14 +375,9 @@ namespace Enki
 		}
 	}
 	
-	void AsebaMarxbot::incomingConnection(Socket *socket)
-	{
-		// do nothing in addition to what is done by NetworkServer
-	}
-	
 	void AsebaMarxbot::connectionClosed(Socket *socket)
 	{
-		// do nothing in addition to what is done by NetworkServer
+		// do nothing in addition to what is done by NetworkClient
 	}
 }
 
