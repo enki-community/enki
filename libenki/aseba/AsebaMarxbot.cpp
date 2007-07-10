@@ -75,7 +75,20 @@ extern "C" void AsebaSendDescription(AsebaVMState *vm)
 	Enki::Socket* socket = asebaSocketMaps[vm];
 	assert(socket);
 	
+	// write sizes (basic + nodeName + variables)
+	uint16 size;
+	switch (vm->nodeId)
+	{
+		case 1: size = 6 + 11 + (8 + 15); break;
+		case 2: size = 6 + 12 + (8 + 15); break;
+		case 3: size = 6 + 18 + (8 + 20); break;
+		case 4: size = 6 + 17 + (6 + 15); break;
+		default: assert(false); break;
+	}
+	socket->write(&size, 2);
 	socket->write(&vm->nodeId, 2);
+	uint16 id = ASEBA_MESSAGE_DESCRIPTION;
+	socket->write(&id, 2);
 	
 	// write node name
 	switch (vm->nodeId)
@@ -92,7 +105,6 @@ extern "C" void AsebaSendDescription(AsebaVMState *vm)
 	socket->write(&vm->stackSize, 2);
 	socket->write(&vm->variablesSize, 2);
 	
-	uint16 size;
 	switch (vm->nodeId)
 	{
 		case 1:
