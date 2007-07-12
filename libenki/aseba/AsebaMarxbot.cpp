@@ -379,10 +379,18 @@ namespace Enki
 		else
 		{
 			// debug message
-			if (type >= 0x9000)
+			if (type >= 0xA000)
 			{
 				// not bootloader
-				assert(buffer.size() % 2 == 0);
+				if (buffer.size() % 2 != 0)
+				{
+					std::cerr << std::hex << std::showbase;
+					std::cerr << "AsebaMarxbot::incomingData() : fatal error: received event: " << type;
+					std::cerr << std::dec << std::noshowbase;
+					std::cerr << " of size " << buffer.size();
+					std::cerr << ", which is not a power of two." << std::endl;
+					assert(false);
+				}
 				for (size_t i = 0; i < modules.size(); i++)
 					AsebaVMDebugMessage(&modules[i]->vm, type, reinterpret_cast<uint16 *>(dataPtr), buffer.size() / 2);
 			}
