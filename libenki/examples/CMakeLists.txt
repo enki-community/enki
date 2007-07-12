@@ -9,5 +9,5 @@ if (ASEBA_FOUND)
 	link_directories (${enkiaseba_BINARY_DIR})
 
 	add_executable(asebaTest asebaTest.cpp)
-	target_link_libraries(asebaTest enkiaseba enki  ${ASEBA_VM_LIBRARY})
+	target_link_libraries(asebaTest enkiaseba enki ${ASEBA_VM_LIBRARY} ${ASEBA_UTILS_LIBRARY})
 endif (ASEBA_FOUND)

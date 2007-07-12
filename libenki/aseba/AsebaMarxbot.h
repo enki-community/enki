@@ -35,10 +35,10 @@
 #define __ENKI_ASEBA_MARXBOT_H
 
 #include <enki/robots/marxbot/Marxbot.h>
-#include <aseba/Network.h>
 #define ASEBA_ASSERT
 #include <vm/vm.h>
 #include <common/consts.h>
+#include <utils/network.h>
 #include <deque>
 
 /*!	\file AsebaMarxbot.h
@@ -57,7 +57,7 @@ namespace Enki
 		The feature is provided by inheriting from a Network server
 		\ingroup robot
 	*/
-	class AsebaMarxbot : public Marxbot, public NetworkClient
+	class AsebaMarxbot : public Marxbot, public Aseba::NetworkClient
 	{
 	protected:
 		struct Event
@@ -125,8 +125,9 @@ namespace Enki
 		//! In addition to DifferentialWheeled::step(), update aseba variables and initiate periodic events.
 		virtual void step(double dt);
 		
-		virtual void incomingData(Socket *socket);
-		virtual void connectionClosed(Socket *socket);
+		virtual void connectionEstablished();
+		virtual void incomingData();
+		virtual void connectionClosed();
 	};
 
 }

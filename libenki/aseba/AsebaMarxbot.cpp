@@ -46,12 +46,12 @@
 // Implementation of aseba glue code
 
 // map for aseba glue code
-typedef std::map<AsebaVMState*, Enki::Socket*>  VmSocketMap;
+typedef std::map<AsebaVMState*, Aseba::Socket*>  VmSocketMap;
 static VmSocketMap asebaSocketMaps;
 
 extern "C" void AsebaSendMessage(AsebaVMState *vm, uint16 id, void *data, uint16 size)
 {
-	Enki::Socket* socket = asebaSocketMaps[vm];
+	Aseba::Socket* socket = asebaSocketMaps[vm];
 	assert(socket);
 	
 	// write message
@@ -62,7 +62,7 @@ extern "C" void AsebaSendMessage(AsebaVMState *vm, uint16 id, void *data, uint16
 	socket->flush();
 }
 
-void AsebaWriteString(Enki::Socket *socket, const char *s)
+void AsebaWriteString(Aseba::Socket *socket, const char *s)
 {
 	size_t len = strlen(s);
 	uint8 lenUint8 = static_cast<uint8>(strlen(s));
@@ -72,7 +72,7 @@ void AsebaWriteString(Enki::Socket *socket, const char *s)
 
 extern "C" void AsebaSendDescription(AsebaVMState *vm)
 {
-	Enki::Socket* socket = asebaSocketMaps[vm];
+	Aseba::Socket* socket = asebaSocketMaps[vm];
 	assert(socket);
 	
 	// write sizes (basic + nodeName + variables)
@@ -201,7 +201,7 @@ extern "C" void AsebaAssert(AsebaVMState *vm, AsebaAssertReason reason)
 		default: std::cerr << "unknown exception"; break;
 	}
 	std::cerr << ".\npc = " << vm->pc << ", sp = " << vm->sp;
-	std::cerr << "Resetting VM" << std::endl;
+	std::cerr << "\nResetting VM" << std::endl;
 	AsebaVMInit(vm, vm->nodeId);
 }
 
@@ -222,12 +222,14 @@ namespace Enki
 	}
 	
 	AsebaMarxbot::AsebaMarxbot(const std::string &host, unsigned short port) :
-		NetworkClient(host, port),
 		leftMotor(1),
 		rightMotor(2),
 		proximitySensors(3),
 		distanceSensors(4)
 	{
+		// connect
+		connect(host, port);
+		
 		// setup modules specific data
 		leftMotor.vm.variables = reinterpret_cast<sint16 *>(&leftMotorVariables);
 		leftMotor.vm.variablesSize = sizeof(leftMotorVariables);
@@ -246,10 +248,10 @@ namespace Enki
 		modules.push_back(&distanceSensors);
 		
 		// fill map
-		asebaSocketMaps[&leftMotor.vm] = socket;
-		asebaSocketMaps[&rightMotor.vm] = socket;
-		asebaSocketMaps[&proximitySensors.vm] = socket;
-		asebaSocketMaps[&distanceSensors.vm] = socket;
+		asebaSocketMaps[&leftMotor.vm] = this;
+		asebaSocketMaps[&rightMotor.vm] = this;
+		asebaSocketMaps[&proximitySensors.vm] = this;
+		asebaSocketMaps[&distanceSensors.vm] = this;
 	}
 	
 	AsebaMarxbot::~AsebaMarxbot()
@@ -315,7 +317,7 @@ namespace Enki
 		{
 			bool wasActivity = false;
 			
-			NetworkClient::step();
+			Aseba::NetworkClient::step();
 			
 			for (size_t i = 0; i < modules.size(); i++)
 			{
@@ -345,16 +347,16 @@ namespace Enki
 		}
 	}
 	
-	void AsebaMarxbot::incomingData(Socket *socket)
+	void AsebaMarxbot::incomingData()
 	{
 		unsigned short len;
 		unsigned short type;
 		unsigned short source;
-		socket->read(&len, 2);
-		socket->read(&source, 2);
-		socket->read(&type, 2);
+		read(&len, 2);
+		read(&source, 2);
+		read(&type, 2);
 		std::valarray<unsigned char> buffer(static_cast<size_t>(len));
-		socket->read(&buffer[0], buffer.size());
+		read(&buffer[0], buffer.size());
 		
 		signed short *dataPtr = reinterpret_cast<signed short *>(&buffer[0]);
 		
@@ -387,7 +389,12 @@ namespace Enki
 		}
 	}
 	
-	void AsebaMarxbot::connectionClosed(Socket *socket)
+	void AsebaMarxbot::connectionEstablished()
+	{
+		// do nothing in addition to what is done by NetworkClient
+	}
+	
+	void AsebaMarxbot::connectionClosed()
 	{
 		// do nothing in addition to what is done by NetworkClient
 	}
