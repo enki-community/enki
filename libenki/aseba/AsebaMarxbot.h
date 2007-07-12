@@ -68,7 +68,7 @@ namespace Enki
 		
 		struct Module
 		{
-			Module(unsigned short id);
+			Module();
 			
 			AsebaVMState vm;
 			std::valarray<unsigned short> bytecode;

@@ -62,6 +62,22 @@ extern "C" void AsebaSendMessage(AsebaVMState *vm, uint16 id, void *data, uint16
 	socket->flush();
 }
 
+extern "C" void AsebaSendVariables(AsebaVMState *vm, uint16 start, uint16 length)
+{
+	Aseba::Socket* socket = asebaSocketMaps[vm];
+	assert(socket);
+	
+	// write message
+	uint16 size = length * 2 + 2;
+	uint16 id = ASEBA_MESSAGE_VARIABLES;
+	socket->write(&size, 2);
+	socket->write(&vm->nodeId, 2);
+	socket->write(&id, 2);
+	socket->write(&start, 2);
+	socket->write(vm->variables + start, length * 2);
+	socket->flush();
+}
+
 void AsebaWriteString(Aseba::Socket *socket, const char *s)
 {
 	size_t len = strlen(s);
@@ -207,7 +223,7 @@ extern "C" void AsebaAssert(AsebaVMState *vm, AsebaAssertReason reason)
 
 namespace Enki
 {
-	AsebaMarxbot::Module::Module(unsigned short id)
+	AsebaMarxbot::Module::Module()
 	{
 		bytecode.resize(512);
 		vm.bytecode = &bytecode[0];
@@ -218,33 +234,32 @@ namespace Enki
 		vm.stackSize = stack.size();
 		
 		amountOfTimerEventInQueue = 0;
-		AsebaVMInit(&vm, id);
 	}
 	
-	AsebaMarxbot::AsebaMarxbot(const std::string &host, unsigned short port) :
-		leftMotor(1),
-		rightMotor(2),
-		proximitySensors(3),
-		distanceSensors(4)
+	AsebaMarxbot::AsebaMarxbot(const std::string &host, unsigned short port) 
 	{
 		// connect
 		connect(host, port);
 		
 		// setup modules specific data
 		leftMotor.vm.variables = reinterpret_cast<sint16 *>(&leftMotorVariables);
-		leftMotor.vm.variablesSize = sizeof(leftMotorVariables);
+		leftMotor.vm.variablesSize = sizeof(leftMotorVariables) / sizeof(sint16);
+		AsebaVMInit(&leftMotor.vm, 1);
 		modules.push_back(&leftMotor);
 		
 		rightMotor.vm.variables = reinterpret_cast<sint16 *>(&rightMotorVariables);
-		rightMotor.vm.variablesSize = sizeof(rightMotorVariables);
+		rightMotor.vm.variablesSize = sizeof(rightMotorVariables) / sizeof(sint16);
+		AsebaVMInit(&rightMotor.vm, 2);
 		modules.push_back(&rightMotor);
 		
 		proximitySensors.vm.variables = reinterpret_cast<sint16 *>(&proximitySensorVariables);
-		proximitySensors.vm.variablesSize = sizeof(proximitySensorVariables);
+		proximitySensors.vm.variablesSize = sizeof(proximitySensorVariables) / sizeof(sint16);
+		AsebaVMInit(&proximitySensors.vm, 3);
 		modules.push_back(&proximitySensors);
 		
 		distanceSensors.vm.variables = reinterpret_cast<sint16 *>(&distanceSensorVariables);
-		distanceSensors.vm.variablesSize = sizeof(distanceSensorVariables);
+		distanceSensors.vm.variablesSize = sizeof(distanceSensorVariables) / sizeof(sint16);
+		AsebaVMInit(&distanceSensors.vm, 4);
 		modules.push_back(&distanceSensors);
 		
 		// fill map
