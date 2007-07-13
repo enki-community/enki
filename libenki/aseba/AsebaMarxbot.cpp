@@ -203,7 +203,7 @@ extern "C" void AsebaAssert(AsebaVMState *vm, AsebaAssertReason reason)
 		default: std::cerr << "unknown module"; break;
 	}
 	std::cerr << " has produced exception: ";
-	switch (vm->nodeId)
+	switch (reason)
 	{
 		case ASEBA_ASSERT_UNKNOWN: std::cerr << "undefined"; break;
 		case ASEBA_ASSERT_UNKNOWN_BINARY_OPERATOR: std::cerr << "unknown binary operator"; break;
@@ -218,6 +218,7 @@ extern "C" void AsebaAssert(AsebaVMState *vm, AsebaAssertReason reason)
 	}
 	std::cerr << ".\npc = " << vm->pc << ", sp = " << vm->sp;
 	std::cerr << "\nResetting VM" << std::endl;
+	assert(false);
 	AsebaVMInit(vm, vm->nodeId);
 }
 
@@ -244,22 +245,18 @@ namespace Enki
 		// setup modules specific data
 		leftMotor.vm.variables = reinterpret_cast<sint16 *>(&leftMotorVariables);
 		leftMotor.vm.variablesSize = sizeof(leftMotorVariables) / sizeof(sint16);
-		AsebaVMInit(&leftMotor.vm, 1);
 		modules.push_back(&leftMotor);
 		
 		rightMotor.vm.variables = reinterpret_cast<sint16 *>(&rightMotorVariables);
 		rightMotor.vm.variablesSize = sizeof(rightMotorVariables) / sizeof(sint16);
-		AsebaVMInit(&rightMotor.vm, 2);
 		modules.push_back(&rightMotor);
 		
 		proximitySensors.vm.variables = reinterpret_cast<sint16 *>(&proximitySensorVariables);
 		proximitySensors.vm.variablesSize = sizeof(proximitySensorVariables) / sizeof(sint16);
-		AsebaVMInit(&proximitySensors.vm, 3);
 		modules.push_back(&proximitySensors);
 		
 		distanceSensors.vm.variables = reinterpret_cast<sint16 *>(&distanceSensorVariables);
 		distanceSensors.vm.variablesSize = sizeof(distanceSensorVariables) / sizeof(sint16);
-		AsebaVMInit(&distanceSensors.vm, 4);
 		modules.push_back(&distanceSensors);
 		
 		// fill map
@@ -267,6 +264,12 @@ namespace Enki
 		asebaSocketMaps[&rightMotor.vm] = this;
 		asebaSocketMaps[&proximitySensors.vm] = this;
 		asebaSocketMaps[&distanceSensors.vm] = this;
+		
+		// init VM
+		AsebaVMInit(&leftMotor.vm, 1);
+		AsebaVMInit(&rightMotor.vm, 2);
+		AsebaVMInit(&proximitySensors.vm, 3);
+		AsebaVMInit(&distanceSensors.vm, 4);
 	}
 	
 	AsebaMarxbot::~AsebaMarxbot()
