@@ -87,8 +87,8 @@ namespace Enki
 		
 		// Compute encoders
 		double angleDiff = normalizeAngle(angle - oldAngle);
-		leftEncoder = (norm - distBetweenWheels * angleDiff * 0.5) / dt;
-		rightEncoder = (norm + distBetweenWheels * angleDiff * 0.5) / dt;
+		leftEncoder += (norm - distBetweenWheels * angleDiff * 0.5) / dt;
+		rightEncoder += (norm + distBetweenWheels * angleDiff * 0.5) / dt;
 		
 		// Save values for next step.
 		oldPos = pos;

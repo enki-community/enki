@@ -308,8 +308,8 @@ namespace Enki
 		leftMotorVariables.odo[1] = odoLeft >> 16;
 		
 		int odoRight = static_cast<int>((rightEncoder * 16  * 134) / (2 * M_PI));
-		leftMotorVariables.odo[0] = odoRight & 0xffff;
-		leftMotorVariables.odo[1] = odoRight >> 16;
+		rightMotorVariables.odo[0] = odoRight & 0xffff;
+		rightMotorVariables.odo[1] = odoRight >> 16;
 		
 		for (size_t i = 0; i < 24; i++)
 			proximitySensorVariables.bumpers[i] = static_cast<sint16>(getVirtualBumper(i));
