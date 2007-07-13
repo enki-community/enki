@@ -303,11 +303,11 @@ namespace Enki
 		DifferentialWheeled::step(dt);
 		
 		// get physical variables
-		int odoLeft = static_cast<int>((leftEncoder * 16  * 134) / (2 * M_PI));
+		int odoLeft = static_cast<int>((leftOdometry * 16  * 134) / (2 * M_PI));
 		leftMotorVariables.odo[0] = odoLeft & 0xffff;
 		leftMotorVariables.odo[1] = odoLeft >> 16;
 		
-		int odoRight = static_cast<int>((rightEncoder * 16  * 134) / (2 * M_PI));
+		int odoRight = static_cast<int>((rightOdometry * 16  * 134) / (2 * M_PI));
 		rightMotorVariables.odo[0] = odoRight & 0xffff;
 		rightMotorVariables.odo[1] = odoRight >> 16;
 		

@@ -53,6 +53,10 @@ namespace Enki
 		double leftEncoder;
 		//! The encoder for right wheel
 		double rightEncoder;
+		//! The odometry (accumulation of encoders) for left wheel
+		double leftOdometry;
+		//! The odometry (accumulation of encoders) for right wheel
+		double rightOdometry;
 		
 	protected:
 		//! Save of last position to compute encoders.
@@ -69,7 +73,7 @@ namespace Enki
 		//! Constructor
 		DifferentialWheeled(double distBetweenWheels, double noiseAmount);
 		
-		//! Reset the encoder. Should be called when robot is moved manually.
+		//! Reset the encoder. Should be called when robot is moved manually. Odometry is cleared too.
 		void resetEncoders();
 		
 		//! Set the real speed of the robot given leftSpeed and rightSpeed. Add noise. Update encoders.

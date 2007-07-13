@@ -51,6 +51,7 @@ namespace Enki
 		oldPos = pos;
 		oldAngle = angle;
 		leftEncoder = rightEncoder = 0.0;
+		leftOdometry = rightOdometry = 0.0;
 	}
 	
 	void DifferentialWheeled::step(double dt)
@@ -87,8 +88,10 @@ namespace Enki
 		
 		// Compute encoders
 		double angleDiff = normalizeAngle(angle - oldAngle);
-		leftEncoder += (norm - distBetweenWheels * angleDiff * 0.5) / dt;
-		rightEncoder += (norm + distBetweenWheels * angleDiff * 0.5) / dt;
+		leftEncoder = (norm - distBetweenWheels * angleDiff * 0.5) / dt;
+		rightEncoder = (norm + distBetweenWheels * angleDiff * 0.5) / dt;
+		leftOdometry += leftEncoder;
+		rightOdometry += rightEncoder;
 		
 		// Save values for next step.
 		oldPos = pos;
