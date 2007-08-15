@@ -108,12 +108,14 @@ namespace Enki
 		//! Threshold the color using limit. For each component, if value is below limit, set it to 0
 		void threshold(const Color &limit) { for (size_t i=0; i<3; i++) components[i] = components[i] > limit.components[i] ? components[i] : 0; }
 		//! Return the grey level value
-		double gray() const { return (components[0] + components[1] + components[2]) / 3; }
+		double toGray() const { return (components[0] + components[1] + components[2]) / 3; }
 		
 		//! black (0, 0, 0)
 		static const Color black;
 		//! white (1, 1, 1)
 		static const Color white;
+		//! gray (0.5, 0.5, 0.5)
+		static const Color gray;
 		//! red (1, 0, 0)
 		static const Color red;
 		//! green (0, 1, 0)

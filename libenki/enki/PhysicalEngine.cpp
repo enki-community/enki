@@ -54,7 +54,7 @@ namespace Enki
 		angle = 0;
 		angSpeed = 0;
 		mass = 1;
-		collisionWithWalls=false;
+		collisionWithWalls = false;
 		r = 1;
 		reflection = 1;
 		height = 1;
@@ -315,6 +315,10 @@ namespace Enki
 	{
 		collideEven = true;
 		useWalls = true;
+		
+		// walls are gray
+		for (size_t i = 0; i < 4; i++)
+			wallTextures[i].resize(1, Color::gray);
 	}
 
 	World::~World()

@@ -274,7 +274,7 @@ namespace Enki
 		const double w;
 		//! The height of the world
 		const double h;
-		//! Texture of walls
+		//! Texture of walls.
 		Texture wallTextures[4];
 		//! Base for the Bluetooth connections between robots
 		class BluetoothBase* bluetoothBase;
