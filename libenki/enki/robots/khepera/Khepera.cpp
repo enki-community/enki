@@ -93,7 +93,7 @@ namespace Enki
 		camera(this, Vector(0, 0), 0, 0.0, M_PI/4, 50)
 	{
 		mass = 80;
-		height = 3;
+		height = 5;
 		r = 2.6;
 		collisionAngularFrictionFactor = 0.7;
 		viscousFrictionTau = 0.5;
