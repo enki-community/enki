@@ -74,21 +74,21 @@ namespace Enki
 	class EPuck : public DifferentialWheeled
 	{
 	public:
-		//! The infrared sensor 0 (front-front-left)
+		//! The infrared sensor 0 (front-front-right)
 		IRSensor infraredSensor0;
-		//! The infrared sensor 1 (front-left)
+		//! The infrared sensor 1 (front-right)
 		IRSensor infraredSensor1;
-		//! The infrared sensor 2 (left)
+		//! The infrared sensor 2 (right)
 		IRSensor infraredSensor2;
-		//! The infrared sensor 3 (back-left)
+		//! The infrared sensor 3 (back-right)
 		IRSensor infraredSensor3;
-		//! The infrared sensor 4 (back-right)
+		//! The infrared sensor 4 (back-left)
 		IRSensor infraredSensor4;
-		//! The infrared sensor 5 (right)
+		//! The infrared sensor 5 (left)
 		IRSensor infraredSensor5;
-		//! The infrared sensor 6 (front-right)
+		//! The infrared sensor 6 (front-left)
 		IRSensor infraredSensor6;
-		//! The infrared sensor 7 (front-front-right)
+		//! The infrared sensor 7 (front-front-left)
 		IRSensor infraredSensor7;
 		//! Linear camera
 		CircularCam camera;
