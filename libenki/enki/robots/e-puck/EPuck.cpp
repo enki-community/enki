@@ -77,10 +77,8 @@ namespace Enki
 			
 			dist*=(0.97+random.getRange(0.06));
 			
-			
 			return dist;
 		}
-				
 	};
 	
 	
@@ -91,15 +89,14 @@ namespace Enki
 	
 	EPuck::EPuck(unsigned capabilities) :
 		DifferentialWheeled(5.1, 0.05),
-		infraredSensor0(this, Vector(3.0, -0.9),  0.0, -4*M_PI/45.0, 12, 0, 1, &epuckIRSensorModelPtr),   // IR 0 (Front right)    height should be 2.5 but all the other objects have a lower value so they are not seen...
-		infraredSensor1(this, Vector(2.6, -2.6),  0.0, -M_PI/4.0, 12, 0, 1, &epuckIRSensorModelPtr),   // IR 1 (Half front right)
-		infraredSensor2(this, Vector(0.0, -3.3),  0.0, -M_PI/2.0,      12, 0, 1, &epuckIRSensorModelPtr),     // IR 2 (Right side)
-		infraredSensor3(this, Vector(-2.8, -1.7), 0.0, -5*M_PI/6.0,      12, 0, 1, &epuckIRSensorModelPtr),   // IR 3 (Back Right)
-		infraredSensor4(this, Vector(-2.8, 1.7), 0.0, 5*M_PI/6.0 ,12, 0, 1, &epuckIRSensorModelPtr),  // IR 4 (Back left)
-		infraredSensor5(this, Vector(0, 3.3), 0.0, M_PI/2.0,12, 0, 1, &epuckIRSensorModelPtr),     // IR 5 (Left side)
-		infraredSensor6(this, Vector(2.6, 2.6), 0.0, M_PI/4.0,  12, 0, 1, &epuckIRSensorModelPtr),  // IR 6 (Half front left)
-		infraredSensor7(this, Vector(3.0, 0.9), 0.0, 4*M_PI/45.0,  12, 0, 1, &epuckIRSensorModelPtr),    // IR 7 (Front left)
-		camera(this, Vector(3.7, 0.0), 0.0, 0.0, M_PI/6.0, 60),     // height should be 2.2
+		
+		infraredSensor0(this, Vector(3.0, -0.9),  2.5, -4*M_PI/45.0, 12, 0, 1, &epuckIRSensorModelPtr), infraredSensor1(this, Vector(2.6, -2.6),  2.5, -M_PI/4.0,    12, 0, 1, &epuckIRSensorModelPtr),   infraredSensor2(this, Vector(0.0, -3.3),  2.5, -M_PI/2.0,    12, 0, 1, &epuckIRSensorModelPtr),
+		infraredSensor3(this, Vector(-2.8, -1.7), 2.5, -5*M_PI/6.0,  12, 0, 1, &epuckIRSensorModelPtr),
+		infraredSensor4(this, Vector(-2.8, 1.7),  2.5, 5*M_PI/6.0,   12, 0, 1, &epuckIRSensorModelPtr),
+		infraredSensor5(this, Vector(0, 3.3),     2.5, M_PI/2.0,     12, 0, 1, &epuckIRSensorModelPtr),
+		infraredSensor6(this, Vector(2.6, 2.6),   2.5, M_PI/4.0,     12, 0, 1, &epuckIRSensorModelPtr),
+		infraredSensor7(this, Vector(3.0, 0.9),   2.5, 4*M_PI/45.0,  12, 0, 1, &epuckIRSensorModelPtr),
+		camera(this, Vector(3.7, 0.0), 2.2, 0.0, M_PI/6.0, 60),
 		scannerTurret(this, 7.2, 40, 20, 100),
 		bluetooth(NULL)
 	{
