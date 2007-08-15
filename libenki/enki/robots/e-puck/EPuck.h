@@ -45,7 +45,31 @@
 	
 namespace Enki
 {
-	//! A simple model of the E-puck robot. 
+	//! The rotating, long range distance sensor turret of the E-puck robot.
+	/*! \ingroup interaction */
+	class EPuckScannerTurret : public OmniCam
+	{
+	protected:
+		//! Minimum scanning distance, all shorter distances return this
+		double minDist;
+		//! Maximum scanning distance, all longer distances return this
+		double maxDist;
+		
+	public:
+		//! Constructor
+		/*!
+			\param owner robot this camera is attached to
+			\param height height of this camera with respect to ground
+			\param halfPixelCount half the number of pixel to cover the full 2*PI field of view
+			\param minDist minimum scanning distance
+			\param maxDist maximum scanning distance
+		*/
+		EPuckScannerTurret(Robot *owner, double height, unsigned halfPixelCount, double minDist, double maxDist);
+		
+		virtual void finalize(double dt);
+	};
+	
+	//! A simple model of the E-puck robot.
 	/*! \ingroup robot */
 	class EPuck : public DifferentialWheeled
 	{
@@ -68,6 +92,8 @@ namespace Enki
 		IRSensor infraredSensor7;
 		//! Linear camera
 		CircularCam camera;
+		//! The rotating, long range distance sensor turret
+		EPuckScannerTurret scannerTurret;
 		//! Bluetooth module
 		Bluetooth* bluetooth;
 		
@@ -81,6 +107,8 @@ namespace Enki
 			CAPABILITY_BASIC_SENSORS = 0x1,
 			//! Camera: add a linear camera
 			CAPABILITY_CAMERA = 0x2,
+			//! The rotating, long range distance sensor turret
+			CAPABILITY_SCANNER_TURRET = 0x3,
 			//! Bluetooth: activate the bluetooth module (Requires the use of Bluetooth master)
 			CAPABILITY_BLUETOOTH = 0x4
 		};

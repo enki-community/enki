@@ -49,6 +49,7 @@ namespace Enki
 	
 	PhysicalObject::PhysicalObject(void) 
 	{
+		userData = NULL;
 		boundingSurface = NULL;
 		angle = 0;
 		angSpeed = 0;
@@ -66,7 +67,8 @@ namespace Enki
 
 	PhysicalObject::~PhysicalObject(void)
 	{
-
+		if (userData)
+			delete userData;
 	}
 
 	void PhysicalObject::step(double dt)

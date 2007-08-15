@@ -148,9 +148,10 @@ namespace Enki
 		//! Constructor
 		/*!
 			\param owner robot this camera is attached to
+			\param height height of this camera with respect to ground
 			\param halfPixelCount half the number of pixel to cover the full 2*PI field of view
 		*/
-		OmniCam(Robot *owner, unsigned halfPixelCount);
+		OmniCam(Robot *owner, double height, unsigned halfPixelCount);
 		//! Destructor
 		virtual ~OmniCam(){}
 		virtual void init();

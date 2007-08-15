@@ -111,10 +111,11 @@ namespace Enki
 	
 	Sbot::Sbot() :
 		DifferentialWheeled(5, 0.02),
-		camera(this, 64),
+		camera(this, 12, 64),
 		globalSound(this)
 	{
 		mass = 500;
+		height = 15;
 		r = 6;
 		addLocalInteraction(&camera);
 		//addGlobalInteraction(&globalSound);

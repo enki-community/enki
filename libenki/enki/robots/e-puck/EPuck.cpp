@@ -32,13 +32,33 @@
 */
 
 #include "EPuck.h"
-#include <limits.h>
+#include <algorithm>
+#include <functional>
+#include <climits>
 
 /*! \file EPuck.cpp
 \brief Implementation of the E-Puck robot
 */
 namespace Enki
 {
+	using namespace std;
+	
+	EPuckScannerTurret::EPuckScannerTurret(Robot *owner, double height, unsigned halfPixelCount, double minDist, double maxDist) :
+		OmniCam(owner, height, halfPixelCount),
+		minDist(minDist),
+		maxDist(maxDist)
+	{
+	}
+	
+	void EPuckScannerTurret::finalize(double dt)
+	{
+		OmniCam::finalize(dt);
+		
+		replace_if(&zbuffer[0], &zbuffer[zbuffer.size()], bind2nd(less<double>(), minDist), minDist);
+		replace_if(&zbuffer[0], &zbuffer[zbuffer.size()], bind2nd(greater<double>(), maxDist), maxDist);
+	}
+	
+	
 	//! Calculate the signal strength as a function of the distance.
 	/*! The nearer we are, the higher the sensor activation.
 	This model is very simple and not very good but sufficient for simple demonstration.
@@ -80,42 +100,49 @@ namespace Enki
 		infraredSensor6(this, Vector(2.6, 2.6), 0.0, M_PI/4.0,  12, 0, 1, &epuckIRSensorModelPtr),  // IR 6 (Half front left)
 		infraredSensor7(this, Vector(3.0, 0.9), 0.0, 4*M_PI/45.0,  12, 0, 1, &epuckIRSensorModelPtr),    // IR 7 (Front left)
 		camera(this, Vector(3.7, 0.0), 0.0, 0.0, M_PI/6.0, 60),     // height should be 2.2
+		scannerTurret(this, 7.2, 40, 20, 100),
 		bluetooth(NULL)
 	{
-			oldAngle=angle;
-			reflection=1.0;   // 0.6 would be more realistic
-			mass = 152;
-			height = 4.7;
-			r = 3.7;
-			collisionAngularFrictionFactor = 0.7;
-			viscousFrictionTau = 0.5;
-			viscousMomentFrictionTau = 0;
-			
-			if (capabilities & CAPABILITY_BASIC_SENSORS)
-			{
-				addLocalInteraction(&infraredSensor0);
-				addLocalInteraction(&infraredSensor1);
-				addLocalInteraction(&infraredSensor2);
-				addLocalInteraction(&infraredSensor3);
-				addLocalInteraction(&infraredSensor4);
-				addLocalInteraction(&infraredSensor5);
-				addLocalInteraction(&infraredSensor6);
-				addLocalInteraction(&infraredSensor7);
-			}
-			
-			if (capabilities & CAPABILITY_CAMERA)
-			{
-				addLocalInteraction(&camera);
-			}
-			
-			if (capabilities & CAPABILITY_BLUETOOTH)
-			{
-				bluetooth = new Bluetooth(this,1000,7,100,100,random.get()%UINT_MAX);
-				addGlobalInteraction(bluetooth);
-			}
-			
-			leftEncoder = rightEncoder = 0;
-			leftSpeed = rightSpeed = 0;
+		oldAngle=angle;
+		reflection=1.0;   // 0.6 would be more realistic
+		mass = 152;
+		height = 4.7;
+		r = 3.7;
+		collisionAngularFrictionFactor = 0.7;
+		viscousFrictionTau = 0.5;
+		viscousMomentFrictionTau = 0;
+		
+		if (capabilities & CAPABILITY_BASIC_SENSORS)
+		{
+			addLocalInteraction(&infraredSensor0);
+			addLocalInteraction(&infraredSensor1);
+			addLocalInteraction(&infraredSensor2);
+			addLocalInteraction(&infraredSensor3);
+			addLocalInteraction(&infraredSensor4);
+			addLocalInteraction(&infraredSensor5);
+			addLocalInteraction(&infraredSensor6);
+			addLocalInteraction(&infraredSensor7);
+		}
+		
+		if (capabilities & CAPABILITY_CAMERA)
+		{
+			addLocalInteraction(&camera);
+		}
+		
+		if (capabilities & CAPABILITY_SCANNER_TURRET)
+		{
+			addLocalInteraction(&scannerTurret);
+		}
+		
+		if (capabilities & CAPABILITY_BLUETOOTH)
+		{
+			bluetooth = new Bluetooth(this,1000,7,100,100,random.get()%UINT_MAX);
+			addGlobalInteraction(bluetooth);
+		}
+		
+		leftEncoder = rightEncoder = 0;
+		leftSpeed = rightSpeed = 0;
+		color = Color(0, 0.7, 0);
 	}
 	
 	EPuck::~EPuck()
@@ -126,7 +153,7 @@ namespace Enki
 	
 	void EPuck::setLedRing(bool status)
 	{
-		color = status ? Color::red : Color::black;
+		color = status ? Color::red : Color(0, 0.7, 0);
 	}
 }
 

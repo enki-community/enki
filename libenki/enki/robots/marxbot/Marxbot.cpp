@@ -56,7 +56,7 @@ namespace Enki
 	
 	Marxbot::Marxbot() :
 		DifferentialWheeled(15, 0.02),
-		rotatingDistanceSensor(this, 90)
+		rotatingDistanceSensor(this, 11, 90)
 	{
 		mass = 1000;
 		r = 8.5;

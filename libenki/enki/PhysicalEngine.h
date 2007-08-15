@@ -126,6 +126,16 @@ namespace Enki
 	class PhysicalObject
 	{
 	public:
+		//! User specific data that can be attached to any object in the world.
+		class UserData
+		{
+		public:
+			virtual ~UserData() {}
+		};
+		
+		//! Data attached by the user to this physical object. If non-null, will be destroyed with the object.
+		UserData *userData;
+	
 		//! The position of the object.
 		Point pos;
 		//! The height of the object, used for interaction with robot's sensors.

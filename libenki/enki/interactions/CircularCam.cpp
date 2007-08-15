@@ -312,11 +312,11 @@ namespace Enki
 	
 	
 	
-	OmniCam::OmniCam(Robot *owner, unsigned halfPixelCount) :
+	OmniCam::OmniCam(Robot *owner, double height, unsigned halfPixelCount) :
 		zbuffer(halfPixelCount * 2),
 		image(halfPixelCount * 2),
-		cam0(owner, Point(0, 0), 0, -M_PI/2, M_PI/2, halfPixelCount),
-		cam1(owner, Point(0, 0), 0, M_PI/2, M_PI/2, halfPixelCount)
+		cam0(owner, Point(0, 0), height, -M_PI/2, M_PI/2, halfPixelCount),
+		cam1(owner, Point(0, 0), height, M_PI/2, M_PI/2, halfPixelCount)
 	{
 		this->r = std::numeric_limits<double>::max();
 		this->owner = owner;
