@@ -76,7 +76,7 @@ namespace Enki
 		double absOrientation;
 
 	public:
-		//! zbuffer (array of size pixelCount of double)
+		//! zbuffer: distances at square (array of size pixelCount of double)
 		std::valarray<double> zbuffer;
 		//! Image (array of size pixelCount of Color)
 		std::valarray<Color> image;
@@ -133,7 +133,7 @@ namespace Enki
 	class OmniCam : public LocalInteraction
 	{
 	public:
-		//! zbuffer (array of size pixelCount of double)
+		//! zbuffer: distances at square (array of size pixelCount of double)
 		std::valarray<double> zbuffer;
 		//! Image (array of size pixelCount of Color)
 		std::valarray<Color> image;

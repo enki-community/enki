@@ -54,8 +54,8 @@ namespace Enki
 	{
 		OmniCam::finalize(dt);
 		
-		replace_if(&zbuffer[0], &zbuffer[zbuffer.size()], bind2nd(less<double>(), minDist), minDist);
-		replace_if(&zbuffer[0], &zbuffer[zbuffer.size()], bind2nd(greater<double>(), maxDist), maxDist);
+		replace_if(&zbuffer[0], &zbuffer[zbuffer.size()], bind2nd(less<double>(), minDist*minDist), minDist*minDist);
+		replace_if(&zbuffer[0], &zbuffer[zbuffer.size()], bind2nd(greater<double>(), maxDist*maxDist), maxDist*maxDist);
 	}
 	
 	
