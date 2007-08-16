@@ -81,7 +81,7 @@ namespace Enki
 	*/
 	
 	Khepera::Khepera(unsigned capabilities) :
-		DifferentialWheeled(5.2, 0.05),
+		DifferentialWheeled(5.2, 100, 0.05),
 		infraredSensor0(this, Vector(1.0, 1.5),  1.8, M_PI/2, 10, 0, 1, &kheperaIRSensorModelPtr),
 		infraredSensor1(this, Vector(1.3, 1.3),  1.8, M_PI/4, 10, 0, 1, &kheperaIRSensorModelPtr),
 		infraredSensor2(this, Vector(1.6, 0.6),  1.8, 0,      10, 0, 1, &kheperaIRSensorModelPtr),

@@ -38,8 +38,20 @@
 */
 namespace Enki
 {
-	DifferentialWheeled::DifferentialWheeled(double distBetweenWheels, double noiseAmount) :
+	template<typename T>
+	T clamp(T v, T min, T max)
+	{
+		if (v < min)
+			return min;
+		else if (v > max)
+			return max;
+		else
+			return v;
+	}
+	
+	DifferentialWheeled::DifferentialWheeled(double distBetweenWheels, double maxSpeed, double noiseAmount) :
 		distBetweenWheels(distBetweenWheels),
+		maxSpeed(maxSpeed),
 		noiseAmount(noiseAmount)
 	{
 		leftSpeed = rightSpeed = 0;
@@ -59,12 +71,14 @@ namespace Enki
 		// +/- noiseAmout % of motor noise
 		double baseFactor = 1 - noiseAmount;
 		double noiseFactor = 2 * noiseAmount;
-		double realRightSpeed = rightSpeed * (baseFactor + random.getRange(noiseFactor));
-		double realLeftSpeed = leftSpeed * (baseFactor + random.getRange(noiseFactor));
+		double realLeftSpeed = clamp(leftSpeed, -maxSpeed, maxSpeed);
+		realLeftSpeed *= (baseFactor + random.getRange(noiseFactor));
+		double realRightSpeed = clamp(rightSpeed, -maxSpeed, maxSpeed);
+		realRightSpeed  *= (baseFactor + random.getRange(noiseFactor));
 		
 		// speeds, according to Prof. Roland Siegwart class material
 		double forwardSpeed = (realRightSpeed + realLeftSpeed) * 0.5;
-		angSpeed += (realRightSpeed-realLeftSpeed) / distBetweenWheels;
+		angSpeed += (realRightSpeed - realLeftSpeed) / distBetweenWheels;
 		speed = Vector(
 					forwardSpeed * cos(angle + angSpeed * dt * 0.5),
 					forwardSpeed * sin(angle + angSpeed * dt * 0.5)

@@ -66,12 +66,14 @@ namespace Enki
 		
 		//! Distance between the left and right driving wheels
 		double distBetweenWheels;
+		//! Maximum speed wheels can provide
+		double maxSpeed;
 		//! Relative amount of motor noise
 		double noiseAmount;
 		
 	public:
 		//! Constructor
-		DifferentialWheeled(double distBetweenWheels, double noiseAmount);
+		DifferentialWheeled(double distBetweenWheels, double maxSpeed, double noiseAmount);
 		
 		//! Reset the encoder. Should be called when robot is moved manually. Odometry is cleared too.
 		void resetEncoders();

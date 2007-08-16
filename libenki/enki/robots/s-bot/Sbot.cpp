@@ -110,7 +110,7 @@ namespace Enki
 	}
 	
 	Sbot::Sbot() :
-		DifferentialWheeled(5, 0.02),
+		DifferentialWheeled(5, 40, 0.02),
 		camera(this, 12, 64),
 		globalSound(this)
 	{

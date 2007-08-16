@@ -88,7 +88,7 @@ namespace Enki
 	SensorResponseFunctor *epuckIRSensorModelPtr = &epuckIRSensorModel;
 	
 	EPuck::EPuck(unsigned capabilities) :
-		DifferentialWheeled(5.1, 0.05),
+		DifferentialWheeled(5.1, 30, 0.05),
 		
 		infraredSensor0(this, Vector(3.0, -0.9),  2.5, -4*M_PI/45.0, 12, 0, 1, &epuckIRSensorModelPtr), infraredSensor1(this, Vector(2.6, -2.6),  2.5, -M_PI/4.0,    12, 0, 1, &epuckIRSensorModelPtr),   infraredSensor2(this, Vector(0.0, -3.3),  2.5, -M_PI/2.0,    12, 0, 1, &epuckIRSensorModelPtr),
 		infraredSensor3(this, Vector(-2.8, -1.7), 2.5, -5*M_PI/6.0,  12, 0, 1, &epuckIRSensorModelPtr),
