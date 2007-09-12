@@ -111,7 +111,7 @@ namespace Enki
 		enum Errors
 		{
 			//! No error occured during the last step
-			NO_ERROR = 0,
+			BT_NO_ERROR = 0,
 			//! The address used was unknown
 			ADDRESS_UNKNOWN = 1,
 			//! The distance between the 2 robots is too great

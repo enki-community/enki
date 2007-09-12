@@ -51,8 +51,8 @@ namespace Enki
 		this->address=address;
 		this->updateAddress=true;
 		this->randomAddress=true;
-		this->connectionError=NO_ERROR;
-		this->disconnectionError=NO_ERROR;
+		this->connectionError=BT_NO_ERROR;
+		this->disconnectionError=BT_NO_ERROR;
 		this->rxBufferSize=rxbuffersize;
 		this->txBufferSize=txbuffersize;
 		
@@ -116,7 +116,7 @@ namespace Enki
 			destAddress[i]=UINT_MAX;
 			sizeToSend[i]=0;
 			sizeReceived[i]=0;
-			transmissionError[i]=NO_ERROR;
+			transmissionError[i]=BT_NO_ERROR;
 		}
 	}
 	
@@ -326,7 +326,7 @@ namespace Enki
 		}
 		
 		// Connection to another robot
-		connectionError=NO_ERROR;
+		connectionError=BT_NO_ERROR;
 		while (!connectToRobot.empty())
 		{
 			bb->connectTo(this,connectToRobot.front());
@@ -334,7 +334,7 @@ namespace Enki
 		}
 		
 		// Disconnection from another robot
-		disconnectionError=NO_ERROR;
+		disconnectionError=BT_NO_ERROR;
 		while (!closeConnectionToRobot.empty())
 		{
 			bb->closeConnection(this,closeConnectionToRobot.front());
@@ -347,7 +347,7 @@ namespace Enki
 			if (destAddress[i]<UINT_MAX && sizeToSend[i]>0)
 			{
 				// We are connected and we want to send something
-				transmissionError[i]=NO_ERROR;
+				transmissionError[i]=BT_NO_ERROR;
 				bb->sendDataTo(this,destAddress[i],txBuffer[i],sizeToSend[i]);
 			}
 		}

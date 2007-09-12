@@ -134,7 +134,7 @@ namespace Enki
 				
 				destination->sizeReceived[j] = q;
 				source->sizeToSend[i] = q-size;
-				source->transmissionError[i] = q<size ? RECEPTION_BUFFER_FULL : NO_ERROR;
+				source->transmissionError[i] = q<size ? RECEPTION_BUFFER_FULL : BT_NO_ERROR;
 				destination->receptionFlags[j] = true;
 				return q < size;
 			}
@@ -172,7 +172,7 @@ namespace Enki
 				source->nbConnections++;
 				destination->nbConnections++;
 
-				source->connectionError = NO_ERROR;
+				source->connectionError = BT_NO_ERROR;
 				return true;
 			}
 			else
@@ -212,7 +212,7 @@ namespace Enki
 				source->nbConnections--;
 				destination->nbConnections--;
 				
-				source->disconnectionError = NO_ERROR;
+				source->disconnectionError = BT_NO_ERROR;
 				return true;
 			}
 		}
