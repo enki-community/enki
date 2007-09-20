@@ -97,7 +97,7 @@ namespace Enki
 		infraredSensor6(this, Vector(2.6, 2.6),   2.5, M_PI/4.0,     12, 0, 1, &epuckIRSensorModelPtr),
 		infraredSensor7(this, Vector(3.0, 0.9),   2.5, 4*M_PI/45.0,  12, 0, 1, &epuckIRSensorModelPtr),
 		camera(this, Vector(3.7, 0.0), 2.2, 0.0, M_PI/6.0, 60),
-		scannerTurret(this, 7.2, 40, 20, 100),
+		scannerTurret(this, 7.2, 40, 7, 40),
 		bluetooth(NULL)
 	{
 		oldAngle=angle;

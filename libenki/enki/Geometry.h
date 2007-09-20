@@ -192,7 +192,20 @@ namespace Enki
 	
 	//! Polygone, which is a vector of points. Anti-clockwise, standard trigonometric orientation
 	/*! \ingroup an */
-	typedef std::vector<Point> Polygone;
+	struct Polygone: public std::vector<Point>
+	{
+		//! Return true if p is inside this polygone
+		bool isPointInside(const Point& p) const
+		{
+			for (size_t i = 0; i < size(); i++)
+			{
+				Segment s((*this)[i], (*this)[(i + 1) % size()]);
+				if (s.dist(p) < 0)
+					return false;
+			}
+			return true;
+		}
+	};
 	
 	//! Normlize an angle to be between -PI and +PI.
 	/*! \ingroup an */
