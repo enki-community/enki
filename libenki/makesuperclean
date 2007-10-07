@@ -1,8 +1,0 @@
-#!/bin/sh
-echo "Cleaning every auto-generated file"
-make distclean
-rm -rf autom4te.cache
-rm -rf doc/html
-rm `find . -name "*~"`
-rm `find . -name "Makefile.in"`
-rm -f config.sub config.guess missing mkinstalldirs install-sh install.sh aclocal.m4 configure depcomp
