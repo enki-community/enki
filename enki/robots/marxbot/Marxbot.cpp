@@ -59,16 +59,20 @@ namespace Enki
 		rotatingDistanceSensor(this, 11, 90)
 	{
 		mass = 1000;
+		height = 12;
 		r = 8.5;
+		
 		addLocalInteraction(&rotatingDistanceSensor);
+		
 		leftSpeed = 0;
 		rightSpeed = 0;
+		color = Color(0.7, 0.7, 0.7);
 	}
 	
 	double Marxbot::getVirtualBumper(unsigned number)
 	{
 		assert(number < 24);
-		return marxbotVirtualBumperResponseFunction(rotatingDistanceSensor.zbuffer[(number * 180) / 24]);
+		return marxbotVirtualBumperResponseFunction(sqrt(rotatingDistanceSensor.zbuffer[(number * 180) / 24]));
 	}
 }
 
