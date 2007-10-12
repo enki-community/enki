@@ -46,15 +46,11 @@
 namespace Enki
 {
 	//! The rotating, long range distance sensor turret of the E-puck robot.
-	/*! \ingroup interaction */
+	/*! \ingroup interaction 
+		The measured physical sensors response function is applied so zbuffer contains the simulated physical values
+		*/
 	class EPuckScannerTurret : public OmniCam
 	{
-	protected:
-		//! Minimum scanning distance, all shorter distances return this
-		double minDist;
-		//! Maximum scanning distance, all longer distances return this
-		double maxDist;
-		
 	public:
 		//! Constructor
 		/*!
@@ -64,7 +60,7 @@ namespace Enki
 			\param minDist minimum scanning distance
 			\param maxDist maximum scanning distance
 		*/
-		EPuckScannerTurret(Robot *owner, double height, unsigned halfPixelCount, double minDist, double maxDist);
+		EPuckScannerTurret(Robot *owner, double height, unsigned halfPixelCount);
 		
 		virtual void finalize(double dt);
 	};

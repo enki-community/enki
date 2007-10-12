@@ -43,10 +43,8 @@ namespace Enki
 {
 	using namespace std;
 	
-	EPuckScannerTurret::EPuckScannerTurret(Robot *owner, double height, unsigned halfPixelCount, double minDist, double maxDist) :
-		OmniCam(owner, height, halfPixelCount),
-		minDist(minDist),
-		maxDist(maxDist)
+	EPuckScannerTurret::EPuckScannerTurret(Robot *owner, double height, unsigned halfPixelCount) :
+		OmniCam(owner, height, halfPixelCount)
 	{
 	}
 	
@@ -54,8 +52,22 @@ namespace Enki
 	{
 		OmniCam::finalize(dt);
 		
-		replace_if(&zbuffer[0], &zbuffer[zbuffer.size()], bind2nd(less<double>(), minDist*minDist), minDist*minDist);
-		replace_if(&zbuffer[0], &zbuffer[zbuffer.size()], bind2nd(greater<double>(), maxDist*maxDist), maxDist*maxDist);
+		// apply sensor response
+		const double a1 =        1116;
+		const double b1 =       56.92;
+		const double c1 =       26.26;
+		const double a2 =       780.9;
+		const double b2 =       73.26;
+		const double c2 =       76.33;
+		const double a3 =  3.915e+016;
+		const double b3 = -1.908e+004;
+		const double c3 =        3433;
+		
+		for (size_t i = 0; i < zbuffer.size(); i++)
+		{
+			double x = sqrt(zbuffer[i]);
+			zbuffer[i] = a1*exp(-((x-b1)/c1)*((x-b1)/c1)) + a2*exp(-((x-b2)/c2)*((x-b2)/c2)) + a3*exp(-((x-b3)/c3)*((x-b3)/c3));
+		}
 	}
 	
 	
@@ -97,7 +109,7 @@ namespace Enki
 		infraredSensor6(this, Vector(2.6, 2.6),   2.5, M_PI/4.0,     12, 0, 1, &epuckIRSensorModelPtr),
 		infraredSensor7(this, Vector(3.0, 0.9),   2.5, 4*M_PI/45.0,  12, 0, 1, &epuckIRSensorModelPtr),
 		camera(this, Vector(3.7, 0.0), 2.2, 0.0, M_PI/6.0, 60),
-		scannerTurret(this, 7.2, 40, 7, 40),
+		scannerTurret(this, 7.2, 40),
 		bluetooth(NULL)
 	{
 		oldAngle=angle;
