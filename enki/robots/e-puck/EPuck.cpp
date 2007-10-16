@@ -65,7 +65,8 @@ namespace Enki
 		
 		for (size_t i = 0; i < zbuffer.size(); i++)
 		{
-			double x = sqrt(zbuffer[i]);
+			// calibration was done in mm, convert to cm
+			double x = sqrt(zbuffer[i]) * 10;
 			zbuffer[i] = a1*exp(-((x-b1)/c1)*((x-b1)/c1)) + a2*exp(-((x-b2)/c2)*((x-b2)/c2)) + a3*exp(-((x-b3)/c3)*((x-b3)/c3));
 		}
 	}
@@ -109,7 +110,7 @@ namespace Enki
 		infraredSensor6(this, Vector(2.6, 2.6),   2.5, M_PI/4.0,     12, 0, 1, &epuckIRSensorModelPtr),
 		infraredSensor7(this, Vector(3.0, 0.9),   2.5, 4*M_PI/45.0,  12, 0, 1, &epuckIRSensorModelPtr),
 		camera(this, Vector(3.7, 0.0), 2.2, 0.0, M_PI/6.0, 60),
-		scannerTurret(this, 7.2, 40),
+		scannerTurret(this, 7.2, 32),
 		bluetooth(NULL)
 	{
 		oldAngle=angle;

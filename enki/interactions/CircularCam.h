@@ -61,6 +61,7 @@ namespace Enki
 	//! 1D Circular camera
 	/*!
 		The maximum aperture angle of this camera is PI, so this is not an omnicam.
+		Pixels start at -halfFieldOfView and then follow mathematical orientation
 		\ingroup interaction
 	*/
 	class CircularCam : public LocalInteraction
@@ -129,6 +130,7 @@ namespace Enki
 	
 	
 	//! 1D omnidirectional circular camera, based on 2 CircularCam
+	//! Pixels start at -PI and then follow mathematical orientation to PI
 	/*! \ingroup interaction */
 	class OmniCam : public LocalInteraction
 	{
