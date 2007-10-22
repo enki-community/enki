@@ -63,6 +63,9 @@ namespace Enki
 		EPuckScannerTurret(Robot *owner, double height, unsigned halfPixelCount);
 		
 		virtual void finalize(double dt);
+	
+	public:
+		std::valarray<double> scan;
 	};
 	
 	//! A simple model of the E-puck robot.

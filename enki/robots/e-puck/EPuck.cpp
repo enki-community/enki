@@ -44,7 +44,8 @@ namespace Enki
 	using namespace std;
 	
 	EPuckScannerTurret::EPuckScannerTurret(Robot *owner, double height, unsigned halfPixelCount) :
-		OmniCam(owner, height, halfPixelCount)
+		OmniCam(owner, height, halfPixelCount),
+		scan(halfPixelCount * 2)
 	{
 	}
 	
@@ -63,11 +64,14 @@ namespace Enki
 		const double b3 = -1.908e+004;
 		const double c3 =        3433;
 		
+		assert(scan.size() == zbuffer.size());
+		
 		for (size_t i = 0; i < zbuffer.size(); i++)
 		{
 			// calibration was done in mm, convert to cm
 			double x = sqrt(zbuffer[i]) * 10;
-			zbuffer[i] = a1*exp(-((x-b1)/c1)*((x-b1)/c1)) + a2*exp(-((x-b2)/c2)*((x-b2)/c2)) + a3*exp(-((x-b3)/c3)*((x-b3)/c3));
+			size_t destIndex = ((scan.size()/2) -1 + scan.size() - i) % scan.size();
+			scan[destIndex] = a1*exp(-((x-b1)/c1)*((x-b1)/c1)) + a2*exp(-((x-b2)/c2)*((x-b2)/c2)) + a3*exp(-((x-b3)/c3)*((x-b3)/c3));
 		}
 	}
 	
