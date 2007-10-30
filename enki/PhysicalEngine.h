@@ -105,14 +105,18 @@
 	
 	\section license License
 	This program is free software released under the GNU General Public License version 2.
-	The authors of any publication arising from research using this software are asked to add the following reference:
+	We ask the authors of any publication arising from research using this software to add the following reference:
 \verbatim
 Enki - an open source fast 2D robot simulator
 http://home.gna.org/enki/
+
 Stephane Magnenat <stephane at magnenat dot net>,
 Markus Waibel <markus dot waibel at epfl dot ch>,
 Antoine Beyeler <abeyeler at ab-ware dot com>
-Laboratory of Intelligent Systems, EPFL, Lausanne
+
+Laboratory of Intelligent Systems,
+Mobots group - Laboratoire de Systèmes Robotiques,
+École Polytechnique Fédérale de Lausanne - Switzerland
 \endverbatim
 */
 
