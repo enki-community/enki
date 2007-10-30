@@ -97,7 +97,7 @@
 	
 	The core, the IRSensor, and the basic Khepera, EPuck, Alice and Sbot features reflect real hardware and thus won't change much.
 	
-	The sound sources and Sbot camera don't reflect directly real hardware and thus are subject to change.
+	The sound sources of Sbot does not reflect directly hardware and thus is subject to change.
 	
 	\section feedback Feedback
 	If you have any comments or suggestions, do not hesitate to send them to
@@ -108,7 +108,7 @@
 	The authors of any publication arising from research using this software are asked to add the following reference:
 \verbatim
 Enki - an open source fast 2D robot simulator
-http://lis.epfl.ch/enki
+http://home.gna.org/enki/
 Stephane Magnenat <stephane at magnenat dot net>,
 Markus Waibel <markus dot waibel at epfl dot ch>,
 Antoine Beyeler <abeyeler at ab-ware dot com>
