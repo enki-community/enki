@@ -62,10 +62,10 @@ namespace Enki
 		world(world),
 		mouseGrabbed(false),
 		worldList(0),
-		yaw(0),
-		pitch(0),
-		pos(-world->w * 0.5, -world->h * 0.5),
-		altitude(20)
+		yaw(-M_PI/2),
+		pitch((3*M_PI)/8),
+		pos(-world->w * 0.5, -world->h * 0.2),
+		altitude(world->h * 0.5)
 	{
 		
 	}
