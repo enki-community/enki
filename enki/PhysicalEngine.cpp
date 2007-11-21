@@ -162,6 +162,14 @@ namespace Enki
 			textures[i].resize(1, color);
 		}
 	}
+	
+	void PhysicalObject::setUniformColor(const Color &color)
+	{
+		this->color = color;
+		if (boundingSurface)
+			for (unsigned i=0; i<boundingSurface->size(); i++)
+				textures[i].resize(1, color);
+	}
 
 	void PhysicalObject::collideWithStaticObject(const Vector &n)
 	{

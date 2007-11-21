@@ -301,9 +301,7 @@ namespace Enki
 		*/
 		// Use a predefined bounding surface
 		setBoundingSurface(&aliceBoundingSurface.p);
-		
-		for (unsigned i=0; i<boundingSurface->size(); i++)
-			textures[i].resize(1, Color::blue);
+		setUniformColor(Color::blue);
 
 		// set high static friction threshold to exclude Alices pushed by disks and 
 		// delay Alice-Alice pushing (factor 2 slowdown; since collisions are symmetric,

@@ -195,6 +195,8 @@ namespace Enki
 		void setBoundingSurface(const Polygone *bs);
 		//! Return the shape of the object in object coordinates.
 		const Polygone &getTrueBoundingSurface(void) const { return absBoundingSurface; }
+		//! Set a uniform color all around the object
+		void setUniformColor(const Color &color);
 
 		// Physical Actions
 		//! A simulation step for this object. It is considered as deinterlaced. The position and orientation are updated, and speed is reduced according to global dynamic friction coefficient.
