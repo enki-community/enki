@@ -33,7 +33,6 @@
 
 #include "Viewer.h"
 #include "Viewer.moc"
-#include <enki/PhysicalEngine.h>
 #include <enki/robots/e-puck/EPuck.h>
 #include <enki/robots/alice/Alice.h>
 #include <QApplication>
@@ -47,15 +46,6 @@ namespace Enki
 {
 	#define rad2deg (180 / M_PI)
 	#define clamp(x, low, high) ((x) < (low) ? (low) : ((x) > (high) ? (high) : (x)))
-	
-	class DisplayListUserData : public PhysicalObject::UserData
-	{
-	public:
-		GLuint list;
-		DisplayListUserData() { list = glGenLists(1); }
-		virtual ~DisplayListUserData() { glDeleteLists(list, 1); }
-	};
-	
 	
 	ViewerWidget::ViewerWidget(World *world, QWidget *parent) :
 		QGLWidget(parent),
@@ -124,7 +114,6 @@ namespace Enki
 		object->userData = userData;
 		glNewList(userData->list, GL_COMPILE);
 		
-		glColor3d(object->color.components[0], object->color.components[1], object->color.components[2]);
 		if (object->boundingSurface)
 		{
 			// TODO: use object texture if any
@@ -156,6 +145,14 @@ namespace Enki
 			gluDeleteQuadric(quadratic);
 		}
 		
+		renderObjectHook(object);
+		
+		glEndList();
+	}
+	
+	//! Called inside the creation of the object display list in local object coordinate
+	void ViewerWidget::renderObjectHook(PhysicalObject *object)
+	{
 		// dir on top of robots
 		if (dynamic_cast<Robot*>(object))
 		{
@@ -166,8 +163,21 @@ namespace Enki
 			glVertex3d(-2, -1, object->height+0.01);
 			glEnd();
 		}
-		
-		glEndList();
+	}
+	
+	//! Called when object is displayed, after the display list, with the current world matrix
+	void ViewerWidget::displayObjectHook(PhysicalObject *object)
+	{
+	
+	}
+	
+	//! Called when the drawing of the scene is completed.
+	void ViewerWidget::sceneCompletedHook()
+	{
+		/*// overlay debug info
+		if (mouseGrabbed)
+			renderText(5, 15, QString("Mouse grabbed, yaw: %0, pitch: %1").arg(yaw).arg(pitch));
+		*/
 	}
 	
 	void ViewerWidget::initializeGL()
@@ -185,11 +195,12 @@ namespace Enki
 		glDisable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_COLOR_MATERIAL);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		
 		worldList = glGenLists(1);
 		renderWorld();
 		
-		startTimer(20);
+		startTimer(30);
 	}
 	
 	void ViewerWidget::paintGL()
@@ -221,18 +232,17 @@ namespace Enki
 			
 			glTranslated((*it)->pos.x, (*it)->pos.y, 0);
 			glRotated(rad2deg * (*it)->angle, 0, 0, 1);
+			glColor3d((*it)->color.components[0], (*it)->color.components[1], (*it)->color.components[2]);
 			
 			DisplayListUserData *userData = dynamic_cast<DisplayListUserData *>((*it)->userData);
 			assert(userData);
 			glCallList(userData->list);
+			displayObjectHook(*it);
 			
 			glPopMatrix();
 		}
 		
-		/*// overlay debug info
-		if (mouseGrabbed)
-			renderText(5, 15, QString("Mouse grabbed, yaw: %0, pitch: %1").arg(yaw).arg(pitch));
-		*/
+		sceneCompletedHook();
 	}
 	
 	void ViewerWidget::resizeGL(int width, int height)
@@ -251,7 +261,7 @@ namespace Enki
 	
 	void ViewerWidget::timerEvent(QTimerEvent * event)
 	{
-		world->step(0.05);
+		world->step(1./30.);
 		updateGL();
 	}
 	

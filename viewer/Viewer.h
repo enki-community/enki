@@ -35,11 +35,19 @@
 #define __ENKI_VIEWER_H
 
 #include <QGLWidget>
+#include <QPoint>
+#include <QPointF>
 #include <enki/Geometry.h>
+#include <enki/PhysicalEngine.h>
 
 /*!	\file Viewer.h
 	\brief Definition of the Qt-based viewer widget
 */
+
+class QTimerEvent;
+class QMouseEvent;
+class QWheelEvent;
+class QWidget;
 
 namespace Enki
 {
@@ -49,6 +57,15 @@ namespace Enki
 	class ViewerWidget : public QGLWidget
 	{
 		Q_OBJECT
+	
+	protected:
+		class DisplayListUserData : public PhysicalObject::UserData
+		{
+		public:
+			GLuint list;
+			DisplayListUserData() { list = glGenLists(1); }
+			virtual ~DisplayListUserData() { glDeleteLists(list, 1); }
+		};
 	
 	protected:
 		World *world;
@@ -64,6 +81,9 @@ namespace Enki
 		void renderSegment(const Segment& segment, double height);
 		void renderWorld();
 		void renderObject(PhysicalObject *object);
+		virtual void renderObjectHook(PhysicalObject *object);
+		virtual void displayObjectHook(PhysicalObject *object);
+		virtual void sceneCompletedHook();
 		
 		void initializeGL();
 		void paintGL();

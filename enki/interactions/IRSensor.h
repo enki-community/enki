@@ -133,6 +133,8 @@ namespace Enki
 		double getSmartRadius(void) { return smartRadius; }
 		//! Return current position of the center of the smartRadius, i.e. center of the smallest circle enclosing all rays in relative (robot) coordinates
 		Point getAbsSmartPos(void) { return absSmartPos; }
+		//! Return the distance of the middle ray; this may be usefull for inaccurate simulations
+		double getDist(void) { return rayValues[rayValues.size() / 2]; }
 	
 	private:
 		//! Returns distance to PhysicalObject po for angle rayAngle.

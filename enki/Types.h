@@ -110,6 +110,30 @@ namespace Enki
 		//! Return the grey level value
 		double toGray() const { return (components[0] + components[1] + components[2]) / 3; }
 		
+		//! Red component value getter
+		double r() { return components[0]; }
+		
+		//! Set the value of red component
+		void setR(double value) { components[0] = value; }
+		
+		//! Green component value getter
+		double g() { return components[1]; }
+		
+		//! Set the value of green component
+		void setG(double value) { components[1] = value; }
+		
+		//! Blue component value getter
+		double b() { return components[2]; }
+		
+		//! Set the value of blue component
+		void setB(double value) { components[2] = value; }
+		
+		//! Alpha component value getter
+		double a() { return components[3]; }
+		
+		//! Set the value of alpha component
+		void setA(double value) { components[3] = value; }
+		
 		//! black (0, 0, 0)
 		static const Color black;
 		//! white (1, 1, 1)
