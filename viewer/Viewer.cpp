@@ -1,10 +1,10 @@
 /*
     Enki - a fast 2D robot simulator
-    Copyright (C) 1999-2006 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 1999-2008 Stephane Magnenat <stephane at magnenat dot net>
     Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
     Copyright (c) 2004-2005 Antoine Beyeler <abeyeler at ab-ware dot com>
     Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
-    Copyright (C) 2006 Laboratory of Robotics Systems, EPFL, Lausanne
+    Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
     This program is free software; the authors of any publication 
@@ -31,6 +31,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#include "objects/Objects.h"
 #include "Viewer.h"
 #include "Viewer.moc"
 #include <enki/robots/e-puck/EPuck.h>
@@ -42,28 +43,191 @@
 	\brief Implementation of the Qt-based viewer widget
 */
 
+void initTexturesResources()
+{
+	Q_INIT_RESOURCE(textures);
+}
+
+//! Asserts a dynamic cast.	Similar to the one in boost/cast.hpp
+template<typename Derived, typename Base>
+inline Derived polymorphic_downcast(Base base)
+{
+	Derived derived = dynamic_cast<Derived>(base);
+	assert(derived);
+	return derived;
+}
+
 namespace Enki
 {
 	#define rad2deg (180 / M_PI)
 	#define clamp(x, low, high) ((x) < (low) ? (low) : ((x) > (high) ? (high) : (x)))
+	
+	// simple display list, one per instance
+	class SimpleDisplayList : public ViewerWidget::ViewerUserData
+	{
+	public:
+		GLuint list;
+	
+	public:
+		SimpleDisplayList()
+		{
+			list = glGenLists(1);
+			deletedWithObject = true;
+		}
+		
+		virtual void draw(PhysicalObject* object) const
+		{
+			glColor3d(object->color.components[0], object->color.components[1], object->color.components[2]);
+			glCallList(list);
+		}
+		
+		virtual ~SimpleDisplayList()
+		{
+			glDeleteLists(list, 1);
+		}
+	};
+	
+	// complex robot, one per robot type stored here
+	class CustomRobotModel : public ViewerWidget::ViewerUserData
+	{
+	public:
+		QVector<GLuint> lists;
+		QVector<GLuint> textures;
+	
+	public:
+		CustomRobotModel()
+		{
+			deletedWithObject = false;
+		}
+	};
+	
+	class EPuckModel : public CustomRobotModel
+	{
+	public:
+		EPuckModel(ViewerWidget* viewer)
+		{
+			textures.resize(2);
+			textures[0] = viewer->bindTexture(QPixmap(QString(":/textures/epuck.png")), GL_TEXTURE_2D);
+			textures[1] = viewer->bindTexture(QPixmap(QString(":/textures/epuckr.png")), GL_TEXTURE_2D, GL_LUMINANCE8);
+			lists.resize(5);
+			lists[0] = GenEPuckBody();
+			lists[1] = GenEPuckRest();
+			lists[2] = GenEPuckRing();
+			lists[3] = GenEPuckWheelLeft();
+			lists[4] = GenEPuckWheelRight();
+		}
+		
+		void cleanup(ViewerWidget* viewer)
+		{
+			for (int i = 0; i < textures.size(); i++)
+				viewer->deleteTexture(textures[i]);
+			for (int i = 0; i < lists.size(); i++)
+				glDeleteLists(lists[i], 1);
+		}
+		
+		virtual void draw(PhysicalObject* object) const
+		{
+			DifferentialWheeled* dw = polymorphic_downcast<DifferentialWheeled*>(object);
+			
+			const double wheelRadius = 2.4;
+			const double wheelCirc = 2 * M_PI * wheelRadius;
+			const double radiosityScale = 1.01;
+			static double asd = 0;
+			
+			glTranslated(0, 0, wheelRadius);
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, textures[0]);
+			
+			glColor3d(1, 1, 1);
+			
+			glCallList(lists[0]);
+			
+			glCallList(lists[1]);
+			
+			glColor3d(object->color.components[0] +0.5, object->color.components[1]+0.5, object->color.components[2]+0.5);
+			glCallList(lists[2]);
+			
+			glColor3d(1, 1, 1);
+			
+			glPushMatrix();
+			glRotated((fmod(dw->leftOdometry, wheelCirc) * 360) / wheelCirc, 0, 1, 0);
+			glCallList(lists[3]);
+			glPopMatrix();
+			
+			glPushMatrix();
+			glRotated((fmod(dw->rightOdometry, wheelCirc) * 360) / wheelCirc, 0, 1, 0);
+			glCallList(lists[4]);
+			glPopMatrix();
+			
+			glBindTexture(GL_TEXTURE_2D, textures[1]);
+			glDisable(GL_LIGHTING);
+			glEnable(GL_BLEND);
+			
+			glBlendFunc(GL_ZERO, GL_SRC_COLOR);
+			glPushMatrix();
+			glScaled(radiosityScale, radiosityScale, radiosityScale);
+			glCallList(lists[3]);
+			glPopMatrix();
+			
+			glBlendFunc(GL_ZERO, GL_SRC_COLOR);
+			glPushMatrix();
+			glScaled(radiosityScale, radiosityScale, radiosityScale);
+			glCallList(lists[4]);
+			glPopMatrix();
+			
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glDisable(GL_BLEND);
+			glEnable(GL_LIGHTING);
+			
+			glDisable(GL_TEXTURE_2D);
+		}
+		
+		virtual void drawSpecial(PhysicalObject* object, int param) const
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_ONE, GL_ONE);
+			glDisable(GL_TEXTURE_2D);
+			glCallList(lists[0]);
+			glDisable(GL_BLEND);
+		}
+	};
+	
+	enum ManagedObjectTypes
+	{
+		OBJECT_EPUCK_MODEL = 0,
+		MANAGED_OBJECT_COUNT
+	};
 	
 	ViewerWidget::ViewerWidget(World *world, QWidget *parent) :
 		QGLWidget(parent),
 		world(world),
 		mouseGrabbed(false),
 		worldList(0),
+		managedObjects(MANAGED_OBJECT_COUNT, 0),
 		yaw(-M_PI/2),
 		pitch((3*M_PI)/8),
 		pos(-world->w * 0.5, -world->h * 0.2),
 		altitude(world->h * 0.5)
 	{
-		
+		initTexturesResources();
 	}
 	
 	ViewerWidget::~ViewerWidget()
 	{
+		world->disconnectExternalObjectsUserData();
 		if (isValid())
+		{
 			glDeleteLists(worldList, 1);
+			deleteTexture (worldTexture);
+		}
+		for (int i = 0; i < managedObjects.size(); i++)
+		{
+			if (managedObjects[i])
+			{
+				managedObjects[i]->cleanup(this);
+				delete managedObjects[i];
+			}
+		}
 	}
 	
 	void ViewerWidget::renderSegment(const Segment& segment, double height)
@@ -73,44 +237,122 @@ namespace Enki
 		glNormal3d(n.x, n.y, 0);
 		
 		glBegin(GL_QUADS);
+		glTexCoord2d(0.751390, 0.248609);
 		glVertex3d(segment.a.x, segment.a.y, 0);
+		glTexCoord2d(0.248609, 0.248609);
 		glVertex3d(segment.b.x, segment.b.y, 0);
+		glTexCoord2d(0.001739, 0.001739);
 		glVertex3d(segment.b.x, segment.b.y, height);
+		glTexCoord2d(0.998266, 0.001739);
 		glVertex3d(segment.a.x, segment.a.y, height);
 		glEnd();
 	}
 	
 	void ViewerWidget::renderWorld()
 	{
-		glNewList(worldList, GL_COMPILE);
+		const double wallsHeight = 10;
+		const double infPlanSize = 3000;
 		
-		glColor3d(0.6, 0.6, 0.6);
+		glNewList(worldList, GL_COMPILE);
 		
 		glNormal3d(0, 0, 1);
 		
+		glDisable(GL_LIGHTING);
+		
+		glColor3d(0.8, 0.8, 0.8);
 		glBegin(GL_QUADS);
-		glVertex3d(0, 0, 0);
-		glVertex3d(world->w, 0, 0);
-		glVertex3d(world->w, world->h, 0);
-		glVertex3d(0, world->h, 0);
+		glVertex3d(-infPlanSize, -infPlanSize, wallsHeight);
+		glVertex3d(infPlanSize+world->w, -infPlanSize, wallsHeight);
+		glVertex3d(infPlanSize+world->w, 0, wallsHeight);
+		glVertex3d(-infPlanSize, 0, wallsHeight);
+		
+		glVertex3d(-infPlanSize, world->h, wallsHeight);
+		glVertex3d(infPlanSize+world->w, world->h, wallsHeight);
+		glVertex3d(infPlanSize+world->w, world->h+infPlanSize, wallsHeight);
+		glVertex3d(-infPlanSize, world->h+infPlanSize, wallsHeight);
+		
+		glVertex3d(-infPlanSize, 0, wallsHeight);
+		glVertex3d(0, 0, wallsHeight);
+		glVertex3d(0, world->h, wallsHeight);
+		glVertex3d(-infPlanSize, world->h, wallsHeight);
+		
+		glVertex3d(world->w, 0, wallsHeight);
+		glVertex3d(world->w+infPlanSize, 0, wallsHeight);
+		glVertex3d(world->w+infPlanSize, world->h, wallsHeight);
+		glVertex3d(world->w, world->h, wallsHeight);
 		glEnd();
+		
+		glEnable(GL_LIGHTING);
+		
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, worldTexture);
+		glColor3d(1, 1, 1);
 		
 		// TODO: use world texture if any
 		if (world->useWalls)
 		{
-			const double wallsHeight = 10;
+			glBegin(GL_QUADS);
+			glTexCoord2d(0.470722, 0.470722);
+			glVertex3d(0, 0, 0);
+			glTexCoord2d(0.529278, 0.470722);
+			glVertex3d(world->w, 0, 0);
+			glTexCoord2d(0.529278, 0.529278);
+			glVertex3d(world->w, world->h, 0);
+			glTexCoord2d(0.470722, 0.529278);
+			glVertex3d(0, world->h, 0);
+			glEnd();
+			
+			/*// ground center
+			glBegin(GL_QUADS);
+			glTexCoord2d(0.470722, 0.470722);
+			glVertex3d(10, 10, 0);
+			glTexCoord2d(0.529278, 0.470722);
+			glVertex3d(world->w-10, 10, 0);
+			glTexCoord2d(0.529278, 0.529278);
+			glVertex3d(world->w-10, world->h-10, 0);
+			glTexCoord2d(0.470722, 0.529278);
+			glVertex3d(10, world->h-10, 0);
+			glEnd();
+			
+			// ground left
+			glBegin(GL_QUADS);
+			glTexCoord2d(0.751390, 0.248609);
+			glVertex3d(0, 0, 0);
+			glTexCoord2d(0.248609, 0.248609);
+			glVertex3d(world->w, 0, 0);
+			glTexCoord2d(0.470722, 0.470722);
+			glVertex3d(world->w-10, 10, 0);
+			glTexCoord2d(0.529278, 0.470722);
+			glVertex3d(10, 10, 0);
+			glEnd();*/
 			
 			renderSegment(Segment(world->w, 0, 0, 0), wallsHeight);
 			renderSegment(Segment(world->w, world->h, world->w, 0), wallsHeight);
 			renderSegment(Segment(0, world->h, world->w, world->h), wallsHeight);
 			renderSegment(Segment(0, 0, 0, world->h), wallsHeight);
 		}
+		else
+		{
+			glBegin(GL_QUADS);
+			glTexCoord2d(0.470722, 0.470722);
+			glVertex3d(0, 0, 0);
+			glTexCoord2d(0.529278, 0.470722);
+			glVertex3d(world->w, 0, 0);
+			glTexCoord2d(0.529278, 0.529278);
+			glVertex3d(world->w, world->h, 0);
+			glTexCoord2d(0.470722, 0.529278);
+			glVertex3d(0, world->h, 0);
+			glEnd();
+		}
+		
+		glDisable(GL_TEXTURE_2D);
+		
 		glEndList();
 	}
 	
-	void ViewerWidget::renderObject(PhysicalObject *object)
+	void ViewerWidget::renderSimpleObject(PhysicalObject *object)
 	{
-		DisplayListUserData *userData = new DisplayListUserData;
+		SimpleDisplayList *userData = new SimpleDisplayList;
 		object->userData = userData;
 		glNewList(userData->list, GL_COMPILE);
 		
@@ -183,20 +425,34 @@ namespace Enki
 	void ViewerWidget::initializeGL()
 	{
 		glClearColor(0.6, 0.7, 1.0, 0.0);
+		glClearColor(0.95, 0.95, 0.95, 1.0);
 		
-		float LightAmbient[] = {0.5, 0.5, 0.5, 1};
-		float LightDiffuse[] = {1, 1, 1, 1};
+		float LightAmbient[] = {0.6, 0.6, 0.6, 1};
+		float LightDiffuse[] = {1.2, 1.2, 1.2, 1};
+		float defaultColor[] = {0.5, 0.5, 0.5, 1};
 		glLightfv(GL_LIGHT0, GL_AMBIENT, LightAmbient);
 		glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse);
 		glEnable(GL_LIGHT0);
 		
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, defaultColor);
+		
+		glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+		glEnable(GL_COLOR_MATERIAL);
+		
 		glShadeModel(GL_SMOOTH);
 		glEnable(GL_LIGHTING);
-		glDisable(GL_CULL_FACE);
+		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_COLOR_MATERIAL);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		
+		GLfloat density = 0.001;
+ 		GLfloat fogColor[4] = {0.95, 0.95, 0.95, 1.0};
+		glFogi (GL_FOG_MODE, GL_EXP);
+		glFogfv (GL_FOG_COLOR, fogColor);
+		glFogf (GL_FOG_DENSITY, density);
+		glHint (GL_FOG_HINT, GL_NICEST);
+		glEnable (GL_FOG);
+		
+		worldTexture = bindTexture(QPixmap(QString(":/textures/world.png")), GL_TEXTURE_2D);
 		worldList = glGenLists(1);
 		renderWorld();
 		
@@ -208,6 +464,12 @@ namespace Enki
 		// clean screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
+		float aspectRatio = (float)width() / (float)height();
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glFrustum(-1 * aspectRatio, 1 * aspectRatio, -1, 1, 2, 2000);
+		
+		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		
 		glRotated(-90, 1, 0, 0);
@@ -226,17 +488,25 @@ namespace Enki
 		{
 			// if required, render this object
 			if (!(*it)->userData)
-				renderObject(*it);
+			{
+				if (dynamic_cast<EPuck*>(*it))
+				{
+					// render E-puck
+					if (!managedObjects[OBJECT_EPUCK_MODEL])
+						managedObjects[OBJECT_EPUCK_MODEL] = new EPuckModel(this);
+					(*it)->userData = managedObjects[OBJECT_EPUCK_MODEL];
+				}
+				else
+					renderSimpleObject(*it);
+			}
 			
 			glPushMatrix();
 			
 			glTranslated((*it)->pos.x, (*it)->pos.y, 0);
 			glRotated(rad2deg * (*it)->angle, 0, 0, 1);
-			glColor3d((*it)->color.components[0], (*it)->color.components[1], (*it)->color.components[2]);
 			
-			DisplayListUserData *userData = dynamic_cast<DisplayListUserData *>((*it)->userData);
-			assert(userData);
-			glCallList(userData->list);
+			ViewerUserData* userData = polymorphic_downcast<ViewerUserData *>((*it)->userData);
+			userData->draw(*it);
 			displayObjectHook(*it);
 			
 			glPopMatrix();
@@ -247,16 +517,7 @@ namespace Enki
 	
 	void ViewerWidget::resizeGL(int width, int height)
 	{
-		float aspectRatio = (float)width / (float)height;
-		
-		// setup viewport, projection etc.:
 		glViewport(0, 0, width, height);
-		
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glFrustum(-4 * aspectRatio, 4 * aspectRatio, -4, 4, 4, 500);
-		
-		glMatrixMode(GL_MODELVIEW);
 	}
 	
 	void ViewerWidget::timerEvent(QTimerEvent * event)

@@ -1,10 +1,10 @@
 /*
     Enki - a fast 2D robot simulator
-    Copyright (C) 1999-2006 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 1999-2008 Stephane Magnenat <stephane at magnenat dot net>
     Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
     Copyright (c) 2004-2005 Antoine Beyeler <abeyeler at ab-ware dot com>
     Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
-    Copyright (C) 2006 Laboratory of Robotics Systems, EPFL, Lausanne
+    Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
     This program is free software; the authors of any publication 
@@ -133,6 +133,9 @@ namespace Enki
 		//! User specific data that can be attached to any object in the world.
 		class UserData
 		{
+		public:
+			bool deletedWithObject; //!< if true, deleted along with the physical object.
+			
 		public:
 			virtual ~UserData() {}
 		};
@@ -308,6 +311,8 @@ namespace Enki
 		void addObject(PhysicalObject *o);
 		//! Remove an object from the world and destroy it. If object is not in the world, do nothing
 		void removeObject(PhysicalObject *o);
+		//! Set to 0 the userData member of all object whose value userData->deletedWithObject are false; call this before the creator of user data is destroyed, this method is typically called from a viewer just before its destruction.
+		void disconnectExternalObjectsUserData();
 		//! Set the seed of the random generator.
 		void setRandomSeed(unsigned long seed);
 		//! Initialise and activate the Bluetooth base

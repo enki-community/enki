@@ -1,10 +1,10 @@
 /*
     Enki - a fast 2D robot simulator
-    Copyright (C) 1999-2006 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 1999-2008 Stephane Magnenat <stephane at magnenat dot net>
     Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
     Copyright (c) 2004-2005 Antoine Beyeler <abeyeler at ab-ware dot com>
     Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
-    Copyright (C) 2006 Laboratory of Robotics Systems, EPFL, Lausanne
+    Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
     This program is free software; the authors of any publication 
@@ -42,31 +42,51 @@
 	\brief Test of the Qt-based viewer widget
 */
 
+using namespace Enki;
+
 // http://qtnode.net/wiki?title=Qt_with_cmake
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
 	
 	// Create the world and the viewer
-	Enki::World world(200, 200);
-	Enki::ViewerWidget viewer(&world);
+	World world(120, 120);
+	ViewerWidget viewer(&world);
 	
 	// Create a Khepera and position it
 	/*for (int i = 0; i < 10; i++)
 	{
-		Enki::EPuck *ePuck = new Enki::EPuck;
-		ePuck->pos = Enki::Point(100, 100);
+		EPuck *ePuck = new EPuck;
+		ePuck->pos = Point(100, 100);
 		ePuck->leftSpeed = -21 + i * 4;
 		ePuck->rightSpeed = -20 + i * 5;
 		
 		// objects are garbage collected by the world on destruction
 		world.addObject(ePuck);
 	}*/
-	Enki::Alice *alice = new Enki::Alice;
-	alice->pos = Enki::Point(120, 100);
-	alice->leftSpeed = 1;
-	alice->rightSpeed = 1;
-	world.addObject(alice);
+	EPuck *epuck = new EPuck;
+	epuck->pos = Point(60, 50);
+	epuck->leftSpeed = 5;
+	epuck->rightSpeed = 4;
+	world.addObject(epuck);
+	
+	epuck = new EPuck;
+	epuck->pos = Point(40, 50);
+	epuck->color = Color(1, 0, 0);
+	world.addObject(epuck);
+	
+	PhysicalObject* o = new PhysicalObject;
+	Polygone p;
+	p.push_back(Point(5,-5));
+	p.push_back(Point(5, 5));
+	p.push_back(Point(-5, 5));
+	p.push_back(Point(-5,-5));
+	o->setBoundingSurface(&p);
+	o->pos = Point(100, 100);
+	o->height = 10;
+	o->mass = -1;
+	o->color = Color(0.2,0.2,0.2);
+	//world.addObject(o);
 	
 	viewer.show();
 	

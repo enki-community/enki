@@ -1,10 +1,10 @@
 /*
     Enki - a fast 2D robot simulator
-    Copyright (C) 1999-2006 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 1999-2008 Stephane Magnenat <stephane at magnenat dot net>
     Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
     Copyright (c) 2004-2005 Antoine Beyeler <abeyeler at ab-ware dot com>
     Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
-    Copyright (C) 2006 Laboratory of Robotics Systems, EPFL, Lausanne
+    Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
     This program is free software; the authors of any publication 
@@ -67,8 +67,10 @@ namespace Enki
 
 	PhysicalObject::~PhysicalObject(void)
 	{
-		if (userData)
+		if (userData && (userData->deletedWithObject))
+		{
 			delete userData;
+		}
 	}
 
 	void PhysicalObject::step(double dt)
@@ -680,6 +682,13 @@ namespace Enki
 	void World::removeObject(PhysicalObject *o)
 	{
 		objects.erase(o);
+	}
+	
+	void World::disconnectExternalObjectsUserData()
+	{
+		for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
+			if ((*i)->userData && (!(*i)->userData->deletedWithObject))
+				(*i)->userData = 0;
 	}
 	
 	void World::setRandomSeed(unsigned long seed)

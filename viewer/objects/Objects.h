@@ -6,6 +6,8 @@
     Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
+    
+    E-puck 3D model is Copyright (C) 2008 Basilio Noris
 
     This program is free software; the authors of any publication 
     arising from research using this software are asked to add the 
@@ -31,43 +33,18 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef __ENKI_ALICECAM_H
-#define __ENKI_ALICECAM_H
+#ifndef __ENKI_VIEWER_OBJECTS_H
+#define __ENKI_VIEWER_OBJECTS_H
 
-#include <enki/Interaction.h>
-#include <enki/PhysicalEngine.h>
-
-/*! \file AliceCam.h
-	\brief Header of the Alice 2 pixels camera interaction
-*/
+#include <GL/gl.h>
 
 namespace Enki
 {
-	//!	Linear camera for the Alice.
-	/*! The AliceCam is implemented as 2 rays and only returns two 1 bit values. They are only used to distinguish the wallcolours - the nest is white, the other walls are black. For now, noise is not implemented in the AliceCam.  
-		\ingroup interaction
-	*/
-	class AliceCam : public GlobalInteraction
-	{
-	public :
-		//! The right camera ray
-		bool cvaluestarboard;
-		//! The left camera ray
-		bool cvalueport;
-
-	public :
-		//! Constructor
-		AliceCam (Robot *me);
-		//! Destructor
-		~AliceCam(){}
-		//! The AliceCam object step
-		void step(double dt, World *w);
-		//! Get value of the right camera ray
-		double getCValueStarboard();
-		//! Get value of the left camera ray
-		double getCValuePort();
-	};
+	GLint GenEPuckBody();
+	GLint GenEPuckRest();
+	GLint GenEPuckRing();
+	GLint GenEPuckWheelLeft();
+	GLint GenEPuckWheelRight();
 }
 
 #endif
-

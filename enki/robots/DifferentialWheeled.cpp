@@ -1,10 +1,10 @@
 /*
     Enki - a fast 2D robot simulator
-    Copyright (C) 1999-2006 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 1999-2008 Stephane Magnenat <stephane at magnenat dot net>
     Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
     Copyright (c) 2004-2005 Antoine Beyeler <abeyeler at ab-ware dot com>
     Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
-    Copyright (C) 2006 Laboratory of Robotics Systems, EPFL, Lausanne
+    Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
     This program is free software; the authors of any publication 
@@ -102,10 +102,12 @@ namespace Enki
 		
 		// Compute encoders
 		double angleDiff = normalizeAngle(angle - oldAngle);
-		leftEncoder = (norm - distBetweenWheels * angleDiff * 0.5) / dt;
-		rightEncoder = (norm + distBetweenWheels * angleDiff * 0.5) / dt;
+		leftEncoder = (norm - distBetweenWheels * angleDiff * 0.5);
+		rightEncoder = (norm + distBetweenWheels * angleDiff * 0.5);
 		leftOdometry += leftEncoder;
 		rightOdometry += rightEncoder;
+		leftEncoder /= dt;
+		rightEncoder /= dt;
 		
 		// Save values for next step.
 		oldPos = pos;

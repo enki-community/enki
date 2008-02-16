@@ -1,0 +1,7 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+	<file>textures/epuck.png</file>
+	<file>textures/epuckr.png</file>
+	<file>textures/world.png</file>
+</qresource>
+</RCC>

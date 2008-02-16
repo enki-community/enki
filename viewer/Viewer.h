@@ -1,10 +1,10 @@
 /*
     Enki - a fast 2D robot simulator
-    Copyright (C) 1999-2007 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 1999-2008 Stephane Magnenat <stephane at magnenat dot net>
     Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
     Copyright (c) 2004-2005 Antoine Beyeler <abeyeler at ab-ware dot com>
     Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
-    Copyright (C) 2006 Laboratory of Robotics Systems, EPFL, Lausanne
+    Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
     This program is free software; the authors of any publication 
@@ -58,18 +58,21 @@ namespace Enki
 	{
 		Q_OBJECT
 	
-	protected:
-		class DisplayListUserData : public PhysicalObject::UserData
+	public:
+		class ViewerUserData : public PhysicalObject::UserData
 		{
 		public:
-			GLuint list;
-			DisplayListUserData() { list = glGenLists(1); }
-			virtual ~DisplayListUserData() { glDeleteLists(list, 1); }
+			virtual void draw(PhysicalObject* object) const = 0;
+			virtual void drawSpecial(PhysicalObject* object, int param = 0) const { }
+			// for data managed by the viewer, called upon viewer destructor
+			virtual void cleanup(ViewerWidget* viewer) { }
 		};
-	
+		
 	protected:
 		World *world;
 		GLuint worldList;
+		GLuint worldTexture;
+		QVector<ViewerUserData*> managedObjects;
 		bool mouseGrabbed;
 		QPoint mouseGrabPos;
 		double yaw;
@@ -80,7 +83,7 @@ namespace Enki
 	protected:
 		void renderSegment(const Segment& segment, double height);
 		void renderWorld();
-		void renderObject(PhysicalObject *object);
+		void renderSimpleObject(PhysicalObject *object);
 		virtual void renderObjectHook(PhysicalObject *object);
 		virtual void displayObjectHook(PhysicalObject *object);
 		virtual void sceneCompletedHook();
