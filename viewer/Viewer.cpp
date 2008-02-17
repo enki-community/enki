@@ -129,7 +129,7 @@ namespace Enki
 		{
 			DifferentialWheeled* dw = polymorphic_downcast<DifferentialWheeled*>(object);
 			
-			const double wheelRadius = 2.4;
+			const double wheelRadius = 2.1;
 			const double wheelCirc = 2 * M_PI * wheelRadius;
 			const double radiosityScale = 1.01;
 			static double asd = 0;
@@ -144,11 +144,13 @@ namespace Enki
 			
 			glCallList(lists[1]);
 			
-			glColor3d(object->color.components[0] +0.5, object->color.components[1]+0.5, object->color.components[2]+0.5);
+			//glColor3d(1-object->color.components[0], 1+object->color.components[1], 1+object->color.components[2]);
+			glColor3d(0.6+object->color.components[0]-0.3*object->color.components[1]-0.3*object->color.components[2], 0.6+object->color.components[1]-0.3*object->color.components[0]-0.3*object->color.components[2], 0.6+object->color.components[2]-0.3*object->color.components[0]-0.3*object->color.components[1]);
 			glCallList(lists[2]);
 			
 			glColor3d(1, 1, 1);
 			
+			// wheels
 			glPushMatrix();
 			glRotated((fmod(dw->leftOdometry, wheelCirc) * 360) / wheelCirc, 0, 1, 0);
 			glCallList(lists[3]);
@@ -159,21 +161,37 @@ namespace Enki
 			glCallList(lists[4]);
 			glPopMatrix();
 			
+			// shadow
 			glBindTexture(GL_TEXTURE_2D, textures[1]);
 			glDisable(GL_LIGHTING);
 			glEnable(GL_BLEND);
-			
 			glBlendFunc(GL_ZERO, GL_SRC_COLOR);
+			
+			// wheel shadow
 			glPushMatrix();
 			glScaled(radiosityScale, radiosityScale, radiosityScale);
+			glTranslated(0, -0.025, 0);
 			glCallList(lists[3]);
 			glPopMatrix();
 			
-			glBlendFunc(GL_ZERO, GL_SRC_COLOR);
 			glPushMatrix();
 			glScaled(radiosityScale, radiosityScale, radiosityScale);
+			glTranslated(0, 0.025, 0);
 			glCallList(lists[4]);
 			glPopMatrix();
+			
+			// bottom shadow
+			glTranslated(0, 0, -wheelRadius+0.01);
+			glBegin(GL_QUADS);
+			glTexCoord2f(0.5f, 0.f);
+			glVertex2f(-5.f, -5.f);
+			glTexCoord2f(0.5f, 0.5f);
+			glVertex2f(5.f, -5.f);
+			glTexCoord2f(0.f, 0.5f);
+			glVertex2f(5.f, 5.f);
+			glTexCoord2f(0.f, 0.f);
+			glVertex2f(-5.f, 5.f);
+			glEnd();
 			
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glDisable(GL_BLEND);

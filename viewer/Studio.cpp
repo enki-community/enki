@@ -73,6 +73,7 @@ int main(int argc, char *argv[])
 	epuck = new EPuck;
 	epuck->pos = Point(40, 50);
 	epuck->color = Color(1, 0, 0);
+	epuck->color = Color(1, 0, 0);
 	world.addObject(epuck);
 	
 	PhysicalObject* o = new PhysicalObject;
