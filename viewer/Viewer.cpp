@@ -250,20 +250,96 @@ namespace Enki
 	
 	void ViewerWidget::renderSegment(const Segment& segment, double height)
 	{
-		Vector v = segment.b - segment.a;
-		Vector n = Vector(v.y, -v.x).unitary();
-		glNormal3d(n.x, n.y, 0);
-		
 		glBegin(GL_QUADS);
-		glTexCoord2d(0.751390, 0.248609);
 		glVertex3d(segment.a.x, segment.a.y, 0);
-		glTexCoord2d(0.248609, 0.248609);
 		glVertex3d(segment.b.x, segment.b.y, 0);
-		glTexCoord2d(0.001739, 0.001739);
 		glVertex3d(segment.b.x, segment.b.y, height);
-		glTexCoord2d(0.998266, 0.001739);
 		glVertex3d(segment.a.x, segment.a.y, height);
 		glEnd();
+	}
+	
+	void ViewerWidget::renderWorldSegment(const Segment& segment)
+	{
+		Vector v = segment.b - segment.a;
+		Vector vu = v.unitary();
+		Vector n = Vector(v.y, -v.x).unitary();
+		int count = (int)(v.norm()-20) / 10;
+		double l = (v.norm()-20) / (double)count;
+		Vector dv = vu * l;
+		Vector dvm = vu * 10;
+		Vector dvpm = Vector(vu.y, -vu.x) * 10;
+		Point pos = segment.a;
+		
+		// draw corner
+		glNormal3d(n.x, n.y, 0);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.25f, 0.5f);
+		glVertex3d(pos.x, pos.y, 0);
+		glTexCoord2f(0.5f, 0.5f);
+		glVertex3d((pos+dvm).x, (pos+dvm).y, 0);
+		glTexCoord2f(0.5f, 1.f);
+		glVertex3d((pos+dvm).x, (pos+dvm).y, 10);
+		glTexCoord2f(0.f, 1.f);
+		glVertex3d(pos.x, pos.y, 10);
+		glEnd();
+		
+		glNormal3d(vu.x, vu.y, 0);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.5f, 0.5f);
+		glVertex3d(pos.x + dvpm.x, pos.y + dvpm.y, 0);
+		glTexCoord2f(0.25f, 0.5f);
+		glVertex3d(pos.x, pos.y, 0);
+		glTexCoord2f(0.f, 1.f);
+		glVertex3d(pos.x, pos.y, 10);
+		glTexCoord2f(0.5f, 1.f);
+		glVertex3d(pos.x + dvpm.x, pos.y + dvpm.y, 10);
+		glEnd();
+		
+		glNormal3d(0, 0, 1);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.25f, 0.f);
+		glVertex3d(pos.x + dvpm.x, pos.y + dvpm.y, 0);
+		glTexCoord2f(0.5f, 0.f);
+		glVertex3d((pos+dvm).x + dvpm.x, (pos+dvm).y + dvpm.y, 0);
+		glTexCoord2f(0.5f, 0.5f);
+		glVertex3d((pos+dvm).x, (pos+dvm).y, 0);
+		glTexCoord2f(0.25f, 0.5f);
+		glVertex3d(pos.x, pos.y, 0);
+		glEnd();
+		
+		pos += vu*10;
+		
+		for (int i = 0; i < count; i++)
+		{
+			// draw sides
+			glNormal3d(n.x, n.y, 0);
+			glBegin(GL_QUADS);
+			glTexCoord2f(0.5f, 0.5f);
+			glVertex3d(pos.x, pos.y, 0);
+			glTexCoord2f(1.f, 0.5f);
+			glVertex3d((pos+dv).x, (pos+dv).y, 0);
+			glTexCoord2f(1.f, 1.f);
+			glVertex3d((pos+dv).x, (pos+dv).y, 10);
+			glTexCoord2f(0.5f, 1.f);
+			glVertex3d(pos.x, pos.y, 10);
+			glEnd();
+			
+			// draw ground
+			glNormal3d(0, 0, 1);
+			glBegin(GL_QUADS);
+			glTexCoord2f(0.5f, 0.f);
+			glVertex3d(pos.x + dvpm.x, pos.y + dvpm.y, 0);
+			glTexCoord2f(1.f, 0.f);
+			glVertex3d((pos+dv).x + dvpm.x, (pos+dv).y + dvpm.y, 0);
+			glTexCoord2f(1.f, 0.5f);
+			glVertex3d((pos+dv).x, (pos+dv).y, 0);
+			glTexCoord2f(0.5f, 0.5f);
+			glVertex3d(pos.x, pos.y, 0);
+			glEnd();
+			
+			pos += dv;
+		}
+		
 	}
 	
 	void ViewerWidget::renderWorld()
@@ -274,96 +350,66 @@ namespace Enki
 		glNewList(worldList, GL_COMPILE);
 		
 		glNormal3d(0, 0, 1);
-		
-		glDisable(GL_LIGHTING);
-		
 		glColor3d(0.8, 0.8, 0.8);
-		glBegin(GL_QUADS);
-		glVertex3d(-infPlanSize, -infPlanSize, wallsHeight);
-		glVertex3d(infPlanSize+world->w, -infPlanSize, wallsHeight);
-		glVertex3d(infPlanSize+world->w, 0, wallsHeight);
-		glVertex3d(-infPlanSize, 0, wallsHeight);
 		
-		glVertex3d(-infPlanSize, world->h, wallsHeight);
-		glVertex3d(infPlanSize+world->w, world->h, wallsHeight);
-		glVertex3d(infPlanSize+world->w, world->h+infPlanSize, wallsHeight);
-		glVertex3d(-infPlanSize, world->h+infPlanSize, wallsHeight);
-		
-		glVertex3d(-infPlanSize, 0, wallsHeight);
-		glVertex3d(0, 0, wallsHeight);
-		glVertex3d(0, world->h, wallsHeight);
-		glVertex3d(-infPlanSize, world->h, wallsHeight);
-		
-		glVertex3d(world->w, 0, wallsHeight);
-		glVertex3d(world->w+infPlanSize, 0, wallsHeight);
-		glVertex3d(world->w+infPlanSize, world->h, wallsHeight);
-		glVertex3d(world->w, world->h, wallsHeight);
-		glEnd();
-		
-		glEnable(GL_LIGHTING);
-		
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, worldTexture);
-		glColor3d(1, 1, 1);
-		
-		// TODO: use world texture if any
 		if (world->useWalls)
 		{
+			// TODO: use world texture if any
+			glDisable(GL_LIGHTING);
+			
 			glBegin(GL_QUADS);
-			glTexCoord2d(0.470722, 0.470722);
-			glVertex3d(0, 0, 0);
-			glTexCoord2d(0.529278, 0.470722);
-			glVertex3d(world->w, 0, 0);
-			glTexCoord2d(0.529278, 0.529278);
-			glVertex3d(world->w, world->h, 0);
-			glTexCoord2d(0.470722, 0.529278);
-			glVertex3d(0, world->h, 0);
+			glVertex3d(-infPlanSize, -infPlanSize, wallsHeight);
+			glVertex3d(infPlanSize+world->w, -infPlanSize, wallsHeight);
+			glVertex3d(infPlanSize+world->w, 0, wallsHeight);
+			glVertex3d(-infPlanSize, 0, wallsHeight);
+			
+			glVertex3d(-infPlanSize, world->h, wallsHeight);
+			glVertex3d(infPlanSize+world->w, world->h, wallsHeight);
+			glVertex3d(infPlanSize+world->w, world->h+infPlanSize, wallsHeight);
+			glVertex3d(-infPlanSize, world->h+infPlanSize, wallsHeight);
+			
+			glVertex3d(-infPlanSize, 0, wallsHeight);
+			glVertex3d(0, 0, wallsHeight);
+			glVertex3d(0, world->h, wallsHeight);
+			glVertex3d(-infPlanSize, world->h, wallsHeight);
+			
+			glVertex3d(world->w, 0, wallsHeight);
+			glVertex3d(world->w+infPlanSize, 0, wallsHeight);
+			glVertex3d(world->w+infPlanSize, world->h, wallsHeight);
+			glVertex3d(world->w, world->h, wallsHeight);
 			glEnd();
 			
-			/*// ground center
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, worldTexture);
+			glColor3d(1, 1, 1);
+			
+			renderWorldSegment(Segment(world->w, 0, 0, 0));
+			renderWorldSegment(Segment(world->w, world->h, world->w, 0));
+			renderWorldSegment(Segment(0, world->h, world->w, world->h));
+			renderWorldSegment(Segment(0, 0, 0, world->h));
+			
+			glDisable(GL_TEXTURE_2D);
+			
+			glNormal3d(0, 0, 1);
+			glColor3d(0.815, 0.815, 0.815);
 			glBegin(GL_QUADS);
-			glTexCoord2d(0.470722, 0.470722);
 			glVertex3d(10, 10, 0);
-			glTexCoord2d(0.529278, 0.470722);
 			glVertex3d(world->w-10, 10, 0);
-			glTexCoord2d(0.529278, 0.529278);
 			glVertex3d(world->w-10, world->h-10, 0);
-			glTexCoord2d(0.470722, 0.529278);
 			glVertex3d(10, world->h-10, 0);
 			glEnd();
 			
-			// ground left
-			glBegin(GL_QUADS);
-			glTexCoord2d(0.751390, 0.248609);
-			glVertex3d(0, 0, 0);
-			glTexCoord2d(0.248609, 0.248609);
-			glVertex3d(world->w, 0, 0);
-			glTexCoord2d(0.470722, 0.470722);
-			glVertex3d(world->w-10, 10, 0);
-			glTexCoord2d(0.529278, 0.470722);
-			glVertex3d(10, 10, 0);
-			glEnd();*/
-			
-			renderSegment(Segment(world->w, 0, 0, 0), wallsHeight);
-			renderSegment(Segment(world->w, world->h, world->w, 0), wallsHeight);
-			renderSegment(Segment(0, world->h, world->w, world->h), wallsHeight);
-			renderSegment(Segment(0, 0, 0, world->h), wallsHeight);
+			glEnable(GL_LIGHTING);
 		}
 		else
 		{
 			glBegin(GL_QUADS);
-			glTexCoord2d(0.470722, 0.470722);
-			glVertex3d(0, 0, 0);
-			glTexCoord2d(0.529278, 0.470722);
-			glVertex3d(world->w, 0, 0);
-			glTexCoord2d(0.529278, 0.529278);
-			glVertex3d(world->w, world->h, 0);
-			glTexCoord2d(0.470722, 0.529278);
-			glVertex3d(0, world->h, 0);
+			glVertex3d(-infPlanSize, -infPlanSize, 0);
+			glVertex3d(world->w+infPlanSize, -infPlanSize, 0);
+			glVertex3d(world->w+infPlanSize, world->h+infPlanSize, 0);
+			glVertex3d(-infPlanSize, world->h+infPlanSize, 0);
 			glEnd();
 		}
-		
-		glDisable(GL_TEXTURE_2D);
 		
 		glEndList();
 	}
@@ -470,7 +516,7 @@ namespace Enki
 		glHint (GL_FOG_HINT, GL_NICEST);
 		glEnable (GL_FOG);
 		
-		worldTexture = bindTexture(QPixmap(QString(":/textures/world.png")), GL_TEXTURE_2D);
+		worldTexture = bindTexture(QPixmap(QString(":/textures/world.png")), GL_TEXTURE_2D, GL_LUMINANCE8);
 		worldList = glGenLists(1);
 		renderWorld();
 		

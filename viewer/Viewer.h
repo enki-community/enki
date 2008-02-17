@@ -82,6 +82,7 @@ namespace Enki
 	
 	protected:
 		void renderSegment(const Segment& segment, double height);
+		void renderWorldSegment(const Segment& segment);
 		void renderWorld();
 		void renderSimpleObject(PhysicalObject *object);
 		virtual void renderObjectHook(PhysicalObject *object);
