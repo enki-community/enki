@@ -181,6 +181,8 @@ namespace Enki
 			glPopMatrix();
 			
 			// bottom shadow
+			// disable writing of z-buffer
+			glDepthMask( GL_FALSE );
 			glTranslated(0, 0, -wheelRadius+0.01);
 			glBegin(GL_QUADS);
 			glTexCoord2f(0.5f, 0.f);
@@ -192,6 +194,7 @@ namespace Enki
 			glTexCoord2f(0.f, 0.f);
 			glVertex2f(-5.f, 5.f);
 			glEnd();
+			glDepthMask( GL_TRUE );
 			
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glDisable(GL_BLEND);
@@ -273,13 +276,13 @@ namespace Enki
 		// draw corner
 		glNormal3d(n.x, n.y, 0);
 		glBegin(GL_QUADS);
-		glTexCoord2f(0.25f, 0.5f);
+		glTexCoord2f(0.01f, 0.5f);
 		glVertex3d(pos.x, pos.y, 0);
 		glTexCoord2f(0.5f, 0.5f);
 		glVertex3d((pos+dvm).x, (pos+dvm).y, 0);
-		glTexCoord2f(0.5f, 1.f);
+		glTexCoord2f(0.5f, 0.99f);
 		glVertex3d((pos+dvm).x, (pos+dvm).y, 10);
-		glTexCoord2f(0.f, 1.f);
+		glTexCoord2f(0.01f, 0.99f);
 		glVertex3d(pos.x, pos.y, 10);
 		glEnd();
 		
@@ -287,23 +290,23 @@ namespace Enki
 		glBegin(GL_QUADS);
 		glTexCoord2f(0.5f, 0.5f);
 		glVertex3d(pos.x + dvpm.x, pos.y + dvpm.y, 0);
-		glTexCoord2f(0.25f, 0.5f);
+		glTexCoord2f(0.01f, 0.5f);
 		glVertex3d(pos.x, pos.y, 0);
-		glTexCoord2f(0.f, 1.f);
+		glTexCoord2f(0.01f, 0.99f);
 		glVertex3d(pos.x, pos.y, 10);
-		glTexCoord2f(0.5f, 1.f);
+		glTexCoord2f(0.5f, 0.99f);
 		glVertex3d(pos.x + dvpm.x, pos.y + dvpm.y, 10);
 		glEnd();
 		
 		glNormal3d(0, 0, 1);
 		glBegin(GL_QUADS);
-		glTexCoord2f(0.25f, 0.f);
+		glTexCoord2f(0.01f, 0.01f);
 		glVertex3d(pos.x + dvpm.x, pos.y + dvpm.y, 0);
-		glTexCoord2f(0.5f, 0.f);
+		glTexCoord2f(0.5f, 0.01f);
 		glVertex3d((pos+dvm).x + dvpm.x, (pos+dvm).y + dvpm.y, 0);
 		glTexCoord2f(0.5f, 0.5f);
 		glVertex3d((pos+dvm).x, (pos+dvm).y, 0);
-		glTexCoord2f(0.25f, 0.5f);
+		glTexCoord2f(0.01f, 0.5f);
 		glVertex3d(pos.x, pos.y, 0);
 		glEnd();
 		
@@ -316,22 +319,22 @@ namespace Enki
 			glBegin(GL_QUADS);
 			glTexCoord2f(0.5f, 0.5f);
 			glVertex3d(pos.x, pos.y, 0);
-			glTexCoord2f(1.f, 0.5f);
+			glTexCoord2f(0.99f, 0.5f);
 			glVertex3d((pos+dv).x, (pos+dv).y, 0);
-			glTexCoord2f(1.f, 1.f);
+			glTexCoord2f(0.99f, 0.99f);
 			glVertex3d((pos+dv).x, (pos+dv).y, 10);
-			glTexCoord2f(0.5f, 1.f);
+			glTexCoord2f(0.5f, 0.99f);
 			glVertex3d(pos.x, pos.y, 10);
 			glEnd();
 			
 			// draw ground
 			glNormal3d(0, 0, 1);
 			glBegin(GL_QUADS);
-			glTexCoord2f(0.5f, 0.f);
+			glTexCoord2f(0.5f, 0.01f);
 			glVertex3d(pos.x + dvpm.x, pos.y + dvpm.y, 0);
-			glTexCoord2f(1.f, 0.f);
+			glTexCoord2f(0.99f, 0.01f);
 			glVertex3d((pos+dv).x + dvpm.x, (pos+dv).y + dvpm.y, 0);
-			glTexCoord2f(1.f, 0.5f);
+			glTexCoord2f(0.99f, 0.5f);
 			glVertex3d((pos+dv).x, (pos+dv).y, 0);
 			glTexCoord2f(0.5f, 0.5f);
 			glVertex3d(pos.x, pos.y, 0);
@@ -350,7 +353,7 @@ namespace Enki
 		glNewList(worldList, GL_COMPILE);
 		
 		glNormal3d(0, 0, 1);
-		glColor3d(0.8, 0.8, 0.8);
+		glColor3d(1, 1, 1);
 		
 		if (world->useWalls)
 		{
@@ -391,7 +394,7 @@ namespace Enki
 			glDisable(GL_TEXTURE_2D);
 			
 			glNormal3d(0, 0, 1);
-			glColor3d(0.815, 0.815, 0.815);
+			glColor3d(.90980392, .90980392, .90980392);
 			glBegin(GL_QUADS);
 			glVertex3d(10, 10, 0);
 			glVertex3d(world->w-10, 10, 0);
@@ -490,6 +493,7 @@ namespace Enki
 	{
 		glClearColor(0.6, 0.7, 1.0, 0.0);
 		glClearColor(0.95, 0.95, 0.95, 1.0);
+		glClearColor(1, 1, 1, 1.0);
 		
 		float LightAmbient[] = {0.6, 0.6, 0.6, 1};
 		float LightDiffuse[] = {1.2, 1.2, 1.2, 1};
@@ -508,13 +512,13 @@ namespace Enki
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
 		
-		GLfloat density = 0.001;
+		/*GLfloat density = 0.001;
  		GLfloat fogColor[4] = {0.95, 0.95, 0.95, 1.0};
 		glFogi (GL_FOG_MODE, GL_EXP);
 		glFogfv (GL_FOG_COLOR, fogColor);
 		glFogf (GL_FOG_DENSITY, density);
 		glHint (GL_FOG_HINT, GL_NICEST);
-		glEnable (GL_FOG);
+		glEnable (GL_FOG);*/
 		
 		worldTexture = bindTexture(QPixmap(QString(":/textures/world.png")), GL_TEXTURE_2D, GL_LUMINANCE8);
 		worldList = glGenLists(1);
