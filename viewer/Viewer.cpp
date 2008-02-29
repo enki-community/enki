@@ -167,6 +167,24 @@ namespace Enki
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_ZERO, GL_SRC_COLOR);
 			
+			// bottom shadow
+			glPushMatrix();
+			// disable writing of z-buffer
+			glDepthMask( GL_FALSE );
+			glTranslated(0, 0, -wheelRadius+0.01);
+			glBegin(GL_QUADS);
+			glTexCoord2f(0.49f, 0.01f);
+			glVertex2f(-5.f, -5.f);
+			glTexCoord2f(0.49f, 0.49f);
+			glVertex2f(5.f, -5.f);
+			glTexCoord2f(0.01f, 0.49f);
+			glVertex2f(5.f, 5.f);
+			glTexCoord2f(0.01f, 0.01f);
+			glVertex2f(-5.f, 5.f);
+			glEnd();
+			glDepthMask( GL_TRUE );
+			glPopMatrix();
+			
 			// wheel shadow
 			glPushMatrix();
 			glScaled(radiosityScale, radiosityScale, radiosityScale);
@@ -179,22 +197,6 @@ namespace Enki
 			glTranslated(0, 0.025, 0);
 			glCallList(lists[4]);
 			glPopMatrix();
-			
-			// bottom shadow
-			// disable writing of z-buffer
-			glDepthMask( GL_FALSE );
-			glTranslated(0, 0, -wheelRadius+0.01);
-			glBegin(GL_QUADS);
-			glTexCoord2f(0.5f, 0.f);
-			glVertex2f(-5.f, -5.f);
-			glTexCoord2f(0.5f, 0.5f);
-			glVertex2f(5.f, -5.f);
-			glTexCoord2f(0.f, 0.5f);
-			glVertex2f(5.f, 5.f);
-			glTexCoord2f(0.f, 0.f);
-			glVertex2f(-5.f, 5.f);
-			glEnd();
-			glDepthMask( GL_TRUE );
 			
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glDisable(GL_BLEND);
@@ -354,6 +356,7 @@ namespace Enki
 		
 		glNormal3d(0, 0, 1);
 		glColor3d(1, 1, 1);
+		glColor3d(.90980392, .90980392, .90980392);
 		
 		if (world->useWalls)
 		{
@@ -492,8 +495,8 @@ namespace Enki
 	void ViewerWidget::initializeGL()
 	{
 		glClearColor(0.6, 0.7, 1.0, 0.0);
-		glClearColor(0.95, 0.95, 0.95, 1.0);
 		glClearColor(1, 1, 1, 1.0);
+		glClearColor(.90980392, .90980392, .90980392, 1.0);
 		
 		float LightAmbient[] = {0.6, 0.6, 0.6, 1};
 		float LightDiffuse[] = {1.2, 1.2, 1.2, 1};
