@@ -599,29 +599,68 @@ namespace Enki
 	
 	void ViewerWidget::mousePressEvent(QMouseEvent *event)
 	{
-		if (event->button() == Qt::RightButton)
+		mouseGrabPos = event->pos();
+		/*if (event->button() == Qt::RightButton)
 		{
 			mouseGrabbed = true;
 			mouseGrabPos = event->pos();
-		}
+		}*/
 	}
 	
 	void ViewerWidget::mouseReleaseEvent(QMouseEvent * event)
 	{
-		if (event->button() == Qt::RightButton)
-			mouseGrabbed = false;
+		/*if (event->button() == Qt::RightButton)
+			mouseGrabbed = false;*/
 	}
 	
 	void ViewerWidget::mouseMoveEvent(QMouseEvent *event)
 	{
-		if (mouseGrabbed)
+		if (event->modifiers() & Qt::ControlModifier)
+		{
+			QPoint diff = event->pos() - mouseGrabPos;
+			if (event->buttons() & Qt::LeftButton)
+			{
+				if (event->modifiers() & Qt::ShiftModifier)
+				{
+					pos.rx() += 0.5 * cos(yaw) * (double)diff.y() + 0.5 * sin(yaw) * (double)diff.x();
+					pos.ry() += 0.5 * sin(yaw) * -(double)diff.y() + 0.5 * cos(yaw) * (double)diff.x();
+				}
+				else
+				{
+					yaw += 0.01 * (double)diff.x();
+					pitch = clamp(pitch + 0.01 * (double)diff.y(), -M_PI / 2, M_PI / 2);
+				}
+			}
+			else if (event->buttons() & Qt::RightButton)
+			{
+				if (event->modifiers() & Qt::ShiftModifier)
+				{
+					altitude += -(double)diff.y();
+				}
+				else
+				{
+					// TODO: zoom
+				}
+			}
+			
+			mouseGrabPos = event->pos();
+		}
+		
+		/*if (mouseGrabbed)
 		{
 			QPoint diff = event->pos() - mouseGrabPos;
 			
 			if (event->modifiers() & Qt::ShiftModifier)
 			{
-				pos.rx() += 0.5 * cos(yaw) * (double)diff.y() + 0.5 * sin(yaw) * (double)diff.x();
-				pos.ry() += 0.5 * sin(yaw) * -(double)diff.y() + 0.5 * cos(yaw) * (double)diff.x();
+				if (event->modifiers() & Qt::ControlModifier)
+				{
+					altitude += -(double)diff.y();
+				}
+				else
+				{
+					pos.rx() += 0.5 * cos(yaw) * (double)diff.y() + 0.5 * sin(yaw) * (double)diff.x();
+					pos.ry() += 0.5 * sin(yaw) * -(double)diff.y() + 0.5 * cos(yaw) * (double)diff.x();
+				}
 			}
 			else
 			{
@@ -629,14 +668,15 @@ namespace Enki
 				pitch = clamp(pitch + 0.01 * (double)diff.y(), -M_PI / 2, M_PI / 2);
 			}
 			mouseGrabPos = event->pos();
-		}
+		}*/
 	}
 	
 	void ViewerWidget::wheelEvent(QWheelEvent * event)
 	{
-		if (event->modifiers() & Qt::ShiftModifier)
+		/*if (event->modifiers() & Qt::ShiftModifier)
 		{
 			altitude += (double)event->delta() / 100;
-		}
+		}*/
+		// TODO: zoom
 	}
 }
