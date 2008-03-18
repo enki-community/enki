@@ -34,9 +34,11 @@
 #ifndef __ENKI_VIEWER_H
 #define __ENKI_VIEWER_H
 
+#include <typeinfo>
 #include <QGLWidget>
 #include <QPoint>
 #include <QPointF>
+#include <QMap>
 #include <enki/Geometry.h>
 #include <enki/PhysicalEngine.h>
 
@@ -68,11 +70,30 @@ namespace Enki
 			virtual void cleanup(ViewerWidget* viewer) { }
 		};
 		
+		// complex robot, one per robot type stored here
+		class CustomRobotModel : public ViewerUserData
+		{
+		public:
+			QVector<GLuint> lists;
+			QVector<GLuint> textures;
+		
+		public:
+			CustomRobotModel();
+		};
+		
 	protected:
 		World *world;
+		
 		GLuint worldList;
 		GLuint worldTexture;
-		QVector<ViewerUserData*> managedObjects;
+		
+		typedef QMap<const std::type_info*, ViewerUserData*> ManagedObjectsMap;
+		typedef QMapIterator<const std::type_info*, ViewerUserData*> ManagedObjectsMapIterator;
+		ManagedObjectsMap managedObjects;
+		typedef QMap<const std::type_info*, const std::type_info*> ManagedObjectsAliasesMap;
+		typedef QMapIterator<const std::type_info*, const std::type_info*> ManagedObjectsAliasesMapIterator;
+		ManagedObjectsAliasesMap managedObjectsAliases;
+		
 		bool mouseGrabbed;
 		QPoint mouseGrabPos;
 		double yaw;
@@ -85,6 +106,7 @@ namespace Enki
 		void renderWorldSegment(const Segment& segment);
 		void renderWorld();
 		void renderSimpleObject(PhysicalObject *object);
+		virtual void renderObjectsTypesHook();
 		virtual void renderObjectHook(PhysicalObject *object);
 		virtual void displayObjectHook(PhysicalObject *object);
 		virtual void sceneCompletedHook();

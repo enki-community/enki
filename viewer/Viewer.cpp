@@ -43,9 +43,9 @@
 	\brief Implementation of the Qt-based viewer widget
 */
 
-void initTexturesResources()
+static void initTexturesResources()
 {
-	Q_INIT_RESOURCE(textures);
+	Q_INIT_RESOURCE(enki_viewer_textures);
 }
 
 //! Asserts a dynamic cast.	Similar to the one in boost/cast.hpp
@@ -87,21 +87,12 @@ namespace Enki
 		}
 	};
 	
-	// complex robot, one per robot type stored here
-	class CustomRobotModel : public ViewerWidget::ViewerUserData
+	ViewerWidget::CustomRobotModel::CustomRobotModel()
 	{
-	public:
-		QVector<GLuint> lists;
-		QVector<GLuint> textures;
+		deletedWithObject = false;
+	}
 	
-	public:
-		CustomRobotModel()
-		{
-			deletedWithObject = false;
-		}
-	};
-	
-	class EPuckModel : public CustomRobotModel
+	class EPuckModel : public ViewerWidget::CustomRobotModel
 	{
 	public:
 		EPuckModel(ViewerWidget* viewer)
@@ -132,7 +123,6 @@ namespace Enki
 			const double wheelRadius = 2.1;
 			const double wheelCirc = 2 * M_PI * wheelRadius;
 			const double radiosityScale = 1.01;
-			static double asd = 0;
 			
 			glTranslated(0, 0, wheelRadius);
 			glEnable(GL_TEXTURE_2D);
@@ -215,18 +205,12 @@ namespace Enki
 		}
 	};
 	
-	enum ManagedObjectTypes
-	{
-		OBJECT_EPUCK_MODEL = 0,
-		MANAGED_OBJECT_COUNT
-	};
 	
 	ViewerWidget::ViewerWidget(World *world, QWidget *parent) :
 		QGLWidget(parent),
 		world(world),
 		mouseGrabbed(false),
 		worldList(0),
-		managedObjects(MANAGED_OBJECT_COUNT, 0),
 		yaw(-M_PI/2),
 		pitch((3*M_PI)/8),
 		pos(-world->w * 0.5, -world->h * 0.2),
@@ -243,13 +227,14 @@ namespace Enki
 			glDeleteLists(worldList, 1);
 			deleteTexture (worldTexture);
 		}
-		for (int i = 0; i < managedObjects.size(); i++)
+		
+		ManagedObjectsMapIterator i(managedObjects);
+		while (i.hasNext())
 		{
-			if (managedObjects[i])
-			{
-				managedObjects[i]->cleanup(this);
-				delete managedObjects[i];
-			}
+			i.next();
+			ViewerUserData* data = i.value();
+			data->cleanup(this);
+			delete data;
 		}
 	}
 	
@@ -462,6 +447,12 @@ namespace Enki
 		glEndList();
 	}
 	
+	//! Called on GL initialisation to render application specific meshed objects, for instance application specific robots
+	void ViewerWidget::renderObjectsTypesHook()
+	{
+	
+	}
+	
 	//! Called inside the creation of the object display list in local object coordinate
 	void ViewerWidget::renderObjectHook(PhysicalObject *object)
 	{
@@ -527,6 +518,11 @@ namespace Enki
 		worldList = glGenLists(1);
 		renderWorld();
 		
+		// render all static types
+		managedObjects[&typeid(EPuck)] = new EPuckModel(this);
+		// let subclass manage their static types
+		renderObjectsTypesHook();
+		
 		startTimer(30);
 	}
 	
@@ -560,14 +556,36 @@ namespace Enki
 			// if required, render this object
 			if (!(*it)->userData)
 			{
-				if (dynamic_cast<EPuck*>(*it))
+				bool found = false;
+				const std::type_info* typeToSearch = &typeid(**it);
+				
+				// search the alias map
+				ManagedObjectsAliasesMapIterator aliasIt(managedObjectsAliases);
+				while (aliasIt.hasNext())
 				{
-					// render E-puck
-					if (!managedObjects[OBJECT_EPUCK_MODEL])
-						managedObjects[OBJECT_EPUCK_MODEL] = new EPuckModel(this);
-					(*it)->userData = managedObjects[OBJECT_EPUCK_MODEL];
+					aliasIt.next();
+					if (*aliasIt.key() == *typeToSearch)
+					{
+						typeToSearch = aliasIt.value();
+						break;
+					}
 				}
-				else
+				
+				// search the real map
+				ManagedObjectsMapIterator dataIt(managedObjects);
+				while (dataIt.hasNext())
+				{
+					dataIt.next();
+					if (*dataIt.key() == (*typeToSearch))
+					{
+						(*it)->userData = dataIt.value();
+						found = true;
+						break;
+					}
+				}
+				
+				
+				if (!found)
 					renderSimpleObject(*it);
 			}
 			

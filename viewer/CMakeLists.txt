@@ -12,7 +12,7 @@ if (QT4_FOUND)
 	qt4_automoc(${viewer_lib_SRCS})
 	qt4_automoc(${viewer_test_SRCS})
 	
-	qt4_add_resources(viewer_lib_RCC_SRCS textures.qrc)
+	qt4_add_resources(viewer_lib_RCC_SRCS enki-viewer-textures.qrc)
 	
 	include_directories (${enki_SOURCE_DIR} ${QT_INCLUDE_DIR} ${QT_QTOPENGL_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR})
 	
