@@ -34,7 +34,7 @@
 
 // E-puck object file
 
-#include <GL/gl.h>
+#include <QtOpenGL>
 
 namespace Enki
 {

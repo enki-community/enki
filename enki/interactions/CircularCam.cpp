@@ -35,6 +35,7 @@
 #include <algorithm>
 #include <limits>
 #include <assert.h>
+#include <cmath>
 
 /*!	\file CircularCam.cpp
 	\brief Implementation of the 1D circular camera

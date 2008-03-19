@@ -34,7 +34,6 @@
 #include "ActiveSoundSource.h"
 #include <iostream>
 #include <algorithm>
-#include <math.h>
 #include <limits.h>
 #include <assert.h>
 

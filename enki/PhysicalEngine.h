@@ -34,15 +34,16 @@
 #ifndef __ENKI_PHYSICALENGINE_H
 #define __ENKI_PHYSICALENGINE_H
 
+#include "Geometry.h"
+#include "Types.h"
+#include "Random.h"
+#include "Interaction.h"
+#include "BluetoothBase.h"
 #include <iostream>
 #include <set>
 #include <vector>
 #include <valarray>
-#include "Types.h"
-#include "Geometry.h"
-#include "Random.h"
-#include "Interaction.h"
-#include "BluetoothBase.h"
+
 
 /*!	\file PhysicalEngine.h
 	\brief The core of Enki.

@@ -35,7 +35,6 @@
 #include "Sbot.h"
 #include <iostream>
 #include <algorithm>
-#include <math.h>
 #include <limits.h>
 
 /*!	\file SbotObject.cpp

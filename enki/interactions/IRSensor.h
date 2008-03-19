@@ -38,6 +38,7 @@
 #include <enki/Interaction.h>
 
 #include <valarray>
+#undef min
 
 /*!	\file IRSensor.h
 	\brief Header of the generic infrared sensor
