@@ -14,7 +14,7 @@ if (QT4_FOUND)
 	
 	qt4_add_resources(viewer_lib_RCC_SRCS enki-viewer-textures.qrc)
 	
-	include_directories (${enki_SOURCE_DIR} ${QT_INCLUDE_DIR} ${QT_QTOPENGL_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR})
+	include_directories (${enki_SOURCE_DIR} ${QT_INCLUDE_DIR} ${QT_QTOPENGL_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR} ${CMAKE_BINARY_DIR}/viewer)
 	
 	link_directories (${enki_BINARY_DIR})
 	

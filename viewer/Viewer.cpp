@@ -33,7 +33,7 @@
 
 #include "objects/Objects.h"
 #include "Viewer.h"
-#include "Viewer.moc"
+#include <Viewer.moc>
 #include <enki/robots/e-puck/EPuck.h>
 #include <enki/robots/alice/Alice.h>
 #include <QApplication>
