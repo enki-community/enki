@@ -161,7 +161,9 @@ namespace Enki
 			glPushMatrix();
 			// disable writing of z-buffer
 			glDepthMask( GL_FALSE );
-			glTranslated(0, 0, -wheelRadius+0.01);
+			//glTranslated(0, 0, -wheelRadius+0.01);
+			glTranslated(0, 0, -wheelRadius);
+			glEnable(GL_POLYGON_OFFSET_FILL);
 			glBegin(GL_QUADS);
 			glTexCoord2f(0.49f, 0.01f);
 			glVertex2f(-5.f, -5.f);
@@ -172,6 +174,7 @@ namespace Enki
 			glTexCoord2f(0.01f, 0.01f);
 			glVertex2f(-5.f, 5.f);
 			glEnd();
+			glDisable(GL_POLYGON_OFFSET_FILL);
 			glDepthMask( GL_TRUE );
 			glPopMatrix();
 			
@@ -505,6 +508,8 @@ namespace Enki
 		glEnable(GL_LIGHTING);
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
+		
+		glPolygonOffset(-1.01f, 0.f);
 		
 		/*GLfloat density = 0.001;
  		GLfloat fogColor[4] = {0.95, 0.95, 0.95, 1.0};
