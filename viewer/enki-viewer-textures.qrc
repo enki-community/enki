@@ -3,5 +3,6 @@
 	<file>textures/epuck.png</file>
 	<file>textures/epuckr.png</file>
 	<file>textures/world.png</file>
+	<file>textures/wall.png</file>
 </qresource>
 </RCC>

@@ -78,16 +78,21 @@ int main(int argc, char *argv[])
 	
 	PhysicalObject* o = new PhysicalObject;
 	Polygone p;
-	p.push_back(Point(5,-5));
+	/*p.push_back(Point(5,-5));
 	p.push_back(Point(5, 5));
 	p.push_back(Point(-5, 5));
 	p.push_back(Point(-5,-5));
+	p.push_back(Point(-5,-5));*/
+	for (double a = 0; a < 2*M_PI; a += 2*M_PI/5)
+		p.push_back(Point(5 * cos(a), 5 * sin(a)));
+	
 	o->setBoundingSurface(&p);
 	o->pos = Point(100, 100);
 	o->height = 10;
 	o->mass = -1;
-	o->color = Color(0.2,0.2,0.2);
-	//world.addObject(o);
+	o->color = Color(0.4,0.6,0.8);
+	//o->color = Color(1,1,1);
+	world.addObject(o);
 	
 	viewer.show();
 	

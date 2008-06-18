@@ -86,6 +86,7 @@ namespace Enki
 		
 		GLuint worldList;
 		GLuint worldTexture;
+		GLuint wallTexture;
 		
 		typedef QMap<const std::type_info*, ViewerUserData*> ManagedObjectsMap;
 		typedef QMapIterator<const std::type_info*, ViewerUserData*> ManagedObjectsMapIterator;
@@ -102,6 +103,8 @@ namespace Enki
 		double altitude;
 	
 	protected:
+		void renderInterSegmentShadow(const Vector& a, const Vector& b, const Vector& c, double height);
+		void renderSegmentShadow(const Segment& segment, double height);
 		void renderSegment(const Segment& segment, double height);
 		void renderWorldSegment(const Segment& segment);
 		void renderWorld();

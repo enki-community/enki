@@ -229,6 +229,7 @@ namespace Enki
 		{
 			glDeleteLists(worldList, 1);
 			deleteTexture (worldTexture);
+			deleteTexture (wallTexture);
 		}
 		
 		ManagedObjectsMapIterator i(managedObjects);
@@ -243,12 +244,85 @@ namespace Enki
 	
 	void ViewerWidget::renderSegment(const Segment& segment, double height)
 	{
+		Vector v = segment.b - segment.a;
+		Vector vu = v.unitary();
+		Vector n = Vector(v.y, -v.x).unitary();
+		
+		// draw sides
+		glNormal3d(n.x, n.y, 0);
 		glBegin(GL_QUADS);
+		glTexCoord2f(0.5f, 0.5f);
 		glVertex3d(segment.a.x, segment.a.y, 0);
+		glTexCoord2f(0.99f, 0.5f);
 		glVertex3d(segment.b.x, segment.b.y, 0);
+		glTexCoord2f(0.99f, 0.99f);
 		glVertex3d(segment.b.x, segment.b.y, height);
+		glTexCoord2f(0.5f, 0.99f);
 		glVertex3d(segment.a.x, segment.a.y, height);
 		glEnd();
+	}
+	
+	void ViewerWidget::renderSegmentShadow(const Segment& segment, double height)
+	{
+		Vector v = segment.b - segment.a;
+		Vector vu = v.unitary();
+		Vector n = Vector(v.y, -v.x).unitary();
+		
+		// draw ground
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ZERO, GL_SRC_COLOR);
+		glDepthMask( GL_FALSE );
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		
+		Vector dvpm = Vector(vu.y, -vu.x) * height;
+		
+		glNormal3d(0, 0, 1);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.5f, 0.01f);
+		glVertex3d(segment.a.x + dvpm.x, segment.a.y + dvpm.y, 0);
+		glTexCoord2f(0.99f, 0.01f);
+		glVertex3d(segment.b.x + dvpm.x, segment.b.y + dvpm.y, 0);
+		glTexCoord2f(0.99f, 0.5f);
+		glVertex3d(segment.b.x, segment.b.y, 0);
+		glTexCoord2f(0.5f, 0.5f);
+		glVertex3d(segment.a.x, segment.a.y, 0);
+		glEnd();
+		
+		glDisable(GL_POLYGON_OFFSET_FILL);
+		glDepthMask( GL_TRUE );
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDisable(GL_BLEND);
+	}
+	
+	void ViewerWidget::renderInterSegmentShadow(const Vector& a, const Vector& b, const Vector& c, double height)
+	{
+		Vector prev_v = b - a;
+		Vector prev_vu = prev_v.unitary();
+		Vector prev_dvpm = Vector(prev_vu.y, -prev_vu.x) * height;
+		
+		Vector next_v = c - b;
+		Vector next_vu = next_v.unitary();
+		Vector next_dvpm = Vector(next_vu.y, -next_vu.x) * height;
+		
+		// draw ground
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ZERO, GL_SRC_COLOR);
+		glDepthMask( GL_FALSE );
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		
+		glNormal3d(0, 0, 1);
+		glBegin(GL_TRIANGLES);
+		glTexCoord2f(0.5f, 0.5f);
+		glVertex3d(b.x, b.y, 0);
+		glTexCoord2f(0.5f, 0.01f);
+		glVertex3d(b.x + prev_dvpm.x, b.y + prev_dvpm.y, 0);
+		glVertex3d(b.x + next_dvpm.x, b.y + next_dvpm.y, 0);
+		glEnd();
+		
+		glDisable(GL_POLYGON_OFFSET_FILL);
+		glDepthMask( GL_TRUE );
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDisable(GL_BLEND);
 	}
 	
 	void ViewerWidget::renderWorldSegment(const Segment& segment)
@@ -419,16 +493,37 @@ namespace Enki
 			// TODO: use object texture if any
 			size_t segmentCount = object->boundingSurface->size();
 			
+			glDisable(GL_LIGHTING);
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, wallTexture);
+			
 			// sides
 			for (size_t i = 0; i < segmentCount; ++i)
+			{
+				// TODO: ugly, separate function for object and shadow
+				glColor3d(object->color.components[0], object->color.components[1], object->color.components[2]);
 				renderSegment(Segment((*object->boundingSurface)[i], (*object->boundingSurface)[(i+1) % segmentCount] ), object->height);
+				glColor3d(1, 1, 1);
+				renderSegmentShadow(Segment((*object->boundingSurface)[i], (*object->boundingSurface)[(i+1) % segmentCount] ), object->height);
+				renderInterSegmentShadow(
+					(*object->boundingSurface)[i],
+					(*object->boundingSurface)[(i+1) % segmentCount],
+					(*object->boundingSurface)[(i+2) % segmentCount],
+					object->height
+				);
+			}
+			
+			glDisable(GL_TEXTURE_2D);
 			
 			// top
+			glColor3d(object->color.components[0], object->color.components[1], object->color.components[2]);
 			glNormal3d(1, 1, 0);
 			glBegin(GL_TRIANGLE_FAN);
 			for (size_t i = 0; i < segmentCount; ++i)
 				glVertex3d((*object->boundingSurface)[i].x, (*object->boundingSurface)[i].y, object->height);
 			glEnd();
+			
+			glEnable(GL_LIGHTING);
 		}
 		else
 		{
@@ -520,6 +615,7 @@ namespace Enki
 		glEnable (GL_FOG);*/
 		
 		worldTexture = bindTexture(QPixmap(QString(":/textures/world.png")), GL_TEXTURE_2D, GL_LUMINANCE8);
+		wallTexture = bindTexture(QPixmap(QString(":/textures/wall.png")), GL_TEXTURE_2D, GL_LUMINANCE8);
 		worldList = glGenLists(1);
 		renderWorld();
 		
