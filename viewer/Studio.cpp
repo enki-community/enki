@@ -84,8 +84,8 @@ public:
 			o->pos = Point(UniformRand(20, 100)(), UniformRand(20, 100)());
 			o->setMass(10);
 			o->setColor(Color(0.9, 0.2, 0.2));
-			o->viscousFrictionTau = 10000000;
-			o->viscousMomentFrictionTau = 10000000;
+			o->viscousFriction.tau = 5;
+			o->viscousMomentFriction.tau = 5;
 			o->commitPhysicalParameters();
 			world->addObject(o);
 		}
@@ -102,8 +102,8 @@ public:
 			o->setShape(p2, 3);
 			o->setMass(30);
 			o->setColor(Color(0.2, 0.1, 0.6));
-			o->viscousFrictionTau = 10000000;
-			o->viscousMomentFrictionTau = 10000000;
+			o->viscousFriction.tau = 5;
+			o->viscousMomentFriction.tau = 5;
 			o->commitPhysicalParameters();
 			world->addObject(o);
 		}

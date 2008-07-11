@@ -118,6 +118,9 @@ namespace Enki
 		mass = -1;
 		setCylindric(objectRadius, 1.9);
 		
+		viscousFriction.tau = 0.5;
+		viscousMomentFriction.tau = 0.5;
+		
 		commitPhysicalParameters();
 	}
 

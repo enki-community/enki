@@ -337,9 +337,9 @@ namespace Enki
 		// delay Alice-Alice pushing (factor 2 slowdown; since collisions are symmetric,
 		// we don't know which Alice is pushing which one)
 		staticFrictionThreshold = 1.0;
-		collisionAngularFrictionFactor = 1.7;
-		viscousFrictionTau = 0.5;
-		viscousMomentFrictionTau = 0.0;
+		
+		viscousFriction.tau = 0;
+		viscousMomentFriction.tau = 0;
 		
 		commitPhysicalParameters();
 	}

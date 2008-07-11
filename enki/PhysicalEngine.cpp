@@ -53,11 +53,10 @@ namespace Enki
 		userData = NULL;
 		
 		// default physical parameters
-		collisionElasticity = 1;
+		collisionElasticity = 0.9;
 		staticFrictionThreshold = 0;
-		viscousFrictionTau = 0;
-		viscousMomentFrictionTau = 0;
-		collisionAngularFrictionFactor = 0;
+		viscousFriction.tau = 0.1;
+		viscousMomentFriction.tau = 0.1;
 		
 		angle = 0;
 		
@@ -107,7 +106,6 @@ namespace Enki
 			
 			momentOfInertia *= mass / area;
 		}
-		std::cout << this << " momentOfInertia" << momentOfInertia << std::endl;
 	}
 	
 	void PhysicalObject::setMass(double mass)
@@ -147,18 +145,14 @@ namespace Enki
 		cm /= area;
 		area = area / (dx * dy);
 		
-		std::cout << "cm " << cm.x << " " << cm.y << std::endl;
-		
 		// copy bounding surface such that it is centered around center of mass
 		size_t faceCount = boundingSurface.size();
 		textures.resize(faceCount, Texture(color, 1));
 		this->boundingSurface.resize(faceCount);
-		std::cout << "new bs" << std::endl;
 		r = 0;
 		for (size_t i=0; i<faceCount; i++)
 		{
 			this->boundingSurface[i] = boundingSurface[i] - cm;
-			std::cout << this->boundingSurface[i].x << " " << this->boundingSurface[i].y << std::endl;
 			r = std::max(r, this->boundingSurface[i].norm());
 		}
 	}
@@ -194,32 +188,16 @@ namespace Enki
 		pos += speed * dt;
 		angle += angSpeed * dt;
 		angle = normalizeAngle(angle);
-		// TODO : optimise this using ExpDecay from external math lib !
 		
-		
-		if (viscousFrictionTau < dt)
-		{
-			speed = 0.0;
-		}
+		if (viscousFriction.tau < dt)
+			speed *= 0.1;
 		else
-		{
+			speed = viscousFriction.step(speed, dt);
 		
-			double factor = (viscousFrictionTau - dt * 0.5) / (viscousFrictionTau + dt * 0.5); 
-			speed *= factor;
-			
-		}
-		if (viscousMomentFrictionTau < dt)
-		{
-			angSpeed = 0;
-		}
+		if (viscousMomentFriction.tau < dt)
+			angSpeed *= 0.1;
 		else
-		{
-		    //std::cerr << "0  f:" << angSpeed << std::endl;
-		    double factor = (viscousMomentFrictionTau - dt * 0.5) / (viscousMomentFrictionTau + dt * 0.5); 
-			angSpeed *= factor;
-			//std::cerr << "angSpeed:" << angSpeed << std::endl;
-			//std::cerr << "factor:" << factor << std::endl;
-		}
+			angSpeed = viscousMomentFriction.step(angSpeed, dt);
 	}
 
 	void PhysicalObject::initLocalInteractions()
@@ -246,7 +224,7 @@ namespace Enki
 
 	void PhysicalObject::finalizeLocalInteractions(double dt)
 	{
-		// if smaller than threshold, don't move
+		// If smaller than threshold, don't move.
 		double displacementThreshold = staticFrictionThreshold * dt;
 		if (deinterlaceVector.norm2() > displacementThreshold*displacementThreshold)
 			pos += deinterlaceVector;

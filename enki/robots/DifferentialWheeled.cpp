@@ -68,6 +68,9 @@ namespace Enki
 	
 	void DifferentialWheeled::step(double dt)
 	{
+		// handle physic
+		PhysicalObject::step(dt);
+		
 		// +/- noiseAmout % of motor noise
 		double baseFactor = 1 - noiseAmount;
 		double noiseFactor = 2 * noiseAmount;
@@ -79,7 +82,7 @@ namespace Enki
 		// speeds, according to Prof. Roland Siegwart class material
 		double forwardSpeed = (realRightSpeed + realLeftSpeed) * 0.5;
 		angSpeed += (realRightSpeed - realLeftSpeed) / distBetweenWheels;
-		speed = Vector(
+		speed += Vector(
 					forwardSpeed * cos(angle + angSpeed * dt * 0.5),
 					forwardSpeed * sin(angle + angSpeed * dt * 0.5)
 				);
@@ -112,9 +115,6 @@ namespace Enki
 		// Save values for next step.
 		oldPos = pos;
 		oldAngle = angle;
-		
-		// handle physic
-		PhysicalObject::step(dt);
 	}
 }
 

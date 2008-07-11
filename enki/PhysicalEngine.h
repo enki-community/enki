@@ -125,6 +125,27 @@ Mobots group - Laboratoire de Systèmes Robotiques,
 namespace Enki
 {
 	class World;
+	
+	// TODO: find an implementation that allows smaller taus
+	//! An exponential decay using the Crank-Nicholson method.
+	class ExpDecay
+	{
+	public:
+		double tau; //!< Time-constant, after tau [unit of time], the value would be half its original value
+		
+	public:
+		//! Constructor
+		//! @param tau Time-constant, after tau [unit of time], the value would be half its original value
+		ExpDecay(double tau = 0) : tau(tau) { }
+		
+		//! Apply a step of exponential decay for duration dt to the value and return it
+		template<typename T>
+		T step(T value, double dt)
+		{
+			double factor = (tau - dt * 0.5) / (tau + dt * 0.5);
+			return value * factor;
+		}
+	};
 
 	//! A situated object in the world with mass, geometry properties, physical properties, ...
 	/*! \ingroup core */
@@ -151,14 +172,12 @@ namespace Enki
 		
 		//! Elasticity of collisions of this object. If 0, soft collision, 100% energy dissipation; if 1, elastic collision, 0% energy dissipation. Actual elasticity is the product of the elasticity of the two colliding objects
 		double collisionElasticity;
-		//! The static friction threshold of the object. If a force is smaller than it, the object will not move.
+		//! The static friction threshold of the object. If the force resulting from the interaction between non-infinite mass objects is smaller than this, this object will not move. Use it with care, as putting a value too high can prevent objects from being deinterlaced.
 		double staticFrictionThreshold;
 		//! The viscous friction time constant. Half-life of speed when object is free. If lower than timestep, speed is forced to zero.
-		double viscousFrictionTau;
+		ExpDecay viscousFriction;
 		//! The viscous friction moment time constant. Half-life of angular speed when object is free. If lower than timestep, angular speed is forced to zero.
-		double viscousMomentFrictionTau;
-		//! Upon collision with static objects. The amount of rotation transmitted to the moving object. If zero, moving object slides over static one. If one, moving object is fully rotated.
-		double collisionAngularFrictionFactor;
+		ExpDecay viscousMomentFriction;
 		
 		// physics state variables
 		
