@@ -87,8 +87,6 @@ namespace Enki
 		CircularCam circcam;
 		//! Communication module
 		AliceCommunication comm;
-		//!Polygone for alice
-		Polygone AP;
 
 
 	public:
@@ -114,7 +112,7 @@ namespace Enki
 			//! External Module Back Left and Right Sensor: The Alice is equipped with the ANTS extension module and uses the back left and right sensors
 			CAPABILITIY_EXT_BACK_LR_SENSORS = 0x10,
 		};
-
+		
 	public:
 		//! Create an Alice with certain modules aka capabilities (basic, advanced, camera, communication, sound)
 		Alice(unsigned capabilities = CAPABILITIY_BASIC_SENSORS);

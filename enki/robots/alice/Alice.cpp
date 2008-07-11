@@ -283,34 +283,6 @@ namespace Enki
 		circcam(this, Vector (0, 0), 3, 0, M_PI/10, 6),
 		comm(4.6, this)
 	{
-		mass = 10;
-		height = 4;
-
-		/*
-		// Create a slightly different bounding surface for each alice
-		AP.push_back(Point(-1.0,-1));
-		AP.push_back(Point(1.0,-1));
-		
-		AP.push_back(Point(1.30 + (-0.1 + random.getRange(0.2)),-.2 - (random.getRange(0.5))));
-		AP.push_back(Point(1.30 + (-0.1 + random.getRange(0.2)),.2 + (random.getRange(0.5))));
-
-		AP.push_back(Point(1.0,1));
-		AP.push_back(Point(-1.0,1));
-		AP.push_back(Point(-1.35 + (-0.15 + random.getRange(0.3)),(-0.4 + random.getRange(0.8))));
-		setBoundingSurface(&AP);
-		*/
-		// Use a predefined bounding surface
-		setBoundingSurface(&aliceBoundingSurface.p);
-		setUniformColor(Color::blue);
-
-		// set high static friction threshold to exclude Alices pushed by disks and 
-		// delay Alice-Alice pushing (factor 2 slowdown; since collisions are symmetric,
-		// we don't know which Alice is pushing which one)
-		staticFrictionThreshold = 1.0;
-		collisionAngularFrictionFactor = 1.7;
-		viscousFrictionTau = 0.5;
-		viscousMomentFrictionTau = 0.0;
-		
 		if (capabilities & CAPABILITIY_BASIC_SENSORS)
 		{
 			addLocalInteraction(&left);
@@ -341,6 +313,35 @@ namespace Enki
 		}
 
 		leftSpeed = rightSpeed = 0;
+		
+		/*
+		// Create a slightly different bounding surface for each alice
+		AP.push_back(Point(-1.0,-1));
+		AP.push_back(Point(1.0,-1));
+		
+		AP.push_back(Point(1.30 + (-0.1 + random.getRange(0.2)),-.2 - (random.getRange(0.5))));
+		AP.push_back(Point(1.30 + (-0.1 + random.getRange(0.2)),.2 + (random.getRange(0.5))));
+
+		AP.push_back(Point(1.0,1));
+		AP.push_back(Point(-1.0,1));
+		AP.push_back(Point(-1.35 + (-0.15 + random.getRange(0.3)),(-0.4 + random.getRange(0.8))));
+		setBoundingSurface(&AP);
+		*/
+		// Use a predefined bounding surface
+		mass = 10;
+		height = 4;
+		setupBoundingSurface(aliceBoundingSurface.p);
+		color = Color::blue;
+
+		// set high static friction threshold to exclude Alices pushed by disks and 
+		// delay Alice-Alice pushing (factor 2 slowdown; since collisions are symmetric,
+		// we don't know which Alice is pushing which one)
+		staticFrictionThreshold = 1.0;
+		collisionAngularFrictionFactor = 1.7;
+		viscousFrictionTau = 0.5;
+		viscousMomentFrictionTau = 0.0;
+		
+		commitPhysicalParameters();
 	}
 
 	void Alice::step(double dt) 

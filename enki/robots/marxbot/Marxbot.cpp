@@ -58,15 +58,14 @@ namespace Enki
 		DifferentialWheeled(15, 30, 0.02),
 		rotatingDistanceSensor(this, 11, 90)
 	{
+		addLocalInteraction(&rotatingDistanceSensor);
+		
 		mass = 1000;
 		height = 12;
 		r = 8.5;
-		
-		addLocalInteraction(&rotatingDistanceSensor);
-		
-		leftSpeed = 0;
-		rightSpeed = 0;
 		color = Color(0.7, 0.7, 0.7);
+		
+		computeMomentOfInertia();
 	}
 	
 	double Marxbot::getVirtualBumper(unsigned number)
@@ -74,7 +73,7 @@ namespace Enki
 		assert(number < 24);
 		// physical sensors begin at front (TODO: check)
 		unsigned physicalNumber = (number + 12) % 24;
-		return marxbotVirtualBumperResponseFunction(sqrt(rotatingDistanceSensor.zbuffer[(physicalNumber * 180) / 24]) - r);
+		return marxbotVirtualBumperResponseFunction(sqrt(rotatingDistanceSensor.zbuffer[(physicalNumber * 180) / 24]) - _radius());
 	}
 }
 

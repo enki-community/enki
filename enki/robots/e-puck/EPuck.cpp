@@ -118,13 +118,6 @@ namespace Enki
 		bluetooth(NULL)
 	{
 		oldAngle=angle;
-		reflection=1.0;   // 0.6 would be more realistic
-		mass = 152;
-		height = 4.7;
-		r = 3.7;
-		collisionAngularFrictionFactor = 0.7;
-		viscousFrictionTau = 0.5;
-		viscousMomentFrictionTau = 0;
 		
 		if (capabilities & CAPABILITY_BASIC_SENSORS)
 		{
@@ -154,9 +147,17 @@ namespace Enki
 			addGlobalInteraction(bluetooth);
 		}
 		
-		leftEncoder = rightEncoder = 0;
-		leftSpeed = rightSpeed = 0;
+		mass = 152;
+		r = 3.7;
+		height = 4.7;
 		color = Color(0, 0.7, 0);
+		infraredReflectiveness = 1.; // 0.6 of infraredReflectiveness would be more realistic
+		
+		collisionAngularFrictionFactor = 0.7;
+		viscousFrictionTau = 0.5;
+		viscousMomentFrictionTau = 0;
+		
+		commitPhysicalParameters();
 	}
 	
 	EPuck::~EPuck()
@@ -167,7 +168,7 @@ namespace Enki
 	
 	void EPuck::setLedRing(bool status)
 	{
-		color = status ? Color::red : Color(0, 0.7, 0);
+		setColor(status ? Color::red : Color(0, 0.7, 0));
 	}
 }
 

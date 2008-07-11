@@ -55,7 +55,7 @@ namespace Enki
 	public:
 		//! The rotating, long range distance sensor
 		OmniCam rotatingDistanceSensor;
-		
+	
 	public:
 		//! Constructor
 		Marxbot();

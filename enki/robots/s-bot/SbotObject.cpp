@@ -49,7 +49,7 @@ namespace Enki
 		
 		activeColor = Color(255, 0, 0);
 		inactiveColor = Color(0, 0, 0);
-		owner->color = activeColor;
+		owner->setColor(activeColor);
 		
 		actualEnergy = 1000;
 		actualTime = 0;
@@ -89,12 +89,14 @@ namespace Enki
 
 	void SbotFeeding::finalize(double dt)
 	{
-		if ( activeDuration == -1 ) { 
-			owner->color = activeColor; 
-			return; 
+		if ( activeDuration == -1 )
+		{ 
+			owner->setColor(activeColor);
+			return;
 		}
-		else if ( inactiveDuration == -1 ) { 
-			owner->color = inactiveColor; 
+		else if ( inactiveDuration == -1 )
+		{
+			owner->setColor(inactiveColor);
 			return; 
 		}
 
@@ -104,15 +106,19 @@ namespace Enki
 		while (actualTime > totalTime)
 			actualTime -= totalTime;
 		
-		owner->color = (actualTime < activeDuration) ? activeColor : inactiveColor;
+		owner->setColor((actualTime < activeDuration) ? activeColor : inactiveColor);
 	}
 
 	SbotActiveObject::SbotActiveObject(double objectRadius, double actionRange) :
 		feeding(actionRange, this)
 	{
 		addLocalInteraction(&feeding);
+		
+		// we override physical settings setup because we only have objectRadius here
 		mass = -1;
-		r = objectRadius;
+		setCylindric(objectRadius, 1.9);
+		
+		commitPhysicalParameters();
 	}
 
 	SbotActiveSoundObject::SbotActiveSoundObject(double objectRadius, double actionRange) :
@@ -120,9 +126,6 @@ namespace Enki
 		ActiveSoundObject(this, actionRange, 25)
 	{
 		addLocalInteraction(&speaker);
-		mass = -1;
-		r = objectRadius;
-		height = 1.9;
 	}
 
 	void SbotActiveSoundObject::setSoundRange(double soundRange)

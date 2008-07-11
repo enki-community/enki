@@ -35,7 +35,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <algorithm> 
+#include <algorithm>
+#include <limits>
 
 // _________________________________
 //
@@ -50,27 +51,142 @@ namespace Enki
 	PhysicalObject::PhysicalObject(void) 
 	{
 		userData = NULL;
-		boundingSurface = NULL;
-		angle = 0;
-		angSpeed = 0;
-		mass = 1;
-		collisionWithWalls = false;
-		r = 1;
-		reflection = 1;
-		height = 1;
+		
+		// default physical parameters
+		collisionElasticity = 1;
 		staticFrictionThreshold = 0;
 		viscousFrictionTau = 0;
 		viscousMomentFrictionTau = 0;
 		collisionAngularFrictionFactor = 0;
+		
+		angle = 0;
+		
+		angSpeed = 0;
+		
+		mass = 1;
+		
+		r = 1;
+		height = 1;
+		
+		infraredReflectiveness = 1;
 		color = Color::black;
 	}
-
+	
 	PhysicalObject::~PhysicalObject(void)
 	{
 		if (userData && (userData->deletedWithObject))
 		{
 			delete userData;
 		}
+	}
+	
+	void PhysicalObject::commitPhysicalParameters()
+	{
+		computeMomentOfInertia();
+	}
+	
+	void PhysicalObject::computeMomentOfInertia()
+	{
+		if (boundingSurface.empty())
+		{
+			momentOfInertia = 0.5 * mass * r * r;
+		}
+		else
+		{
+			// arbitrary shaped object, numerically compute moment of inertia
+			momentOfInertia = 0;
+			double area = 0;
+			double dr = r / 50.;
+			for (double ix = -r; ix < r; ix += dr)
+				for (double iy = -r; iy < r; iy += dr)
+					if (boundingSurface.isPointInside(Point(ix, iy)))
+					{
+						momentOfInertia += ix * ix + iy * iy;
+						area++;
+					}
+			
+			momentOfInertia *= mass / area;
+		}
+		std::cout << this << " momentOfInertia" << momentOfInertia << std::endl;
+	}
+	
+	void PhysicalObject::setMass(double mass)
+	{
+		this->mass = mass;
+	}
+	
+	void PhysicalObject::setCylindric(double radius, double height)
+	{
+		r = radius;
+		boundingSurface.clear();
+		this->height = height;
+	}
+	
+	void PhysicalObject::setupBoundingSurface(const Polygone& boundingSurface)
+	{
+		// get bounding box
+		Point bottomLeft, topRight;
+		bool validBB = boundingSurface.getAxisAlignedBoundingBox(bottomLeft, topRight);
+		assert(validBB);
+		
+		// numerically compute the center of mass of the shape
+		Point cm;
+		double area = 0;
+		double dx = (topRight-bottomLeft).x / 100;
+		double dy = (topRight-bottomLeft).y / 100;
+		for (double ix = bottomLeft.x; ix < topRight.x; ix += dx)
+			for (double iy = bottomLeft.y; iy < topRight.y; iy += dy)
+			{
+				if (boundingSurface.isPointInside(Point(ix, iy)))
+				{
+					cm.x += ix;
+					cm.y += iy;
+					area++;
+				}
+			}
+		cm /= area;
+		area = area / (dx * dy);
+		
+		std::cout << "cm " << cm.x << " " << cm.y << std::endl;
+		
+		// copy bounding surface such that it is centered around center of mass
+		size_t faceCount = boundingSurface.size();
+		textures.resize(faceCount, Texture(color, 1));
+		this->boundingSurface.resize(faceCount);
+		std::cout << "new bs" << std::endl;
+		r = 0;
+		for (size_t i=0; i<faceCount; i++)
+		{
+			this->boundingSurface[i] = boundingSurface[i] - cm;
+			std::cout << this->boundingSurface[i].x << " " << this->boundingSurface[i].y << std::endl;
+			r = std::max(r, this->boundingSurface[i].norm());
+		}
+	}
+	
+	void PhysicalObject::setShape(const Polygone& boundingSurface, double height)
+	{
+		this->height = height;
+		
+		setupBoundingSurface(boundingSurface);
+	}
+	
+	void PhysicalObject::setColor(const Color &color)
+	{
+		this->color = color;
+		if (!boundingSurface.empty())
+			for (size_t i=0; i<boundingSurface.size(); i++)
+				textures[i].resize(1, color);
+	}
+	
+	void PhysicalObject::setTextures(const Texture* textures)
+	{
+		for (size_t i=0; i<boundingSurface.size(); i++)
+			this->textures[i] = textures[i];
+	}
+	
+	void PhysicalObject::setInfraredReflectiveness(double infraredReflectiveness)
+	{
+		this->infraredReflectiveness = infraredReflectiveness;
 	}
 
 	void PhysicalObject::step(double dt)
@@ -138,60 +254,50 @@ namespace Enki
 
 	void PhysicalObject::computeAbsBoundingSurface(void)
 	{
-		if (boundingSurface)
+		if (!boundingSurface.empty())
 		{
-			absBoundingSurface.resize(boundingSurface->size());
+			absBoundingSurface.resize(boundingSurface.size());
 			Matrix22 rotMat(angle);
-			for (size_t i=0; i<boundingSurface->size(); i++)
+			for (size_t i=0; i<boundingSurface.size(); i++)
 			{
-				Point realPoint = rotMat*(*boundingSurface)[i] + pos;
+				Point realPoint = rotMat*(boundingSurface)[i] + pos;
 				absBoundingSurface[i] = realPoint;
 			}
 		}
 	}
-
-	void PhysicalObject::setBoundingSurface(const Polygone *bs)
-	{
-		assert(bs);
-		boundingSurface = bs;
-		r = 0;
-		size_t faceCount = boundingSurface->size();
-		textures.resize(faceCount);
-		for (unsigned i=0; i<faceCount; i++)
-		{
-			const Point &p = (*boundingSurface)[i];
-			r = std::max(r, p.norm());
-			textures[i].resize(1, color);
-		}
-	}
 	
-	void PhysicalObject::setUniformColor(const Color &color)
-	{
-		this->color = color;
-		if (boundingSurface)
-			for (unsigned i=0; i<boundingSurface->size(); i++)
-				textures[i].resize(1, color);
-	}
+	
 
-	void PhysicalObject::collideWithStaticObject(const Vector &n)
+	void PhysicalObject::collideWithStaticObject(const Vector &n, const Point &cp)
 	{
 		// angular friction
-		angSpeed -= (speed.x*n.y - speed.y*n.x) * collisionAngularFrictionFactor;
+		//angSpeed -= (speed.x*n.y - speed.y*n.x) * collisionAngularFrictionFactor;
+		
+		// from http://www.myphysicslab.com/collision.html
+		Vector r_ap = (cp - pos);
+		Vector v_ap = speed + r_ap.crossFromZVector(angSpeed);
+		double num = -(1 + collisionElasticity) * (v_ap * n);
+		double denom = (1 / mass) + (r_ap.cross(n) * r_ap.cross(n)) / momentOfInertia;
+		double j = num / denom;
+		speed += (n * j) / mass;
+		angSpeed += r_ap.cross(n * j) / momentOfInertia;
 	}
 
 	void PhysicalObject::collideWithStaticObject(const Point &cp1, const Point &cp2, const Vector &n1, const Vector &n2, const Vector &dist)
 	{
-		collideWithStaticObject(n1);
-		collideWithStaticObject(n2);
+		if (n1.norm2() > std::numeric_limits<double>::epsilon())
+			collideWithStaticObject(n1, cp1);
+		if (n2.norm2() > std::numeric_limits<double>::epsilon())
+			collideWithStaticObject(n2, cp2);
 		pos += dist;
 	}
 
-	void PhysicalObject::collideWithObject(PhysicalObject &object, const Point &cp, const Vector &dist)
+	void PhysicalObject::collideWithObject(PhysicalObject &that, const Point &cp, const Vector &dist)
 	{
 		// handle infinite mass case
 		if (mass < 0)
 		{
-			if (object.mass < 0)
+			if (that.mass < 0)
 			{
 				//assert(false);
 				return;
@@ -200,43 +306,48 @@ namespace Enki
 			{
 				// if colliding with wall
 				Vector n = dist.unitary() * -1;
-				object.collideWithStaticObject(n);
-				object.pos -= dist;
+				that.collideWithStaticObject(n, cp);
+				that.pos -= dist;
 				return;
 			}
 		}
 		else
 		{
 			// if colliding with wall
-			if (object.mass < 0)
+			if (that.mass < 0)
 			{
 				Vector n = dist.unitary();
-				collideWithStaticObject(n);
+				collideWithStaticObject(n, cp);
 				pos += dist;
 				return;
 			}
 		}
-
-		// total mass of 2 objects
-		double masssum = mass + object.mass;
-		// vectors to collision
-		Vector dPos1 = cp-pos;
-		Vector dPos2 = cp-object.pos;
-
-		// handle rotation
-		// those values should be multiplied by the lookuped value of rotation friction for the given two 
-		// surfaces (collAngFrictFact is just an approximation)
-		angSpeed = (dPos1.x*dPos2.y-dPos1.y*dPos2.x)*(object.mass/masssum)*collisionAngularFrictionFactor;
-		object.angSpeed = (dPos2.x*dPos1.y-dPos2.y*dPos1.x)*(mass/masssum)*collisionAngularFrictionFactor;
-
-		// calculate deinterlace vector to put object out of contact - mass ratios ensure physics
-		deinterlaceVector += dist*object.mass/masssum;
-		object.deinterlaceVector -= dist*mass/masssum;
-	}
-
-	Robot::Robot(void)
-	{
-
+		
+		// point of this in inside object
+		// we use model from http://www.myphysicslab.com/collision.html
+		// this is object A, that is object B
+		Vector n = dist.unitary();
+		
+		Vector r_ap = (cp - pos);
+		Vector r_bp = (cp - that.pos);
+		
+		Vector v_ap = speed + r_ap.crossFromZVector(angSpeed);
+		Vector v_bp = that.speed + r_bp.crossFromZVector(angSpeed);
+		Vector v_ab = v_ap - v_bp;
+		
+		double num = -(1 + collisionElasticity * that.collisionElasticity) * (v_ab * n);
+		double denom = (1/mass) + (1/that.mass) + (r_ap.cross(n) * r_ap.cross(n)) / momentOfInertia + (r_bp.cross(n) * r_bp.cross(n)) / that.momentOfInertia;
+		double j = num / denom;
+		
+		speed += (n * j) / mass;
+		that.speed -= (n * j) / that.mass;
+		angSpeed += r_ap.cross(n * j) / momentOfInertia;
+		that.angSpeed -= r_bp.cross(n * j) / that.momentOfInertia;
+		
+		// calculate deinterlace vector to put that out of contact - mass ratios ensure physics
+		double massSum = mass + that.mass;
+		deinterlaceVector += dist*that.mass/massSum;
+		that.deinterlaceVector -= dist*mass/massSum;
 	}
 
 	//! A functor then compares the radius of two local interactions
@@ -266,7 +377,7 @@ namespace Enki
 
 	void Robot::initLocalInteractions()
 	{
-		for (unsigned i=0; i<localInteractions.size(); i++ )
+		for (size_t i=0; i<localInteractions.size(); i++ )
 		{
 			localInteractions[i]->init();
 		}
@@ -276,10 +387,10 @@ namespace Enki
 
 	void Robot::doLocalInteractions(World *w, PhysicalObject *po, double dt, bool firstInteraction)
 	{
-		for (unsigned i=0; i<localInteractions.size(); i++)
+		for (size_t i=0; i<localInteractions.size(); i++)
 		{
 			Vector vectCenter(this->pos.x - po->pos.x, this->pos.y - po->pos.y );
-			if (vectCenter.norm2() <  (localInteractions[i]->r+po->r)*(localInteractions[i]->r+po->r))
+			if (vectCenter.norm2() <  (localInteractions[i]->r+po->_radius())*(localInteractions[i]->r+po->_radius()))
 				localInteractions[i]->objectStep(dt, po, w);
 			else 
 				return;
@@ -291,7 +402,7 @@ namespace Enki
 
 	void Robot::doLocalWallsInteraction(World *w)
 	{
-		for (unsigned i=0; i<localInteractions.size(); i++)
+		for (size_t i=0; i<localInteractions.size(); i++)
 		{
 			if ((this->pos.x>localInteractions[i]->r) && (this->pos.y>localInteractions[i]->r) && (w->w-this->pos.x>localInteractions[i]->r) && (w->h-this->pos.y>localInteractions[i]->r))
 				return;
@@ -303,7 +414,7 @@ namespace Enki
 
 	void Robot::finalizeLocalInteractions(double dt)
 	{
-		for (unsigned i=0; i<localInteractions.size(); i++ )
+		for (size_t i=0; i<localInteractions.size(); i++ )
 		{
 			localInteractions[i]->finalize(dt);
 		}
@@ -312,7 +423,7 @@ namespace Enki
 
 	void Robot::doGlobalInteractions(World *w, double dt)
 	{
-		for (unsigned i=0; i<globalInteractions.size(); i++)
+		for (size_t i=0; i<globalInteractions.size(); i++)
 		{
 			globalInteractions[i]->step(dt, w);
 		}
@@ -345,7 +456,7 @@ namespace Enki
 	{
 		Vector centerToPoint = p-c;
 		double score = -10;
-		for (unsigned i=0; i<bs.size(); i++)
+		for (size_t i=0; i<bs.size(); i++)
 		{
 			unsigned next=(i+1)%bs.size();
 			Segment seg(bs[i].x, bs[i].y, bs[next].x, bs[next].y);
@@ -377,21 +488,13 @@ namespace Enki
 
 	void World::collideWithWalls(PhysicalObject *object)
 	{
-		// check if collision
-		if ((object->pos.x>object->r) && (object->pos.y>object->r) && (w-object->pos.x>object->r) && (h-object->pos.y>object->r)) {
-			object->collisionWithWalls=false;
-			return;
-		}
-		object->collisionWithWalls=true;
-
-
 		// let's assume walls are infinite
 		Vector dist;
 		Point cp1, cp2; // cp1 is on x, cp2 is on y
 		Vector n1, n2;
 
 		// object is circle only
-		if (!object->boundingSurface)
+		if (object->boundingSurface.empty())
 		{
 			double x = object->pos.x;
 			double y = object->pos.y;
@@ -555,9 +658,9 @@ namespace Enki
 		double maxNorm = 0;
 
 		// for each point of object 1, look if it is in object2
-		if (object1->boundingSurface)
+		if (!object1->boundingSurface.empty())
 		{
-			if (object2->boundingSurface)
+			if (!object2->boundingSurface.empty())
 			{
 				for (unsigned i=0; i<bs1.size(); i++)
 				{
@@ -582,7 +685,7 @@ namespace Enki
 				return;
 			}
 		}
-		else if (object2->boundingSurface)
+		else if (!object2->boundingSurface.empty())
 		{
 			// collide circle 1 on bs2
 			collideCircleWithBS(object1, object2, bs2);
@@ -600,7 +703,7 @@ namespace Enki
 		}
 
 		// for each point of object 2, look if it is in object1
-		if (object2->boundingSurface)
+		if (!object2->boundingSurface.empty())
 		{
 			for (unsigned i=0; i<bs2.size(); i++)
 			{

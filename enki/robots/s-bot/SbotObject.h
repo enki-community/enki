@@ -81,7 +81,7 @@ namespace Enki
 	public:
 		//! The interaction
 		SbotFeeding feeding;
-
+		
 	public:
 		//! Constructor
 		SbotActiveObject(double objectRadius, double actionRange);

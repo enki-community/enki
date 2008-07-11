@@ -78,18 +78,18 @@ namespace Enki
 	void CircularCam::objectStep(double dt, PhysicalObject *po, World *w) 
 	{
 		// if we see over the object
-		if (height > po->height)
+		if (height > po->_height())
 			return;
 		
-		if (po->boundingSurface)
+		if (!po->_boundingSurface().empty())
 		{
 			// object has a bounding surface
-			size_t faceCount = po->boundingSurface->size();
-			assert(faceCount == po->textures.size()); // polygonal objects require textures
+			size_t faceCount = po->_boundingSurface().size();
+			assert(faceCount == po->_textures().size()); // polygonal objects require textures
 			const Polygone &bs = po->getTrueBoundingSurface();
 			for (size_t i = 0; i<faceCount; i++)
 			{
-				drawTexturedLine(bs[i], bs[(i+1) % faceCount], po->textures[i]);
+				drawTexturedLine(bs[i], bs[(i+1) % faceCount], po->_textures()[i]);
 			}
 		}
 		else
@@ -97,14 +97,14 @@ namespace Enki
 			// object has no bounding surface, monocolor
 			
 			// compute basic parameter
-			if (po->r == 0)
+			if (po->_radius() == 0)
 				return;
 			Vector poCenter = po->pos - absPos;
 			double poDist = poCenter.norm();
 			if (poDist == 0)
 				return;
 			double poAngle = normalizeAngle(poCenter.angle() - absOrientation);
-			double poAperture = atan(po->r / poDist);
+			double poAperture = atan(po->_radius() / poDist);
 			assert(poAperture > 0);
 			
 			// clip object
@@ -127,7 +127,7 @@ namespace Enki
 			for (size_t i = firstPixelUsed; i <= lastPixelUsed; i++)
 			{
 				// apply pixel operation to framebuffer
-				(*pixelOperation)(zbuffer[i], image[i], poDist2, po->color);
+				(*pixelOperation)(zbuffer[i], image[i], poDist2, po->_color());
 			}
 		}
 	};

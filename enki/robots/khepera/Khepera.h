@@ -79,7 +79,7 @@ namespace Enki
 			//! Camera: add a linear camera
 			CAPABILITY_CAMERA = 0x2
 		};
-
+	
 	public:
 		//! Create a Khepera with certain modules aka capabilities (basic)
 		Khepera(unsigned capabilities = CAPABILITIY_BASIC_SENSORS);

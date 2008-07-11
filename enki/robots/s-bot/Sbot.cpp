@@ -114,13 +114,14 @@ namespace Enki
 		camera(this, 12, 64),
 		globalSound(this)
 	{
+		addLocalInteraction(&camera);
+		//addGlobalInteraction(&globalSound);
+		
 		mass = 500;
 		height = 15;
 		r = 6;
-		addLocalInteraction(&camera);
-		//addGlobalInteraction(&globalSound);
-		leftSpeed = 0;
-		rightSpeed = 0;
+		
+		commitPhysicalParameters();
 	}
 	
 	unsigned SbotGlobalSound::worldFrequenciesState = 0;

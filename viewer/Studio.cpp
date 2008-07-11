@@ -37,12 +37,155 @@
 #include <enki/robots/alice/Alice.h>
 #include <QApplication>
 #include <QtGui>
+#include <iostream>
+
+#ifdef USE_SDL
+#include <SDL/SDL.h>
+#endif
 
 /*!	\file Studio.cpp
 	\brief Test of the Qt-based viewer widget
 */
 
 using namespace Enki;
+using namespace std;
+
+class EnkiPlayground : public ViewerWidget
+{
+protected:
+	#ifdef USE_SDL
+	QVector<SDL_Joystick *> joysticks;
+	QVector<EPuck*> epucks;
+	#endif
+	
+public:
+	EnkiPlayground(World *world, QWidget *parent = 0) :
+		ViewerWidget(world, parent)
+	{
+		PhysicalObject* o = new PhysicalObject;
+		
+		const double amount = 9;
+		const double radius = 5;
+		const double height = 20;
+		Polygone p;
+		for (double a = 0; a < 2*M_PI; a += 2*M_PI/amount)
+			p.push_back(Point(radius * cos(a), radius * sin(a)));
+		
+		o->setShape(p, height);
+		o->setMass(-1);
+		o->pos = Point(100, 100);
+		o->setColor(Color(0.4,0.6,0.8));
+		o->commitPhysicalParameters();
+		world->addObject(o);
+		
+		for (int i = 0; i < 20; i++)
+		{
+			PhysicalObject* o = new PhysicalObject;
+			o->pos = Point(UniformRand(20, 100)(), UniformRand(20, 100)());
+			o->setMass(10);
+			o->setColor(Color(0.9, 0.2, 0.2));
+			o->viscousFrictionTau = 10000000;
+			o->viscousMomentFrictionTau = 10000000;
+			o->commitPhysicalParameters();
+			world->addObject(o);
+		}
+		
+		Polygone p2;
+		p2.push_back(Point(5,1));
+		p2.push_back(Point(-5,1));
+		p2.push_back(Point(-5,-1));
+		p2.push_back(Point(5,-1));
+		for (int i = 0; i < 5; i++)
+		{
+			PhysicalObject* o = new PhysicalObject;
+			o->pos = Point(UniformRand(20, 100)(), UniformRand(20, 100)());
+			o->setShape(p2, 3);
+			o->setMass(30);
+			o->setColor(Color(0.2, 0.1, 0.6));
+			o->viscousFrictionTau = 10000000;
+			o->viscousMomentFrictionTau = 10000000;
+			o->commitPhysicalParameters();
+			world->addObject(o);
+		}
+		
+		#ifdef USE_SDL
+		if((SDL_Init(SDL_INIT_JOYSTICK)==-1))
+		{
+			cerr << "Error : Could not initialize SDL: " << SDL_GetError() << endl;
+			addDefaultsRobots(world);
+			return;
+		}
+		
+		int joystickCount = SDL_NumJoysticks();
+		for (int i = 0; i < joystickCount; ++i)
+		{
+			SDL_Joystick* joystick = SDL_JoystickOpen(i);
+			if (!joystick)
+			{
+				cerr << "Error: Can't open joystick " << i << endl;
+				continue;
+			}
+			if (SDL_JoystickNumAxes(joystick) < 2)
+			{
+				cerr << "Error: not enough axis on joystick" << i<< endl;
+				SDL_JoystickClose(joystick);
+				continue;
+			}
+			joysticks.push_back(joystick);
+			
+			EPuck *epuck = new EPuck;
+			epuck->pos = Point(UniformRand(20, 100)(), UniformRand(20, 100)());
+			epucks.push_back(epuck);
+			world->addObject(epuck);
+		}
+		
+		#else
+		addDefaultsRobots(world);
+		#endif
+	}
+	
+	void addDefaultsRobots(World *world)
+	{
+		EPuck *epuck = new EPuck;
+		epuck->pos = Point(60, 50);
+		//epuck->leftSpeed = 5;
+		//epuck->rightSpeed = 5;
+		world->addObject(epuck);
+		
+		epuck = new EPuck;
+		epuck->pos = Point(40, 50);
+		epuck->leftSpeed = 5;
+		epuck->rightSpeed = 5;
+		epuck->setColor(Color(1, 0, 0));
+		world->addObject(epuck);
+	}
+	
+	~EnkiPlayground()
+	{
+		#ifdef USE_SDL
+		for (int i = 0; i < joysticks.size(); ++i)
+			SDL_JoystickClose(joysticks[i]);
+		SDL_Quit();
+		#endif
+	}
+	
+	virtual void timerEvent(QTimerEvent * event)
+	{
+		#ifdef USE_SDL
+		SDL_JoystickUpdate();
+		for (int i = 0; i < joysticks.size(); ++i)
+		{
+			#define SPEED_MAX 12.
+			double x = SDL_JoystickGetAxis(joysticks[i], 0) / (32767. / SPEED_MAX);
+			double y = -SDL_JoystickGetAxis(joysticks[i], 1) / (32767. / SPEED_MAX);
+			EPuck* epuck = epucks[i];
+			epuck->leftSpeed = y + x;
+			epuck->rightSpeed = y - x;
+		}
+		#endif
+		ViewerWidget::timerEvent(event);
+	}
+};
 
 // http://qtnode.net/wiki?title=Qt_with_cmake
 int main(int argc, char *argv[])
@@ -51,50 +194,10 @@ int main(int argc, char *argv[])
 	
 	// Create the world and the viewer
 	World world(120, 120);
-	ViewerWidget viewer(&world);
-	
-	// Create a Khepera and position it
-	/*for (int i = 0; i < 10; i++)
-	{
-		EPuck *ePuck = new EPuck;
-		ePuck->pos = Point(100, 100);
-		ePuck->leftSpeed = -21 + i * 4;
-		ePuck->rightSpeed = -20 + i * 5;
-		
-		// objects are garbage collected by the world on destruction
-		world.addObject(ePuck);
-	}*/
-	EPuck *epuck = new EPuck;
-	epuck->pos = Point(60, 50);
-	epuck->leftSpeed = 5;
-	epuck->rightSpeed = 4;
-	world.addObject(epuck);
-	
-	epuck = new EPuck;
-	epuck->pos = Point(40, 50);
-	epuck->color = Color(1, 0, 0);
-	epuck->color = Color(1, 0, 0);
-	world.addObject(epuck);
-	
-	PhysicalObject* o = new PhysicalObject;
-	Polygone p;
-	/*p.push_back(Point(5,-5));
-	p.push_back(Point(5, 5));
-	p.push_back(Point(-5, 5));
-	p.push_back(Point(-5,-5));
-	p.push_back(Point(-5,-5));*/
-	for (double a = 0; a < 2*M_PI; a += 2*M_PI/5)
-		p.push_back(Point(5 * cos(a), 5 * sin(a)));
-	
-	o->setBoundingSurface(&p);
-	o->pos = Point(100, 100);
-	o->height = 10;
-	o->mass = -1;
-	o->color = Color(0.4,0.6,0.8);
-	//o->color = Color(1,1,1);
-	world.addObject(o);
+	EnkiPlayground viewer(&world);
 	
 	viewer.show();
 	
 	return app.exec();
 }
+

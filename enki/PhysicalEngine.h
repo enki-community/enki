@@ -130,7 +130,9 @@ namespace Enki
 	/*! \ingroup core */
 	class PhysicalObject
 	{
+		friend class World;
 	public:
+		
 		//! User specific data that can be attached to any object in the world.
 		class UserData
 		{
@@ -138,27 +140,17 @@ namespace Enki
 			bool deletedWithObject; //!< if true, deleted along with the physical object.
 			
 		public:
+			//! Virtual destructor, call destructor of child classes
 			virtual ~UserData() {}
 		};
 		
 		//! Data attached by the user to this physical object. If non-null, will be destroyed with the object.
 		UserData *userData;
-	
-		//! The position of the object.
-		Point pos;
-		//! The height of the object, used for interaction with robot's sensors.
-		double height;
-		//! The orientation of the object in the world, standard trigonometric orientation.
-		double angle;
-		//! The speed of the object.
-		Vector speed;
-		//! The rotation speed of the object, standard trigonometric orientation.
-		double angSpeed;
-		//! The mass of the object. If below zero, the object can't move (infinite mass).
-		double mass;
-		//! Indicates if the object collided with a wall..
-		bool collisionWithWalls;
-
+		
+		// physical parameters constants
+		
+		//! Elasticity of collisions of this object. If 0, soft collision, 100% energy dissipation; if 1, elastic collision, 0% energy dissipation. Actual elasticity is the product of the elasticity of the two colliding objects
+		double collisionElasticity;
 		//! The static friction threshold of the object. If a force is smaller than it, the object will not move.
 		double staticFrictionThreshold;
 		//! The viscous friction time constant. Half-life of speed when object is free. If lower than timestep, speed is forced to zero.
@@ -167,42 +159,104 @@ namespace Enki
 		double viscousMomentFrictionTau;
 		//! Upon collision with static objects. The amount of rotation transmitted to the moving object. If zero, moving object slides over static one. If one, moving object is fully rotated.
 		double collisionAngularFrictionFactor;
-		//! The shape of the object in object coordinates. If NULL, the object is circular and its radius is given by r .
-		const Polygone *boundingSurface;
-		//! The shape of the object in world coordinates, updated on initLocalInteractions(). Invalid if boundingSurface is NULL.
-		Polygone absBoundingSurface;
-		//! The radius of circular objects. If boundingSurface is not NULL, it is automatically computed.
-		double r;
-		//! The reflection factor of the object. It acts only on proximity sensors. If one, the object is seen normally. If less than one, the range of vision of the object dimishes. If zero, the object is invisible to proximity sensors
-		double reflection;
-		//! The color of the object.
-		Color color;
-		//! Texture for several faces of this object.
-		std::valarray<Texture> textures;
+		
+		// physics state variables
+		
+		// space coordinates
+		
+		//! The position of the object.
+		Point pos;
+		//! The orientation of the object in the world, standard trigonometric orientation.
+		double angle;
+		
+		// space coordinates derivatives
+		
+		//! The speed of the object.
+		Vector speed;
+		//! The rotation speed of the object, standard trigonometric orientation.
+		double angSpeed;
 		
 	protected:
+		// mass and inertia tensor
+		
+		//! The mass of the object. If below zero, the object can't move (infinite mass).
+		double mass;
+		////! The moment of inertia tensor
+		//Matrix22 momentOfInertiaTensor;
+		// We only need the moment of inertia in 2D
+		double momentOfInertia;
+		
+		// geometry properties
+		
+		//! The radius of circular objects. If boundingSurface is not empty, it is automatically computed upon setShape
+		double r;
+		//! The height of the object, used for interaction with robot's sensors.
+		double height;
+		//! The shape of the object in object coordinates. If empty, the object is circular and its radius is given by r .
+		Polygone boundingSurface;
+		//! The shape of the object in world coordinates, updated on initLocalInteractions(). Invalid if boundingSurface is NULL.
+		Polygone absBoundingSurface;
+		
+		// visual properties
+		
+		//! The infrared reflection factor of the object. It acts only on proximity sensors. If one, the object is seen normally. If less than one, the range on which the object is visible dimishes. If zero, the object is invisible to proximity sensors
+		double infraredReflectiveness;
+		//! The color of the object. Must be set using setColor
+		Color color;
+		//! Texture for several faces of this object.
+		Textures textures;
+		
+		// temporary variables
 		//! Vector used for object collisions. If its norm is greater than staticFrictionThreshold, the object is moved.
 		Vector deinterlaceVector;
 
+		// internal functions
+		//! Compute the moment of inertia tensor depending on radius, mass, height, and bounding surface
+		void computeMomentOfInertia();
+		
 		//! Do the real rotation due to collision.
-		void collideWithStaticObject(const Vector &n);
+		void collideWithStaticObject(const Vector &n, const Point &cp);
 		//! Compute the shape of its object in world coordinates.
 		void computeAbsBoundingSurface(void);
-
+		
+		//! Setup the bounding surface. Does not undate the moment of inertia tensor, for use by subclasses in setupPhysicalParameters() only. Outer class must call setShape() instead.
+		void setupBoundingSurface(const Polygone& boundingSurface);
+		
 	public:
 		//! Constructor
 		PhysicalObject();
 		//! Destructor
 		virtual ~PhysicalObject();
+		//! Call this function after you have setup all your parameters. Base class does not call this from its constructor, but robots will
+		void commitPhysicalParameters();
 		
-		//! Set the shape of the object to bs, recompute r, assign color to faces. bs must exists during all object's life.
-		void setBoundingSurface(const Polygone *bs);
-		//! Return the shape of the object in object coordinates.
-		const Polygone &getTrueBoundingSurface(void) const { return absBoundingSurface; }
-		//! Set a uniform color all around the object
-		void setUniformColor(const Color &color);
+		// getters
+		inline double _radius() const { return r; }
+		inline double _height() const { return height; }
+		inline const Polygone& _boundingSurface() const { return boundingSurface; }
+		inline double _infraredReflectiveness() const { return infraredReflectiveness; }
+		inline const Color& _color() const { return color; }
+		inline const Textures& _textures() const { return textures; }
+		//! Return the shape of the object in object coordinates. If shape is not defined, return an empty polygone.
+		inline const Polygone &getTrueBoundingSurface(void) const { return absBoundingSurface; }
+		
+		// setters
+		
+		//! Set the mass of the object
+		void setMass(double mass);
+		//! Make the object cylindric
+		void setCylindric(double radius, double height);
+		//! Make the shape of the object. The color is uniformely set to the current color.
+		void setShape(const Polygone& boundingSurface, double height);
+		//! Set a uniform color all around the object.
+		void setColor(const Color &color);
+		//! Set textures around an object with a bounding box; textures must be of the same size as the amount of face to the bounding box.
+		void setTextures(const Texture* textures);
+		//! Set The infrared reflection factor of the object. It acts only on proximity sensors. If one, the object is seen normally. If less than one, the range on which the object is visible dimishes. If zero, the object is invisible to proximity sensors
+		void setInfraredReflectiveness(double infraredReflectiveness = 1.0);
 
 		// Physical Actions
+		
 		//! A simulation step for this object. It is considered as deinterlaced. The position and orientation are updated, and speed is reduced according to global dynamic friction coefficient.
 		virtual void step(double dt);
 
@@ -226,8 +280,6 @@ namespace Enki
 		void collideWithStaticObject(const Point &cp1, const Point &cp2, const Vector &n1, const Vector &n2, const Vector &dist);
 		//! Dynamics for collision with object at point cp with a penetrated distance of dist.
 		void collideWithObject(PhysicalObject &object, const Point &cp, const Vector &dist);
-		//! Returns if the object collided with a wall during the last time step.
-		bool getCollideWithWalls() { return collisionWithWalls; }
 	};
 
 	//! A robot is a PhysicalObject that has additional interactions and a controller.
@@ -241,9 +293,6 @@ namespace Enki
 		std::vector<GlobalInteraction *> globalInteractions;
 		
 	public:
-		//! Constructor
-		Robot();
-		
 		//! Add a new local interaction, re-sort interaction vector from long ranged to short ranged.
 		void addLocalInteraction(LocalInteraction *li);
 		//! Add a global interaction, just add it at the end of the vector.

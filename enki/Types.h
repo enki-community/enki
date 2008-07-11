@@ -49,7 +49,6 @@
 namespace Enki
 {
 	//! A color in RGBA
-	/*! \ingroup an */
 	struct Color
 	{
 		//! RGBA values in range [0..1]
@@ -149,8 +148,10 @@ namespace Enki
 	};
 
 	//! A texture
-	/*! \ingroup an */
 	typedef std::valarray<Color> Texture;
+	
+	//! Textures for all sides of an object
+	typedef std::valarray<Texture> Textures;
 }
 
 #endif

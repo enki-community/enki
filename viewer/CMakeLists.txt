@@ -1,3 +1,11 @@
+# SDL
+find_package(SDL)
+if (SDL_FOUND)
+	include_directories(${SDL_INCLUDE_DIR})
+	set(EXTRA_LIBS ${SDL_LIBRARY} ${EXTRA_LIBS})
+	add_definitions("-DUSE_SDL")
+endif (SDL_FOUND)
+
 find_package(Qt4)
 
 if (QT4_FOUND)
@@ -21,6 +29,6 @@ if (QT4_FOUND)
 	add_library (enkiviewer ${viewer_lib_SRCS} ${viewer_lib_RCC_SRCS})
 	add_executable(enkistudio ${viewer_test_SRCS})
 	
-	target_link_libraries(enkistudio enkiviewer enki ${QT_QTOPENGL_LIBRARIES} ${QT_LIBRARIES} ${OPENGL_LIBRARIES})
+	target_link_libraries(enkistudio enkiviewer enki ${QT_QTOPENGL_LIBRARIES} ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${EXTRA_LIBS})
 
 endif (QT4_FOUND)

@@ -92,13 +92,6 @@ namespace Enki
 		infraredSensor7(this, Vector(-1.5, 1.0), 1.8, -M_PI,  10, 0, 1, &kheperaIRSensorModelPtr),
 		camera(this, Vector(0, 0), 0, 0.0, M_PI/4, 50)
 	{
-		mass = 80;
-		height = 5;
-		r = 2.6;
-		collisionAngularFrictionFactor = 0.7;
-		viscousFrictionTau = 0.5;
-		viscousMomentFrictionTau = 0;
-		
 		if (capabilities & CAPABILITIY_BASIC_SENSORS)
 		{
 			addLocalInteraction(&infraredSensor0);
@@ -116,8 +109,15 @@ namespace Enki
 			addLocalInteraction(&camera);
 		}
 		
-		leftEncoder = rightEncoder = 0;
-		leftSpeed = rightSpeed = 0;
+		mass = 80;
+		height = 5;
+		r = 2.6;
+		
+		collisionAngularFrictionFactor = 0.7;
+		viscousFrictionTau = 0.5;
+		viscousMomentFrictionTau = 0;
+		
+		commitPhysicalParameters();
 	}
 }
 

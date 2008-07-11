@@ -103,6 +103,11 @@ namespace Enki
 		Vector unitary(void) const { Vector n; if (norm()) { n = *this; n /= norm(); } return n; }
 		//! Return the angle with the horizontal (arc tangant (y/x))
 		double angle(void) const { return atan2(y, x); }
+		
+		//! Return the cross with (this x other) a (virtual, as we are in 2D) perpendicular vector (on axis z) of given norm. 
+		Vector crossWithZVector(double l) { return Vector(y * l, -x * l); }
+		//! Return the cross from (other x this) a (virtual, as we are in 2D) perpendicular vector (on axis z) of given norm. 
+		Vector crossFromZVector(double l) { return Vector(-y * l, x * l); }
 	};
 	
 	//! A point in a 2D space, another name for a vector
@@ -119,43 +124,50 @@ namespace Enki
 	*/
 	struct Matrix22
 	{
+		// line-column component
 		//! 11 components
-		double a;
+		double _11;
 		//! 21 components
-		double b;
+		double _21;
 		//! 12 components
-		double c;
+		double _12;
 		//! 22 components
-		double d;
+		double _22;
 	
 		//! Constructor, create matrix with 0
-		Matrix22() { a = b = c = d = 0; }
-		//! Constructor, create matrix with a b c d
-		Matrix22(double a, double b, double c, double d) { this->a = a; this->b = b; this->c = c; this->d = d; }
+		Matrix22() { _11 = _21 = _12 = _22 = 0; }
+		//! Constructor, create matrix with _11 _21 _12 _22
+		Matrix22(double _11, double _21, double _12, double _22) { this->_11 = _11; this->_21 = _21; this->_12 = _12; this->_22 = _22; }
 		//! Constructor, create rotation matrix of angle alpha in radian
-		Matrix22(double alpha) { a = cos(alpha); b = sin(alpha); c = -b; d = a; }
+		Matrix22(double alpha) { _11 = cos(alpha); _21 = sin(alpha); _12 = -_21; _22 = _11; }
 		//! Constructor, create matrix with array[0] array[1] array[2] array[3]
-		Matrix22(double array[4]) { a=array[0]; b=array[1]; c=array[2]; d=array[3]; }
-	
+		Matrix22(double array[4]) { _11=array[0]; _21=array[1]; _12=array[2]; _22=array[3]; }
+		
+		//! Fill with zero
+		void zeros() { _11 = _21 = _12 = _22 = 0; }
+		
 		//! Add matrix v component by component
-		void operator +=(const Matrix22 &v) { a += v.a; b += v.b; c += v.c; d += v.d; }
+		void operator +=(const Matrix22 &v) { _11 += v._11; _21 += v._21; _12 += v._12; _22 += v._22; }
 		//! Substract matrix v component by component
-		void operator -=(const Matrix22 &v) { a -= v.a; b -= v.b; c -= v.c; d -= v.d; }
+		void operator -=(const Matrix22 &v) { _11 -= v._11; _21 -= v._21; _12 -= v._12; _22 -= v._22; }
 		//! Multiply each component by scalar f
-		void operator *=(double f) { a *= f; b *= f; c *= f; d *= f; }
+		void operator *=(double f) { _11 *= f; _21 *= f; _12 *= f; _22 *= f; }
 		//! Divive each component by scalar f
-		void operator /=(double f) { a /= f; b /= f; c /= f; d /= f; }
+		void operator /=(double f) { _11 /= f; _21 /= f; _12 /= f; _22 /= f; }
 		//! Add matrix v component by component and return the resulting matrix
-		Matrix22 operator +(const Matrix22 &v) const { Matrix22 n; n.a = a + v.a; n.b = b + v.b; n.c = c + v.c; n.d = d + v.d; return n; }
+		Matrix22 operator +(const Matrix22 &v) const { Matrix22 n; n._11 = _11 + v._11; n._21 = _21 + v._21; n._12 = _12 + v._12; n._22 = _22 + v._22; return n; }
 		//! Subtract matrix v component by component and return the resulting matrix
-		Matrix22 operator -(const Matrix22 &v) const { Matrix22 n; n.a = a - v.a; n.b = b - v.b; n.c = c - v.c; n.d = d - v.d; return n; }
+		Matrix22 operator -(const Matrix22 &v) const { Matrix22 n; n._11 = _11 - v._11; n._21 = _21 - v._21; n._12 = _12 - v._12; n._22 = _22 - v._22; return n; }
 		//! Multiply each component by scalar f and return the resulting matrix
-		Matrix22 operator *(double f) const { Matrix22 n; n.a = a * f; n.b = b * f; n.c = c * f; n.d = d * f; return n; }
+		Matrix22 operator *(double f) const { Matrix22 n; n._11 = _11 * f; n._21 = _21 * f; n._12 = _12 * f; n._22 = _22 * f; return n; }
 		//! Divide each component by scalar f and return the resulting matrix
-		Matrix22 operator /(double f) const { Matrix22 n; n.a = a / f; n.b = b / f; n.c = c / f; n.d = d / f; return n; }
+		Matrix22 operator /(double f) const { Matrix22 n; n._11 = _11 / f; n._21 = _21 / f; n._12 = _12 / f; n._22 = _22 / f; return n; }
 		
 		//! Multiply vector v and return the resulting vector
-		Point operator*(const Point &v) { Point n; n.x = v.x*a + v.y*c; n.y = v.x*b + v.y*d; return n; }
+		Point operator*(const Point &v) { Point n; n.x = v.x*_11 + v.y*_12; n.y = v.x*_21 + v.y*_22; return n; }
+		
+		//! Creates a diagonal matrix
+		static Matrix22 fromDiag(double _1, double _2 ) { return Matrix22(_1, 0, 0, _2); }
 	};
 	
 	//! A segment in a 2D space, basically two points
@@ -207,6 +219,32 @@ namespace Enki
 				if (s.dist(p) < 0)
 					return false;
 			}
+			return true;
+		}
+		
+		//! Return the axis aligned bounding box
+		bool getAxisAlignedBoundingBox(Point& bottomLeft, Point& topRight) const
+		{
+			if (empty())
+				return false;
+			
+			Point topLeft = (*this)[0];
+			Point bottomRight = (*this)[0];
+			for (size_t i = 1; i < size(); i++)
+			{
+				const Point& p = (*this)[i];
+				
+				if (p.x < bottomLeft.x)
+					bottomLeft.x = p.x;
+				else if (p.x > topRight.x)
+					topRight.x = p.x;
+				
+				if (p.y < bottomLeft.y)
+					bottomLeft.y = p.y;
+				else if (p.y > topRight.y)
+					topRight.y = p.y;
+			}
+			
 			return true;
 		}
 	};
