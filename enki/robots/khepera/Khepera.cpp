@@ -113,9 +113,6 @@ namespace Enki
 		height = 5;
 		r = 2.6;
 		
-		viscousFriction.tau = 0;
-		viscousMomentFriction.tau = 0;
-		
 		commitPhysicalParameters();
 	}
 }

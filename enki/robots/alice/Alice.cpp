@@ -338,9 +338,6 @@ namespace Enki
 		// we don't know which Alice is pushing which one)
 		staticFrictionThreshold = 1.0;
 		
-		viscousFriction.tau = 0;
-		viscousMomentFriction.tau = 0;
-		
 		commitPhysicalParameters();
 	}
 

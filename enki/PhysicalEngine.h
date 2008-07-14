@@ -126,24 +126,28 @@ namespace Enki
 {
 	class World;
 	
-	// TODO: find an implementation that allows smaller taus
-	//! An exponential decay using the Crank-Nicholson method.
+	//! An exponential decay
 	class ExpDecay
 	{
-	public:
-		double tau; //!< Time-constant, after tau [unit of time], the value would be half its original value
+	protected:
+		double k; //!< parameter depending on the time constant
 		
 	public:
 		//! Constructor
 		//! @param tau Time-constant, after tau [unit of time], the value would be half its original value
-		ExpDecay(double tau = 0) : tau(tau) { }
+		ExpDecay(double tau = 1) { setTau(tau); }
+		
+		//! Compute the parameter depending of the time constant
+		void setTau(double tau)
+		{
+			k = log(0.5) / tau;
+		}
 		
 		//! Apply a step of exponential decay for duration dt to the value and return it
 		template<typename T>
 		T step(T value, double dt)
 		{
-			double factor = (tau - dt * 0.5) / (tau + dt * 0.5);
-			return value * factor;
+			return value * exp(k * dt);
 		}
 	};
 
@@ -230,14 +234,11 @@ namespace Enki
 		Vector deinterlaceVector;
 
 		// internal functions
+		
 		//! Compute the moment of inertia tensor depending on radius, mass, height, and bounding surface
 		void computeMomentOfInertia();
-		
-		//! Do the real rotation due to collision.
-		void collideWithStaticObject(const Vector &n, const Point &cp);
 		//! Compute the shape of its object in world coordinates.
 		void computeAbsBoundingSurface(void);
-		
 		//! Setup the bounding surface. Does not undate the moment of inertia tensor, for use by subclasses in setupPhysicalParameters() only. Outer class must call setShape() instead.
 		void setupBoundingSurface(const Polygone& boundingSurface);
 		
@@ -274,6 +275,7 @@ namespace Enki
 		//! Set The infrared reflection factor of the object. It acts only on proximity sensors. If one, the object is seen normally. If less than one, the range on which the object is visible dimishes. If zero, the object is invisible to proximity sensors
 		void setInfraredReflectiveness(double infraredReflectiveness = 1.0);
 
+	protected:
 		// Physical Actions
 		
 		//! A simulation step for this object. It is considered as deinterlaced. The position and orientation are updated, and speed is reduced according to global dynamic friction coefficient.
@@ -297,8 +299,10 @@ namespace Enki
 
 		//! Dynamics for collision with a static object at points cp1 and cp2 with normals vectors n1 and n2 and a penetrated distance of dist.
 		void collideWithStaticObject(const Point &cp1, const Point &cp2, const Vector &n1, const Vector &n2, const Vector &dist);
-		//! Dynamics for collision with object at point cp with a penetrated distance of dist.
-		void collideWithObject(PhysicalObject &object, const Point &cp, const Vector &dist);
+		//! Dynamics for collision with a static object at points cp with normal vector n
+		void collideWithStaticObject(const Vector &n, const Point &cp);
+		//! Dynamics for collision with that at point cp with a penetrated distance of dist.
+		void collideWithObject(PhysicalObject &that, const Point &cp, const Vector &dist);
 	};
 
 	//! A robot is a PhysicalObject that has additional interactions and a controller.

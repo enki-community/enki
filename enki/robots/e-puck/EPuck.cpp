@@ -153,9 +153,6 @@ namespace Enki
 		color = Color(0, 0.7, 0);
 		infraredReflectiveness = 1.; // 0.6 of infraredReflectiveness would be more realistic
 		
-		viscousFriction.tau = 0;
-		viscousMomentFriction.tau = 0;
-		
 		commitPhysicalParameters();
 	}
 	

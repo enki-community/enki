@@ -65,9 +65,6 @@ namespace Enki
 		r = 8.5;
 		color = Color(0.7, 0.7, 0.7);
 		
-		viscousFriction.tau = 0;
-		viscousMomentFriction.tau = 0;
-		
 		computeMomentOfInertia();
 	}
 	

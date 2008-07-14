@@ -48,15 +48,15 @@ namespace Enki
 {
 	FastRandom random;
 	
-	PhysicalObject::PhysicalObject(void) 
+	PhysicalObject::PhysicalObject(void) :
+		viscousFriction(0.01),
+		viscousMomentFriction(0.01)
 	{
 		userData = NULL;
 		
 		// default physical parameters
 		collisionElasticity = 0.9;
 		staticFrictionThreshold = 0;
-		viscousFriction.tau = 0.1;
-		viscousMomentFriction.tau = 0.1;
 		
 		angle = 0;
 		
@@ -189,15 +189,8 @@ namespace Enki
 		angle += angSpeed * dt;
 		angle = normalizeAngle(angle);
 		
-		if (viscousFriction.tau < dt)
-			speed *= 0.1;
-		else
-			speed = viscousFriction.step(speed, dt);
-		
-		if (viscousMomentFriction.tau < dt)
-			angSpeed *= 0.1;
-		else
-			angSpeed = viscousMomentFriction.step(angSpeed, dt);
+		speed = viscousFriction.step(speed, dt);
+		angSpeed = viscousMomentFriction.step(angSpeed, dt);
 	}
 
 	void PhysicalObject::initLocalInteractions()
@@ -248,9 +241,6 @@ namespace Enki
 
 	void PhysicalObject::collideWithStaticObject(const Vector &n, const Point &cp)
 	{
-		// angular friction
-		//angSpeed -= (speed.x*n.y - speed.y*n.x) * collisionAngularFrictionFactor;
-		
 		// from http://www.myphysicslab.com/collision.html
 		Vector r_ap = (cp - pos);
 		Vector v_ap = speed + r_ap.crossFromZVector(angSpeed);
@@ -674,8 +664,9 @@ namespace Enki
 			// collide 2 circles
 			Vector ud = distOCtoOC.unitary();
 			double dLength = distOCtoOC.norm();
-			collisionPoint = object2->pos+distOCtoOC * (object2->r/addedRay);
+			//collisionPoint = object2->pos+distOCtoOC * (object2->r/addedRay);
 			dist = ud * (addedRay-dLength);
+			collisionPoint = object2->pos + ud * object2->r;
 			object1->collideWithObject(*object2, collisionPoint, dist);
 			return;
 		}
