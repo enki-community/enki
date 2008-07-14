@@ -190,7 +190,7 @@ public:
 				PhysicalObject* o = new PhysicalObject;
 				Vector delta(cos(epuck->angle), sin(epuck->angle));
 				o->pos = epuck->pos + delta * 6;
-				o->speed = delta * 30;
+				o->speed = epuck->speed + delta * 30;
 				o->setCylindric(0.5, 0.5);
 				o->setMass(1000);
 				o->dryFrictionCoefficient = 0.01;

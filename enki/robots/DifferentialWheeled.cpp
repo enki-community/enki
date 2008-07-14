@@ -104,6 +104,8 @@ namespace Enki
 		acc += Vector(totalThrust * cos(angle), totalThrust * sin(angle)) / mass;
 		angAcc += (diffThrust * distBetweenWheels * 0.5) / momentOfInertia;
 		
+		// TODO: redo this model
+		
 		// Compute encoders
 		leftEncoder = realLeftSpeed;
 		rightEncoder = realRightSpeed;

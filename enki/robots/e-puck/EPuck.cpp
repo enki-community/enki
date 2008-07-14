@@ -148,7 +148,8 @@ namespace Enki
 		}
 		
 		contactPointThrust = 6000;
-		dryFrictionCoefficient = 2;
+		staticFrictionThreshold = 0.5;
+		dryFrictionCoefficient = 0.25;
 		mass = 152;
 		r = 3.7;
 		height = 4.7;

@@ -57,7 +57,7 @@ namespace Enki
 		// default physical parameters
 		collisionElasticity = 0.9;
 		staticFrictionThreshold = 0.1;
-		dryFrictionCoefficient = 0.5;
+		dryFrictionCoefficient = 0.25;
 		viscousFrictionCoefficient = 0.1;
 		viscousMomentFrictionCoefficient = 0.1;
 		
