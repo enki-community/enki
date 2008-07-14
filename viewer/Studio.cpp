@@ -84,8 +84,7 @@ public:
 			o->pos = Point(UniformRand(20, 100)(), UniformRand(20, 100)());
 			o->setMass(10);
 			o->setColor(Color(0.9, 0.2, 0.2));
-			o->viscousFrictionCoefficient = 0.1;
-			o->viscousMomentFrictionCoefficient = 0.1;
+			o->dryFrictionCoefficient = 0.01;
 			o->commitPhysicalParameters();
 			world->addObject(o);
 		}
@@ -102,8 +101,6 @@ public:
 			o->setShape(p2, 3);
 			o->setMass(30);
 			o->setColor(Color(0.2, 0.1, 0.6));
-			//o->viscousFrictionCoefficient = 0.1;
-			//o->viscousMomentFrictionCoefficient = 0.1;
 			o->collisionElasticity = 0.2;
 			o->commitPhysicalParameters();
 			world->addObject(o);
@@ -143,6 +140,7 @@ public:
 		#else
 		addDefaultsRobots(world);
 		#endif
+		addDefaultsRobots(world);
 	}
 	
 	void addDefaultsRobots(World *world)

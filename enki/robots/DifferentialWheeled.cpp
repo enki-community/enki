@@ -50,7 +50,7 @@ namespace Enki
 	}
 	
 	DifferentialWheeled::DifferentialWheeled(double distBetweenWheels, double maxSpeed, double noiseAmount) :
-		contactPointThrust(10000),
+		contactPointThrust(4000),
 		distBetweenWheels(distBetweenWheels),
 		maxSpeed(maxSpeed),
 		noiseAmount(noiseAmount)
@@ -67,7 +67,7 @@ namespace Enki
 		leftOdometry = rightOdometry = 0.0;
 	}
 	
-	double sgn(double v)
+	static double sgn(double v)
 	{
 		if (v > 0)
 			return 1;
@@ -104,34 +104,11 @@ namespace Enki
 		acc += Vector(totalThrust * cos(angle), totalThrust * sin(angle)) / mass;
 		angAcc += (diffThrust * distBetweenWheels * 0.5) / momentOfInertia;
 		
-		// PhysicalObject::step will actually move, and in next loop
-		// care will be taken regarding collision. So we have to compute
-		// the difference here.
-		Vector posDiff = pos - oldPos;
-		double norm = posDiff.norm();
-		double travelAngle = posDiff.angle();
-		
-		// we let only the component of the norm that is in the direction
-		// of the robot (the other component is the wheel sliding in the
-		// perpendicular direction). we take the mean angle as direction.
-		// angle and oldAngle are normalized, so we dont have problems here.
-		double meanAngle = (angle + oldAngle) * 0.5;
-		if (fabs(angle-oldAngle) > M_PI)
-			meanAngle += M_PI;	// this is not normalized but we dont care
-		norm = norm * cos(meanAngle - travelAngle);
-		
 		// Compute encoders
-		double angleDiff = normalizeAngle(angle - oldAngle);
-		leftEncoder = (norm - distBetweenWheels * angleDiff * 0.5);
-		rightEncoder = (norm + distBetweenWheels * angleDiff * 0.5);
-		leftOdometry += leftEncoder;
-		rightOdometry += rightEncoder;
-		leftEncoder /= dt;
-		rightEncoder /= dt;
-		
-		// Save values for next step.
-		oldPos = pos;
-		oldAngle = angle;
+		leftEncoder = realLeftSpeed;
+		rightEncoder = realRightSpeed;
+		leftOdometry += leftEncoder * dt;
+		rightOdometry += rightEncoder * dt;
 	}
 }
 

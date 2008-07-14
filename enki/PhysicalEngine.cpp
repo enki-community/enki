@@ -48,15 +48,18 @@ namespace Enki
 {
 	FastRandom random;
 	
+	const double PhysicalObject::g = 9.81;
+	
 	PhysicalObject::PhysicalObject(void)
 	{
 		userData = NULL;
 		
 		// default physical parameters
 		collisionElasticity = 0.9;
-		staticFrictionThreshold = 0;
-		viscousFrictionCoefficient = 10;
-		viscousMomentFrictionCoefficient = 10;
+		staticFrictionThreshold = 0.1;
+		dryFrictionCoefficient = 0.5;
+		viscousFrictionCoefficient = 0.1;
+		viscousMomentFrictionCoefficient = 0.1;
 		
 		angle = 0;
 		
@@ -182,10 +185,44 @@ namespace Enki
 	{
 		this->infraredReflectiveness = infraredReflectiveness;
 	}
+	
+	static double sgn(double v)
+	{
+		if (v > 0)
+			return 1;
+		else if (v < 0)
+			return -1;
+		else
+			return 0;
+	}
 
 	void PhysicalObject::step(double dt)
 	{
-		// friction
+		// static friction
+		const double minSpeedForMovement = 0.01;
+		if ((speed.norm2() < minSpeedForMovement * minSpeedForMovement) && 
+			(abs(angSpeed) < minSpeedForMovement) &&
+			(acc.norm2() * mass < staticFrictionThreshold * staticFrictionThreshold) &&
+			(angAcc * momentOfInertia < staticFrictionThreshold))
+		{
+			// fully stop movement
+			acc = 0.;
+			angAcc = 0.;
+			speed = 0.;
+			angSpeed = 0.;
+			return;
+		}
+		
+		
+		// dry friction
+		Vector dryFriction = - speed.unitary() * g * dryFrictionCoefficient;
+		acc += dryFriction;
+		
+		// rolling friction
+		double dryAngFriction = - sgn(angSpeed) * g * dryFrictionCoefficient;
+		angAcc += dryAngFriction;
+		
+		// viscous friction
 		acc += - speed * viscousFrictionCoefficient;
 		angAcc += - angSpeed * viscousMomentFrictionCoefficient;
 		
@@ -195,10 +232,19 @@ namespace Enki
 		angSpeed += angAcc * dt;
 		angle += angSpeed * dt;
 		
+		/* TODO: Runge-Kutta
+			but this needs a major refactoring in order to harvest equations up to now.
+		xn+1 = xn + h⁄6 (a + 2 b + 2 c + d)  where 
+		a = f (tn, xn)
+		b = f (tn + h⁄2, xn + h⁄2 a)
+		c = f (tn + h⁄2, xn + h⁄2 b)
+		d = f (tn + h, xn + h c)
+		*/
+		
 		angle = normalizeAngle(angle);
 		
 		acc = 0.;
-		angAcc = 0;
+		angAcc = 0.;
 	}
 
 	void PhysicalObject::initLocalInteractions()

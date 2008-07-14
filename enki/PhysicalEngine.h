@@ -147,12 +147,17 @@ namespace Enki
 		//! Data attached by the user to this physical object. If non-null, will be destroyed with the object.
 		UserData *userData;
 		
+		// physical constant
+		static const double g;
+		
 		// physical parameters constants
 		
 		//! Elasticity of collisions of this object. If 0, soft collision, 100% energy dissipation; if 1, elastic collision, 0% energy dissipation. Actual elasticity is the product of the elasticity of the two colliding objects
 		double collisionElasticity;
 		//! The static friction threshold of the object. If the force resulting from the interaction between non-infinite mass objects is smaller than this, this object will not move. Use it with care, as putting a value too high can prevent objects from being deinterlaced.
 		double staticFrictionThreshold;
+		//! The dry friction coefficient
+		double dryFrictionCoefficient;
 		//! The viscous friction coefficient. Premultiplied by mass. A value of k applies a force of -k * speed * mass
 		double viscousFrictionCoefficient;
 		//! The viscous friction moment coefficient. Premultiplied by momentOfInertia. A value of k applies a force of -k * speed * momentOfInertia

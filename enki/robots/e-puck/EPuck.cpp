@@ -147,6 +147,8 @@ namespace Enki
 			addGlobalInteraction(bluetooth);
 		}
 		
+		contactPointThrust = 6000;
+		dryFrictionCoefficient = 1.4;
 		mass = 152;
 		r = 3.7;
 		height = 4.7;
