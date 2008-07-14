@@ -56,6 +56,7 @@ protected:
 	#ifdef USE_SDL
 	QVector<SDL_Joystick *> joysticks;
 	QVector<EPuck*> epucks;
+	QMap<PhysicalObject*, int> bullets;
 	#endif
 	
 public:
@@ -175,13 +176,49 @@ public:
 		for (int i = 0; i < joysticks.size(); ++i)
 		{
 			#define SPEED_MAX 12.
-			double x = SDL_JoystickGetAxis(joysticks[i], 0) / (32767. / SPEED_MAX);
+			/*double x = SDL_JoystickGetAxis(joysticks[i], 0) / (32767. / SPEED_MAX);
 			double y = -SDL_JoystickGetAxis(joysticks[i], 1) / (32767. / SPEED_MAX);
 			EPuck* epuck = epucks[i];
 			epuck->leftSpeed = y + x;
 			epuck->rightSpeed = y - x;
+			*/
+			EPuck* epuck = epucks[i];
+			epuck->leftSpeed = - SDL_JoystickGetAxis(joysticks[i], 1) / (32767. / SPEED_MAX);
+			epuck->rightSpeed = - SDL_JoystickGetAxis(joysticks[i], 4) / (32767. / SPEED_MAX);
+			if (SDL_JoystickGetButton(joysticks[i], 6) || SDL_JoystickGetButton(joysticks[i], 7))
+			{
+				PhysicalObject* o = new PhysicalObject;
+				Vector delta(cos(epuck->angle), sin(epuck->angle));
+				o->pos = epuck->pos + delta * 6;
+				o->speed = delta * 30;
+				o->setCylindric(0.5, 0.5);
+				o->setMass(1000);
+				o->dryFrictionCoefficient = 0.01;
+				o->setColor(Color(0.4, 0, 0));
+				o->collisionElasticity = 1;
+				o->commitPhysicalParameters();
+				bullets[o] = 300;
+				world->addObject(o);
+			}
 		}
 		#endif
+		QMap<PhysicalObject*, int>::iterator i = bullets.begin();
+		while (i != bullets.end())
+		{
+			QMap<PhysicalObject*, int>::iterator oi = i;
+			++i;
+			if (oi.value())
+			{
+				oi.value()--;
+			}
+			else
+			{
+				PhysicalObject* o = oi.key();
+				world->removeObject(o);
+				bullets.erase(oi);
+				delete o;
+			}
+		}
 		ViewerWidget::timerEvent(event);
 	}
 };

@@ -177,6 +177,9 @@ namespace Enki
 			invertTextureIndex = !invertTextureIndex;
 		}
 		
+		// TODO: understand why this happens
+		if (p1dir <= p0dir)
+			return;
 		assert(p1dir > p0dir);
 		
 		// dismiss line if not in field of view.
