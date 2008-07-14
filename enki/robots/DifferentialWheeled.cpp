@@ -50,6 +50,7 @@ namespace Enki
 	}
 	
 	DifferentialWheeled::DifferentialWheeled(double distBetweenWheels, double maxSpeed, double noiseAmount) :
+		contactPointThrust(10000),
 		distBetweenWheels(distBetweenWheels),
 		maxSpeed(maxSpeed),
 		noiseAmount(noiseAmount)
@@ -66,6 +67,16 @@ namespace Enki
 		leftOdometry = rightOdometry = 0.0;
 	}
 	
+	double sgn(double v)
+	{
+		if (v > 0)
+			return 1;
+		else if (v < 0)
+			return -1;
+		else
+			return 0;
+	}
+	
 	void DifferentialWheeled::step(double dt)
 	{
 		// handle physic
@@ -79,13 +90,19 @@ namespace Enki
 		double realRightSpeed = clamp(rightSpeed, -maxSpeed, maxSpeed);
 		realRightSpeed  *= (baseFactor + random.getRange(noiseFactor));
 		
-		// speeds, according to Prof. Roland Siegwart class material
-		double forwardSpeed = (realRightSpeed + realLeftSpeed) * 0.5;
-		angSpeed += (realRightSpeed - realLeftSpeed) / distBetweenWheels;
-		speed += Vector(
-					forwardSpeed * cos(angle + angSpeed * dt * 0.5),
-					forwardSpeed * sin(angle + angSpeed * dt * 0.5)
-				);
+		// speeds of the contact points
+		double speedInDir = speed * Vector(cos(angle), sin(angle));
+		double leftContactSpeed = speedInDir - distBetweenWheels * 0.5 * angSpeed - realLeftSpeed;
+		double rightContactSpeed = speedInDir + distBetweenWheels * 0.5 * angSpeed - realRightSpeed;
+		
+		// We use a model of constant force in opposite direction than movement
+		// This is very simple but the full model is way too complex and requires too many experimentation.
+		double leftThrust= -sgn(leftContactSpeed) * contactPointThrust;
+		double rightThrust = -sgn(rightContactSpeed) * contactPointThrust;
+		double totalThrust = leftThrust + rightThrust;
+		double diffThrust = rightThrust - leftThrust;
+		acc += Vector(totalThrust * cos(angle), totalThrust * sin(angle)) / mass;
+		angAcc += (diffThrust * distBetweenWheels * 0.5) / momentOfInertia;
 		
 		// PhysicalObject::step will actually move, and in next loop
 		// care will be taken regarding collision. So we have to compute

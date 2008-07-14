@@ -48,15 +48,15 @@ namespace Enki
 {
 	FastRandom random;
 	
-	PhysicalObject::PhysicalObject(void) :
-		viscousFriction(0.01),
-		viscousMomentFriction(0.01)
+	PhysicalObject::PhysicalObject(void)
 	{
 		userData = NULL;
 		
 		// default physical parameters
 		collisionElasticity = 0.9;
 		staticFrictionThreshold = 0;
+		viscousFrictionCoefficient = 10;
+		viscousMomentFrictionCoefficient = 10;
 		
 		angle = 0;
 		
@@ -185,12 +185,20 @@ namespace Enki
 
 	void PhysicalObject::step(double dt)
 	{
+		// friction
+		acc += - speed * viscousFrictionCoefficient;
+		angAcc += - angSpeed * viscousMomentFrictionCoefficient;
+		
+		// el cheapos integration
+		speed += acc * dt;
 		pos += speed * dt;
+		angSpeed += angAcc * dt;
 		angle += angSpeed * dt;
+		
 		angle = normalizeAngle(angle);
 		
-		speed = viscousFriction.step(speed, dt);
-		angSpeed = viscousMomentFriction.step(angSpeed, dt);
+		acc = 0.;
+		angAcc = 0;
 	}
 
 	void PhysicalObject::initLocalInteractions()

@@ -90,6 +90,8 @@ namespace Enki
 		Vector operator /(double f) const { Vector n; n.x = x/f; n.y = y/f; return n; }
 		//! Divive each component by scalar f and return the resulting vector
 		Vector operator *(double f) const { Vector n; n.x = x*f; n.y = y*f; return n; }
+		//! Invert this vector
+		Vector operator -() const { return Vector(-x, -y); }
 	
 		//! Return the scalar product with vector v
 		double operator *(const Vector &v) const { return x*v.x + y*v.y; }

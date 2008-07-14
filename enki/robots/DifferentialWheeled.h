@@ -45,6 +45,9 @@ namespace Enki
 	class DifferentialWheeled: public Robot
 	{
 	public:
+		//! The thrust produced by wheels on contact point. We use a simple model that always produce the same thrust regardless the resulting speed of the contact point. In mN
+		double contactPointThrust;
+		
 		//! Left speed of the robot
 		double leftSpeed;
 		//! Reft speed of the robot

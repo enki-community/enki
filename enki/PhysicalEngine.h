@@ -125,31 +125,6 @@ Mobots group - Laboratoire de Systèmes Robotiques,
 namespace Enki
 {
 	class World;
-	
-	//! An exponential decay
-	class ExpDecay
-	{
-	protected:
-		double k; //!< parameter depending on the time constant
-		
-	public:
-		//! Constructor
-		//! @param tau Time-constant, after tau [unit of time], the value would be half its original value
-		ExpDecay(double tau = 1) { setTau(tau); }
-		
-		//! Compute the parameter depending of the time constant
-		void setTau(double tau)
-		{
-			k = log(0.5) / tau;
-		}
-		
-		//! Apply a step of exponential decay for duration dt to the value and return it
-		template<typename T>
-		T step(T value, double dt)
-		{
-			return value * exp(k * dt);
-		}
-	};
 
 	//! A situated object in the world with mass, geometry properties, physical properties, ...
 	/*! \ingroup core */
@@ -178,10 +153,10 @@ namespace Enki
 		double collisionElasticity;
 		//! The static friction threshold of the object. If the force resulting from the interaction between non-infinite mass objects is smaller than this, this object will not move. Use it with care, as putting a value too high can prevent objects from being deinterlaced.
 		double staticFrictionThreshold;
-		//! The viscous friction time constant. Half-life of speed when object is free. If lower than timestep, speed is forced to zero.
-		ExpDecay viscousFriction;
-		//! The viscous friction moment time constant. Half-life of angular speed when object is free. If lower than timestep, angular speed is forced to zero.
-		ExpDecay viscousMomentFriction;
+		//! The viscous friction coefficient. Premultiplied by mass. A value of k applies a force of -k * speed * mass
+		double viscousFrictionCoefficient;
+		//! The viscous friction moment coefficient. Premultiplied by momentOfInertia. A value of k applies a force of -k * speed * momentOfInertia
+		double viscousMomentFrictionCoefficient;
 		
 		// physics state variables
 		
@@ -199,14 +174,19 @@ namespace Enki
 		//! The rotation speed of the object, standard trigonometric orientation.
 		double angSpeed;
 		
+		// space coordinates double-derivatives
+		
+		//! The acceleration of the object
+		Vector acc;
+		//! The angular acceleration of the object
+		double angAcc;
+		
 	protected:
 		// mass and inertia tensor
 		
 		//! The mass of the object. If below zero, the object can't move (infinite mass).
 		double mass;
-		////! The moment of inertia tensor
-		//Matrix22 momentOfInertiaTensor;
-		// We only need the moment of inertia in 2D
+		///! The moment of inertia tensor
 		double momentOfInertia;
 		
 		// geometry properties
