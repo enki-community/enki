@@ -97,7 +97,7 @@ namespace Enki
 		double realRightSpeed = clamp(rightSpeed, -maxSpeed, maxSpeed);
 		realRightSpeed  *= (baseFactor + random.getRange(noiseFactor));
 		
-		/*// TODO: 
+		/*// NOTE: if we seems to need a better model, have a look at the commented code, but the latter tuning for sure
 		Vector force = ((oldSpeed - speed) / dt) * mass;
 		if (force.norm2() > staticFrictionThreshold * staticFrictionThreshold)
 		{*/
@@ -130,7 +130,7 @@ namespace Enki
 		
 		oldSpeed = speed;*/
 		
-		// FIXME affecting pos does not work as the speed is not transfered upon collision
+		// NOTE: affecting pos does not work as the speed is not transfered upon collision
 		
 		/*// We use a model of constant force in opposite direction than movement
 		// This is very simple but the full model is way too complex and requires too many experimentation.
@@ -142,9 +142,6 @@ namespace Enki
 		acc += Vector(totalThrust * cos(angle), totalThrust * sin(angle)) / mass;
 		angAcc += (diffThrust * distBetweenWheels * 0.5) / momentOfInertia;
 		*/
-		
-		// TODO: redo this model
-		// TODO: take care of not applying friction to driving speed
 		
 		// Compute encoders
 		leftEncoder = realLeftSpeed;

@@ -56,7 +56,7 @@ namespace Enki
 		
 		// default physical parameters
 		collisionElasticity = 0.9;
-		staticFrictionThreshold = 0.5;
+		//staticFrictionThreshold = 0.5;
 		dryFrictionCoefficient = 0.25;
 		viscousFrictionCoefficient = 0.01;
 		viscousMomentFrictionCoefficient = 0.01;
@@ -256,13 +256,13 @@ namespace Enki
 		angle = normalizeAngle(angle);
 	}
 
-	void PhysicalObject::initLocalInteractions()
+	void PhysicalObject::initPhysicsInteractions()
 	{
 		deinterlaceVector = 0.0;
 		computeAbsBoundingSurface();
 	}
 
-	void PhysicalObject::doLocalInteractions(World *w, PhysicalObject *o, double dt, bool firstInteraction)
+	void PhysicalObject::doPhysicsInteractions(World *w, PhysicalObject *o, double dt, bool firstInteraction)
 	{
 		if (firstInteraction)
 		{
@@ -273,12 +273,12 @@ namespace Enki
 		}
 	}
 
-	void PhysicalObject::doLocalWallsInteraction(World *w)
+	void PhysicalObject::doPhysicsWallsInteraction(World *w)
 	{
 		w->collideWithWalls(this);
 	}
 
-	void PhysicalObject::finalizeLocalInteractions(double dt)
+	void PhysicalObject::finalizePhysicsInteractions(double dt)
 	{
 		pos += deinterlaceVector;
 	}
@@ -409,11 +409,10 @@ namespace Enki
 		{
 			localInteractions[i]->init();
 		}
-		PhysicalObject::initLocalInteractions();
 	}
 
 
-	void Robot::doLocalInteractions(World *w, PhysicalObject *po, double dt, bool firstInteraction)
+	void Robot::doLocalInteractions(World *w, PhysicalObject *po, double dt)
 	{
 		for (size_t i=0; i<localInteractions.size(); i++)
 		{
@@ -423,8 +422,6 @@ namespace Enki
 			else 
 				return;
 		}
-		// is done only if first interaction is true !!
-		PhysicalObject::doLocalInteractions(w, po, dt, firstInteraction);
 	}
 
 
@@ -437,7 +434,6 @@ namespace Enki
 			else
 				localInteractions[i]->wallsStep(w);
 		}
-		PhysicalObject::doLocalWallsInteraction(w);
 	}
 
 	void Robot::finalizeLocalInteractions(double dt)
@@ -446,7 +442,6 @@ namespace Enki
 		{
 			localInteractions[i]->finalize(dt);
 		}
-		PhysicalObject::finalizeLocalInteractions(dt);
 	}
 
 	void Robot::doGlobalInteractions(World *w, double dt)
@@ -759,8 +754,49 @@ namespace Enki
 		}
 	}
 
-	void World::step(double dt)
+	void World::step(double dt, unsigned physicsOversampling)
 	{
+		// oversampling physics
+		double overSampledDt = dt / (double)physicsOversampling;
+		for (int po = 0; po < physicsOversampling; po++)
+		{
+			// init interactions
+			for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
+				(*i)->initPhysicsInteractions();
+			
+			// collide objects together
+			unsigned iCounter, jCounter;
+			iCounter = 0;
+			for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
+			{
+				jCounter = 0;
+				for (ObjectsIterator j = objects.begin(); j != objects.end(); ++j)
+				{
+					if ((*i) != (*j))
+					{
+						// is it the first interaction between these objects in this world step?
+						if (collideEven)
+							(*i)->doPhysicsInteractions(this, (*j), overSampledDt, iCounter < jCounter);
+						else
+							(*j)->doPhysicsInteractions(this, (*i), overSampledDt, jCounter < iCounter);
+					}
+					jCounter++;
+				}
+				iCounter++;
+			}
+	
+			collideEven = !collideEven;
+	
+			// collide objects with walls and step
+			for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
+			{
+				if (useWalls)
+					(*i)->doPhysicsWallsInteraction(this);
+				(*i)->finalizePhysicsInteractions(overSampledDt);
+				(*i)->step(overSampledDt);
+			}
+		}
+		
 		// init interactions
 		for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 		{
@@ -768,28 +804,17 @@ namespace Enki
 			(*i)->initGlobalInteractions();
 		}
 
-		// collide objects together
-		unsigned iCounter, jCounter;
-		iCounter = 0;
+		// interract objects together
 		for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 		{
-			jCounter = 0;
 			for (ObjectsIterator j = objects.begin(); j != objects.end(); ++j)
 			{
 				if ((*i) != (*j))
 				{
-					// is it the first interaction between these objects in this world step?
-					if (collideEven)
-						(*i)->doLocalInteractions(this, (*j), dt, iCounter < jCounter);
-					else
-						(*j)->doLocalInteractions(this, (*i), dt, jCounter < iCounter);
+					(*i)->doLocalInteractions(this, (*j), dt);
 				}
-				jCounter++;
 			}
-			iCounter++;
 		}
-
-		collideEven = !collideEven;
 
 		// collide objects with walls and step
 		for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
@@ -800,7 +825,6 @@ namespace Enki
 			
 			(*i)->finalizeLocalInteractions(dt);
 			(*i)->finalizeGlobalInteractions();
-			(*i)->step(dt);
 		}
 		if (bluetoothBase)
 			bluetoothBase->step(dt,this);

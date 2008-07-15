@@ -333,16 +333,24 @@ namespace Enki
 		setupBoundingSurface(aliceBoundingSurface.p);
 		color = Color::blue;
 
+		/*
+		I have removed the staticFrictionThreshold here as the hacked physics on which all this was based
+		was broken anyway
+		
 		// set high static friction threshold to exclude Alices pushed by disks and 
 		// delay Alice-Alice pushing (factor 2 slowdown; since collisions are symmetric,
 		// we don't know which Alice is pushing which one)
-		staticFrictionThreshold = 1.0;
+		//staticFrictionThreshold = 1.0;
+		*/
 		
 		commitPhysicalParameters();
 	}
 
 	void Alice::step(double dt) 
 	{
+		// handle physics
+		PhysicalObject::step(dt);
+		
 		double realLeftSpeed, realRightSpeed;
 		
 		// rightSpeed/leftSpeed are the speeds as given by the NN output 
@@ -363,7 +371,9 @@ namespace Enki
 		else
 			// same as above
 			realRightSpeed = 4 * rightSpeed * (0.95 + random.getRange(0.05));
-
+		
+		// non slipping, override speed
+		
 		// forward component
 		double forwardSpeed = (realLeftSpeed+realRightSpeed) / 2;
 		double wheelDist = 1.9;
@@ -373,10 +383,7 @@ namespace Enki
 					forwardSpeed * sin(angle + angSpeed * dt * 0.5));
 
 		// angle
-		angSpeed += (-realLeftSpeed+realRightSpeed) / wheelDist;
-
-		// handle physics
-		PhysicalObject::step(dt);
+		angSpeed = (-realLeftSpeed+realRightSpeed) / wheelDist;
 	}
 }
 

@@ -712,8 +712,7 @@ namespace Enki
 	
 	void ViewerWidget::timerEvent(QTimerEvent * event)
 	{
-		for (int i = 0; i < 3; i++)
-			world->step(1./100.);
+		world->step(1./30., 3);
 		updateGL();
 	}
 	

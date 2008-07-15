@@ -145,7 +145,7 @@ namespace Enki
 			addGlobalInteraction(bluetooth);
 		}
 		
-		staticFrictionThreshold = 0.5;
+		//staticFrictionThreshold = 0.5;
 		dryFrictionCoefficient = 0.25;
 		dryFrictionCoefficient = 2.5;
 		mass = 152;

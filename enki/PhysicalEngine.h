@@ -154,8 +154,6 @@ namespace Enki
 		
 		//! Elasticity of collisions of this object. If 0, soft collision, 100% energy dissipation; if 1, elastic collision, 0% energy dissipation. Actual elasticity is the product of the elasticity of the two colliding objects. Walls are fully elastics
 		double collisionElasticity;
-		//! The static friction threshold of the object. If the force resulting from the interaction between non-infinite mass objects is smaller than this, this object will not move.
-		double staticFrictionThreshold;
 		//! The dry friction coefficient mu.
 		double dryFrictionCoefficient;
 		//! The viscous friction coefficient. Premultiplied by mass. A value of k applies a force of -k * speed * mass
@@ -189,6 +187,9 @@ namespace Enki
 		Vector acc;
 		//! The angular acceleration of the object
 		double angAcc;
+		
+		//! The static friction threshold of the object. If the force resulting from the interaction between non-infinite mass objects is smaller than this, this object will not move.
+		double staticFrictionThreshold;
 		*/
 	protected:
 		// mass and inertia tensor
@@ -267,17 +268,26 @@ namespace Enki
 	protected:
 		// Physical Actions
 		
-		//! A simulation step for this object. It is considered as deinterlaced. The position and orientation are updated, and speed is reduced according to global dynamic friction coefficient.
+		//! A physics simulation step for this object. It is considered as deinterlaced. The position and orientation are updated, and speed is reduced according to friction.
 		virtual void step(double dt);
 
 		//! Initialize the collision logic
-		virtual void initLocalInteractions();
+		void initPhysicsInteractions();
 		//! Do the collision with the other PhysicalObject. firstInteraction controls which object collides with which, dt is not used.
-		virtual void doLocalInteractions(World *w, PhysicalObject *o, double dt, bool firstInteraction);
+		void doPhysicsInteractions(World *w, PhysicalObject *o, double dt, bool firstInteraction);
 		//! Do the collisions with the walls of world w.
-		virtual void doLocalWallsInteraction(World *w);
+		void doPhysicsWallsInteraction(World *w);
 		//! All collisions are finished, deinterlace the object.
-		virtual void finalizeLocalInteractions(double dt);
+		void finalizePhysicsInteractions(double dt);
+		
+		//! Initialize the object specific interactions, do nothing for PhysicalObject.
+		virtual void initLocalInteractions() { }
+		//! Do the interactions with the other PhysicalObject, do nothing for PhysicalObject.
+		virtual void doLocalInteractions(World *w, PhysicalObject *o, double dt) { }
+		//! Do the interactions with the walls of world w, do nothing for PhysicalObject.
+		virtual void doLocalWallsInteraction(World *w) { }
+		//! All interactions are finished, do nothing for PhysicalObject.
+		virtual void finalizeLocalInteractions(double dt) { }
 
 		//! Initialize the global interactions, do nothing for PhysicalObject.
 		virtual void initGlobalInteractions() { }
@@ -309,13 +319,13 @@ namespace Enki
 		void addLocalInteraction(LocalInteraction *li);
 		//! Add a global interaction, just add it at the end of the vector.
 		void addGlobalInteraction(GlobalInteraction *gi) {globalInteractions.push_back(gi);}
-		//! Initialize the local interactions, call init on each one, then call PhysicalObject::initLocalInteractions.
+		//! Initialize the local interactions, call init on each one.
 		virtual void initLocalInteractions();
-		//! Do the local interactions with other objects, call objectStep on each one, then call PhysicalObject::doLocalInteractions. firstInteraction controls which object interacts with which.
-		virtual void doLocalInteractions(World *w, PhysicalObject *po, double dt, bool firstInteraction);
-		//! Do the local interactions with walls, call wallsStep on each one, then call PhysicalObject::doLocalWallsInteraction.
+		//! Do the local interactions with other objects, call objectStep on each one.
+		virtual void doLocalInteractions(World *w, PhysicalObject *po, double dt);
+		//! Do the local interactions with walls, call wallsStep on each one.
 		virtual void doLocalWallsInteraction(World *w);
-		//! All the local interactions are finished, call finalize on each one, then call PhysicalObject::finalizeLocalInteractions.
+		//! All the local interactions are finished, call finalize on each one.
 		virtual void finalizeLocalInteractions(double dt);
 		
 		//! Do the global interactions, call step on each one.
@@ -366,8 +376,8 @@ namespace Enki
 		World(double width, double height);
 		//! Destructor, destroy all objects
 		~World();
-		//! Simulate a timestep of dt. dt should be below 1 (typically .02-.1)
-		void step(double dt);
+		//! Simulate a timestep of dt. dt should be below 1 (typically .02-.1); physicsOversampling is the amount of time the physics is run per step, as usual collisions require a more precise simulation than the sensor-motor loop frequency.
+		void step(double dt, unsigned physicsOversampling = 1);
 		//! Add an object to the world, simply add it to the vector. Object will be automatically deleted when world will be destroyed.
 		//! If the object is already in the world, do nothing
 		void addObject(PhysicalObject *o);
