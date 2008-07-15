@@ -117,8 +117,6 @@ namespace Enki
 		scannerTurret(this, 7.2, 32),
 		bluetooth(NULL)
 	{
-		oldAngle=angle;
-		
 		if (capabilities & CAPABILITY_BASIC_SENSORS)
 		{
 			addLocalInteraction(&infraredSensor0);
@@ -147,9 +145,9 @@ namespace Enki
 			addGlobalInteraction(bluetooth);
 		}
 		
-		contactPointThrust = 6000;
 		staticFrictionThreshold = 0.5;
 		dryFrictionCoefficient = 0.25;
+		dryFrictionCoefficient = 2.5;
 		mass = 152;
 		r = 3.7;
 		height = 4.7;

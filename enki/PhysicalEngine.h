@@ -181,11 +181,15 @@ namespace Enki
 		
 		// space coordinates double-derivatives
 		
+		/*
+		The only accelerations we have for now are friction and are computed inside PhysicalObject::step()
+		Both collisions and forces due to wheels of differential wheeled robots are computed instantly
+		
 		//! The acceleration of the object
 		Vector acc;
 		//! The angular acceleration of the object
 		double angAcc;
-		
+		*/
 	protected:
 		// mass and inertia tensor
 		

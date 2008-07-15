@@ -56,10 +56,10 @@ namespace Enki
 		
 		// default physical parameters
 		collisionElasticity = 0.9;
-		staticFrictionThreshold = 0.1;
+		staticFrictionThreshold = 0.5;
 		dryFrictionCoefficient = 0.25;
-		viscousFrictionCoefficient = 0.1;
-		viscousMomentFrictionCoefficient = 0.1;
+		viscousFrictionCoefficient = 0.01;
+		viscousMomentFrictionCoefficient = 0.01;
 		
 		angle = 0;
 		
@@ -198,8 +198,11 @@ namespace Enki
 
 	void PhysicalObject::step(double dt)
 	{
+		/*
+		Temporary not used as there is no intrinsic force for now
+		The only force available are the friction ones below
 		// static friction
-		const double minSpeedForMovement = 0.01;
+		const double minSpeedForMovement = 0.001;
 		if ((speed.norm2() < minSpeedForMovement * minSpeedForMovement) && 
 			(abs(angSpeed) < minSpeedForMovement) &&
 			(acc.norm2() * mass < staticFrictionThreshold * staticFrictionThreshold) &&
@@ -211,16 +214,24 @@ namespace Enki
 			speed = 0.;
 			angSpeed = 0.;
 			return;
-		}
+		}*/
 		
+		Vector acc = 0.;
+		double angAcc = 0.;
 		
-		// dry friction
+		// dry friction, set speed to zero if bigger
 		Vector dryFriction = - speed.unitary() * g * dryFrictionCoefficient;
-		acc += dryFriction;
+		if ((dryFriction * dt).norm2() > speed.norm2())
+			speed = 0.;
+		else
+			acc += dryFriction;
 		
-		// rolling friction
+		// dry rotation friction, set angSpeed to zero if bigger
 		double dryAngFriction = - sgn(angSpeed) * g * dryFrictionCoefficient;
-		angAcc += dryAngFriction;
+		if ((abs(dryAngFriction) * dt) > abs(angSpeed))
+			angSpeed = 0.;
+		else
+			angAcc += dryAngFriction;
 		
 		// viscous friction
 		acc += - speed * viscousFrictionCoefficient;
@@ -228,12 +239,13 @@ namespace Enki
 		
 		// el cheapos integration
 		speed += acc * dt;
-		pos += speed * dt;
 		angSpeed += angAcc * dt;
+		pos += speed * dt;
 		angle += angSpeed * dt;
 		
 		/* TODO: Runge-Kutta
-			but this needs a major refactoring in order to harvest equations up to now.
+			but this needs a refactoring in order to harvest equations up to now.
+			furthermore, we have a so simple model that it is seldom useful for now.
 		xn+1 = xn + h⁄6 (a + 2 b + 2 c + d)  where 
 		a = f (tn, xn)
 		b = f (tn + h⁄2, xn + h⁄2 a)
@@ -242,9 +254,6 @@ namespace Enki
 		*/
 		
 		angle = normalizeAngle(angle);
-		
-		acc = 0.;
-		angAcc = 0.;
 	}
 
 	void PhysicalObject::initLocalInteractions()
@@ -271,10 +280,7 @@ namespace Enki
 
 	void PhysicalObject::finalizeLocalInteractions(double dt)
 	{
-		// If smaller than threshold, don't move.
-		double displacementThreshold = staticFrictionThreshold * dt;
-		if (deinterlaceVector.norm2() > displacementThreshold*displacementThreshold)
-			pos += deinterlaceVector;
+		pos += deinterlaceVector;
 	}
 
 	void PhysicalObject::computeAbsBoundingSurface(void)
