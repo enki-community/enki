@@ -62,6 +62,10 @@ namespace Enki
 		Robot *owner;
 
 	public :
+		//! Constructor
+		LocalInteraction() {}
+		//! Constructor
+		LocalInteraction(double range, Robot* owner) : r(range), owner(owner) {}
 		//! Destructor
 		virtual ~LocalInteraction() { }
 		//! Init at each step
@@ -93,6 +97,10 @@ namespace Enki
 		Robot *owner;
 
 	public :
+		//! Constructor
+		GlobalInteraction() {}
+		//! Constructor
+		GlobalInteraction(Robot* owner) : owner(owner) {}
 		//! Destructor
 		virtual ~GlobalInteraction() { }
 		//! Init at each step
