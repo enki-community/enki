@@ -228,7 +228,7 @@ namespace Enki
 		
 		// dry rotation friction, set angSpeed to zero if bigger
 		double dryAngFriction = - sgn(angSpeed) * g * dryFrictionCoefficient;
-		if ((abs(dryAngFriction) * dt) > abs(angSpeed))
+		if ((fabs(dryAngFriction) * dt) > fabs(angSpeed))
 			angSpeed = 0.;
 		else
 			angAcc += dryAngFriction;
