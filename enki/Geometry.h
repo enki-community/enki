@@ -249,6 +249,9 @@ namespace Enki
 			
 			return true;
 		}
+		
+		//! Operator to add point inline
+		Polygone& operator << (const Point& p) { push_back(p); return *this; }
 	};
 	
 	//! Normlize an angle to be between -PI and +PI.
