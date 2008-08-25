@@ -129,7 +129,12 @@ namespace Enki
 		double hl1 = l1 / 2;
 		double hl2 = l2 / 2;
 		boundingSurface << Point(-hl1, -hl2) << Point(hl1, -hl2) << Point(hl1, hl2) << Point(-hl1, hl2);
+		r = 0;
+		for (size_t i=0; i<4; i++)
+			r = std::max(r, boundingSurface[i].norm());
+		
 		textures.resize(4, Texture(color, 1));
+		
 		this->height = height;
 	}
 	
