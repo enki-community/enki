@@ -251,7 +251,7 @@ namespace Enki
 		}
 		
 		//! Return the bounding radius of this area
-		double getBoundingRadius()
+		double getBoundingRadius() const
 		{
 			double radius = 0;
 			for (size_t i = 0; i < size(); i++)
