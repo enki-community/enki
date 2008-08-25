@@ -123,6 +123,16 @@ namespace Enki
 		this->height = height;
 	}
 	
+	void PhysicalObject::setRectangular(double l1, double l2, double height)
+	{
+		boundingSurface.clear();
+		double hl1 = l1 / 2;
+		double hl2 = l2 / 2;
+		boundingSurface << Point(-hl1, -hl2) << Point(hl1, -hl2) << Point(hl1, hl2) << Point(-hl1, hl2);
+		textures.resize(4, Texture(color, 1));
+		this->height = height;
+	}
+	
 	void PhysicalObject::setupBoundingSurface(const Polygone& boundingSurface)
 	{
 		// get bounding box
@@ -461,8 +471,7 @@ namespace Enki
 		useWalls = true;
 		
 		// walls are gray
-		for (size_t i = 0; i < 4; i++)
-			wallTextures[i].resize(1, Color::gray);
+		setWallsColor(Color::gray);
 	}
 
 	World::~World()
@@ -472,6 +481,12 @@ namespace Enki
 		
 		if (bluetoothBase)
 			delete bluetoothBase;
+	}
+	
+	void World::setWallsColor(const Color& color)
+	{
+		for (size_t i = 0; i < 4; i++)
+			wallTextures[i].resize(1, color);
 	}
 
 	bool World::isPointInside(const Point &p, const Point &c, const Polygone &bs, Vector *distVector)

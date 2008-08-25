@@ -250,6 +250,29 @@ namespace Enki
 			return true;
 		}
 		
+		//! Return the bounding radius of this area
+		double getBoundingRadius()
+		{
+			double radius = 0;
+			for (size_t i = 0; i < size(); i++)
+				radius = std::max(radius, (*this)[i].norm());
+			return radius;
+		}
+		
+		//! Flip coordinates on x
+		void flipX()
+		{
+			for (size_t i = 0; i < size(); i++)
+				(*this)[i].x = -(*this)[i].x;
+		}
+		
+		//! Flip coordinates on y
+		void flipY()
+		{
+			for (size_t i = 0; i < size(); i++)
+				(*this)[i].y = -(*this)[i].y;
+		}
+		
 		//! Operator to add point inline
 		Polygone& operator << (const Point& p) { push_back(p); return *this; }
 	};

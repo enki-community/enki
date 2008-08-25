@@ -256,6 +256,8 @@ namespace Enki
 		void setMass(double mass);
 		//! Make the object cylindric
 		void setCylindric(double radius, double height);
+		//! Make the object rectangular of size l1 x l2
+		void setRectangular(double l1, double l2, double height);
 		//! Make the shape of the object. The color is uniformely set to the current color.
 		void setShape(const Polygone& boundingSurface, double height);
 		//! Set a uniform color all around the object.
@@ -376,6 +378,9 @@ namespace Enki
 		World(double width, double height);
 		//! Destructor, destroy all objects
 		~World();
+		//! Set the uniform color on the walls
+		void setWallsColor(const Color& color);
+		
 		//! Simulate a timestep of dt. dt should be below 1 (typically .02-.1); physicsOversampling is the amount of time the physics is run per step, as usual collisions require a more precise simulation than the sensor-motor loop frequency.
 		void step(double dt, unsigned physicsOversampling = 1);
 		//! Add an object to the world, simply add it to the vector. Object will be automatically deleted when world will be destroyed.
