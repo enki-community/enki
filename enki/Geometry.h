@@ -264,6 +264,12 @@ namespace Enki
 		{
 			for (size_t i = 0; i < size(); i++)
 				(*this)[i].x = -(*this)[i].x;
+			for (size_t i = 0; i < size() / 2; i++)
+			{
+				Point p = (*this)[i];
+				(*this)[i] = (*this)[size() - i - 1];
+				(*this)[size() - i - 1] = p;
+			}
 		}
 		
 		//! Flip coordinates on y
@@ -271,6 +277,12 @@ namespace Enki
 		{
 			for (size_t i = 0; i < size(); i++)
 				(*this)[i].y = -(*this)[i].y;
+			for (size_t i = 0; i < size() / 2; i++)
+			{
+				Point p = (*this)[i];
+				(*this)[i] = (*this)[size() - i - 1];
+				(*this)[size() - i - 1] = p;
+			}
 		}
 		
 		//! Operator to add point inline
