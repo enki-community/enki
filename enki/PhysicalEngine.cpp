@@ -273,29 +273,12 @@ namespace Enki
 
 	void PhysicalObject::initPhysicsInteractions()
 	{
-		deinterlaceVector = 0.0;
 		computeAbsBoundingSurface();
-	}
-
-	void PhysicalObject::doPhysicsInteractions(World *w, PhysicalObject *o, double dt, bool firstInteraction)
-	{
-		if (firstInteraction)
-		{
-			if (w->getCollideEven())
-				w->collideObjects(this, o);
-			else
-				w->collideObjects(o, this);
-		}
-	}
-
-	void PhysicalObject::doPhysicsWallsInteraction(World *w)
-	{
-		w->collideWithWalls(this);
 	}
 
 	void PhysicalObject::finalizePhysicsInteractions(double dt)
 	{
-		pos += deinterlaceVector;
+		// do nothing for now
 	}
 
 	void PhysicalObject::computeAbsBoundingSurface(void)
@@ -312,10 +295,15 @@ namespace Enki
 		}
 	}
 	
-	
-
 	void PhysicalObject::collideWithStaticObject(const Vector &n, const Point &cp)
 	{
+		// only perform physics if we are in a physically-realistic collision situation,
+		if (n * speed > 0)
+		{
+			//std::cerr << this << " Warning collideWithStaticObject " << std::endl; 
+			return;
+		}
+		
 		// from http://www.myphysicslab.com/collision.html
 		Vector r_ap = (cp - pos);
 		Vector v_ap = speed + r_ap.crossFromZVector(angSpeed);
@@ -324,15 +312,6 @@ namespace Enki
 		double j = num / denom;
 		speed += (n * j) / mass;
 		angSpeed += r_ap.cross(n * j) / momentOfInertia;
-	}
-
-	void PhysicalObject::collideWithStaticObject(const Point &cp1, const Point &cp2, const Vector &n1, const Vector &n2, const Vector &dist)
-	{
-		if (n1.norm2() > std::numeric_limits<double>::epsilon())
-			collideWithStaticObject(n1, cp1);
-		if (n2.norm2() > std::numeric_limits<double>::epsilon())
-			collideWithStaticObject(n2, cp2);
-		pos += dist;
 	}
 
 	void PhysicalObject::collideWithObject(PhysicalObject &that, const Point &cp, const Vector &dist)
@@ -366,31 +345,41 @@ namespace Enki
 			}
 		}
 		
-		// point of this in inside object
-		// we use model from http://www.myphysicslab.com/collision.html
-		// this is object A, that is object B
-		Vector n = dist.unitary();
+		if ((dist * speed > 0) || (dist * that.speed < 0))
+		{
+			//std::cerr << this << " Warning collideWithObject" << std::endl;
+		}
 		
-		Vector r_ap = (cp - pos);
-		Vector r_bp = (cp - that.pos);
-		
-		Vector v_ap = speed + r_ap.crossFromZVector(angSpeed);
-		Vector v_bp = that.speed + r_bp.crossFromZVector(angSpeed);
-		Vector v_ab = v_ap - v_bp;
-		
-		double num = -(1 + collisionElasticity * that.collisionElasticity) * (v_ab * n);
-		double denom = (1/mass) + (1/that.mass) + (r_ap.cross(n) * r_ap.cross(n)) / momentOfInertia + (r_bp.cross(n) * r_bp.cross(n)) / that.momentOfInertia;
-		double j = num / denom;
-		
-		speed += (n * j) / mass;
-		that.speed -= (n * j) / that.mass;
-		angSpeed += r_ap.cross(n * j) / momentOfInertia;
-		that.angSpeed -= r_bp.cross(n * j) / that.momentOfInertia;
+		// only perform physics if we are in a physically-realistic collision situation,
+		// otherwise we experience a simulation artefact and we just deinterlace
+		if ((dist * speed <= 0) && (dist * that.speed >= 0))
+		{
+			// point of this in inside object
+			// we use model from http://www.myphysicslab.com/collision.html
+			// this is object A, that is object B
+			Vector n = dist.unitary();
+			
+			Vector r_ap = (cp - pos);
+			Vector r_bp = (cp - that.pos);
+			
+			Vector v_ap = speed + r_ap.crossFromZVector(angSpeed);
+			Vector v_bp = that.speed + r_bp.crossFromZVector(angSpeed);
+			Vector v_ab = v_ap - v_bp;
+			
+			double num = -(1 + collisionElasticity * that.collisionElasticity) * (v_ab * n);
+			double denom = (1/mass) + (1/that.mass) + (r_ap.cross(n) * r_ap.cross(n)) / momentOfInertia + (r_bp.cross(n) * r_bp.cross(n)) / that.momentOfInertia;
+			double j = num / denom;
+			
+			speed += (n * j) / mass;
+			that.speed -= (n * j) / that.mass;
+			angSpeed += r_ap.cross(n * j) / momentOfInertia;
+			that.angSpeed -= r_bp.cross(n * j) / that.momentOfInertia;
+		}
 		
 		// calculate deinterlace vector to put that out of contact - mass ratios ensure physics
 		double massSum = mass + that.mass;
-		deinterlaceVector += dist*that.mass/massSum;
-		that.deinterlaceVector -= dist*mass/massSum;
+		pos += dist*that.mass/massSum;
+		that.pos -= dist*mass/massSum;
 	}
 
 	//! A functor then compares the radius of two local interactions
@@ -532,10 +521,12 @@ namespace Enki
 	void World::collideWithWalls(PhysicalObject *object)
 	{
 		// let's assume walls are infinite
-		Vector dist;
+		Vector dist1, dist2;
 		Point cp1, cp2; // cp1 is on x, cp2 is on y
 		Vector n1, n2;
 
+		// collision on x
+		
 		// object is circle only
 		if (object->boundingSurface.empty())
 		{
@@ -544,86 +535,84 @@ namespace Enki
 			double r = object->r;
 			if (x-r < 0)
 			{
-				dist.x = r-x;
-				cp1.x = 0;
-				cp1.y = y;
-				n1.x = 1;
+				object->collideWithStaticObject(Vector(1, 0), Vector(0, y));
+				object->pos.x += r-x;
 			}
 			if (y-r < 0)
 			{
-				dist.y = r-y;
-				cp2.y = 0;
-				cp2.x = x;
-				n2.y = 1;
+				object->collideWithStaticObject(Vector(0, 1), Vector(x, 0));
+				object->pos.y += r-y;
 			}
 			if (x+r > w)
 			{
-				dist.x = w-(x+r);
-				cp1.x = w;
-				cp1.y = y;
-				n1.x = -1;
+				object->collideWithStaticObject(Vector(-1, 0), Vector(w, y));
+				object->pos.x += w-(x+r);
 			}
 			if (y+r > h)
 			{
-				dist.y = h-(y+r);
-				cp2.x = x;
-				cp2.y = h;
-				n2.y = -1;
+				object->collideWithStaticObject(Vector(0, -1), Vector(x, h));
+				object->pos.y += h-(y+r);
 			}
 		}
 		else
 		{
 			const Polygone &bs = object->getTrueBoundingSurface();
-
+			Vector cp;
+			
+			double dist = 0;
+			double n = 0;
 			for (unsigned i=0; i<bs.size(); i++)
 			{
 				double x = bs[i].x;
 				double y = bs[i].y;
-
-				if (x<0)
+				if (x < -dist)
 				{
-					if (x < -dist.x)
-					{
-						dist.x = -x;
-						cp1.x = 0;
-						cp1.y = y;
-						n1.x = 1;
-					}
+					dist = -x;
+					cp.x = 0;
+					cp.y = y;
+					n = 1;
 				}
-				if (y<0)
+				if (x-w > -dist)
 				{
-					if (y < -dist.y)
-					{
-						dist.y = -y;
-						cp2.x = x;
-						cp2.y = 0;
-						n2.y = 1;
-					}
-				}
-				if (x>w)
-				{
-					if (x-w > -dist.x)
-					{
-						dist.x = w-x;
-						cp1.x = w;
-						cp1.y = y;
-						n1.x = -1;
-					}
-				}
-				if (y>h)
-				{
-					if (y-h > -dist.y)
-					{
-						dist.y = h-y;
-						cp2.y = h;
-						cp2.x = x;
-						n2.y = -1;
-					}
+					dist = w-x;
+					cp.x = w;
+					cp.y = y;
+					n = -1;
 				}
 			}
+			if (dist != 0)
+			{
+				object->collideWithStaticObject(Vector(n, 0), cp);
+				object->pos.x += dist;
+			}
+			
+			dist = 0;
+			n = 0;
+			for (unsigned i=0; i<bs.size(); i++)
+			{
+				double x = bs[i].x;
+				double y = bs[i].y;
+				if (y < -dist)
+				{
+					dist = -y;
+					cp.x = x;
+					cp.y = 0;
+					n = 1;
+				}
+				if (y-h > -dist)
+				{
+					dist = h-y;
+					cp.x = x;
+					cp.y = h;
+					n = -1;
+				}
+			}
+			if (dist != 0)
+			{
+				object->collideWithStaticObject(Vector(0, n), cp);
+				object->pos.y += dist;
+			}
 		}
-
-		object->collideWithStaticObject(cp1, cp2, n1, n2, dist);
 	}
 
 	void World::collideCircleWithBS(PhysicalObject *circle, PhysicalObject *objectBS, const Polygone &bs)
@@ -738,11 +727,17 @@ namespace Enki
 		{
 			// collide 2 circles
 			Vector ud = distOCtoOC.unitary();
+			//std::cout << object1 << " to " << object2 << " : " << ud << std::endl;
 			double dLength = distOCtoOC.norm();
-			//collisionPoint = object2->pos+distOCtoOC * (object2->r/addedRay);
 			dist = ud * (addedRay-dLength);
+			//std::cout << object1 << " to " << object2 << " : " << addedRay << " " << dLength << std::endl;
 			collisionPoint = object2->pos + ud * object2->r;
+			
+			//std::cout << "o1 a : " << object1->pos << " " << object1->speed << std::endl;
+			//std::cout << "o2 a : " << object2->pos << " " << object2->speed << std::endl;
 			object1->collideWithObject(*object2, collisionPoint, dist);
+			//std::cout << "o1 b : " << object1->pos << " " << object1->speed << std::endl;
+			//std::cout << "o2 b : " << object2->pos << " " << object2->speed << std::endl;
 			return;
 		}
 
@@ -794,11 +789,13 @@ namespace Enki
 				{
 					if ((*i) != (*j))
 					{
-						// is it the first interaction between these objects in this world step?
-						if (collideEven)
-							(*i)->doPhysicsInteractions(this, (*j), overSampledDt, iCounter < jCounter);
-						else
-							(*j)->doPhysicsInteractions(this, (*i), overSampledDt, jCounter < iCounter);
+						if (iCounter < jCounter)
+						{
+							if (collideEven)
+								collideObjects((*i), (*j));
+							else
+								collideObjects((*j), (*i));
+						}
 					}
 					jCounter++;
 				}
@@ -811,7 +808,7 @@ namespace Enki
 			for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 			{
 				if (useWalls)
-					(*i)->doPhysicsWallsInteraction(this);
+					collideWithWalls(*i);
 				(*i)->finalizePhysicsInteractions(overSampledDt);
 				(*i)->step(overSampledDt);
 			}

@@ -73,7 +73,9 @@ public:
 			p.push_back(Point(radius * cos(a), radius * sin(a)));
 		
 		o->setShape(p, height);
+		//o->setCylindric(5., height);
 		o->setMass(-1);
+		//o->setMass(100);
 		o->pos = Point(100, 100);
 		o->setColor(Color(0.4,0.6,0.8));
 		o->commitPhysicalParameters();
@@ -157,7 +159,7 @@ public:
 		epuck->leftSpeed = 5;
 		epuck->rightSpeed = 5;
 		epuck->setColor(Color(1, 0, 0));
-		world->addObject(epuck);
+		//world->addObject(epuck);
 	}
 	
 	~EnkiPlayground()
@@ -175,7 +177,7 @@ public:
 		SDL_JoystickUpdate();
 		for (int i = 0; i < joysticks.size(); ++i)
 		{
-			#define SPEED_MAX 12.
+			#define SPEED_MAX 13.
 			/*double x = SDL_JoystickGetAxis(joysticks[i], 0) / (32767. / SPEED_MAX);
 			double y = -SDL_JoystickGetAxis(joysticks[i], 1) / (32767. / SPEED_MAX);
 			EPuck* epuck = epucks[i];

@@ -219,10 +219,6 @@ namespace Enki
 		//! Texture for several faces of this object.
 		Textures textures;
 		
-		// temporary variables
-		//! Vector used for object collisions. If its norm is greater than staticFrictionThreshold, the object is moved.
-		Vector deinterlaceVector;
-
 		// internal functions
 		
 		//! Compute the moment of inertia tensor depending on radius, mass, height, and bounding surface
@@ -275,10 +271,6 @@ namespace Enki
 
 		//! Initialize the collision logic
 		void initPhysicsInteractions();
-		//! Do the collision with the other PhysicalObject. firstInteraction controls which object collides with which, dt is not used.
-		void doPhysicsInteractions(World *w, PhysicalObject *o, double dt, bool firstInteraction);
-		//! Do the collisions with the walls of world w.
-		void doPhysicsWallsInteraction(World *w);
 		//! All collisions are finished, deinterlace the object.
 		void finalizePhysicsInteractions(double dt);
 		
@@ -298,8 +290,6 @@ namespace Enki
 		//! All global interactions are finished, do nothing for PhysicalObject.
 		virtual void finalizeGlobalInteractions() { }
 
-		//! Dynamics for collision with a static object at points cp1 and cp2 with normals vectors n1 and n2 and a penetrated distance of dist.
-		void collideWithStaticObject(const Point &cp1, const Point &cp2, const Vector &n1, const Vector &n2, const Vector &dist);
 		//! Dynamics for collision with a static object at points cp with normal vector n
 		void collideWithStaticObject(const Vector &n, const Point &cp);
 		//! Dynamics for collision with that at point cp with a penetrated distance of dist.

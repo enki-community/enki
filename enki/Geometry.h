@@ -39,6 +39,8 @@
 #endif
 #include <cmath>
 #include <vector>
+#include <limits>
+#include <ostream>
 
 #ifdef _MSC_VER
 #define round(x) floor((x) + 0.5)
@@ -102,7 +104,7 @@ namespace Enki
 		//! Return the cross product with vector v
 		double cross(const Vector &v) const { return x * v.y - y * v.x; }
 		//! Return a unitary vector of same direction
-		Vector unitary(void) const { Vector n; if (norm()) { n = *this; n /= norm(); } return n; }
+		Vector unitary(void) const { if (norm() < std::numeric_limits<double>::epsilon()) return Vector(); return *this / norm(); }
 		//! Return the angle with the horizontal (arc tangant (y/x))
 		double angle(void) const { return atan2(y, x); }
 		
@@ -111,6 +113,9 @@ namespace Enki
 		//! Return the cross from (other x this) a (virtual, as we are in 2D) perpendicular vector (on axis z) of given norm. 
 		Vector crossFromZVector(double l) { return Vector(-y * l, x * l); }
 	};
+	
+	//! Dump a vector to a stream
+	std::ostream & operator << (std::ostream & outs, const Vector &vector);
 	
 	//! A point in a 2D space, another name for a vector
 	/*! \ingroup an */

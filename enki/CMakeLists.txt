@@ -1,6 +1,7 @@
 include_directories (${enki_SOURCE_DIR})
 
 add_library (enki
+	Geometry.cpp
 	Types.cpp
 	PhysicalEngine.cpp
 	BluetoothBase.cpp
