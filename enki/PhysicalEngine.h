@@ -243,6 +243,7 @@ namespace Enki
 		inline double _infraredReflectiveness() const { return infraredReflectiveness; }
 		inline const Color& _color() const { return color; }
 		inline const Textures& _textures() const { return textures; }
+		inline bool isCylindric() const { return boundingSurface.empty(); }
 		//! Return the shape of the object in object coordinates. If shape is not defined, return an empty polygone.
 		inline const Polygone &getTrueBoundingSurface(void) const { return absBoundingSurface; }
 		
