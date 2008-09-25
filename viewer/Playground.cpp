@@ -55,9 +55,9 @@ class EnkiPlayground : public ViewerWidget
 protected:
 	#ifdef USE_SDL
 	QVector<SDL_Joystick *> joysticks;
+	#endif
 	QVector<EPuck*> epucks;
 	QMap<PhysicalObject*, int> bullets;
-	#endif
 	
 public:
 	EnkiPlayground(World *world, QWidget *parent = 0) :
