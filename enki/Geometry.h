@@ -36,11 +36,13 @@
 
 #ifdef WIN32
 #define _USE_MATH_DEFINES
+#define NOMINMAX
 #endif
 #include <cmath>
 #include <vector>
 #include <limits>
 #include <ostream>
+#include <algorithm>
 
 #ifdef _MSC_VER
 #define round(x) floor((x) + 0.5)
@@ -260,7 +262,7 @@ namespace Enki
 		{
 			double radius = 0;
 			for (size_t i = 0; i < size(); i++)
-				radius = std::max(radius, (*this)[i].norm());
+				radius = std::max<double>(radius, (*this)[i].norm());
 			return radius;
 		}
 		
