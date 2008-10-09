@@ -810,7 +810,6 @@ namespace Enki
 				if (useWalls)
 					collideWithWalls(*i);
 				(*i)->finalizePhysicsInteractions(overSampledDt);
-				(*i)->step(overSampledDt);
 			}
 		}
 		
@@ -842,6 +841,7 @@ namespace Enki
 			
 			(*i)->finalizeLocalInteractions(dt);
 			(*i)->finalizeGlobalInteractions();
+			(*i)->step(dt);
 		}
 		if (bluetoothBase)
 			bluetoothBase->step(dt,this);
