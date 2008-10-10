@@ -52,7 +52,8 @@ namespace Enki
 	DifferentialWheeled::DifferentialWheeled(double distBetweenWheels, double maxSpeed, double noiseAmount) :
 		distBetweenWheels(distBetweenWheels),
 		maxSpeed(maxSpeed),
-		noiseAmount(noiseAmount)
+		noiseAmount(noiseAmount),
+		cmdAngSpeed(0)
 	{
 		leftSpeed = rightSpeed = 0;
 		resetEncoders();
@@ -84,11 +85,8 @@ namespace Enki
 			return v;
 	}
 	
-	void DifferentialWheeled::step(double dt)
+	void DifferentialWheeled::controlStep(double dt)
 	{
-		// handle physic
-		PhysicalObject::step(dt);
-		
 		// +/- noiseAmout % of motor noise
 		double baseFactor = 1 - noiseAmount;
 		double noiseFactor = 2 * noiseAmount;
@@ -97,57 +95,25 @@ namespace Enki
 		double realRightSpeed = clamp(rightSpeed, -maxSpeed, maxSpeed);
 		realRightSpeed  *= (baseFactor + random.getRange(noiseFactor));
 		
-		/*// NOTE: if we seems to need a better model, have a look at the commented code, but the latter tuning for sure
-		Vector force = ((oldSpeed - speed) / dt) * mass;
-		if (force.norm2() > staticFrictionThreshold * staticFrictionThreshold)
-		{*/
-			// non slipping, override speed
-			double forwardSpeed =  (realLeftSpeed + realRightSpeed) * 0.5;
-			angSpeed = (realRightSpeed - realLeftSpeed) / distBetweenWheels;
-			speed = Vector(
-							forwardSpeed * cos(angle + angSpeed * dt * 0.5),
-							forwardSpeed * sin(angle + angSpeed * dt * 0.5)
-					);
-		/*}
-		else
-		{
-			// slipping, add speed difference
-			
-			// speeds of the contact points, we cannot transfer more speed that we do have
-			double speedInDir = speed * Vector(cos(angle), sin(angle));
-			double leftContactSpeed = clamp(speedInDir - distBetweenWheels * 0.5 * angSpeed - realLeftSpeed, abs(realLeftSpeed));
-			double rightContactSpeed = clamp(speedInDir + distBetweenWheels * 0.5 * angSpeed - realRightSpeed, abs(realRightSpeed));
-				
-			// we use a non sleeping wheel model, and we directly affect pos
-			// speeds, according to Prof. Roland Siegwart class material
-			double forwardSpeed = - (leftContactSpeed + rightContactSpeed) * 0.5;
-			angSpeed += (leftContactSpeed - rightContactSpeed) / distBetweenWheels;
-			speed += Vector(
-							forwardSpeed * cos(angle + angSpeed * dt * 0.5),
-							forwardSpeed * sin(angle + angSpeed * dt * 0.5)
-					);
-		}
-		
-		oldSpeed = speed;*/
-		
-		// NOTE: affecting pos does not work as the speed is not transfered upon collision
-		
-		/*// We use a model of constant force in opposite direction than movement
-		// This is very simple but the full model is way too complex and requires too many experimentation.
-		// Note: even this simple model is bad
-		double leftThrust= -sgn(leftContactSpeed) * contactPointThrust;
-		double rightThrust = -sgn(rightContactSpeed) * contactPointThrust;
-		double totalThrust = leftThrust + rightThrust;
-		double diffThrust = rightThrust - leftThrust;
-		acc += Vector(totalThrust * cos(angle), totalThrust * sin(angle)) / mass;
-		angAcc += (diffThrust * distBetweenWheels * 0.5) / momentOfInertia;
-		*/
+		// set non slipping, override speed
+		double forwardSpeed =  (realLeftSpeed + realRightSpeed) * 0.5;
+		cmdAngSpeed = (realRightSpeed - realLeftSpeed) / distBetweenWheels;
+		cmdSpeed = Vector(
+						forwardSpeed * cos(angle + angSpeed * dt * 0.5),
+						forwardSpeed * sin(angle + angSpeed * dt * 0.5)
+				);
 		
 		// Compute encoders
 		leftEncoder = realLeftSpeed;
 		rightEncoder = realRightSpeed;
 		leftOdometry += leftEncoder * dt;
 		rightOdometry += rightEncoder * dt;
+	}
+	
+	void DifferentialWheeled::applyForces(double dt)
+	{
+		angSpeed = cmdAngSpeed;
+		speed = cmdSpeed;
 	}
 }
 

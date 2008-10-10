@@ -346,11 +346,8 @@ namespace Enki
 		commitPhysicalParameters();
 	}
 
-	void Alice::step(double dt) 
+	void Alice::controlStep(double dt) 
 	{
-		// handle physics
-		PhysicalObject::step(dt);
-		
 		double realLeftSpeed, realRightSpeed;
 		
 		// rightSpeed/leftSpeed are the speeds as given by the NN output 

@@ -131,9 +131,9 @@ namespace Enki
 		return worldFrequenciesState;
 	}
 		
-	void FeedableSbot::step(double dt)
+	void FeedableSbot::controlStep(double dt)
 	{
-		DifferentialWheeled::step(dt);
+		DifferentialWheeled::controlStep(dt);
 		
 		// clear dEnergy for next step
 		energy += dEnergy * dt;

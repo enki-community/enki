@@ -49,6 +49,7 @@ namespace Enki
 		double leftSpeed;
 		//! Reft speed of the robot
 		double rightSpeed;
+		
 		//! The encoder for left wheel; this is not a real encoder, but rather the physical leftSpeed
 		double leftEncoder;
 		//! The encoder for right wheel; this is not a real encoder, but rather the physical rightSpeed
@@ -66,6 +67,12 @@ namespace Enki
 		//! Relative amount of motor noise
 		double noiseAmount;
 		
+	private:
+		//! Resulting angular speed from wheels
+		double cmdAngSpeed;
+		//! Resulting tangent speed from wheels
+		Vector cmdSpeed;
+		
 	public:
 		//! Constructor
 		DifferentialWheeled(double distBetweenWheels, double maxSpeed, double noiseAmount);
@@ -74,7 +81,9 @@ namespace Enki
 		void resetEncoders();
 		
 		//! Set the real speed of the robot given leftSpeed and rightSpeed. Add noise. Update encoders.
-		virtual void step(double dt);
+		virtual void controlStep(double dt);
+		//! Consider that robot wheels have immoblile contact points with ground, and override speeds. This kills three objects dynamics, but is good enough for the type of simulation Enki covers (and the correct solution is immensely more complex)
+		virtual void applyForces(double dt);
 	};
 }
 

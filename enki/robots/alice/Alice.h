@@ -117,7 +117,7 @@ namespace Enki
 		//! Create an Alice with certain modules aka capabilities (basic, advanced, camera, communication, sound)
 		Alice(unsigned capabilities = CAPABILITIY_BASIC_SENSORS);
 		//! Call Alice::controlStep and do all the calculations
-		void step(double dt);
+		void controlStep(double dt);
 	};
 }
 

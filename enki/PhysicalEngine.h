@@ -267,8 +267,12 @@ namespace Enki
 	protected:
 		// Physical Actions
 		
-		//! A physics simulation step for this object. It is considered as deinterlaced. The position and orientation are updated, and speed is reduced according to friction.
-		virtual void step(double dt);
+		//! A physics simulation step for this object. It is considered as deinterlaced. The position and orientation are updated.
+		virtual void physicsStep(double dt);
+		//! Control step, not oversampled
+		virtual void controlStep(double dt) { }
+		//! Apply forces, typically friction to reduce speed, but one can override to change behaviour.
+		virtual void applyForces(double dt);
 
 		//! Initialize the collision logic
 		void initPhysicsInteractions();

@@ -211,7 +211,27 @@ namespace Enki
 			return 0;
 	}
 
-	void PhysicalObject::step(double dt)
+	void PhysicalObject::physicsStep(double dt)
+	{
+		applyForces(dt);
+		
+		pos += speed * dt;
+		angle += angSpeed * dt;
+		
+		/* TODO: Runge-Kutta
+			but this needs a refactoring in order to harvest equations up to now.
+			furthermore, we have a so simple model that it is seldom useful for now.
+		xn+1 = xn + h⁄6 (a + 2 b + 2 c + d)  where 
+		a = f (tn, xn)
+		b = f (tn + h⁄2, xn + h⁄2 a)
+		c = f (tn + h⁄2, xn + h⁄2 b)
+		d = f (tn + h, xn + h c)
+		*/
+		
+		angle = normalizeAngle(angle);
+	}
+	
+	void PhysicalObject::applyForces(double dt)
 	{
 		/*
 		Temporary not used as there is no intrinsic force for now
@@ -255,20 +275,6 @@ namespace Enki
 		// el cheapos integration
 		speed += acc * dt;
 		angSpeed += angAcc * dt;
-		pos += speed * dt;
-		angle += angSpeed * dt;
-		
-		/* TODO: Runge-Kutta
-			but this needs a refactoring in order to harvest equations up to now.
-			furthermore, we have a so simple model that it is seldom useful for now.
-		xn+1 = xn + h⁄6 (a + 2 b + 2 c + d)  where 
-		a = f (tn, xn)
-		b = f (tn + h⁄2, xn + h⁄2 a)
-		c = f (tn + h⁄2, xn + h⁄2 b)
-		d = f (tn + h, xn + h c)
-		*/
-		
-		angle = normalizeAngle(angle);
 	}
 
 	void PhysicalObject::initPhysicsInteractions()
@@ -804,12 +810,13 @@ namespace Enki
 	
 			collideEven = !collideEven;
 	
-			// collide objects with walls and step
+			// collide objects with walls and physics step
 			for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 			{
 				if (useWalls)
 					collideWithWalls(*i);
 				(*i)->finalizePhysicsInteractions(overSampledDt);
+				(*i)->physicsStep(overSampledDt);
 			}
 		}
 		
@@ -832,7 +839,7 @@ namespace Enki
 			}
 		}
 
-		// collide objects with walls and step
+		// interract objects with walls and control step
 		for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 		{
 			if (useWalls)
@@ -841,10 +848,10 @@ namespace Enki
 			
 			(*i)->finalizeLocalInteractions(dt);
 			(*i)->finalizeGlobalInteractions();
-			(*i)->step(dt);
+			(*i)->controlStep(overSampledDt);
 		}
 		if (bluetoothBase)
-			bluetoothBase->step(dt,this);
+			bluetoothBase->step(dt, this);
 	}
 	
 	void World::addObject(PhysicalObject *o)

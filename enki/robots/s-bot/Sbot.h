@@ -129,7 +129,7 @@ namespace Enki
 		//! Constructor
 		FeedableSbot() { energy=0; dEnergy=0; lastDEnergy=0; }
 		//! Call DifferentialWheeled::step and compute the new energy
-		virtual void step(double dt) ;
+		virtual void controlStep(double dt) ;
 	};
 
 
