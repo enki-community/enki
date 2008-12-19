@@ -86,7 +86,7 @@ namespace Enki
 		virtual double operator()(double dist, const Color &color)
 		{
 			if (dist<0.5)
-				dist = -440*dist+3000;
+				dist = -440*dist+2965.98144;
 			else
 				dist = 4526*exp(-0.9994*dist);
 			
