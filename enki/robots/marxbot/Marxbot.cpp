@@ -71,7 +71,6 @@ namespace Enki
 	double Marxbot::getVirtualBumper(unsigned number)
 	{
 		assert(number < 24);
-		// physical sensors begin at front (TODO: check)
 		unsigned physicalNumber = (24 + 12 - number) % 24;
 		return marxbotVirtualBumperResponseFunction(sqrt(rotatingDistanceSensor.zbuffer[(physicalNumber * 180) / 24]) - _radius());
 	}

@@ -86,13 +86,12 @@ namespace Enki
 		virtual double operator()(double dist, const Color &color)
 		{
 			if (dist<0.5)
-				dist=-440*dist+3000;
-			else if (dist>=0.5 && dist<=9)
-				dist=4526*exp(-0.9994*dist);
+				dist = -440*dist+3000;
 			else
-				dist=random.getRange(20.0);
+				dist = 4526*exp(-0.9994*dist);
 			
-			dist*=(0.97+random.getRange(0.06));
+			dist *= (0.97 + random.getRange(0.06));
+			dist += random.getRange(20.0);
 			
 			return dist;
 		}
