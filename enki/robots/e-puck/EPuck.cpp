@@ -147,13 +147,10 @@ namespace Enki
 		//staticFrictionThreshold = 0.5;
 		dryFrictionCoefficient = 0.25;
 		dryFrictionCoefficient = 2.5;
-		mass = 152;
-		r = 3.7;
-		height = 4.7;
-		color = Color(0, 0.7, 0);
-		infraredReflectiveness = 1.; // 0.6 of infraredReflectiveness would be more realistic
 		
-		commitPhysicalParameters();
+		setCylindric(3.7, 4.7, 152);
+		setColor(Color(0, 0.7, 0));
+		// 0.6 of infraredReflectiveness would be more realistic instead of the default 1
 	}
 	
 	EPuck::~EPuck()

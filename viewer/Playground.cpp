@@ -63,32 +63,33 @@ public:
 	EnkiPlayground(World *world, QWidget *parent = 0) :
 		ViewerWidget(world, parent)
 	{
-		PhysicalObject* o = new PhysicalObject;
+		
 		
 		const double amount = 9;
 		const double radius = 5;
 		const double height = 20;
-		Polygone p;
-		for (double a = 0; a < 2*M_PI; a += 2*M_PI/amount)
-			p.push_back(Point(radius * cos(a), radius * sin(a)));
 		
-		o->setShape(p, height);
-		//o->setCylindric(5., height);
-		o->setMass(-1);
-		//o->setMass(100);
-		o->pos = Point(100, 100);
-		o->setColor(Color(0.4,0.6,0.8));
-		o->commitPhysicalParameters();
-		world->addObject(o);
+		{
+			Polygone p;
+			for (double a = 0; a < 2*M_PI; a += 2*M_PI/amount)
+				p.push_back(Point(radius * cos(a), radius * sin(a)));
+			
+			PhysicalObject::Parts parts;
+			parts.push_back(Enki::PhysicalObject::Part(p, height));
+			PhysicalObject* o = new PhysicalObject;
+			o->setCustomHull(parts, -1);
+			o->setColor(Color(0.4,0.6,0.8));
+			o->pos = Point(100, 100);
+			world->addObject(o);
+		}
 		
 		for (int i = 0; i < 20; i++)
 		{
 			PhysicalObject* o = new PhysicalObject;
 			o->pos = Point(UniformRand(20, 100)(), UniformRand(20, 100)());
-			o->setMass(10);
+			o->setCylindric(1, 1, 10);
 			o->setColor(Color(0.9, 0.2, 0.2));
 			o->dryFrictionCoefficient = 0.01;
-			o->commitPhysicalParameters();
 			world->addObject(o);
 		}
 		
@@ -99,13 +100,26 @@ public:
 		p2.push_back(Point(5,-1));
 		for (int i = 0; i < 5; i++)
 		{
+			PhysicalObject::Parts parts;
+			parts.push_back(Enki::PhysicalObject::Part(p2, 3));
 			PhysicalObject* o = new PhysicalObject;
-			o->pos = Point(UniformRand(20, 100)(), UniformRand(20, 100)());
-			o->setShape(p2, 3);
-			o->setMass(30);
+			o->setCustomHull(parts, 30);
 			o->setColor(Color(0.2, 0.1, 0.6));
 			o->collisionElasticity = 0.2;
-			o->commitPhysicalParameters();
+			o->pos = Point(UniformRand(20, 100)(), UniformRand(20, 100)());
+			world->addObject(o);
+		}
+		
+		// triangle shape
+		{
+			PhysicalObject::Parts parts;
+			parts.push_back(Enki::PhysicalObject::Part(Polygone() << Point(5,1) << Point(-5,1) << Point(-5,-1) << Point(5,-1), 2));
+			parts.push_back(Enki::PhysicalObject::Part(Polygone() << Point(1,5) << Point(-1,5) << Point(-1,-5) << Point(1,-5), 4));
+			PhysicalObject* o = new PhysicalObject;
+			o->setCustomHull(parts, 60);
+			o->setColor(Color(0.2, 0.4, 0.6));
+			o->collisionElasticity = 0.2;
+			o->pos = Point(UniformRand(20, 100)(), UniformRand(20, 100)());
 			world->addObject(o);
 		}
 		
@@ -193,12 +207,10 @@ public:
 				Vector delta(cos(epuck->angle), sin(epuck->angle));
 				o->pos = epuck->pos + delta * 6;
 				o->speed = epuck->speed + delta * 30;
-				o->setCylindric(0.5, 0.5);
-				o->setMass(1000);
+				o->setCylindric(0.5, 0.5, 1000);
 				o->dryFrictionCoefficient = 0.01;
 				o->setColor(Color(0.4, 0, 0));
 				o->collisionElasticity = 1;
-				o->commitPhysicalParameters();
 				bullets[o] = 300;
 				world->addObject(o);
 			}

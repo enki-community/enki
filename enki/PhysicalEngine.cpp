@@ -48,30 +48,82 @@ namespace Enki
 {
 	FastRandom random;
 	
+	// PhysicalObject::Part
+	
+	PhysicalObject::Part::Part(const Polygone& shape, double height) :
+		height(height),
+		shape(shape)
+	{
+		transformedShape.resize(shape.size());
+	}
+	
+	PhysicalObject::Part::Part(const Polygone& shape, double height, const Textures& textures) :
+		height(height),
+		shape(shape),
+		textures(textures)
+	{
+		transformedShape.resize(shape.size());
+		
+		if (textures.size() != shape.size())
+		{
+			std::cerr << "Error: PhysicalObject::Part::Part: texture sides count " << textures.size() << " missmatch shape sides count " << shape.size() << std::endl;
+			std::cerr << "\tignoring textures for this object" << std::endl;
+			this->textures.clear();
+			return;
+		}
+		
+		for (size_t i = 0; i < textures.size(); ++i)
+		{
+			if (textures[i].size() == 0)
+			{
+				std::cerr << "Error: PhysicalObject::Part::Part: texture for side " << i << " contains no data" << std::endl;
+				std::cerr << "\tignoring textures for this object" << std::endl;
+				this->textures.clear();
+				return;
+			}
+		}
+	}
+	
+	PhysicalObject::Part::Part(double l1, double l2, double height) :
+		height(height)
+	{
+		double hl1 = l1 / 2;
+		double hl2 = l2 / 2;
+		shape << Point(-hl1, -hl2) << Point(hl1, -hl2) << Point(hl1, hl2) << Point(-hl1, hl2);
+		transformedShape.resize(shape.size());
+	}
+	
+	void PhysicalObject::Part::updateRadius(double& radius)
+	{
+		for (size_t i = 0; i < 4; i++)
+			radius = std::max(radius, shape[i].norm());
+	}
+		
+	void PhysicalObject::Part::computeTransformedShape(const Matrix22& rot, const Point& trans)
+	{
+		assert(!shape.empty());
+		assert(transformedShape.size() == shape.size());
+		for (size_t i = 0; i < shape.size(); ++i)
+			transformedShape[i] = rot * (shape)[i] + trans;
+	}
+	
+	
+	// PhysicalObject
+	
 	const double PhysicalObject::g = 9.81;
 	
-	PhysicalObject::PhysicalObject(void)
-	{
-		userData = NULL;
-		
+	PhysicalObject::PhysicalObject(void) :
+		userData(NULL),
 		// default physical parameters
-		collisionElasticity = 0.9;
-		//staticFrictionThreshold = 0.5;
-		dryFrictionCoefficient = 0.25;
-		viscousFrictionCoefficient = 0.01;
-		viscousMomentFrictionCoefficient = 0.01;
-		
-		angle = 0;
-		
-		angSpeed = 0;
-		
-		mass = 1;
-		
-		r = 1;
-		height = 1;
-		
-		infraredReflectiveness = 1;
-		color = Color::black;
+		collisionElasticity(0.9),
+		dryFrictionCoefficient(0.25),
+		viscousFrictionCoefficient(0.01),
+		viscousMomentFrictionCoefficient(0.01),
+		angle(0),
+		angSpeed(0),
+		infraredReflectiveness(1)
+	{
+		setCylindric(1, 1, 1);
 	}
 	
 	PhysicalObject::~PhysicalObject(void)
@@ -82,14 +134,69 @@ namespace Enki
 		}
 	}
 	
-	void PhysicalObject::commitPhysicalParameters()
+	void PhysicalObject::setCylindric(double radius, double height, double mass)
 	{
+		// remove any hull
+		hull.clear();
+		this->height = height;
+		
+		// update the physical and interaction radius
+		r = radius;
+		
+		// set the mass
+		this->mass = mass;
+		
+		// update the moment of inertia
 		computeMomentOfInertia();
+	}
+	
+	void PhysicalObject::setRectangular(double l1, double l2, double height, double mass)
+	{
+		// assign a new hull
+		hull.resize(1, Part(l1, l2, height));
+		this->height = height;
+		
+		// compute the center of mass
+		setupCenterOfMass();
+		
+		// set the mass
+		this->mass = mass;
+		
+		// update the moment of inertia
+		computeMomentOfInertia();
+	}
+	
+	void PhysicalObject::setCustomHull(const Parts& hull, double mass)
+	{
+		// assign the new hull
+		this->hull = hull;
+		height = 0;
+		for (Parts::const_iterator it = hull.begin(); it != hull.end(); ++it)
+			height = std::max(height, it->getHeight());
+		
+		// compute the center of mass
+		setupCenterOfMass();
+		
+		// set the mass
+		this->mass = mass;
+		
+		// update the moment of inertia
+		computeMomentOfInertia();
+	}
+	
+	void PhysicalObject::setColor(const Color &color)
+	{
+		this->color = color;
+	}
+	
+	void PhysicalObject::setInfraredReflectiveness(double value)
+	{
+		this->infraredReflectiveness = value;
 	}
 	
 	void PhysicalObject::computeMomentOfInertia()
 	{
-		if (boundingSurface.empty())
+		if (hull.empty())
 		{
 			momentOfInertia = 0.5 * mass * r * r;
 		}
@@ -101,49 +208,30 @@ namespace Enki
 			double dr = r / 50.;
 			for (double ix = -r; ix < r; ix += dr)
 				for (double iy = -r; iy < r; iy += dr)
-					if (boundingSurface.isPointInside(Point(ix, iy)))
-					{
-						momentOfInertia += ix * ix + iy * iy;
-						area++;
-					}
+					for (Parts::const_iterator it = hull.begin(); it != hull.end(); ++it)
+						if (it->shape.isPointInside(Point(ix, iy)))
+						{
+							momentOfInertia += ix * ix + iy * iy;
+							area++;
+						}
 			
 			momentOfInertia *= mass / area;
 		}
 	}
 	
-	void PhysicalObject::setMass(double mass)
+	void PhysicalObject::setupCenterOfMass()
 	{
-		this->mass = mass;
-	}
-	
-	void PhysicalObject::setCylindric(double radius, double height)
-	{
-		r = radius;
-		boundingSurface.clear();
-		this->height = height;
-	}
-	
-	void PhysicalObject::setRectangular(double l1, double l2, double height)
-	{
-		boundingSurface.clear();
-		double hl1 = l1 / 2;
-		double hl2 = l2 / 2;
-		boundingSurface << Point(-hl1, -hl2) << Point(hl1, -hl2) << Point(hl1, hl2) << Point(-hl1, hl2);
-		r = 0;
-		for (size_t i=0; i<4; i++)
-			r = std::max(r, boundingSurface[i].norm());
+		if (hull.empty())
+			return;
 		
-		textures.resize(4, Texture(color, 1));
-		
-		this->height = height;
-	}
-	
-	void PhysicalObject::setupBoundingSurface(const Polygone& boundingSurface)
-	{
-		// get bounding box
+		// get bounding box of the whole hull
 		Point bottomLeft, topRight;
-		bool validBB = boundingSurface.getAxisAlignedBoundingBox(bottomLeft, topRight);
+		Parts::iterator it = hull.begin();
+		bool validBB = it->shape.getAxisAlignedBoundingBox(bottomLeft, topRight);
 		assert(validBB);
+		++it;
+		for (;it != hull.end(); ++it)
+			it->shape.extendAxisAlignedBoundingBox(bottomLeft, topRight);
 		
 		// numerically compute the center of mass of the shape
 		Point cm;
@@ -152,54 +240,38 @@ namespace Enki
 		double dy = (topRight-bottomLeft).y / 100;
 		for (double ix = bottomLeft.x; ix < topRight.x; ix += dx)
 			for (double iy = bottomLeft.y; iy < topRight.y; iy += dy)
-			{
-				if (boundingSurface.isPointInside(Point(ix, iy)))
-				{
-					cm.x += ix;
-					cm.y += iy;
-					area++;
-				}
-			}
+				for (it = hull.begin(); it != hull.end(); ++it)
+					if (it->shape.isPointInside(Point(ix, iy)))
+					{
+						cm.x += ix;
+						cm.y += iy;
+						area++;
+					}
+		assert(area != 0);
 		cm /= area;
 		area = area / (dx * dy);
 		
-		// copy bounding surface such that it is centered around center of mass
-		size_t faceCount = boundingSurface.size();
-		textures.resize(faceCount, Texture(color, 1));
-		this->boundingSurface.resize(faceCount);
+		// shift all shapes to the CM
+		pos += cm;
 		r = 0;
-		for (size_t i=0; i<faceCount; i++)
+		for (it = hull.begin(); it != hull.end(); ++it)
 		{
-			this->boundingSurface[i] = boundingSurface[i] - cm;
-			r = std::max(r, this->boundingSurface[i].norm());
+			it->shape.translate(-cm);
+			it->updateRadius(r);
 		}
 	}
 	
-	void PhysicalObject::setShape(const Polygone& boundingSurface, double height)
+	void PhysicalObject::computeTransformedShape()
 	{
-		this->height = height;
-		
-		setupBoundingSurface(boundingSurface);
+		if (!hull.empty())
+		{
+			Matrix22 rotMat(angle);
+			for (Parts::iterator it = hull.begin(); it != hull.end(); ++it)
+				it->computeTransformedShape(rotMat, pos);
+		}
 	}
 	
-	void PhysicalObject::setColor(const Color &color)
-	{
-		this->color = color;
-		if (!boundingSurface.empty())
-			for (size_t i=0; i<boundingSurface.size(); i++)
-				textures[i].resize(1, color);
-	}
 	
-	void PhysicalObject::setTextures(const Texture* textures)
-	{
-		for (size_t i=0; i<boundingSurface.size(); i++)
-			this->textures[i] = textures[i];
-	}
-	
-	void PhysicalObject::setInfraredReflectiveness(double infraredReflectiveness)
-	{
-		this->infraredReflectiveness = infraredReflectiveness;
-	}
 	
 	static double sgn(double v)
 	{
@@ -279,27 +351,15 @@ namespace Enki
 
 	void PhysicalObject::initPhysicsInteractions()
 	{
-		computeAbsBoundingSurface();
+		computeTransformedShape();
 	}
 
 	void PhysicalObject::finalizePhysicsInteractions(double dt)
 	{
 		// do nothing for now
 	}
-
-	void PhysicalObject::computeAbsBoundingSurface(void)
-	{
-		if (!boundingSurface.empty())
-		{
-			absBoundingSurface.resize(boundingSurface.size());
-			Matrix22 rotMat(angle);
-			for (size_t i=0; i<boundingSurface.size(); i++)
-			{
-				Point realPoint = rotMat*(boundingSurface)[i] + pos;
-				absBoundingSurface[i] = realPoint;
-			}
-		}
-	}
+	
+	
 	
 	void PhysicalObject::collideWithStaticObject(const Vector &n, const Point &cp)
 	{
@@ -427,7 +487,7 @@ namespace Enki
 		for (size_t i=0; i<localInteractions.size(); i++)
 		{
 			Vector vectCenter(this->pos.x - po->pos.x, this->pos.y - po->pos.y );
-			if (vectCenter.norm2() <  (localInteractions[i]->r+po->_radius())*(localInteractions[i]->r+po->_radius()))
+			if (vectCenter.norm2() <  (localInteractions[i]->r+po->getRadius())*(localInteractions[i]->r+po->getRadius()))
 				localInteractions[i]->objectStep(dt, po, w);
 			else 
 				return;
@@ -526,15 +586,8 @@ namespace Enki
 
 	void World::collideWithWalls(PhysicalObject *object)
 	{
-		// let's assume walls are infinite
-		Vector dist1, dist2;
-		Point cp1, cp2; // cp1 is on x, cp2 is on y
-		Vector n1, n2;
-
-		// collision on x
-		
 		// object is circle only
-		if (object->boundingSurface.empty())
+		if (object->hull.empty())
 		{
 			double x = object->pos.x;
 			double y = object->pos.y;
@@ -562,103 +615,110 @@ namespace Enki
 		}
 		else
 		{
-			const Polygone &bs = object->getTrueBoundingSurface();
-			Vector cp;
-			
-			double dist = 0;
-			double n = 0;
-			for (unsigned i=0; i<bs.size(); i++)
+			// iterate over all shapes
+			for (PhysicalObject::Parts::const_iterator it = object->hull.begin(); it != object->hull.end(); ++it)
 			{
-				double x = bs[i].x;
-				double y = bs[i].y;
-				if (x < -dist)
+				const Polygone& shape = it->getTransformedShape();
+				
+				// let's assume walls are infinite
+				Point cp1, cp2; // cp1 is on x, cp2 is on y
+				Vector cp;
+				
+				double dist = 0;
+				double n = 0;
+				for (size_t i=0; i<shape.size(); i++)
 				{
-					dist = -x;
-					cp.x = 0;
-					cp.y = y;
-					n = 1;
+					double x = shape[i].x;
+					double y = shape[i].y;
+					if (x < -dist)
+					{
+						dist = -x;
+						cp.x = 0;
+						cp.y = y;
+						n = 1;
+					}
+					if (x-w > -dist)
+					{
+						dist = w-x;
+						cp.x = w;
+						cp.y = y;
+						n = -1;
+					}
 				}
-				if (x-w > -dist)
+				if (dist != 0)
 				{
-					dist = w-x;
-					cp.x = w;
-					cp.y = y;
-					n = -1;
+					object->collideWithStaticObject(Vector(n, 0), cp);
+					object->pos.x += dist;
 				}
-			}
-			if (dist != 0)
-			{
-				object->collideWithStaticObject(Vector(n, 0), cp);
-				object->pos.x += dist;
-			}
-			
-			dist = 0;
-			n = 0;
-			for (unsigned i=0; i<bs.size(); i++)
-			{
-				double x = bs[i].x;
-				double y = bs[i].y;
-				if (y < -dist)
+				
+				dist = 0;
+				n = 0;
+				for (size_t i=0; i<shape.size(); i++)
 				{
-					dist = -y;
-					cp.x = x;
-					cp.y = 0;
-					n = 1;
+					double x = shape[i].x;
+					double y = shape[i].y;
+					if (y < -dist)
+					{
+						dist = -y;
+						cp.x = x;
+						cp.y = 0;
+						n = 1;
+					}
+					if (y-h > -dist)
+					{
+						dist = h-y;
+						cp.x = x;
+						cp.y = h;
+						n = -1;
+					}
 				}
-				if (y-h > -dist)
+				if (dist != 0)
 				{
-					dist = h-y;
-					cp.x = x;
-					cp.y = h;
-					n = -1;
+					object->collideWithStaticObject(Vector(0, n), cp);
+					object->pos.y += dist;
 				}
-			}
-			if (dist != 0)
-			{
-				object->collideWithStaticObject(Vector(0, n), cp);
-				object->pos.y += dist;
 			}
 		}
 	}
 
-	void World::collideCircleWithBS(PhysicalObject *circle, PhysicalObject *objectBS, const Polygone &bs)
+	void World::collideCircleWithShape(PhysicalObject *circularObject, PhysicalObject *shapedObject, const Polygone &shape)
 	{
-		// test if circle is inside BS
-		for (unsigned i=0; i<bs.size(); i++)
+		// test if circularObject is inside a shape
+		for (unsigned i=0; i<shape.size(); i++)
 		{
-			unsigned next=(i+1)%bs.size();
-			Segment s(bs[i].x, bs[i].y, bs[next].x, bs[next].y);
+			unsigned next=(i+1)%shape.size();
+			Segment s(shape[i].x, shape[i].y, shape[next].x, shape[next].y);
 
 			Vector nn(s.a.y-s.b.y, s.b.x-s.a.x);	//orthog. vector
 			Vector u = nn.unitary();
 
-			double d = (circle->pos-s.a)*u;
-			// if we are inside the circle
-			if ((d<0) && (-d<circle->r))
+			double d = (circularObject->pos-s.a)*u;
+			// if we are inside the circularObject
+			if ((d<0) && (-d<circularObject->r))
 			{
-				Point proj = circle->pos - u*d;
+				Point proj = circularObject->pos - u*d;
 
 				if ((((proj-s.a)*(s.b-s.a))>0) && (((proj-s.b)*(s.a-s.b))>0))
 				{
-					// if there is a segment which is inside the circle, and the projection of the center lies within this segment, this projection is the nearest point. So we return. This is a consequence of having convexe polygones.
-					Vector dist = u*-(circle->r+d);
-					Point collisionPoint = circle->pos - u*(d);
-					circle->collideWithObject(*objectBS, collisionPoint, dist);
+					// if there is a segment which is inside the circularObject, and the projection of the center lies within this segment, this projection is the nearest point. So we return. This is a consequence of having convexe polygones.
+					Vector dist = u*-(circularObject->r+d);
+					Point collisionPoint = circularObject->pos - u*(d);
+					circularObject->collideWithObject(*shapedObject, collisionPoint, dist);
 					return;
 				}
 			}
 		}
 
-		double r2 = circle->r * circle->r;
+		double r2 = circularObject->r * circularObject->r;
 		double pointInsideD2 = r2;
 		Point pointInside;
 		Vector centerToPointInside;
 		
-		// test if there is vertex of BS is inside the circle. If so, take the closest to the center
-		for (unsigned i=0; i<bs.size(); i++)
+		// test if there is vertex of shape is inside the circularObject. If so, take the closest to the center
+		for (unsigned i=0; i<shape.size(); i++)
 		{
-			const Point &candidate = bs[i];
-			Vector centerToPoint = candidate - circle->pos;
+			const Point &candidate = shape[i];
+			Vector centerToPoint = candidate - circularObject->pos;
 			double d2 = centerToPoint.norm2();
 			if (d2 < pointInsideD2)
 			{
@@ -668,13 +728,13 @@ namespace Enki
 			}
 		}
 
-		// we get a collision, one point of BS is inside the circle
+		// we get a collision, one point of shape is inside the circularObject
 		if (pointInsideD2 < r2)
 		{
 			double pointInsideDist = sqrt(pointInsideD2);
-			Vector dist = (centerToPointInside / pointInsideDist) * (circle->r - pointInsideDist);
+			Vector dist = (centerToPointInside / pointInsideDist) * (circularObject->r - pointInsideDist);
 			Point collisionPoint = pointInside + dist;
-			objectBS->collideWithObject(*circle, collisionPoint, dist);
+			shapedObject->collideWithObject(*circularObject, collisionPoint, dist);
 		}
 	}
 
@@ -686,9 +746,6 @@ namespace Enki
 		if (distOCtoOC.norm2() > (addedRay*addedRay))
 			return;
 
-		const Polygone &bs1 = object1->getTrueBoundingSurface();
-		const Polygone &bs2 = object2->getTrueBoundingSurface();
-		
 		Vector dist, trueDist;
 		PhysicalObject *o1, *o2;
 		o1 = o2 = NULL;
@@ -696,37 +753,65 @@ namespace Enki
 		double maxNorm = 0;
 
 		// for each point of object 1, look if it is in object2
-		if (!object1->boundingSurface.empty())
+		if (!object1->hull.empty())
 		{
-			if (!object2->boundingSurface.empty())
+			if (!object2->hull.empty())
 			{
-				for (unsigned i=0; i<bs1.size(); i++)
-				{
-					const Point &candidate = bs1[i];
-					if (isPointInside(candidate, object1->pos, bs2, &dist))
+				// iterate on all shapes of both objects
+				for (PhysicalObject::Parts::const_iterator it = object1->hull.begin(); it != object1->hull.end(); ++it)
+					for (PhysicalObject::Parts::const_iterator jt = object2->hull.begin(); jt != object2->hull.end(); ++jt)
 					{
-						if (dist.norm2() > maxNorm)
+						const Polygone& shape1 = it->getTransformedShape();
+						const Polygone& shape2 = jt->getTransformedShape();
+						// TODO: move this into a polygone collision function
+						
+						// look in both directions
+						for (size_t i = 0; i < shape1.size(); i++)
 						{
-							maxNorm = dist.norm2();
-							o1 = object1;
-							o2 = object2;
-							collisionPoint = candidate + dist;
-							trueDist = dist;
+							const Point &candidate = shape1[i];
+							if (isPointInside(candidate, object1->pos, shape2, &dist))
+							{
+								if (dist.norm2() > maxNorm)
+								{
+									maxNorm = dist.norm2();
+									o1 = object1;
+									o2 = object2;
+									collisionPoint = candidate + dist;
+									trueDist = dist;
+								}
+							}
+						}
+						
+						for (size_t i=0; i < shape2.size(); i++)
+						{
+							const Point &candidate = shape2[i];
+							if (isPointInside(candidate, object2->pos, shape1, &dist))
+							{
+								if (dist.norm2() > maxNorm)
+								{
+									maxNorm = dist.norm2();
+									o2 = object1;
+									o1 = object2;
+									collisionPoint = candidate + dist;
+									trueDist = dist;
+								}
+							}
 						}
 					}
-				}
 			}
 			else
 			{
-				// collide circle 2 on bs1
-				collideCircleWithBS(object2, object1, bs1);
+				// collide circle 2 on shape 1
+				for (PhysicalObject::Parts::const_iterator it = object1->hull.begin(); it != object1->hull.end(); ++it)
+					collideCircleWithShape(object2, object1, it->getTransformedShape());
 				return;
 			}
 		}
-		else if (!object2->boundingSurface.empty())
+		else if (!object2->hull.empty())
 		{
-			// collide circle 1 on bs2
-			collideCircleWithBS(object1, object2, bs2);
+			// collide circle 1 on shape 2
+			for (PhysicalObject::Parts::const_iterator jt = object2->hull.begin(); jt != object2->hull.end(); ++jt)
+				collideCircleWithShape(object1, object2, jt->getTransformedShape());
 			return;
 		}
 		else
@@ -747,26 +832,7 @@ namespace Enki
 			return;
 		}
 
-		// for each point of object 2, look if it is in object1
-		if (!object2->boundingSurface.empty())
-		{
-			for (unsigned i=0; i<bs2.size(); i++)
-			{
-				const Point &candidate = bs2[i];
-				if (isPointInside(candidate, object2->pos, bs1, &dist))
-				{
-					if (dist.norm2() > maxNorm)
-					{
-						maxNorm = dist.norm2();
-						o2 = object1;
-						o1 = object2;
-						collisionPoint = candidate + dist;
-						trueDist = dist;
-					}
-				}
-			}
-		}
-
+		// if collision
 		if (maxNorm)
 		{
 			assert(o1);

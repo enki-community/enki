@@ -328,10 +328,11 @@ namespace Enki
 		setBoundingSurface(&AP);
 		*/
 		// Use a predefined bounding surface
-		mass = 10;
-		height = 4;
-		setupBoundingSurface(aliceBoundingSurface.p);
-		color = Color::blue;
+		
+		Parts parts;
+		parts.push_back(Part(aliceBoundingSurface.p, 4));
+		setCustomHull(parts, 10);
+		setColor(Color::blue);
 
 		/*
 		I have removed the staticFrictionThreshold here as the hacked physics on which all this was based
@@ -342,8 +343,6 @@ namespace Enki
 		// we don't know which Alice is pushing which one)
 		//staticFrictionThreshold = 1.0;
 		*/
-		
-		commitPhysicalParameters();
 	}
 
 	void Alice::controlStep(double dt) 

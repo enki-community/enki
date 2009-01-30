@@ -78,33 +78,47 @@ namespace Enki
 	void CircularCam::objectStep(double dt, PhysicalObject *po, World *w) 
 	{
 		// if we see over the object
-		if (height > po->_height())
+		if (height > po->getHeight())
 			return;
 		
-		if (!po->_boundingSurface().empty())
+		if (!po->isCylindric())
 		{
-			// object has a bounding surface
-			size_t faceCount = po->_boundingSurface().size();
-			assert(faceCount == po->_textures().size()); // polygonal objects require textures
-			const Polygone &bs = po->getTrueBoundingSurface();
-			for (size_t i = 0; i<faceCount; i++)
+			// object has a hull
+			for (PhysicalObject::Parts::const_iterator it = po->getHull().begin(); it != po->getHull().end(); ++it)
 			{
-				drawTexturedLine(bs[i], bs[(i+1) % faceCount], po->_textures()[i]);
+				if (height > it->getHeight())
+					continue;
+				
+				const Polygone& shape = it->getTransformedShape();
+				const size_t faceCount = shape.size();
+				if (it->isTextured())
+				{
+					for (size_t i = 0; i<faceCount; i++)
+						drawTexturedLine(shape[i], shape[(i+1) % faceCount], it->getTextures()[i]);
+				}
+				else
+				{
+					Texture texture(1, po->getColor());
+					for (size_t i = 0; i<faceCount; i++)
+						drawTexturedLine(shape[i], shape[(i+1) % faceCount], texture);
+				}
 			}
 		}
 		else
 		{
 			// object has no bounding surface, monocolor
+			const double radius = po->getRadius();
+			const Color& color = po->getColor();
 			
 			// compute basic parameter
-			if (po->_radius() == 0)
+			if (radius == 0)
 				return;
 			Vector poCenter = po->pos - absPos;
 			double poDist = poCenter.norm();
 			if (poDist == 0)
 				return;
 			double poAngle = normalizeAngle(poCenter.angle() - absOrientation);
-			double poAperture = atan(po->_radius() / poDist);
+			double poAperture = atan(radius / poDist);
 			assert(poAperture > 0);
 			
 			// clip object
@@ -127,7 +141,7 @@ namespace Enki
 			for (size_t i = firstPixelUsed; i <= lastPixelUsed; i++)
 			{
 				// apply pixel operation to framebuffer
-				(*pixelOperation)(zbuffer[i], image[i], poDist2, po->_color());
+				(*pixelOperation)(zbuffer[i], image[i], poDist2, color);
 			}
 		}
 	};

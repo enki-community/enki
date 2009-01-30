@@ -177,54 +177,87 @@ namespace Enki
 	void IRSensor::objectStep (double dt, PhysicalObject *po, World *w)
 	{
 		// if we see over the object get out of here
-		if (height > po->_height())
+		if (height > po->getHeight())
 			return;
+		
+		const double radius = po->getRadius();
+		const double irReflectiveness = po->getInfraredReflectiveness();
+		const Color& color = po->getColor();
 
 		// if dist from center point of rays to obj is bigger than sum of obj radii, don't bother
 		Vector v = po->pos-absSmartPos;
-		double radiusSum = po->_radius() + smartRadius*po->_infraredReflectiveness();
+		double radiusSum = radius + smartRadius*irReflectiveness;
 		if (v.norm2() > (radiusSum * radiusSum))
 			return;
 
 		// Vector from sensor to object bounding circle center
 		Vector v1 = po->pos-absPos;
 		// Radius squared of object
-		double r2 = po->_radius() * po->_radius();
+		double r2 = radius * radius;
 		// The number of rays
-
-		// Calculate distance for each ray...
-		for (size_t i = 0; i<rayCount; i++)
+		
+		if (po->isCylindric())
 		{
-			double dist = HUGE_VAL;
-			// angle between sensor ray and v1
-			double myAngle = absRayAngles[i] - v1.angle();
-			double sine = sin(myAngle);
-			// normal distance of bounding circle center to sensor ray
-			double distsc2 = v1.norm2() * (sine * sine)*(1.0*po->_infraredReflectiveness());
-
-			// if there is an intersection with the object's bounding circle
-			if (distsc2 < r2)
+			// Calculate distance for each ray...
+			for (size_t i = 0; i<rayCount; i++)
 			{
-				// yes; does the object have a bounding polygon ...
-				if (!po->_boundingSurface().empty())
+				double dist = HUGE_VAL;
+				// angle between sensor ray and v1
+				double myAngle = absRayAngles[i] - v1.angle();
+				double sine = sin(myAngle);
+				// normal distance of bounding circle center to sensor ray
+				double distsc2 = v1.norm2() * (sine * sine)*(1.0*irReflectiveness);
+				
+				// if there is an intersection with the object's bounding circle
+				if (distsc2 < r2)
 				{
-					// yes: check intersection with polygon
-				    dist = distanceToPolygon(absRayAngles[i], po->getTrueBoundingSurface())*(1.0/po->_infraredReflectiveness());
-				}
-				else
-				{
-					// no: compute distance of intersection with bounding circle
-					dist = (sqrt(v1.norm2()-distsc2) - sqrt(r2-distsc2))*(1.0/po->_infraredReflectiveness());
+					// compute distance of intersection with bounding circle
+					dist = (sqrt(v1.norm2()-distsc2) - sqrt(r2-distsc2))*(1.0/irReflectiveness);
 					if (dist<0)
 						dist = 0;
+					
+					// if we have a smaller distance than the initial one, replace it
+					if (dist < rayValues[i]*(1.0/irReflectiveness))
+					{
+						rayValues[i] = dist*(1.0/irReflectiveness);
+						// FIXME: we do not support textures here
+						rayColors[i] = color;
+					}
 				}
-
-				// if we have a smaller distance than the initial one, replace it
-				if (dist < rayValues[i]*(1.0/po->_infraredReflectiveness()))
+			}
+		}
+		else
+		{
+			// Calculate distance for each ray...
+			for (size_t i = 0; i<rayCount; i++)
+			{
+				double dist = HUGE_VAL;
+				// angle between sensor ray and v1
+				double myAngle = absRayAngles[i] - v1.angle();
+				double sine = sin(myAngle);
+				// normal distance of bounding circle center to sensor ray
+				double distsc2 = v1.norm2() * (sine * sine)*(1.0*irReflectiveness);
+				
+				// if there is an intersection with the object's bounding circle
+				if (distsc2 < r2)
 				{
-					rayValues[i] = dist*(1.0/po->_infraredReflectiveness());
-					// FIXME: we do not support textures here
-					rayColors[i] = po->_color();
+					// iterate over all shapes
+					for (PhysicalObject::Parts::const_iterator it = po->getHull().begin(); it != po->getHull().end(); ++it)
+					{
+						if (height > it->getHeight())
+							continue;
+						
+						// check intersection with polygon
+						dist = distanceToPolygon(absRayAngles[i], it->getTransformedShape())*(1.0/irReflectiveness);
+						
+						// if we have a smaller distance than the initial one, replace it
+						if (dist < rayValues[i]*(1.0/irReflectiveness))
+						{
+							rayValues[i] = dist*(1.0/irReflectiveness);
+							// FIXME: we do not support textures here
+							rayColors[i] = color;
+						}
+					}
 				}
 			}
 		}

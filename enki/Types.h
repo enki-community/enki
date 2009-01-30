@@ -34,7 +34,7 @@
 #ifndef __ENKI_TYPES_H
 #define __ENKI_TYPES_H
 
-#include <valarray>
+#include <vector>
 #include <cassert>
 
 /*!	\file Types.h
@@ -148,10 +148,10 @@ namespace Enki
 	};
 
 	//! A texture
-	typedef std::valarray<Color> Texture;
+	typedef std::vector<Color> Texture;
 	
 	//! Textures for all sides of an object
-	typedef std::valarray<Texture> Textures;
+	typedef std::vector<Texture> Textures;
 }
 
 #endif

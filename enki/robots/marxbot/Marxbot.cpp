@@ -60,19 +60,15 @@ namespace Enki
 	{
 		addLocalInteraction(&rotatingDistanceSensor);
 		
-		mass = 1000;
-		height = 12;
-		r = 8.5;
-		color = Color(0.7, 0.7, 0.7);
-		
-		computeMomentOfInertia();
+		setCylindric(8.5, 12, 1000);
+		setColor(Color(0.7, 0.7, 0.7));
 	}
 	
 	double Marxbot::getVirtualBumper(unsigned number)
 	{
 		assert(number < 24);
 		unsigned physicalNumber = (24 + 12 - number) % 24;
-		return marxbotVirtualBumperResponseFunction(sqrt(rotatingDistanceSensor.zbuffer[(physicalNumber * 180) / 24]) - _radius());
+		return marxbotVirtualBumperResponseFunction(sqrt(rotatingDistanceSensor.zbuffer[(physicalNumber * 180) / 24]) - getRadius());
 	}
 }
 

@@ -109,11 +109,7 @@ namespace Enki
 			addLocalInteraction(&camera);
 		}
 		
-		mass = 80;
-		height = 5;
-		r = 2.6;
-		
-		commitPhysicalParameters();
+		setCylindric(2.6, 5, 80);
 	}
 }
 

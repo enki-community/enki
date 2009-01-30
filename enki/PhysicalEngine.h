@@ -131,7 +131,10 @@ namespace Enki
 	class PhysicalObject
 	{
 		friend class World;
-	public:
+		
+	public:			// inner classes
+		
+		// User data
 		
 		//! User specific data that can be attached to any object in the world.
 		class UserData
@@ -146,6 +149,8 @@ namespace Enki
 		
 		//! Data attached by the user to this physical object. If non-null, will be destroyed with the object.
 		UserData *userData;
+		
+		// Physics
 		
 		// physical constant
 		static const double g;
@@ -191,7 +196,58 @@ namespace Enki
 		//! The static friction threshold of the object. If the force resulting from the interaction between non-infinite mass objects is smaller than this, this object will not move.
 		double staticFrictionThreshold;
 		*/
-	protected:
+		
+		// Geometry
+		
+		//! A part is one of the convex geometrical element that composes the physical object
+		class Part
+		{
+		public:
+			//! Constructor, builds a shaped part without any texture;
+			Part(const Polygone& shape, double height);
+			//! Constructor, builds a shaped part with a textured shape;
+			Part(const Polygone& shape, double height, const Textures& textures);
+			//! Constructor, builds a rectangular part of size l1xl2, with a given height and color, and update radius
+			Part(double l1, double l2, double height);
+			
+			//! Updates the referenced radius using the shape of this object, in object coordinates
+			void updateRadius(double& radius);
+			
+			// getters
+			inline double getHeight() const { return height; }
+			inline const Polygone& getShape() const { return shape; }
+			inline const Polygone& getTransformedShape() const { return transformedShape; }
+			inline const Textures& getTextures() const { return textures; }
+			inline bool isTextured() const { return !textures.empty(); }
+			
+		private:
+			friend class PhysicalObject;
+			// geometrical properties
+			
+			//! The height of the part, used for interaction with the sensors of other robots.
+			double height;
+			//! The shape of the object in object coordinates.
+			Polygone shape;
+			//! The shape of the object in world coordinates, updated on initLocalInteractions().
+			Polygone transformedShape;
+			
+			// visual properties
+			
+			//! Texture for several faces of this object.
+			Textures textures;
+		
+		private:
+			//! Compute the shape of this part in world coordinates with respect to object
+			void computeTransformedShape(const Matrix22& rot, const Point& trans);
+		};
+		
+		//! A hull is a vector of parts
+		typedef std::vector<Part> Parts;
+		
+	private:		// variables
+		
+		// Physics
+		
 		// mass and inertia tensor
 		
 		//! The mass of the object. If below zero, the object can't move (infinite mass).
@@ -199,73 +255,58 @@ namespace Enki
 		///! The moment of inertia tensor
 		double momentOfInertia;
 		
-		// geometry properties
+		// Geometry
 		
-		//! The radius of circular objects. If boundingSurface is not empty, it is automatically computed upon setShape
+		//! The hull of this object, which can be composed of several parts
+		Parts hull;
+		//! The radius of circular objects or, if hull is not empty, the bounding circle
 		double r;
-		//! The height of the object, used for interaction with robot's sensors.
+		//! The height of circular object or, if hull is not empty, the maximum height
 		double height;
-		//! The shape of the object in object coordinates. If empty, the object is circular and its radius is given by r .
-		Polygone boundingSurface;
-		//! The shape of the object in world coordinates, updated on initLocalInteractions(). Invalid if boundingSurface is NULL.
-		Polygone absBoundingSurface;
-		
-		// visual properties
-		
-		//! The infrared reflection factor of the object. It acts only on proximity sensors. If one, the object is seen normally. If less than one, the range on which the object is visible dimishes. If zero, the object is invisible to proximity sensors
-		double infraredReflectiveness;
-		//! The color of the object. Must be set using setColor
+		//! The overall color of this object, if hull is empyt or if it does not contain any texture
 		Color color;
-		//! Texture for several faces of this object.
-		Textures textures;
+		//! The infrared reflection factor of the part. It acts only on proximity sensors. 1 one, the object is seen normally. If less than 1, the range on which the object is visible dimishes. If 0, the object is invisible to proximity sensors. For now it is global to the PhysicalObject, but ideally it should be part of the color
+		double infraredReflectiveness;
 		
-		// internal functions
+	public:			// methods
 		
-		//! Compute the moment of inertia tensor depending on radius, mass, height, and bounding surface
-		void computeMomentOfInertia();
-		//! Compute the shape of its object in world coordinates.
-		void computeAbsBoundingSurface(void);
-		//! Setup the bounding surface. Does not undate the moment of inertia tensor, for use by subclasses in setupPhysicalParameters() only. Outer class must call setShape() instead.
-		void setupBoundingSurface(const Polygone& boundingSurface);
-		
-	public:
 		//! Constructor
 		PhysicalObject();
 		//! Destructor
 		virtual ~PhysicalObject();
-		//! Call this function after you have setup all your parameters. Base class does not call this from its constructor, but robots will
-		void commitPhysicalParameters();
 		
 		// getters
-		inline double _radius() const { return r; }
-		inline double _height() const { return height; }
-		inline const Polygone& _boundingSurface() const { return boundingSurface; }
-		inline double _infraredReflectiveness() const { return infraredReflectiveness; }
-		inline const Color& _color() const { return color; }
-		inline const Textures& _textures() const { return textures; }
-		inline bool isCylindric() const { return boundingSurface.empty(); }
-		//! Return the shape of the object in object coordinates. If shape is not defined, return an empty polygone.
-		inline const Polygone &getTrueBoundingSurface(void) const { return absBoundingSurface; }
+		
+		inline double getRadius() const { return r; }
+		inline double getHeight() const { return height; }
+		inline bool isCylindric() const { return hull.empty(); }
+		inline const Parts& getHull() const { return hull; }
+		inline const Color& getColor() const { return color; }
+		inline double getInfraredReflectiveness() const { return infraredReflectiveness; }
 		
 		// setters
 		
-		//! Set the mass of the object
-		void setMass(double mass);
-		//! Make the object cylindric
-		void setCylindric(double radius, double height);
-		//! Make the object rectangular of size l1 x l2
-		void setRectangular(double l1, double l2, double height);
-		//! Make the shape of the object. The color is uniformely set to the current color.
-		void setShape(const Polygone& boundingSurface, double height);
-		//! Set a uniform color all around the object.
+		//! Make the object cylindric with a given mass
+		void setCylindric(double radius, double height, double mass);
+		//! Make the object rectangular of size l1 x l2 with a given mass
+		void setRectangular(double l1, double l2, double height, double mass);
+		//! Set a custom shape and mass to the object
+		void setCustomHull(const Parts& hull, double mass);
+		//! Set the overall color of this object, if hull is empty or if it does not contain any texture
 		void setColor(const Color &color);
-		//! Set textures around an object with a bounding box; textures must be of the same size as the amount of face to the bounding box.
-		void setTextures(const Texture* textures);
-		//! Set The infrared reflection factor of the object. It acts only on proximity sensors. If one, the object is seen normally. If less than one, the range on which the object is visible dimishes. If zero, the object is invisible to proximity sensors
-		void setInfraredReflectiveness(double infraredReflectiveness = 1.0);
+		//! Set the infrared reflectiveness of the object
+		void setInfraredReflectiveness(double value);
 
-	protected:
-		// Physical Actions
+	private:		// setup methods
+		
+		//! Compute the moment of inertia tensor depending on radius, mass, height, and hull, assuming that the hull is centered around the center of mass, which is done by setupCentorOfMass()
+		void computeMomentOfInertia();
+		//! Compute the center of mass and move bounding surfaces accordingly. Does not update the moment of inertia tensor.
+		void setupCenterOfMass();
+		//! Compute the hull of this object in world coordinates.
+		void computeTransformedShape();
+	
+	protected:		// physical actions
 		
 		//! A physics simulation step for this object. It is considered as deinterlaced. The position and orientation are updated.
 		virtual void physicsStep(double dt);
@@ -274,10 +315,6 @@ namespace Enki
 		//! Apply forces, typically friction to reduce speed, but one can override to change behaviour.
 		virtual void applyForces(double dt);
 
-		//! Initialize the collision logic
-		void initPhysicsInteractions();
-		//! All collisions are finished, deinterlace the object.
-		void finalizePhysicsInteractions(double dt);
 		
 		//! Initialize the object specific interactions, do nothing for PhysicalObject.
 		virtual void initLocalInteractions() { }
@@ -295,6 +332,13 @@ namespace Enki
 		//! All global interactions are finished, do nothing for PhysicalObject.
 		virtual void finalizeGlobalInteractions() { }
 
+	private:		// physical actions
+		
+		//! Initialize the collision logic
+		void initPhysicsInteractions();
+		//! All collisions are finished, deinterlace the object.
+		void finalizePhysicsInteractions(double dt);
+		
 		//! Dynamics for collision with a static object at points cp with normal vector n
 		void collideWithStaticObject(const Vector &n, const Point &cp);
 		//! Dynamics for collision with that at point cp with a penetrated distance of dist.
@@ -360,7 +404,7 @@ namespace Enki
 		//! Return collideEven
 		bool getCollideEven() {return collideEven;}
 		//! Do the collision of a circular object with one with a different shape (convex boundingsurface)
-		void collideCircleWithBS(PhysicalObject *circle, PhysicalObject *objectBS, const Polygone &bs);
+		void collideCircleWithShape(PhysicalObject *circularObject, PhysicalObject *shapedObject, const Polygone &shape);
 		//! Collide two objects. Correct functions will be called depending on type of object (circular or other shape).
 		void collideObjects(PhysicalObject *object1, PhysicalObject *object2);
 		//! Collide the object with walls.

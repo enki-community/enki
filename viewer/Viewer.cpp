@@ -77,7 +77,7 @@ namespace Enki
 		
 		virtual void draw(PhysicalObject* object) const
 		{
-			glColor3d(object->_color().components[0], object->_color().components[1], object->_color().components[2]);
+			glColor3d(object->getColor().components[0], object->getColor().components[1], object->getColor().components[2]);
 			glCallList(list);
 		}
 		
@@ -134,8 +134,8 @@ namespace Enki
 			
 			glCallList(lists[1]);
 			
-			//glColor3d(1-object->_color().components[0], 1+object->_color().components[1], 1+object->_color().components[2]);
-			glColor3d(0.6+object->_color().components[0]-0.3*object->_color().components[1]-0.3*object->_color().components[2], 0.6+object->_color().components[1]-0.3*object->_color().components[0]-0.3*object->_color().components[2], 0.6+object->_color().components[2]-0.3*object->_color().components[0]-0.3*object->_color().components[1]);
+			//glColor3d(1-object->getColor().components[0], 1+object->getColor().components[1], 1+object->getColor().components[2]);
+			glColor3d(0.6+object->getColor().components[0]-0.3*object->getColor().components[1]-0.3*object->getColor().components[2], 0.6+object->getColor().components[1]-0.3*object->getColor().components[0]-0.3*object->getColor().components[2], 0.6+object->getColor().components[2]-0.3*object->getColor().components[0]-0.3*object->getColor().components[1]);
 			glCallList(lists[2]);
 			
 			glColor3d(1, 1, 1);
@@ -488,41 +488,47 @@ namespace Enki
 		object->userData = userData;
 		glNewList(userData->list, GL_COMPILE);
 		
-		if (!object->_boundingSurface().empty())
+		if (!object->getHull().empty())
 		{
-			// TODO: use object texture if any
-			size_t segmentCount = object->_boundingSurface().size();
-			
 			glDisable(GL_LIGHTING);
-			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, wallTexture);
-			
-			// sides
-			for (size_t i = 0; i < segmentCount; ++i)
+			for (PhysicalObject::Parts::const_iterator it = object->getHull().begin(); it != object->getHull().end(); ++it)
 			{
-				// TODO: ugly, separate function for object and shadow
-				glColor3d(object->_color().components[0], object->_color().components[1], object->_color().components[2]);
-				renderSegment(Segment(object->_boundingSurface()[i], object->_boundingSurface()[(i+1) % segmentCount] ), object->_height());
-				glColor3d(1, 1, 1);
-				renderSegmentShadow(Segment(object->_boundingSurface()[i], object->_boundingSurface()[(i+1) % segmentCount] ), object->_height());
-				renderInterSegmentShadow(
-					object->_boundingSurface()[i],
-					object->_boundingSurface()[(i+1) % segmentCount],
-					object->_boundingSurface()[(i+2) % segmentCount],
-					object->_height()
-				);
+				const Polygone& shape = it->getShape();
+				const double height = it->getHeight();
+				const Color& color = object->getColor();
+				size_t segmentCount = shape.size();
+				
+				// TODO: use object texture if any
+				
+				glEnable(GL_TEXTURE_2D);
+				glBindTexture(GL_TEXTURE_2D, wallTexture);
+				
+				// sides
+				for (size_t i = 0; i < segmentCount; ++i)
+				{
+					// TODO: ugly, separate function for object and shadow
+					glColor3d(color.components[0], color.components[1], color.components[2]);
+					renderSegment(Segment(shape[i], shape[(i+1) % segmentCount] ), height);
+					glColor3d(1, 1, 1);
+					renderSegmentShadow(Segment(shape[i], shape[(i+1) % segmentCount] ), height);
+					renderInterSegmentShadow(
+						shape[i],
+						shape[(i+1) % segmentCount],
+						shape[(i+2) % segmentCount],
+						height
+					);
+				}
+				
+				glDisable(GL_TEXTURE_2D);
+				
+				// top
+				glColor3d(color.components[0], color.components[1], color.components[2]);
+				glNormal3d(1, 1, 0);
+				glBegin(GL_TRIANGLE_FAN);
+				for (size_t i = 0; i < segmentCount; ++i)
+					glVertex3d(shape[i].x, shape[i].y, height);
+				glEnd();
 			}
-			
-			glDisable(GL_TEXTURE_2D);
-			
-			// top
-			glColor3d(object->_color().components[0], object->_color().components[1], object->_color().components[2]);
-			glNormal3d(1, 1, 0);
-			glBegin(GL_TRIANGLE_FAN);
-			for (size_t i = 0; i < segmentCount; ++i)
-				glVertex3d(object->_boundingSurface()[i].x, object->_boundingSurface()[i].y, object->_height());
-			glEnd();
-			
 			glEnable(GL_LIGHTING);
 		}
 		else
@@ -531,11 +537,11 @@ namespace Enki
 			assert(quadratic);
 			
 			// sides
-			gluCylinder(quadratic, object->_radius(), object->_radius(), object->_height(), 32, 1);
+			gluCylinder(quadratic, object->getRadius(), object->getRadius(), object->getHeight(), 32, 1);
 			
 			// top
-			glTranslated(0, 0, object->_height());
-			gluDisk(quadratic, 0, object->_radius(), 32, 1);
+			glTranslated(0, 0, object->getHeight());
+			gluDisk(quadratic, 0, object->getRadius(), 32, 1);
 			
 			gluDeleteQuadric(quadratic);
 		}
@@ -559,9 +565,9 @@ namespace Enki
 		{
 			glColor3d(0, 0, 0);
 			glBegin(GL_TRIANGLES);
-			glVertex3d(2, 0, object->_height() + 0.01);
-			glVertex3d(-2, 1, object->_height() + 0.01);
-			glVertex3d(-2, -1, object->_height() + 0.01);
+			glVertex3d(2, 0, object->getHeight() + 0.01);
+			glVertex3d(-2, 1, object->getHeight() + 0.01);
+			glVertex3d(-2, -1, object->getHeight() + 0.01);
 			glEnd();
 		}
 	}

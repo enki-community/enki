@@ -117,11 +117,7 @@ namespace Enki
 		addLocalInteraction(&camera);
 		//addGlobalInteraction(&globalSound);
 		
-		mass = 500;
-		height = 15;
-		r = 6;
-		
-		commitPhysicalParameters();
+		setCylindric(6, 15, 500);
 	}
 	
 	unsigned SbotGlobalSound::worldFrequenciesState = 0;

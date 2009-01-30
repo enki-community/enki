@@ -173,7 +173,7 @@ namespace Enki
 		Matrix22 operator /(double f) const { Matrix22 n; n._11 = _11 / f; n._21 = _21 / f; n._12 = _12 / f; n._22 = _22 / f; return n; }
 		
 		//! Multiply vector v and return the resulting vector
-		Point operator*(const Point &v) { Point n; n.x = v.x*_11 + v.y*_12; n.y = v.x*_21 + v.y*_22; return n; }
+		Point operator*(const Point &v) const { Point n; n.x = v.x*_11 + v.y*_12; n.y = v.x*_21 + v.y*_22; return n; }
 		
 		//! Creates a diagonal matrix
 		static Matrix22 fromDiag(double _1, double _2 ) { return Matrix22(_1, 0, 0, _2); }
@@ -231,15 +231,24 @@ namespace Enki
 			return true;
 		}
 		
-		//! Return the axis aligned bounding box
+		//! Get the axis aligned bounding box and return whether it exists
 		bool getAxisAlignedBoundingBox(Point& bottomLeft, Point& topRight) const
 		{
 			if (empty())
 				return false;
 			
-			Point topLeft = (*this)[0];
-			Point bottomRight = (*this)[0];
-			for (size_t i = 1; i < size(); i++)
+			bottomLeft = (*this)[0];
+			topRight = (*this)[0];
+			
+			extendAxisAlignedBoundingBox(bottomLeft, topRight);
+			
+			return true;
+		}
+		
+		//! Extend an axis aligned bounding box with this object
+		void extendAxisAlignedBoundingBox(Point& bottomLeft, Point& topRight) const
+		{
+			for (size_t i = 0; i < size(); i++)
 			{
 				const Point& p = (*this)[i];
 				
@@ -253,8 +262,13 @@ namespace Enki
 				else if (p.y > topRight.y)
 					topRight.y = p.y;
 			}
-			
-			return true;
+		}
+		
+		//! Translate of a specific distance
+		void translate(const Vector& delta)
+		{
+			for (iterator it = begin(); it != end(); ++it)
+				*it += delta;
 		}
 		
 		//! Return the bounding radius of this area

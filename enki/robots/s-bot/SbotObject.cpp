@@ -115,10 +115,7 @@ namespace Enki
 		addLocalInteraction(&feeding);
 		
 		// we override physical settings setup because we only have objectRadius here
-		mass = -1;
-		setCylindric(objectRadius, 1.9);
-		
-		commitPhysicalParameters();
+		setCylindric(objectRadius, 1.9, -1);
 	}
 
 	SbotActiveSoundObject::SbotActiveSoundObject(double objectRadius, double actionRange) :
