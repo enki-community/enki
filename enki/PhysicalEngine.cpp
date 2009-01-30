@@ -283,13 +283,16 @@ namespace Enki
 			return 0;
 	}
 
+	/*
 	void PhysicalObject::physicsStep(double dt)
 	{
-		applyForces(dt);
+		// NOTE: not used for now, see later if we should remove or not
+		
+		/*applyForces(dt);
 		
 		pos += speed * dt;
 		angle += angSpeed * dt;
-		
+		*/
 		/* TODO: Runge-Kutta
 			but this needs a refactoring in order to harvest equations up to now.
 			furthermore, we have a so simple model that it is seldom useful for now.
@@ -298,10 +301,8 @@ namespace Enki
 		b = f (tn + h⁄2, xn + h⁄2 a)
 		c = f (tn + h⁄2, xn + h⁄2 b)
 		d = f (tn + h, xn + h c)
-		*/
 		
-		angle = normalizeAngle(angle);
-	}
+	}*/
 	
 	void PhysicalObject::applyForces(double dt)
 	{
@@ -349,16 +350,20 @@ namespace Enki
 		angSpeed += angAcc * dt;
 	}
 
-	void PhysicalObject::initPhysicsInteractions()
+	void PhysicalObject::initPhysicsInteractions(double dt)
 	{
 		computeTransformedShape();
+		
+		applyForces(dt);
+		
+		pos += speed * dt;
+		angle += angSpeed * dt;
 	}
 
 	void PhysicalObject::finalizePhysicsInteractions(double dt)
 	{
-		// do nothing for now
+		angle = normalizeAngle(angle);
 	}
-	
 	
 	
 	void PhysicalObject::collideWithStaticObject(const Vector &n, const Point &cp)
@@ -442,6 +447,7 @@ namespace Enki
 			that.angSpeed -= r_bp.cross(n * j) / that.momentOfInertia;
 		}
 		
+		// FIXME: this is fully non physic
 		// calculate deinterlace vector to put that out of contact - mass ratios ensure physics
 		double massSum = mass + that.mass;
 		pos += dist*that.mass/massSum;
@@ -527,7 +533,6 @@ namespace Enki
 		h(height),
 		bluetoothBase(NULL)
 	{
-		collideEven = true;
 		useWalls = true;
 		
 		// walls are gray
@@ -849,7 +854,7 @@ namespace Enki
 		{
 			// init interactions
 			for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
-				(*i)->initPhysicsInteractions();
+				(*i)->initPhysicsInteractions(overSampledDt);
 			
 			// collide objects together
 			unsigned iCounter, jCounter;
@@ -859,30 +864,21 @@ namespace Enki
 				jCounter = 0;
 				for (ObjectsIterator j = objects.begin(); j != objects.end(); ++j)
 				{
-					if ((*i) != (*j))
+					if (iCounter < jCounter)
 					{
-						if (iCounter < jCounter)
-						{
-							if (collideEven)
-								collideObjects((*i), (*j));
-							else
-								collideObjects((*j), (*i));
-						}
+						collideObjects((*i), (*j));
 					}
 					jCounter++;
 				}
 				iCounter++;
 			}
-	
-			collideEven = !collideEven;
-	
+			
 			// collide objects with walls and physics step
 			for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 			{
 				if (useWalls)
 					collideWithWalls(*i);
 				(*i)->finalizePhysicsInteractions(overSampledDt);
-				(*i)->physicsStep(overSampledDt);
 			}
 		}
 		

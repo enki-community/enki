@@ -308,13 +308,10 @@ namespace Enki
 	
 	protected:		// physical actions
 		
-		//! A physics simulation step for this object. It is considered as deinterlaced. The position and orientation are updated.
-		virtual void physicsStep(double dt);
 		//! Control step, not oversampled
 		virtual void controlStep(double dt) { }
 		//! Apply forces, typically friction to reduce speed, but one can override to change behaviour.
 		virtual void applyForces(double dt);
-
 		
 		//! Initialize the object specific interactions, do nothing for PhysicalObject.
 		virtual void initLocalInteractions() { }
@@ -334,9 +331,9 @@ namespace Enki
 
 	private:		// physical actions
 		
-		//! Initialize the collision logic
-		void initPhysicsInteractions();
-		//! All collisions are finished, deinterlace the object.
+		//! Initialize the collision logic, update forces, speeds, and position
+		void initPhysicsInteractions(double dt);
+		//! All collisions are finished, .
 		void finalizePhysicsInteractions(double dt);
 		
 		//! Dynamics for collision with a static object at points cp with normal vector n
@@ -381,10 +378,6 @@ namespace Enki
 	*/
 	class World
 	{
-	protected:
-		//! At each step objects are collided in a different order (first A-B, then B-A) to prevent side effects, collideEven contains the actual order.
-		bool collideEven;
-
 	public:
 		typedef std::set<PhysicalObject *> Objects;
 		typedef Objects::iterator ObjectsIterator;
@@ -401,8 +394,6 @@ namespace Enki
 		//! Base for the Bluetooth connections between robots
 		class BluetoothBase* bluetoothBase;
 
-		//! Return collideEven
-		bool getCollideEven() {return collideEven;}
 		//! Do the collision of a circular object with one with a different shape (convex boundingsurface)
 		void collideCircleWithShape(PhysicalObject *circularObject, PhysicalObject *shapedObject, const Polygone &shape);
 		//! Collide two objects. Correct functions will be called depending on type of object (circular or other shape).
