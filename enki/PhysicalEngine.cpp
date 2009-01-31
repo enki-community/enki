@@ -423,7 +423,7 @@ namespace Enki
 		
 		// only perform physics if we are in a physically-realistic collision situation,
 		// otherwise we experience a simulation artefact and we just deinterlace
-		if ((dist * speed <= 0) && (dist * that.speed >= 0))
+		//if ((dist * speed <= 0) && (dist * that.speed >= 0))
 		{
 			// point of this in inside object
 			// we use model from http://www.myphysicslab.com/collision.html
@@ -434,7 +434,7 @@ namespace Enki
 			Vector r_bp = (cp - that.pos);
 			
 			Vector v_ap = speed + r_ap.crossFromZVector(angSpeed);
-			Vector v_bp = that.speed + r_bp.crossFromZVector(angSpeed);
+			Vector v_bp = that.speed + r_bp.crossFromZVector(that.angSpeed);
 			Vector v_ab = v_ap - v_bp;
 			
 			double num = -(1 + collisionElasticity * that.collisionElasticity) * (v_ab * n);
@@ -446,6 +446,8 @@ namespace Enki
 			angSpeed += r_ap.cross(n * j) / momentOfInertia;
 			that.angSpeed -= r_bp.cross(n * j) / that.momentOfInertia;
 		}
+		//else
+		//	std::cerr << "Non physics collideWithObject between " << this << " and " << &that << std::endl;
 		
 		// FIXME: this is fully non physic
 		// calculate deinterlace vector to put that out of contact - mass ratios ensure physics
