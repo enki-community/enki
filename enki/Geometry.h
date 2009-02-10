@@ -111,9 +111,9 @@ namespace Enki
 		double angle(void) const { return atan2(y, x); }
 		
 		//! Return the cross with (this x other) a (virtual, as we are in 2D) perpendicular vector (on axis z) of given norm. 
-		Vector crossWithZVector(double l) { return Vector(y * l, -x * l); }
+		Vector crossWithZVector(double l) const { return Vector(y * l, -x * l); }
 		//! Return the cross from (other x this) a (virtual, as we are in 2D) perpendicular vector (on axis z) of given norm. 
-		Vector crossFromZVector(double l) { return Vector(-y * l, x * l); }
+		Vector crossFromZVector(double l) const { return Vector(-y * l, x * l); }
 	};
 	
 	//! Dump a vector to a stream
