@@ -63,13 +63,15 @@ public:
 	EnkiPlayground(World *world, QWidget *parent = 0) :
 		ViewerWidget(world, parent)
 	{
+		#define PROBLEM_GENERIC_TOY
+		#define PROBLEM_BALL_LINE
+		//#define PROBLEM_LONE_EPUCK
 		
-		
-		const double amount = 9;
-		const double radius = 5;
-		const double height = 20;
-		
+		#ifdef PROBLEM_GENERIC_TOY
 		{
+			const double amount = 9;
+			const double radius = 5;
+			const double height = 20;
 			Polygone p;
 			for (double a = 0; a < 2*M_PI; a += 2*M_PI/amount)
 				p.push_back(Point(radius * cos(a), radius * sin(a)));
@@ -110,7 +112,7 @@ public:
 			world->addObject(o);
 		}
 		
-		// triangle shape
+		// cross shape
 		{
 			PhysicalObject::Parts parts;
 			parts.push_back(Enki::PhysicalObject::Part(Polygone() << Point(5,1) << Point(-5,1) << Point(-5,-1) << Point(5,-1), 2));
@@ -122,6 +124,23 @@ public:
 			o->pos = Point(UniformRand(20, 100)(), UniformRand(20, 100)());
 			world->addObject(o);
 		}
+		#endif // PROBLEM_GENERIC_TOY
+		
+		#ifdef PROBLEM_BALL_LINE
+		for (double d = 40; d < 60; d += 8)
+		{
+			PhysicalObject* o = new PhysicalObject;
+			o->pos = Point(d, 20);
+			o->setCylindric(4, 2, 10);
+			o->setColor(Color(0.2, 0.2, 0.6));
+			o->dryFrictionCoefficient = 0.;
+			world->addObject(o);
+		}
+		#endif // PROBLEM_BALL_LINE
+		
+		#ifdef PROBLEM_LONE_EPUCK
+		addDefaultsRobots(world);
+		#endif // PROBLEM_LONE_EPUCK
 		
 		#ifdef USE_SDL
 		if((SDL_Init(SDL_INIT_JOYSTICK)==-1))
@@ -149,15 +168,14 @@ public:
 			joysticks.push_back(joystick);
 			
 			EPuck *epuck = new EPuck;
-			epuck->pos = Point(UniformRand(20, 100)(), UniformRand(20, 100)());
+			//epuck->pos = Point(UniformRand(20, 100)(), UniformRand(20, 100)());
+			epuck->pos = Point(20, 20);
 			epucks.push_back(epuck);
 			world->addObject(epuck);
 		}
-		
-		#else
+		#else // USE_SDL
 		addDefaultsRobots(world);
-		#endif
-		addDefaultsRobots(world);
+		#endif // USE_SDL
 	}
 	
 	void addDefaultsRobots(World *world)
@@ -187,33 +205,38 @@ public:
 	
 	virtual void timerEvent(QTimerEvent * event)
 	{
+		static int fireCounter = 0;
 		#ifdef USE_SDL
 		SDL_JoystickUpdate();
+		doDumpFrames = false;
 		for (int i = 0; i < joysticks.size(); ++i)
 		{
 			#define SPEED_MAX 13.
-			/*double x = SDL_JoystickGetAxis(joysticks[i], 0) / (32767. / SPEED_MAX);
-			double y = -SDL_JoystickGetAxis(joysticks[i], 1) / (32767. / SPEED_MAX);
 			EPuck* epuck = epucks[i];
-			epuck->leftSpeed = y + x;
-			epuck->rightSpeed = y - x;
-			*/
-			EPuck* epuck = epucks[i];
+			#if 0 
 			epuck->leftSpeed = - SDL_JoystickGetAxis(joysticks[i], 1) / (32767. / SPEED_MAX);
 			epuck->rightSpeed = - SDL_JoystickGetAxis(joysticks[i], 4) / (32767. / SPEED_MAX);
-			if (SDL_JoystickGetButton(joysticks[i], 6) || SDL_JoystickGetButton(joysticks[i], 7))
+			#else
+			double x = SDL_JoystickGetAxis(joysticks[i], 0) / (32767. / SPEED_MAX);
+			double y = -SDL_JoystickGetAxis(joysticks[i], 1) / (32767. / SPEED_MAX);
+			epuck->leftSpeed = y + x;
+			epuck->rightSpeed = y - x;
+			#endif
+			if ((SDL_JoystickGetButton(joysticks[i], 6) || SDL_JoystickGetButton(joysticks[i], 7)) &&
+				(++fireCounter % 2) == 0)
 			{
 				PhysicalObject* o = new PhysicalObject;
 				Vector delta(cos(epuck->angle), sin(epuck->angle));
 				o->pos = epuck->pos + delta * 6;
-				o->speed = epuck->speed + delta * 30;
-				o->setCylindric(0.5, 0.5, 1000);
+				o->speed = epuck->speed + delta * 10;
+				o->setCylindric(0.5, 0.5, 10);
 				o->dryFrictionCoefficient = 0.01;
 				o->setColor(Color(0.4, 0, 0));
 				o->collisionElasticity = 1;
 				bullets[o] = 300;
 				world->addObject(o);
 			}
+			doDumpFrames |= SDL_JoystickGetButton(joysticks[i], 0);
 		}
 		#endif
 		QMap<PhysicalObject*, int>::iterator i = bullets.begin();

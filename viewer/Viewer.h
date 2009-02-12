@@ -80,7 +80,7 @@ namespace Enki
 		public:
 			CustomRobotModel();
 		};
-		
+	
 	protected:
 		World *world;
 		
@@ -101,7 +101,18 @@ namespace Enki
 		double pitch;
 		QPointF pos;
 		double altitude;
+		
+		bool doDumpFrames;
+		int dumpFramesCounter;
 	
+	public:
+		ViewerWidget(World *world, QWidget *parent = 0);
+		~ViewerWidget();
+	
+	public slots:
+		void restartDumpFrames();
+		void setDumpFrames(bool doDump);
+		
 	protected:
 		void renderInterSegmentShadow(const Vector& a, const Vector& b, const Vector& c, double height);
 		void renderSegmentShadow(const Segment& segment, double height);
@@ -123,13 +134,6 @@ namespace Enki
 		void mouseReleaseEvent(QMouseEvent * event);
 		void mouseMoveEvent(QMouseEvent *event);
 		void wheelEvent(QWheelEvent * event);
-	
-	public:
-		ViewerWidget(World *world, QWidget *parent = 0);
-		~ViewerWidget();
-	
-		//QSize minimumSizeHint() const;
-		//QSize sizeHint() const;
 	};
 }
 

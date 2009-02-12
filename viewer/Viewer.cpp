@@ -217,7 +217,9 @@ namespace Enki
 		yaw(-M_PI/2),
 		pitch((3*M_PI)/8),
 		pos(-world->w * 0.5, -world->h * 0.2),
-		altitude(world->h * 0.5)
+		altitude(world->h * 0.5),
+		doDumpFrames(false),
+		dumpFramesCounter(0)
 	{
 		initTexturesResources();
 	}
@@ -240,6 +242,16 @@ namespace Enki
 			data->cleanup(this);
 			delete data;
 		}
+	}
+	
+	void ViewerWidget::restartDumpFrames()
+	{
+		dumpFramesCounter = 0;
+	}
+	
+	void ViewerWidget::setDumpFrames(bool doDump)
+	{
+		doDumpFrames = doDump;
 	}
 	
 	void ViewerWidget::renderSegment(const Segment& segment, double height)
@@ -709,6 +721,9 @@ namespace Enki
 		}
 		
 		sceneCompletedHook();
+		
+		if (doDumpFrames)
+			grabFrameBuffer().save(QString("enkiviewer-frame%1.png").arg((int)dumpFramesCounter++, (int)8, (int)10, QChar('0')));
 	}
 	
 	void ViewerWidget::resizeGL(int width, int height)
