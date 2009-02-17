@@ -87,8 +87,8 @@ namespace Enki
 	PhysicalObject::Part::Part(double l1, double l2, double height) :
 		height(height)
 	{
-		double hl1 = l1 / 2;
-		double hl2 = l2 / 2;
+		const double hl1 = l1 / 2;
+		const double hl2 = l2 / 2;
 		shape << Point(-hl1, -hl2) << Point(hl1, -hl2) << Point(hl1, hl2) << Point(-hl1, hl2);
 		transformedShape.resize(shape.size());
 	}
