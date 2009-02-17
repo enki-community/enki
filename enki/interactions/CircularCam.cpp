@@ -113,31 +113,31 @@ namespace Enki
 			// compute basic parameter
 			if (radius == 0)
 				return;
-			Vector poCenter = po->pos - absPos;
-			double poDist = poCenter.norm();
+			const Vector poCenter = po->pos - absPos;
+			const double poDist = poCenter.norm();
 			if (poDist == 0)
 				return;
-			double poAngle = normalizeAngle(poCenter.angle() - absOrientation);
-			double poAperture = atan(radius / poDist);
+			const double poAngle = normalizeAngle(poCenter.angle() - absOrientation);
+			const double poAperture = atan(radius / poDist);
 			assert(poAperture > 0);
 			
 			// clip object
-			double poBegin = poAngle - poAperture;
-			double poEnd = poAngle + poAperture;
+			const double poBegin = poAngle - poAperture;
+			const double poEnd = poAngle + poAperture;
 			
 			if (poBegin > halfFieldOfView || poEnd < -halfFieldOfView)
 				return;
 			
-			double beginAngle = std::max(poBegin, -halfFieldOfView);
-			double endAngle = std::min(poEnd, halfFieldOfView);
+			const double beginAngle = std::max(poBegin, -halfFieldOfView);
+			const double endAngle = std::min(poEnd, halfFieldOfView);
 			
 			// compute first pixel used
 			// formula is (beginAngle + fov) / pixelAngle, with
 			// pixelAngle = 2fov / (numPix-1)
-			size_t firstPixelUsed = static_cast<size_t>(floor((zbuffer.size() - 1) * 0.5 * (beginAngle / halfFieldOfView + 1)));
-			size_t lastPixelUsed = static_cast<size_t>(ceil((zbuffer.size() - 1) * 0.5 * (endAngle / halfFieldOfView + 1)));
+			const size_t firstPixelUsed = static_cast<size_t>(floor((zbuffer.size() - 1) * 0.5 * (beginAngle / halfFieldOfView + 1)));
+			const size_t lastPixelUsed = static_cast<size_t>(ceil((zbuffer.size() - 1) * 0.5 * (endAngle / halfFieldOfView + 1)));
 			
-			double poDist2 = poDist * poDist;
+			const double poDist2 = poDist * poDist;
 			for (size_t i = firstPixelUsed; i <= lastPixelUsed; i++)
 			{
 				// apply pixel operation to framebuffer
@@ -157,7 +157,7 @@ namespace Enki
 		
 		// Express p0 and p1 in the camera coordinate system.
 		// In cam coord sys, x axis is the optical axis.
-		Matrix22 rot(-absOrientation);
+		const Matrix22 rot(-absOrientation);
 		Vector p0c = rot * (p0 - absPos);
 		Vector p1c = rot * (p1 - absPos);
 		
@@ -173,8 +173,8 @@ namespace Enki
 			invertTextureIndex = !invertTextureIndex;
 		}
 		
-		double beginAperture = -halfFieldOfView; 	// [-pi/2;0]
-		double endAperture = halfFieldOfView; 		// [0; pi/2]
+		const double beginAperture = -halfFieldOfView; 	// [-pi/2;0]
+		const double endAperture = halfFieldOfView; 		// [0; pi/2]
 		
 		// check if the line is going "behind us"
 		if (p1dir - p0dir > M_PI)
@@ -200,30 +200,30 @@ namespace Enki
 		if ((p1dir < beginAperture) || (p0dir > endAperture))
 			return;
 		
-		size_t pixelCount = zbuffer.size();
-		double beginAngle = std::max(p0dir, beginAperture);
-		double endAngle = std::min(p1dir, endAperture);
-		double dAngle = 2*halfFieldOfView / (pixelCount - 1);
+		const size_t pixelCount = zbuffer.size();
+		const double beginAngle = std::max(p0dir, beginAperture);
+		const double endAngle = std::min(p1dir, endAperture);
+		const double dAngle = 2*halfFieldOfView / (pixelCount - 1);
 		
 		// align begin and end angle to our sampled angles
- 		double beginIndex = ceil((beginAngle-beginAperture) / dAngle);
- 		double endIndex = floor((endAngle-beginAperture) / dAngle);
-		double alignedBeginAngle = beginAperture + beginIndex * dAngle;
-		double alignedEndAngle = beginAperture + endIndex * dAngle;
+ 		const double beginIndex = ceil((beginAngle-beginAperture) / dAngle);
+ 		const double endIndex = floor((endAngle-beginAperture) / dAngle);
+		const double alignedBeginAngle = beginAperture + beginIndex * dAngle;
+		const double alignedEndAngle = beginAperture + endIndex * dAngle;
 
-		double beginPixel = round(interpolateLinear(beginAperture, endAperture, alignedBeginAngle, 0, pixelCount-1));
-		double endPixel = round(interpolateLinear(beginAperture, endAperture, alignedEndAngle, 0, pixelCount-1));
+		const double beginPixel = round(interpolateLinear(beginAperture, endAperture, alignedBeginAngle, 0, pixelCount-1));
+		const double endPixel = round(interpolateLinear(beginAperture, endAperture, alignedEndAngle, 0, pixelCount-1));
 		
 		// Optimization stuff
-		double x10 = p1c.x - p0c.x;
-		double y01 = p0c.y - p1c.y;
-		Vector p10c = p1c - p0c;
+		const double x10 = p1c.x - p0c.x;
+		const double y01 = p0c.y - p1c.y;
+		const Vector p10c = p1c - p0c;
 		double tanAngle;
 		bool tanDirty = true;
-		double tanDelta = tan(dAngle);
+		const double tanDelta = tan(dAngle);
 		
-		size_t beginPixelIndex = static_cast<size_t>(beginPixel);
-		size_t endPixelIndex = static_cast<size_t>(endPixel);
+		const size_t beginPixelIndex = static_cast<size_t>(beginPixel);
+		const size_t endPixelIndex = static_cast<size_t>(endPixel);
 		double angle = alignedBeginAngle;
 		for (size_t i = beginPixelIndex; i <= endPixelIndex; i++)
 		{
@@ -273,7 +273,7 @@ namespace Enki
 			assert(texIndex < texture.size());
 			
 			// apply pixel only if distance is inferior to the current one
-			double z = p.norm2();
+			const double z = p.norm2();
 			if (zbuffer[i] > z)
 			{
 				if (invertTextureIndex)
@@ -289,7 +289,7 @@ namespace Enki
 	void CircularCam::init()
 	{
 		// compute absolute position and orientation
-		Matrix22 rot(owner->angle);
+		const Matrix22 rot(owner->angle);
 		absPos = owner->pos + rot * positionOffset;
 		absOrientation = owner->angle + angleOffset;
 		

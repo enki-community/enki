@@ -140,14 +140,14 @@ namespace Enki
 			++it;
 			for (; it != points.end(); ++it)
 			{
-				Point newVect = *it - convexHull.back();
+				const Point newVect = *it - convexHull.back();
 				if (newVect * perp < 0)
 				{
 					candidate = it;
 					perp = (*candidate - convexHull.back()).perp();
 				}
 			}
-			Point endVect = convexHull.front() - convexHull.back();
+			const Point endVect = convexHull.front() - convexHull.back();
 			if (endVect * perp < 0)
 				break;
 			convexHull.push_back(*candidate);

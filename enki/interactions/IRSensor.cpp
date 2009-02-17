@@ -90,7 +90,7 @@ namespace Enki
 		std::fill(&rayColors[0], &rayColors[rayCount], Color::white);
 		
 		// compute absolute position and orientation
-		Matrix22 rot(owner->angle);
+		const Matrix22 rot(owner->angle);
 		absPos = owner->pos + rot * pos;
 		absOrientation = owner->angle + orientation;
 		// compute correct absolute angles
@@ -116,7 +116,7 @@ namespace Enki
 		Point absEnd = absPos + Vector(cos(rayAngle), sin(rayAngle)) * range;
 		Segment ray(absPos.x, absPos.y, absEnd.x, absEnd.y);
 
-		int n = p.size();         // number of points in the polygon
+		const int n = p.size();         // number of points in the polygon
 		double tE = 0.0;          // the maximum entering segment parameter
 		double tL = 1.0;          // the minimum leaving segment parameter
 		double t, N, D;           // intersect parameter t = N / D
@@ -185,15 +185,15 @@ namespace Enki
 		const Color& color = po->getColor();
 
 		// if dist from center point of rays to obj is bigger than sum of obj radii, don't bother
-		Vector v = po->pos-absSmartPos;
-		double radiusSum = radius + smartRadius*irReflectiveness;
+		const Vector v = po->pos-absSmartPos;
+		const double radiusSum = radius + smartRadius*irReflectiveness;
 		if (v.norm2() > (radiusSum * radiusSum))
 			return;
 
 		// Vector from sensor to object bounding circle center
-		Vector v1 = po->pos-absPos;
+		const Vector v1 = po->pos-absPos;
 		// Radius squared of object
-		double r2 = radius * radius;
+		const double r2 = radius * radius;
 		// The number of rays
 		
 		if (po->isCylindric())
@@ -203,10 +203,10 @@ namespace Enki
 			{
 				double dist = HUGE_VAL;
 				// angle between sensor ray and v1
-				double myAngle = absRayAngles[i] - v1.angle();
-				double sine = sin(myAngle);
+				const double myAngle = absRayAngles[i] - v1.angle();
+				const double sine = sin(myAngle);
 				// normal distance of bounding circle center to sensor ray
-				double distsc2 = v1.norm2() * (sine * sine)*(1.0*irReflectiveness);
+				const double distsc2 = v1.norm2() * (sine * sine)*(1.0*irReflectiveness);
 				
 				// if there is an intersection with the object's bounding circle
 				if (distsc2 < r2)
@@ -233,10 +233,10 @@ namespace Enki
 			{
 				double dist = HUGE_VAL;
 				// angle between sensor ray and v1
-				double myAngle = absRayAngles[i] - v1.angle();
-				double sine = sin(myAngle);
+				const double myAngle = absRayAngles[i] - v1.angle();
+				const double sine = sin(myAngle);
 				// normal distance of bounding circle center to sensor ray
-				double distsc2 = v1.norm2() * (sine * sine)*(1.0*irReflectiveness);
+				const double distsc2 = v1.norm2() * (sine * sine)*(1.0*irReflectiveness);
 				
 				// if there is an intersection with the object's bounding circle
 				if (distsc2 < r2)
@@ -279,10 +279,10 @@ namespace Enki
 
 		for (size_t i = 0; i < rayCount; i++)
 		{
-			Vector rayDir(cos(absRayAngles[i]), sin(absRayAngles[i]));
+			const Vector rayDir(cos(absRayAngles[i]), sin(absRayAngles[i]));
 			
 			// the absolute position of the sensor ray's end point
-			Point absRayEndPoint = absPos+rayDir*range;
+			const Point absRayEndPoint = absPos+rayDir*range;
 			double candidate0 = HUGE_VAL; //infinity
 			double candidate1 = HUGE_VAL;
 			double newDist;
@@ -322,7 +322,7 @@ namespace Enki
 			finalValue += (*sensorResponseKernel[i])(rayValues[i], rayColors[i]);
 		}
 		// we apply final proportional (+/-7%) noise
-//FIXME: noise!	
+		//FIXME: user-specified/controlled noise!	
 		finalValue *= (.93 + random.getRange(.14));
 	}
 }
