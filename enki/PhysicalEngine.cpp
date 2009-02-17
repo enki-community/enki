@@ -103,8 +103,8 @@ namespace Enki
 	{
 		assert(!shape.empty());
 		assert(transformedShape.size() == shape.size());
-		for (Polygone::iterator it = shape.begin(); it != shape.end(); ++it)
-			*it = rot * (*it) + trans;
+		for (size_t i = 0; i < shape.size(); ++i)
+			transformedShape[i] = rot * (shape)[i] + trans;
 	}
 	
 	// Hull
