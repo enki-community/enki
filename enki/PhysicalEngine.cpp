@@ -111,6 +111,7 @@ namespace Enki
 	
 	Polygone PhysicalObject::Hull::getConvexHull() const
 	{
+		// see http://en.wikipedia.org/wiki/Gift_wrapping_algorithm
 		// construct a vector of all points and get the left most
 		// the operator < on Vector sorts primary by x coordinate, and if equal, by y coordnate
 		typedef std::set<Point> Points;
@@ -254,7 +255,7 @@ namespace Enki
 			// arbitrary shaped object, numerically compute moment of inertia
 			momentOfInertia = 0;
 			double area = 0;
-			double dr = r / 50.;
+			const double dr = r / 50.;
 			for (double ix = -r; ix < r; ix += dr)
 				for (double iy = -r; iy < r; iy += dr)
 					for (Hull::const_iterator it = hull.begin(); it != hull.end(); ++it)
@@ -285,8 +286,8 @@ namespace Enki
 		// numerically compute the center of mass of the shape
 		Point cm;
 		double area = 0;
-		double dx = (topRight-bottomLeft).x / 100;
-		double dy = (topRight-bottomLeft).y / 100;
+		const double dx = (topRight-bottomLeft).x / 100;
+		const double dy = (topRight-bottomLeft).y / 100;
 		for (double ix = bottomLeft.x; ix < topRight.x; ix += dx)
 			for (double iy = bottomLeft.y; iy < topRight.y; iy += dy)
 				for (it = hull.begin(); it != hull.end(); ++it)
@@ -425,11 +426,11 @@ namespace Enki
 		}
 		
 		// from http://www.myphysicslab.com/collision.html
-		Vector r_ap = (cp - pos);
-		Vector v_ap = speed + r_ap.crossFromZVector(angSpeed);
-		double num = -(1 + collisionElasticity) * (v_ap * n);
-		double denom = (1 / mass) + (r_ap.cross(n) * r_ap.cross(n)) / momentOfInertia;
-		double j = num / denom;
+		const Vector r_ap = (cp - pos);
+		const Vector v_ap = speed + r_ap.crossFromZVector(angSpeed);
+		const double num = -(1 + collisionElasticity) * (v_ap * n);
+		const double denom = (1 / mass) + (r_ap.cross(n) * r_ap.cross(n)) / momentOfInertia;
+		const double j = num / denom;
 		speed += (n * j) / mass;
 		angSpeed += r_ap.cross(n * j) / momentOfInertia;
 	}
@@ -447,7 +448,7 @@ namespace Enki
 			else
 			{
 				// if colliding with wall
-				Vector n = dist.unitary() * -1;
+				const Vector n = dist.unitary() * -1;
 				that.collideWithStaticObject(n, cp);
 				that.pos -= dist;
 				return;
@@ -458,7 +459,7 @@ namespace Enki
 			// if colliding with wall
 			if (that.mass < 0)
 			{
-				Vector n = dist.unitary();
+				const Vector n = dist.unitary();
 				collideWithStaticObject(n, cp);
 				pos += dist;
 				return;
@@ -477,18 +478,18 @@ namespace Enki
 			// point of this in inside object
 			// we use model from http://www.myphysicslab.com/collision.html
 			// this is object A, that is object B
-			Vector n = dist.unitary();
+			const Vector n = dist.unitary();
 			
-			Vector r_ap = (cp - pos);
-			Vector r_bp = (cp - that.pos);
+			const Vector r_ap = (cp - pos);
+			const Vector r_bp = (cp - that.pos);
 			
-			Vector v_ap = speed + r_ap.crossFromZVector(angSpeed);
-			Vector v_bp = that.speed + r_bp.crossFromZVector(that.angSpeed);
-			Vector v_ab = v_ap - v_bp;
+			const Vector v_ap = speed + r_ap.crossFromZVector(angSpeed);
+			const Vector v_bp = that.speed + r_bp.crossFromZVector(that.angSpeed);
+			const Vector v_ab = v_ap - v_bp;
 			
-			double num = -(1 + collisionElasticity * that.collisionElasticity) * (v_ab * n);
-			double denom = (1/mass) + (1/that.mass) + (r_ap.cross(n) * r_ap.cross(n)) / momentOfInertia + (r_bp.cross(n) * r_bp.cross(n)) / that.momentOfInertia;
-			double j = num / denom;
+			const double num = -(1 + collisionElasticity * that.collisionElasticity) * (v_ab * n);
+			const double denom = (1/mass) + (1/that.mass) + (r_ap.cross(n) * r_ap.cross(n)) / momentOfInertia + (r_bp.cross(n) * r_bp.cross(n)) / that.momentOfInertia;
+			const double j = num / denom;
 			
 			speed += (n * j) / mass;
 			that.speed -= (n * j) / that.mass;
@@ -500,7 +501,7 @@ namespace Enki
 		
 		// FIXME: this is fully non physic
 		// calculate deinterlace vector to put that out of contact - mass ratios ensure physics
-		double massSum = mass + that.mass;
+		const double massSum = mass + that.mass;
 		pos += dist*that.mass/massSum;
 		that.pos -= dist*mass/massSum;
 	}
@@ -543,7 +544,7 @@ namespace Enki
 	{
 		for (size_t i=0; i<localInteractions.size(); i++)
 		{
-			Vector vectCenter(this->pos.x - po->pos.x, this->pos.y - po->pos.y );
+			const Vector vectCenter(this->pos.x - po->pos.x, this->pos.y - po->pos.y );
 			if (vectCenter.norm2() <  (localInteractions[i]->r+po->getRadius())*(localInteractions[i]->r+po->getRadius()))
 				localInteractions[i]->objectStep(dt, po, w);
 			else 
@@ -608,27 +609,27 @@ namespace Enki
 	bool World::isPointInside(const Point &p, const Point &c, const Polygone &bs, Vector *distVector)
 	// p = candidate point of object; c = pos of object; bs = bounding surface of other object; distVector = deinterlacing dist to be calculated
 	{
-		Vector centerToPoint = p-c;
+		const Vector centerToPoint = p-c;
 		double score = -10;
 		for (size_t i=0; i<bs.size(); i++)
 		{
-			unsigned next=(i+1)%bs.size();
-			Segment seg(bs[i].x, bs[i].y, bs[next].x, bs[next].y);
+			const size_t next = (i+1)%bs.size();
+			const Segment seg(bs[i].x, bs[i].y, bs[next].x, bs[next].y);
 
-			Vector nn(seg.a.y-seg.b.y, seg.b.x-seg.a.x);	//orthog. vector for segment
-			Vector u = nn.unitary();
+			const Vector nn(seg.a.y-seg.b.y, seg.b.x-seg.a.x);	//orthog. vector for segment
+			const Vector u = nn.unitary();
 
-			double d = (p-seg.a)*u;		//distance it is inside; if neg. it is outside
+			const double d = (p-seg.a)*u;		//distance it is inside; if neg. it is outside
 			if (d<0)
 			{
 				return false;
 			}
 			else
 			{
-				double newScore = -d;
+				const double newScore = -d;
 				if (newScore >= score)
 				{
-					Vector dv = u * (-d);
+					const Vector dv = u * (-d);
 					if (dv * centerToPoint < 0)
 					{
 						*distVector = dv;
@@ -645,9 +646,9 @@ namespace Enki
 		// object is circle only
 		if (object->hull.empty())
 		{
-			double x = object->pos.x;
-			double y = object->pos.y;
-			double r = object->r;
+			const double x = object->pos.x;
+			const double y = object->pos.y;
+			const double r = object->r;
 			if (x-r < 0)
 			{
 				object->collideWithStaticObject(Vector(1, 0), Vector(0, y));
@@ -684,8 +685,8 @@ namespace Enki
 				double n = 0;
 				for (size_t i=0; i<shape.size(); i++)
 				{
-					double x = shape[i].x;
-					double y = shape[i].y;
+					const double x = shape[i].x;
+					const double y = shape[i].y;
 					if (x < -dist)
 					{
 						dist = -x;
@@ -711,8 +712,8 @@ namespace Enki
 				n = 0;
 				for (size_t i=0; i<shape.size(); i++)
 				{
-					double x = shape[i].x;
-					double y = shape[i].y;
+					const double x = shape[i].x;
+					const double y = shape[i].y;
 					if (y < -dist)
 					{
 						dist = -y;
@@ -742,30 +743,30 @@ namespace Enki
 		// test if circularObject is inside a shape
 		for (unsigned i=0; i<shape.size(); i++)
 		{
-			unsigned next=(i+1)%shape.size();
-			Segment s(shape[i].x, shape[i].y, shape[next].x, shape[next].y);
+			const size_t next=(i+1)%shape.size();
+			const Segment s(shape[i].x, shape[i].y, shape[next].x, shape[next].y);
 
-			Vector nn(s.a.y-s.b.y, s.b.x-s.a.x);	//orthog. vector
-			Vector u = nn.unitary();
+			const Vector nn(s.a.y-s.b.y, s.b.x-s.a.x);	//orthog. vector
+			const Vector u = nn.unitary();
 
-			double d = (circularObject->pos-s.a)*u;
+			const double d = (circularObject->pos-s.a)*u;
 			// if we are inside the circularObject
 			if ((d<0) && (-d<circularObject->r))
 			{
-				Point proj = circularObject->pos - u*d;
+				const Point proj = circularObject->pos - u*d;
 
 				if ((((proj-s.a)*(s.b-s.a))>0) && (((proj-s.b)*(s.a-s.b))>0))
 				{
 					// if there is a segment which is inside the circularObject, and the projection of the center lies within this segment, this projection is the nearest point. So we return. This is a consequence of having convexe polygones.
-					Vector dist = u*-(circularObject->r+d);
-					Point collisionPoint = circularObject->pos - u*(d);
+					const Vector dist = u*-(circularObject->r+d);
+					const Point collisionPoint = circularObject->pos - u*(d);
 					circularObject->collideWithObject(*shapedObject, collisionPoint, dist);
 					return;
 				}
 			}
 		}
 
-		double r2 = circularObject->r * circularObject->r;
+		const double r2 = circularObject->r * circularObject->r;
 		double pointInsideD2 = r2;
 		Point pointInside;
 		Vector centerToPointInside;
@@ -774,8 +775,8 @@ namespace Enki
 		for (unsigned i=0; i<shape.size(); i++)
 		{
 			const Point &candidate = shape[i];
-			Vector centerToPoint = candidate - circularObject->pos;
-			double d2 = centerToPoint.norm2();
+			const Vector centerToPoint = candidate - circularObject->pos;
+			const double d2 = centerToPoint.norm2();
 			if (d2 < pointInsideD2)
 			{
 				pointInsideD2 = d2;
@@ -787,9 +788,9 @@ namespace Enki
 		// we get a collision, one point of shape is inside the circularObject
 		if (pointInsideD2 < r2)
 		{
-			double pointInsideDist = sqrt(pointInsideD2);
-			Vector dist = (centerToPointInside / pointInsideDist) * (circularObject->r - pointInsideDist);
-			Point collisionPoint = pointInside + dist;
+			const double pointInsideDist = sqrt(pointInsideD2);
+			const Vector dist = (centerToPointInside / pointInsideDist) * (circularObject->r - pointInsideDist);
+			const Point collisionPoint = pointInside + dist;
 			shapedObject->collideWithObject(*circularObject, collisionPoint, dist);
 		}
 	}
@@ -797,8 +798,8 @@ namespace Enki
 	void World::collideObjects(PhysicalObject *object1, PhysicalObject *object2)
 	{
 		// Is there a possible contact ?
-		Vector distOCtoOC = object1->pos-object2->pos;
-		double addedRay = object1->r+object2->r;
+		const Vector distOCtoOC = object1->pos-object2->pos;
+		const double addedRay = object1->r+object2->r;
 		if (distOCtoOC.norm2() > (addedRay*addedRay))
 			return;
 
@@ -873,9 +874,9 @@ namespace Enki
 		else
 		{
 			// collide 2 circles
-			Vector ud = distOCtoOC.unitary();
+			const Vector ud = distOCtoOC.unitary();
 			//std::cout << object1 << " to " << object2 << " : " << ud << std::endl;
-			double dLength = distOCtoOC.norm();
+			const double dLength = distOCtoOC.norm();
 			dist = ud * (addedRay-dLength);
 			//std::cout << object1 << " to " << object2 << " : " << addedRay << " " << dLength << std::endl;
 			collisionPoint = object2->pos + ud * object2->r;
@@ -900,7 +901,7 @@ namespace Enki
 	void World::step(double dt, unsigned physicsOversampling)
 	{
 		// oversampling physics
-		double overSampledDt = dt / (double)physicsOversampling;
+		const double overSampledDt = dt / (double)physicsOversampling;
 		for (int po = 0; po < physicsOversampling; po++)
 		{
 			// init interactions

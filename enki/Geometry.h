@@ -203,19 +203,19 @@ namespace Enki
 		//! Compute the distance of p to this segment
 		double dist(const Point &p) const
 		{
-			Vector n(a.y-b.y, b.x-a.x);
-			Vector u = n.unitary();
-			Vector ap = p-a;
+			const Vector n(a.y-b.y, b.x-a.x);
+			const Vector u = n.unitary();
+			const Vector ap = p-a;
 			return ap * u;
 		}
 	
 		//! Return true if o intersect this segment
 		bool doesIntersect(const Segment &o) const
 		{
-			double s2da = dist (o.a);
-			double s2db = dist (o.b);
-			double s1da = o.dist (a);
-			double s1db = o.dist (b);
+			const double s2da = dist (o.a);
+			const double s2db = dist (o.b);
+			const double s1da = o.dist (a);
+			const double s1db = o.dist (b);
 			return (s2da*s2db<0) && (s1da*s1db<0);
 		}
 	};
@@ -253,9 +253,9 @@ namespace Enki
 		//! Extend an axis aligned bounding box with this object
 		void extendAxisAlignedBoundingBox(Point& bottomLeft, Point& topRight) const
 		{
-			for (size_t i = 0; i < size(); i++)
+			for (const_iterator it = begin(); it != end(); ++it)
 			{
-				const Point& p = (*this)[i];
+				const Point& p = *it;
 				
 				if (p.x < bottomLeft.x)
 					bottomLeft.x = p.x;
@@ -267,6 +267,15 @@ namespace Enki
 				else if (p.y > topRight.y)
 					topRight.y = p.y;
 			}
+		}
+		
+		//! Return the bounding radius of this polygon
+		double getBoundingRadius() const
+		{
+			double radius = 0;
+			for (size_t i = 0; i < size(); i++)
+				radius = std::max<double>(radius, (*this)[i].norm());
+			return radius;
 		}
 		
 		//! Translate of a specific distance
@@ -282,15 +291,6 @@ namespace Enki
 			Matrix22 rot(angle);
 			for (iterator it = begin(); it != end(); ++it)
 				*it = rot * (*it);
-		}
-		
-		//! Return the bounding radius of this area
-		double getBoundingRadius() const
-		{
-			double radius = 0;
-			for (size_t i = 0; i < size(); i++)
-				radius = std::max<double>(radius, (*this)[i].norm());
-			return radius;
 		}
 		
 		//! Flip coordinates on x
@@ -344,12 +344,12 @@ namespace Enki
 	inline Point getIntersection(const Segment &s1, const Segment &s2)
 	{
 		// compute first segment's equation
-		double c1 = s1.a.y + (-s1.a.x / (s1.b.x - s1.a.x)) * (s1.b.y - s1.a.y);
-		double m1 = (s1.b.y - s1.a.y) / (s1.b.x - s1.a.x);
+		const double c1 = s1.a.y + (-s1.a.x / (s1.b.x - s1.a.x)) * (s1.b.y - s1.a.y);
+		const double m1 = (s1.b.y - s1.a.y) / (s1.b.x - s1.a.x);
  
 		// compute second segment's equation
-		double c2 = s2.a.y + (-s2.a.x / (s2.b.x - s2.a.x)) * (s2.b.y - s2.a.y);
-		double m2 = (s2.b.y - s2.a.y) / (s2.b.x - s2.a.x);
+		const double c2 = s2.a.y + (-s2.a.x / (s2.b.x - s2.a.x)) * (s2.b.y - s2.a.y);
+		const double m2 = (s2.b.y - s2.a.y) / (s2.b.x - s2.a.x);
 
 		// are the lines parallel ?
 		if (m1 == m2)
