@@ -40,4 +40,11 @@ namespace Enki
 		outs << "(" << vector.x << ", " << vector.y << ")";
 		return outs;
 	}
+	
+	std::ostream & operator << (std::ostream & outs, const Polygone &polygone)
+	{
+		for (Polygone::const_iterator it = polygone.begin(); it != polygone.end(); ++it)
+			outs << *it << " ";
+		return outs;
+	}
 }

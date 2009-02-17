@@ -329,9 +329,8 @@ namespace Enki
 		*/
 		// Use a predefined bounding surface
 		
-		Parts parts;
-		parts.push_back(Part(aliceBoundingSurface.p, 4));
-		setCustomHull(parts, 10);
+		Hull hull(Part(aliceBoundingSurface.p, 4));
+		setCustomHull(hull, 10);
 		setColor(Color::blue);
 
 		/*

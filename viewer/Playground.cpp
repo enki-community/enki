@@ -76,10 +76,9 @@ public:
 			for (double a = 0; a < 2*M_PI; a += 2*M_PI/amount)
 				p.push_back(Point(radius * cos(a), radius * sin(a)));
 			
-			PhysicalObject::Parts parts;
-			parts.push_back(Enki::PhysicalObject::Part(p, height));
 			PhysicalObject* o = new PhysicalObject;
-			o->setCustomHull(parts, -1);
+			PhysicalObject::Hull hull(Enki::PhysicalObject::Part(p, height));
+			o->setCustomHull(hull, -1);
 			o->setColor(Color(0.4,0.6,0.8));
 			o->pos = Point(100, 100);
 			world->addObject(o);
@@ -102,10 +101,9 @@ public:
 		p2.push_back(Point(5,-1));
 		for (int i = 0; i < 5; i++)
 		{
-			PhysicalObject::Parts parts;
-			parts.push_back(Enki::PhysicalObject::Part(p2, 3));
 			PhysicalObject* o = new PhysicalObject;
-			o->setCustomHull(parts, 30);
+			PhysicalObject::Hull hull(Enki::PhysicalObject::Part(p2, 3));
+			o->setCustomHull(hull, 30);
 			o->setColor(Color(0.2, 0.1, 0.6));
 			o->collisionElasticity = 0.2;
 			o->pos = Point(UniformRand(20, 100)(), UniformRand(20, 100)());
@@ -114,11 +112,11 @@ public:
 		
 		// cross shape
 		{
-			PhysicalObject::Parts parts;
-			parts.push_back(Enki::PhysicalObject::Part(Polygone() << Point(5,1) << Point(-5,1) << Point(-5,-1) << Point(5,-1), 2));
-			parts.push_back(Enki::PhysicalObject::Part(Polygone() << Point(1,5) << Point(-1,5) << Point(-1,-5) << Point(1,-5), 4));
 			PhysicalObject* o = new PhysicalObject;
-			o->setCustomHull(parts, 60);
+			PhysicalObject::Hull hull;
+			hull.push_back(Enki::PhysicalObject::Part(Polygone() << Point(5,1) << Point(-5,1) << Point(-5,-1) << Point(5,-1), 2));
+			hull.push_back(Enki::PhysicalObject::Part(Polygone() << Point(1,5) << Point(-1,5) << Point(-1,-5) << Point(1,-5), 4));
+			o->setCustomHull(hull, 60);
 			o->setColor(Color(0.2, 0.4, 0.6));
 			o->collisionElasticity = 0.2;
 			o->pos = Point(UniformRand(20, 100)(), UniformRand(20, 100)());

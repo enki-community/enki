@@ -109,14 +109,19 @@ namespace Enki
 		Vector unitary(void) const { if (norm() < std::numeric_limits<double>::epsilon()) return Vector(); return *this / norm(); }
 		//! Return the angle with the horizontal (arc tangant (y/x))
 		double angle(void) const { return atan2(y, x); }
+		//! Return the perpendicular of the same norm in math. orientation (CCW)
+		Vector perp(void) const { return Vector(-y, x); }
 		
 		//! Return the cross with (this x other) a (virtual, as we are in 2D) perpendicular vector (on axis z) of given norm. 
 		Vector crossWithZVector(double l) const { return Vector(y * l, -x * l); }
 		//! Return the cross from (other x this) a (virtual, as we are in 2D) perpendicular vector (on axis z) of given norm. 
 		Vector crossFromZVector(double l) const { return Vector(-y * l, x * l); }
+		
+		//! Comparison operator
+		bool operator <(const Vector& that) const { if (this->x == that.x) return (this->y < that.y); else return (this->x < that.x); }
 	};
 	
-	//! Dump a vector to a stream
+	//! Print a vector to a stream
 	std::ostream & operator << (std::ostream & outs, const Vector &vector);
 	
 	//! A point in a 2D space, another name for a vector
@@ -271,6 +276,14 @@ namespace Enki
 				*it += delta;
 		}
 		
+		//! Rotate by a specific angle
+		void translate(double angle)
+		{
+			Matrix22 rot(angle);
+			for (iterator it = begin(); it != end(); ++it)
+				*it = rot * (*it);
+		}
+		
 		//! Return the bounding radius of this area
 		double getBoundingRadius() const
 		{
@@ -309,6 +322,9 @@ namespace Enki
 		//! Operator to add point inline
 		Polygone& operator << (const Point& p) { push_back(p); return *this; }
 	};
+	
+	//! Print a polygone to a stream
+	std::ostream & operator << (std::ostream & outs, const Polygone &polygone);
 	
 	//! Normlize an angle to be between -PI and +PI.
 	/*! \ingroup an */

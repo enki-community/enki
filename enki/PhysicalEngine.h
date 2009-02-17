@@ -241,8 +241,16 @@ namespace Enki
 			void computeTransformedShape(const Matrix22& rot, const Point& trans);
 		};
 		
-		//! A hull is a vector of parts
-		typedef std::vector<Part> Parts;
+		//! A hull is a vector of Hull
+		struct Hull:std::vector<Part>
+		{
+			//! Construct an empty hull
+			Hull() {}
+			//! Construct a hull with a single part
+			Hull(const Part& part) : std::vector<Part>(1, part) {}
+			//! Return the convex hull of this hull, using a simple Jarvis march/gift wrapping algorithm
+			Polygone getConvexHull() const;
+		};
 		
 	private:		// variables
 		
@@ -257,8 +265,8 @@ namespace Enki
 		
 		// Geometry
 		
-		//! The hull of this object, which can be composed of several parts
-		Parts hull;
+		//! The hull of this object, which can be composed of several Hull
+		Hull hull;
 		//! The radius of circular objects or, if hull is not empty, the bounding circle
 		double r;
 		//! The height of circular object or, if hull is not empty, the maximum height
@@ -280,7 +288,7 @@ namespace Enki
 		inline double getRadius() const { return r; }
 		inline double getHeight() const { return height; }
 		inline bool isCylindric() const { return hull.empty(); }
-		inline const Parts& getHull() const { return hull; }
+		inline const Hull& getHull() const { return hull; }
 		inline const Color& getColor() const { return color; }
 		inline double getInfraredReflectiveness() const { return infraredReflectiveness; }
 		
@@ -291,7 +299,7 @@ namespace Enki
 		//! Make the object rectangular of size l1 x l2 with a given mass
 		void setRectangular(double l1, double l2, double height, double mass);
 		//! Set a custom shape and mass to the object
-		void setCustomHull(const Parts& hull, double mass);
+		void setCustomHull(const Hull& hull, double mass);
 		//! Set the overall color of this object, if hull is empty or if it does not contain any texture
 		void setColor(const Color &color);
 		//! Set the infrared reflectiveness of the object
@@ -308,10 +316,13 @@ namespace Enki
 	
 	protected:		// physical actions
 		
+		/*//! A physics simulation step for this object. It is considered as deinterlaced. The position and orientation are updated.
+		virtual void physicsStep(double dt);*/
 		//! Control step, not oversampled
 		virtual void controlStep(double dt) { }
 		//! Apply forces, typically friction to reduce speed, but one can override to change behaviour.
 		virtual void applyForces(double dt);
+
 		
 		//! Initialize the object specific interactions, do nothing for PhysicalObject.
 		virtual void initLocalInteractions() { }
@@ -331,9 +342,9 @@ namespace Enki
 
 	private:		// physical actions
 		
-		//! Initialize the collision logic, update forces, speeds, and position
+		//! Initialize the collision logic
 		void initPhysicsInteractions(double dt);
-		//! All collisions are finished, .
+		//! All collisions are finished, deinterlace the object.
 		void finalizePhysicsInteractions(double dt);
 		
 		//! Dynamics for collision with a static object at points cp with normal vector n
@@ -378,6 +389,10 @@ namespace Enki
 	*/
 	class World
 	{
+	protected:
+		//! At each step objects are collided in a different order (first A-B, then B-A) to prevent side effects, collideEven contains the actual order.
+		bool collideEven;
+
 	public:
 		typedef std::set<PhysicalObject *> Objects;
 		typedef Objects::iterator ObjectsIterator;
@@ -394,6 +409,8 @@ namespace Enki
 		//! Base for the Bluetooth connections between robots
 		class BluetoothBase* bluetoothBase;
 
+		//! Return collideEven
+		bool getCollideEven() {return collideEven;}
 		//! Do the collision of a circular object with one with a different shape (convex boundingsurface)
 		void collideCircleWithShape(PhysicalObject *circularObject, PhysicalObject *shapedObject, const Polygone &shape);
 		//! Collide two objects. Correct functions will be called depending on type of object (circular or other shape).

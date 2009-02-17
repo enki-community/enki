@@ -103,8 +103,57 @@ namespace Enki
 	{
 		assert(!shape.empty());
 		assert(transformedShape.size() == shape.size());
-		for (size_t i = 0; i < shape.size(); ++i)
-			transformedShape[i] = rot * (shape)[i] + trans;
+		for (Polygone::iterator it = shape.begin(); it != shape.end(); ++it)
+			*it = rot * (*it) + trans;
+	}
+	
+	// Hull
+	
+	Polygone PhysicalObject::Hull::getConvexHull() const
+	{
+		// construct a vector of all points and get the left most
+		// the operator < on Vector sorts primary by x coordinate, and if equal, by y coordnate
+		typedef std::set<Point> Points;
+		Points points;
+		for (Hull::const_iterator it = begin(); it != end(); ++it)
+		{
+			const Polygone& part = it->shape;
+			for (Polygone::const_iterator jt = part.begin(); jt != part.end(); ++jt)
+				points.insert(*jt);
+		}
+		
+		// do nothing for empty hulls
+		if (points.empty())
+			return Polygone();
+		
+		//  Jarvis march/gift wrapping
+		Polygone convexHull;
+		convexHull.push_back(*points.begin());
+		points.erase(points.begin());
+		while (!points.empty())
+		{
+			Points::iterator candidate = points.begin();
+			Vector perp = (*candidate - convexHull.back()).perp();
+			
+			Points::const_iterator it = points.begin();
+			++it;
+			for (; it != points.end(); ++it)
+			{
+				Point newVect = *it - convexHull.back();
+				if (newVect * perp < 0)
+				{
+					candidate = it;
+					perp = (*candidate - convexHull.back()).perp();
+				}
+			}
+			Point endVect = convexHull.front() - convexHull.back();
+			if (endVect * perp < 0)
+				break;
+			convexHull.push_back(*candidate);
+			points.erase(candidate);
+		}
+		
+		return convexHull;
 	}
 	
 	
@@ -166,12 +215,12 @@ namespace Enki
 		computeMomentOfInertia();
 	}
 	
-	void PhysicalObject::setCustomHull(const Parts& hull, double mass)
+	void PhysicalObject::setCustomHull(const Hull& hull, double mass)
 	{
 		// assign the new hull
 		this->hull = hull;
 		height = 0;
-		for (Parts::const_iterator it = hull.begin(); it != hull.end(); ++it)
+		for (Hull::const_iterator it = hull.begin(); it != hull.end(); ++it)
 			height = std::max(height, it->getHeight());
 		
 		// compute the center of mass
@@ -208,7 +257,7 @@ namespace Enki
 			double dr = r / 50.;
 			for (double ix = -r; ix < r; ix += dr)
 				for (double iy = -r; iy < r; iy += dr)
-					for (Parts::const_iterator it = hull.begin(); it != hull.end(); ++it)
+					for (Hull::const_iterator it = hull.begin(); it != hull.end(); ++it)
 						if (it->shape.isPointInside(Point(ix, iy)))
 						{
 							momentOfInertia += ix * ix + iy * iy;
@@ -226,7 +275,7 @@ namespace Enki
 		
 		// get bounding box of the whole hull
 		Point bottomLeft, topRight;
-		Parts::iterator it = hull.begin();
+		Hull::iterator it = hull.begin();
 		bool validBB = it->shape.getAxisAlignedBoundingBox(bottomLeft, topRight);
 		assert(validBB);
 		++it;
@@ -266,7 +315,7 @@ namespace Enki
 		if (!hull.empty())
 		{
 			Matrix22 rotMat(angle);
-			for (Parts::iterator it = hull.begin(); it != hull.end(); ++it)
+			for (Hull::iterator it = hull.begin(); it != hull.end(); ++it)
 				it->computeTransformedShape(rotMat, pos);
 		}
 	}
@@ -623,7 +672,7 @@ namespace Enki
 		else
 		{
 			// iterate over all shapes
-			for (PhysicalObject::Parts::const_iterator it = object->hull.begin(); it != object->hull.end(); ++it)
+			for (PhysicalObject::Hull::const_iterator it = object->hull.begin(); it != object->hull.end(); ++it)
 			{
 				const Polygone& shape = it->getTransformedShape();
 				
@@ -765,8 +814,8 @@ namespace Enki
 			if (!object2->hull.empty())
 			{
 				// iterate on all shapes of both objects
-				for (PhysicalObject::Parts::const_iterator it = object1->hull.begin(); it != object1->hull.end(); ++it)
-					for (PhysicalObject::Parts::const_iterator jt = object2->hull.begin(); jt != object2->hull.end(); ++jt)
+				for (PhysicalObject::Hull::const_iterator it = object1->hull.begin(); it != object1->hull.end(); ++it)
+					for (PhysicalObject::Hull::const_iterator jt = object2->hull.begin(); jt != object2->hull.end(); ++jt)
 					{
 						const Polygone& shape1 = it->getTransformedShape();
 						const Polygone& shape2 = jt->getTransformedShape();
@@ -809,7 +858,7 @@ namespace Enki
 			else
 			{
 				// collide circle 2 on shape 1
-				for (PhysicalObject::Parts::const_iterator it = object1->hull.begin(); it != object1->hull.end(); ++it)
+				for (PhysicalObject::Hull::const_iterator it = object1->hull.begin(); it != object1->hull.end(); ++it)
 					collideCircleWithShape(object2, object1, it->getTransformedShape());
 				return;
 			}
@@ -817,7 +866,7 @@ namespace Enki
 		else if (!object2->hull.empty())
 		{
 			// collide circle 1 on shape 2
-			for (PhysicalObject::Parts::const_iterator jt = object2->hull.begin(); jt != object2->hull.end(); ++jt)
+			for (PhysicalObject::Hull::const_iterator jt = object2->hull.begin(); jt != object2->hull.end(); ++jt)
 				collideCircleWithShape(object1, object2, jt->getTransformedShape());
 			return;
 		}

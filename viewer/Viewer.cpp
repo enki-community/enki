@@ -503,7 +503,7 @@ namespace Enki
 		if (!object->getHull().empty())
 		{
 			glDisable(GL_LIGHTING);
-			for (PhysicalObject::Parts::const_iterator it = object->getHull().begin(); it != object->getHull().end(); ++it)
+			for (PhysicalObject::Hull::const_iterator it = object->getHull().begin(); it != object->getHull().end(); ++it)
 			{
 				const Polygone& shape = it->getShape();
 				const double height = it->getHeight();

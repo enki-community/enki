@@ -242,7 +242,7 @@ namespace Enki
 				if (distsc2 < r2)
 				{
 					// iterate over all shapes
-					for (PhysicalObject::Parts::const_iterator it = po->getHull().begin(); it != po->getHull().end(); ++it)
+					for (PhysicalObject::Hull::const_iterator it = po->getHull().begin(); it != po->getHull().end(); ++it)
 					{
 						if (height > it->getHeight())
 							continue;

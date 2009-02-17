@@ -23,9 +23,8 @@ int main(int argc, char *argv[])
 	for (double a = 0; a < 2*M_PI; a += 2*M_PI/amount)
 		p.push_back(Enki::Point(radius * cos(a), radius * sin(a)));
 	Enki::PhysicalObject* o = new Enki::PhysicalObject;
-	Enki::PhysicalObject::Parts parts;
-	parts.push_back(Enki::PhysicalObject::Part(p, height));
-	o->setCustomHull(parts, 1);
+	Enki::PhysicalObject::Hull hull(Enki::PhysicalObject::Part(p, height));
+	o->setCustomHull(hull, 1);
 	o->pos = Enki::Point(100, 100);
 	o->setColor(Enki::Color(0.4,0.6,0.8));
 	world.addObject(o);

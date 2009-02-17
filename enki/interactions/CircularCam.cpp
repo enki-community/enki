@@ -84,7 +84,7 @@ namespace Enki
 		if (!po->isCylindric())
 		{
 			// object has a hull
-			for (PhysicalObject::Parts::const_iterator it = po->getHull().begin(); it != po->getHull().end(); ++it)
+			for (PhysicalObject::Hull::const_iterator it = po->getHull().begin(); it != po->getHull().end(); ++it)
 			{
 				if (height > it->getHeight())
 					continue;
