@@ -118,7 +118,7 @@ namespace Enki
 		Points points;
 		for (Hull::const_iterator it = begin(); it != end(); ++it)
 		{
-			const Polygone& part = it->shape;
+			const Polygone& part = it->getShape();
 			for (Polygone::const_iterator jt = part.begin(); jt != part.end(); ++jt)
 				points.insert(*jt);
 		}
