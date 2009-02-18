@@ -291,6 +291,7 @@ namespace Enki
 		inline const Hull& getHull() const { return hull; }
 		inline const Color& getColor() const { return color; }
 		inline double getInfraredReflectiveness() const { return infraredReflectiveness; }
+		inline double getMass() const { return mass; }
 		
 		// setters
 		
