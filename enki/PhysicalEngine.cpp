@@ -136,7 +136,7 @@ namespace Enki
 			Points::iterator candidate = points.begin();
 			Vector perp = (*candidate - convexHull.back()).perp();
 			
-			Points::const_iterator it = points.begin();
+			Points::iterator it = points.begin();
 			++it;
 			for (; it != points.end(); ++it)
 			{
@@ -902,7 +902,7 @@ namespace Enki
 	{
 		// oversampling physics
 		const double overSampledDt = dt / (double)physicsOversampling;
-		for (int po = 0; po < physicsOversampling; po++)
+		for (unsigned po = 0; po < physicsOversampling; po++)
 		{
 			// init interactions
 			for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
