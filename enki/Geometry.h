@@ -285,8 +285,14 @@ namespace Enki
 				*it += delta;
 		}
 		
+		//! Translate of a specific distance, overload for convenience
+		void translate(const double& x, const double& y)
+		{
+			translate(Vector(x,y));
+		}
+		
 		//! Rotate by a specific angle
-		void translate(double angle)
+		void rotate(double angle)
 		{
 			Matrix22 rot(angle);
 			for (iterator it = begin(); it != end(); ++it)

@@ -292,6 +292,7 @@ namespace Enki
 		inline const Color& getColor() const { return color; }
 		inline double getInfraredReflectiveness() const { return infraredReflectiveness; }
 		inline double getMass() const { return mass; }
+		inline double getMomentOfInertia() const { return momentOfInertia; }
 		
 		// setters
 		
