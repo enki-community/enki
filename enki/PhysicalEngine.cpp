@@ -762,8 +762,47 @@ namespace Enki
 	
 	void World::collideWithCircularWalls(PhysicalObject *object)
 	{
-		// TODO
-		assert(false);
+		const double r2 = r * r;
+		// object is circle only
+		if (object->hull.empty())
+		{
+			const double distToWall = r - (object->pos.norm() + object->r);
+			if (distToWall < 0)
+			{
+				const Vector dirU = object->pos.unitary();
+				object->collideWithStaticObject(-dirU, dirU * r);
+				object->pos += dirU * distToWall;
+			}
+		}
+		else
+		{
+			// iterate over all shapes
+			for (PhysicalObject::Hull::const_iterator it = object->hull.begin(); it != object->hull.end(); ++it)
+			{
+				const Polygone& shape = it->getTransformedShape();
+				Point cp;
+				double dist = 0;
+				for (size_t i=0; i<shape.size(); i++)
+				{
+					if (shape[i].norm2() > r2)
+					{
+						double newDist = shape[i].norm() - r;
+						if (newDist > dist)
+						{
+							dist = newDist;
+							cp = shape[i];
+						}
+					}
+				}
+				if (dist > 0)
+				{
+					const Vector dirU = cp.unitary();
+					object->collideWithStaticObject(-dirU, dirU * r);
+					object->pos -= dirU * dist;
+				}
+			}
+			// TODO: verify this code
+		}
 	}
 	
 	void World::collideCircleWithShape(PhysicalObject *circularObject, PhysicalObject *shapedObject, const Polygone &shape)

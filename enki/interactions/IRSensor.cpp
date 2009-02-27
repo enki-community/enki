@@ -265,50 +265,66 @@ namespace Enki
 
 	void IRSensor::wallsStep (double dt, World* w)
 	{
-		// if radius from center point of rays is not touching walls, don't bother
-		if ((absSmartPos.x-smartRadius>0) && (absSmartPos.y-smartRadius>0) && (absSmartPos.x+smartRadius<w->w) && (absSmartPos.y+smartRadius<w->h))
-				return;
-
-		// if sensor is inside a wall distance is 0
-		if ((absPos.x<0) || (absPos.x>w->w) || (absPos.y<0) || (absPos.y>w->h))
+		switch (w->wallsType)
 		{
-			std::fill(&rayValues[0], &rayValues[rayCount], 0);
-			std::fill(&rayColors[0], &rayColors[rayCount], Color::white);
-			return;
-		}
-
-		for (size_t i = 0; i < rayCount; i++)
-		{
-			const Vector rayDir(cos(absRayAngles[i]), sin(absRayAngles[i]));
-			
-			// the absolute position of the sensor ray's end point
-			const Point absRayEndPoint = absPos+rayDir*range;
-			double candidate0 = HUGE_VAL; //infinity
-			double candidate1 = HUGE_VAL;
-			double newDist;
-			
-			// we have a candidate if our sensor sticks out into the left wall
-			if (absRayEndPoint.x < 0)
-				candidate0 = -absPos.x / (absRayEndPoint.x-absPos.x); 	// idea: a/b = c/d;
-			// or the right wall
-			else if (absRayEndPoint.x > w->w)
-				candidate0 = (w->w-absPos.x) / (absRayEndPoint.x-absPos.x);
-			// or the bottom wall
-			if (absRayEndPoint.y < 0) 
-				candidate1 = -absPos.y / (absRayEndPoint.y-absPos.y);
-			// or the top wall
-			else if (absRayEndPoint.y > w->h) 
-				candidate1 = (w->h-absPos.y) / (absRayEndPoint.y-absPos.y);
-
-			newDist = std::min(candidate0, candidate1);
-			newDist *= range;
-
-			// if we have a smaller distance than the initial one, replace it
-			if (newDist < rayValues[i])
+			case World::WALLS_SQUARE:
 			{
-				rayValues[i] = newDist;
-				rayColors[i] = Color::white; // FIXME :get wall color if required
+				// if radius from center point of rays is not touching walls, don't bother
+				if ((absSmartPos.x-smartRadius>0) && (absSmartPos.y-smartRadius>0) && (absSmartPos.x+smartRadius<w->w) && (absSmartPos.y+smartRadius<w->h))
+					return;
+		
+				// if sensor is inside a wall distance is 0
+				if ((absPos.x<0) || (absPos.x>w->w) || (absPos.y<0) || (absPos.y>w->h))
+				{
+					std::fill(&rayValues[0], &rayValues[rayCount], 0);
+					std::fill(&rayColors[0], &rayColors[rayCount], Color::white);
+					return;
+				}
+		
+				for (size_t i = 0; i < rayCount; i++)
+				{
+					const Vector rayDir(cos(absRayAngles[i]), sin(absRayAngles[i]));
+					
+					// the absolute position of the sensor ray's end point
+					const Point absRayEndPoint = absPos+rayDir*range;
+					double candidate0 = HUGE_VAL; //infinity
+					double candidate1 = HUGE_VAL;
+					double newDist;
+					
+					// we have a candidate if our sensor sticks out into the left wall
+					if (absRayEndPoint.x < 0)
+						candidate0 = -absPos.x / (absRayEndPoint.x-absPos.x); 	// idea: a/b = c/d;
+					// or the right wall
+					else if (absRayEndPoint.x > w->w)
+						candidate0 = (w->w-absPos.x) / (absRayEndPoint.x-absPos.x);
+					// or the bottom wall
+					if (absRayEndPoint.y < 0) 
+						candidate1 = -absPos.y / (absRayEndPoint.y-absPos.y);
+					// or the top wall
+					else if (absRayEndPoint.y > w->h) 
+						candidate1 = (w->h-absPos.y) / (absRayEndPoint.y-absPos.y);
+		
+					newDist = std::min(candidate0, candidate1);
+					newDist *= range;
+		
+					// if we have a smaller distance than the initial one, replace it
+					if (newDist < rayValues[i])
+					{
+						rayValues[i] = newDist;
+						rayColors[i] = w->wallsColor;
+					}
+				}
 			}
+			break;
+			
+			case World::WALLS_CIRCULAR:
+			{
+				// TODO
+			}
+			break;
+			
+			default:
+			break;
 		}
 	}
 	
