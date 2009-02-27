@@ -109,10 +109,10 @@ namespace Enki
 		CircularCam(Robot *owner, Vector pos, double height, double orientation, double halfFieldOfView, unsigned pixelCount);
 		//! Destructor
 		virtual ~CircularCam(){}
-		virtual void init();
-		virtual void objectStep (double dt, PhysicalObject *po, World *w);
-		virtual void wallsStep(World *w);
-		virtual void finalize(double dt);
+		virtual void init(double dt, World* w);
+		virtual void objectStep(double dt, World *w, PhysicalObject *po);
+		virtual void wallsStep(double dt, World* w);
+		virtual void finalize(double dt, World* w);
 		
 		//! Change the sight range of the camera
 		void setRange(double range);
@@ -156,10 +156,10 @@ namespace Enki
 		OmniCam(Robot *owner, double height, unsigned halfPixelCount);
 		//! Destructor
 		virtual ~OmniCam(){}
-		virtual void init();
-		virtual void objectStep (double dt, PhysicalObject *po, World *w);
-		virtual void wallsStep(World *w);
-		virtual void finalize(double dt);
+		virtual void init(double dt, World* w);
+		virtual void objectStep(double dt, World *w, PhysicalObject *po);
+		virtual void wallsStep(double dt, World* w);
+		virtual void finalize(double dt, World* w);
 		//! Change the sight range of the camera
 		void setRange(double range);
 		//! Change the fog condition for this camera. If useFog is true, an exponential fog with density will be used. Additionally, a threshold can be applied on the resulting color

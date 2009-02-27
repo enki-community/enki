@@ -83,7 +83,7 @@ namespace Enki
 		finalValue = 0;
 	}
 
-	void IRSensor::init()
+	void IRSensor::init(double dt, World* w)
 	{
 		// fill initial values with very large value; will be replaced if smaller distance is found
 		std::fill(&rayValues[0], &rayValues[rayCount], HUGE_VAL);
@@ -174,7 +174,7 @@ namespace Enki
 	// robot bounding circle overlaps with po
 	// each sensor is composed of n rays
 	// modified by yvan.bourquin@epfl.ch to take into account the exact bounding surface
-	void IRSensor::objectStep (double dt, PhysicalObject *po, World *w)
+	void IRSensor::objectStep (double dt, World *w, PhysicalObject *po)
 	{
 		// if we see over the object get out of here
 		if (height > po->getHeight())
@@ -263,7 +263,7 @@ namespace Enki
 		}
 	}
 
-	void IRSensor::wallsStep (World *w)
+	void IRSensor::wallsStep (double dt, World* w)
 	{
 		// if radius from center point of rays is not touching walls, don't bother
 		if ((absSmartPos.x-smartRadius>0) && (absSmartPos.y-smartRadius>0) && (absSmartPos.x+smartRadius<w->w) && (absSmartPos.y+smartRadius<w->h))
@@ -313,7 +313,7 @@ namespace Enki
 	}
 	
 	// we combine all the sensor values
-	void IRSensor::finalize(double dt)
+	void IRSensor::finalize(double dt, World* w)
 	{
 		finalValue = 0;
 		for (size_t i = 0; i<rayCount; i++)

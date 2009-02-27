@@ -112,13 +112,13 @@ namespace Enki
 		//! i.e. for left: position on bot is x=0.95, y=0.95 from center of bot, height of sensor is 1.2, looking 45 deg to the left, +/-30 deg opening angle, 3cm max sensor range, a raycount of 3, SensorResponseFunctor in AliceIRNormalSensorModel array
 		IRSensor(Robot *owner, Vector pos, double height, double orientation, double range, double aperture, unsigned rayCount, SensorResponseFunctor **sensorResponseKernel);
 		//! Reset distance values
-		void init();
+		void init(double dt, World* w);
 		//! Check for all potential intersections using smartRadius of sensor and calculate and find closest distance for each ray.
-		void objectStep(double dt, PhysicalObject *po, World *w);
+		void objectStep(double dt, World *w, PhysicalObject *po);
 		//! Separated from objectStep because it is much simpler. 
-		void wallsStep(World *w);
+		void wallsStep(double dt, World* w);
 		//! Applies the SensorResponseFunction to each ray and combines all rays using weights defined in the rayCombinationKernel.
-		void finalize(double dt);
+		void finalize(double dt, World* w);
 		
 		//! Return the absolute position of the IR sensor, updated at each time step on init()
 		Point getAbsolutePosition(void) { return absPos; }

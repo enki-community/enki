@@ -62,7 +62,7 @@ namespace Enki
 		*/
 		EPuckScannerTurret(Robot *owner, double height, unsigned halfPixelCount);
 		
-		virtual void finalize(double dt);
+		virtual void finalize(double dt, World* w);
 	
 	public:
 		std::valarray<double> scan;

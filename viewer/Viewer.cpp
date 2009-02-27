@@ -432,63 +432,75 @@ namespace Enki
 		glColor3d(1, 1, 1);
 		glColor3d(.90980392, .90980392, .90980392);
 		
-		if (world->useWalls)
+		switch (world->wallsType)
 		{
-			// TODO: use world texture if any
-			glDisable(GL_LIGHTING);
+			case World::WALLS_SQUARE:
+			{
+				// TODO: use world texture if any
+				glDisable(GL_LIGHTING);
+				
+				glBegin(GL_QUADS);
+				glVertex3d(-infPlanSize, -infPlanSize, wallsHeight);
+				glVertex3d(infPlanSize+world->w, -infPlanSize, wallsHeight);
+				glVertex3d(infPlanSize+world->w, 0, wallsHeight);
+				glVertex3d(-infPlanSize, 0, wallsHeight);
+				
+				glVertex3d(-infPlanSize, world->h, wallsHeight);
+				glVertex3d(infPlanSize+world->w, world->h, wallsHeight);
+				glVertex3d(infPlanSize+world->w, world->h+infPlanSize, wallsHeight);
+				glVertex3d(-infPlanSize, world->h+infPlanSize, wallsHeight);
+				
+				glVertex3d(-infPlanSize, 0, wallsHeight);
+				glVertex3d(0, 0, wallsHeight);
+				glVertex3d(0, world->h, wallsHeight);
+				glVertex3d(-infPlanSize, world->h, wallsHeight);
+				
+				glVertex3d(world->w, 0, wallsHeight);
+				glVertex3d(world->w+infPlanSize, 0, wallsHeight);
+				glVertex3d(world->w+infPlanSize, world->h, wallsHeight);
+				glVertex3d(world->w, world->h, wallsHeight);
+				glEnd();
+				
+				glEnable(GL_TEXTURE_2D);
+				glBindTexture(GL_TEXTURE_2D, worldTexture);
+				glColor3d(1, 1, 1);
+				
+				renderWorldSegment(Segment(world->w, 0, 0, 0));
+				renderWorldSegment(Segment(world->w, world->h, world->w, 0));
+				renderWorldSegment(Segment(0, world->h, world->w, world->h));
+				renderWorldSegment(Segment(0, 0, 0, world->h));
+				
+				glDisable(GL_TEXTURE_2D);
+				
+				glNormal3d(0, 0, 1);
+				glColor3d(.90980392, .90980392, .90980392);
+				glBegin(GL_QUADS);
+				glVertex3d(10, 10, 0);
+				glVertex3d(world->w-10, 10, 0);
+				glVertex3d(world->w-10, world->h-10, 0);
+				glVertex3d(10, world->h-10, 0);
+				glEnd();
+				
+				glEnable(GL_LIGHTING);
+			}
+			break;
 			
-			glBegin(GL_QUADS);
-			glVertex3d(-infPlanSize, -infPlanSize, wallsHeight);
-			glVertex3d(infPlanSize+world->w, -infPlanSize, wallsHeight);
-			glVertex3d(infPlanSize+world->w, 0, wallsHeight);
-			glVertex3d(-infPlanSize, 0, wallsHeight);
+			case World::WALLS_CIRCULAR:
+			{
+				// TODO:
+			}
+			break;
 			
-			glVertex3d(-infPlanSize, world->h, wallsHeight);
-			glVertex3d(infPlanSize+world->w, world->h, wallsHeight);
-			glVertex3d(infPlanSize+world->w, world->h+infPlanSize, wallsHeight);
-			glVertex3d(-infPlanSize, world->h+infPlanSize, wallsHeight);
-			
-			glVertex3d(-infPlanSize, 0, wallsHeight);
-			glVertex3d(0, 0, wallsHeight);
-			glVertex3d(0, world->h, wallsHeight);
-			glVertex3d(-infPlanSize, world->h, wallsHeight);
-			
-			glVertex3d(world->w, 0, wallsHeight);
-			glVertex3d(world->w+infPlanSize, 0, wallsHeight);
-			glVertex3d(world->w+infPlanSize, world->h, wallsHeight);
-			glVertex3d(world->w, world->h, wallsHeight);
-			glEnd();
-			
-			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, worldTexture);
-			glColor3d(1, 1, 1);
-			
-			renderWorldSegment(Segment(world->w, 0, 0, 0));
-			renderWorldSegment(Segment(world->w, world->h, world->w, 0));
-			renderWorldSegment(Segment(0, world->h, world->w, world->h));
-			renderWorldSegment(Segment(0, 0, 0, world->h));
-			
-			glDisable(GL_TEXTURE_2D);
-			
-			glNormal3d(0, 0, 1);
-			glColor3d(.90980392, .90980392, .90980392);
-			glBegin(GL_QUADS);
-			glVertex3d(10, 10, 0);
-			glVertex3d(world->w-10, 10, 0);
-			glVertex3d(world->w-10, world->h-10, 0);
-			glVertex3d(10, world->h-10, 0);
-			glEnd();
-			
-			glEnable(GL_LIGHTING);
-		}
-		else
-		{
-			glBegin(GL_QUADS);
-			glVertex3d(-infPlanSize, -infPlanSize, 0);
-			glVertex3d(world->w+infPlanSize, -infPlanSize, 0);
-			glVertex3d(world->w+infPlanSize, world->h+infPlanSize, 0);
-			glVertex3d(-infPlanSize, world->h+infPlanSize, 0);
-			glEnd();
+			default:
+			{
+				glBegin(GL_QUADS);
+				glVertex3d(-infPlanSize, -infPlanSize, 0);
+				glVertex3d(world->w+infPlanSize, -infPlanSize, 0);
+				glVertex3d(world->w+infPlanSize, world->h+infPlanSize, 0);
+				glVertex3d(-infPlanSize, world->h+infPlanSize, 0);
+				glEnd();
+			}
+			break;
 		}
 		
 		glEndList();

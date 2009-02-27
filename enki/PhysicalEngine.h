@@ -327,20 +327,20 @@ namespace Enki
 
 		
 		//! Initialize the object specific interactions, do nothing for PhysicalObject.
-		virtual void initLocalInteractions() { }
+		virtual void initLocalInteractions(double dt, World* w) { }
 		//! Do the interactions with the other PhysicalObject, do nothing for PhysicalObject.
-		virtual void doLocalInteractions(World *w, PhysicalObject *o, double dt) { }
+		virtual void doLocalInteractions(double dt, World *w, PhysicalObject *o) { }
 		//! Do the interactions with the walls of world w, do nothing for PhysicalObject.
-		virtual void doLocalWallsInteraction(World *w) { }
+		virtual void doLocalWallsInteraction(double dt, World* w) { }
 		//! All interactions are finished, do nothing for PhysicalObject.
-		virtual void finalizeLocalInteractions(double dt) { }
+		virtual void finalizeLocalInteractions(double dt, World* w) { }
 
 		//! Initialize the global interactions, do nothing for PhysicalObject.
-		virtual void initGlobalInteractions() { }
+		virtual void initGlobalInteractions(double dt, World* w) { }
 		//! Do the global interactions with the world, do nothing for PhysicalObject.
-		virtual void doGlobalInteractions(World *w, double dt) { }
+		virtual void doGlobalInteractions(double dt, World* w) { }
 		//! All global interactions are finished, do nothing for PhysicalObject.
-		virtual void finalizeGlobalInteractions() { }
+		virtual void finalizeGlobalInteractions(double dt, World* w) { }
 
 	private:		// physical actions
 		
@@ -371,16 +371,16 @@ namespace Enki
 		//! Add a global interaction, just add it at the end of the vector.
 		void addGlobalInteraction(GlobalInteraction *gi) {globalInteractions.push_back(gi);}
 		//! Initialize the local interactions, call init on each one.
-		virtual void initLocalInteractions();
+		virtual void initLocalInteractions(double dt, World* w);
 		//! Do the local interactions with other objects, call objectStep on each one.
-		virtual void doLocalInteractions(World *w, PhysicalObject *po, double dt);
+		virtual void doLocalInteractions(double dt, World *w, PhysicalObject *po);
 		//! Do the local interactions with walls, call wallsStep on each one.
-		virtual void doLocalWallsInteraction(World *w);
+		virtual void doLocalWallsInteraction(double dt, World* w);
 		//! All the local interactions are finished, call finalize on each one.
-		virtual void finalizeLocalInteractions(double dt);
+		virtual void finalizeLocalInteractions(double dt, World* w);
 		
 		//! Do the global interactions, call step on each one.
-		virtual void doGlobalInteractions(World *w, double dt);
+		virtual void doGlobalInteractions(double dt, World* w);
 		//! Sort local interactions. Called by addLocalInteraction ; can be called by subclasses in case of interaction radius change.
 		void sortLocalInteractions(void);
 	};
@@ -391,44 +391,57 @@ namespace Enki
 	*/
 	class World
 	{
-	protected:
-		//! At each step objects are collided in a different order (first A-B, then B-A) to prevent side effects, collideEven contains the actual order.
-		bool collideEven;
-
 	public:
+		//! Type of walls around the world
+		enum WallsType
+		{
+			WALLS_SQUARE = 0,	//!< square walls, use w and h for size
+			WALLS_CIRCULAR,		//!< circle walls, use r for radius
+			WALLS_NONE			//!< no walls
+		};
+		
+		//! type of walls this world is using
+		const WallsType wallsType;
+		//! The width of the world, if wallsType is WALLS_SQUARE
+		const double w;
+		//! The height of the world, if wallsType is WALLS_SQUARE
+		const double h;
+		//! The radius of the world, if wallsType is WALLS_CIRCLE
+		const double r;
+		/* Texture of world walls is disabled now, re-enable a proper support if required
+		//! Texture of walls.
+		Texture wallTextures[4];*/
+		//! The color of the world walls
+		const Color wallsColor;
+		
 		typedef std::set<PhysicalObject *> Objects;
 		typedef Objects::iterator ObjectsIterator;
+		
 		//! All the objects in the world
 		Objects objects;
-		//! If true, use walls
-		bool useWalls;
-		//! The width of the world
-		const double w;
-		//! The height of the world
-		const double h;
-		//! Texture of walls.
-		Texture wallTextures[4];
 		//! Base for the Bluetooth connections between robots
-		class BluetoothBase* bluetoothBase;
+		BluetoothBase* bluetoothBase;
 
-		//! Return collideEven
-		bool getCollideEven() {return collideEven;}
 		//! Do the collision of a circular object with one with a different shape (convex boundingsurface)
 		void collideCircleWithShape(PhysicalObject *circularObject, PhysicalObject *shapedObject, const Polygone &shape);
 		//! Collide two objects. Correct functions will be called depending on type of object (circular or other shape).
 		void collideObjects(PhysicalObject *object1, PhysicalObject *object2);
-		//! Collide the object with walls.
-		void collideWithWalls(PhysicalObject *object);
+		//! Collide the object with square walls.
+		void collideWithSquareWalls(PhysicalObject *object);
+		//! Collide the object with circular walls.
+		void collideWithCircularWalls(PhysicalObject *object);
 		//! Return true if point p of object of center c is inside polygone bs and return deinterlacement distVector.
 		bool isPointInside(const Point &p, const Point &c, const Polygone &bs, Vector *distVector);
 
 	public:
-		//! Constructor, takes width and height of the world arena in cm.
-		World(double width, double height);
+		//! Construct a world with square walls, takes width and height of the world arena in cm.
+		World(double width, double height, const Color& wallsColor = Color::gray);
+		//! Construct a world with circle walls, takes radius of the world arena in cm.
+		World(double r, const Color& wallsColor = Color::gray);
+		//! Construct a world with no walls
+		World();
 		//! Destructor, destroy all objects
 		~World();
-		//! Set the uniform color on the walls
-		void setWallsColor(const Color& color);
 		
 		//! Simulate a timestep of dt. dt should be below 1 (typically .02-.1); physicsOversampling is the amount of time the physics is run per step, as usual collisions require a more precise simulation than the sensor-motor loop frequency.
 		void step(double dt, unsigned physicsOversampling = 1);

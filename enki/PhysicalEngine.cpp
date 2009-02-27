@@ -531,48 +531,48 @@ namespace Enki
 		std::sort(localInteractions.begin(), localInteractions.end(), irCompare);
 	}
 
-	void Robot::initLocalInteractions()
+	void Robot::initLocalInteractions(double dt, World* w)
 	{
 		for (size_t i=0; i<localInteractions.size(); i++ )
 		{
-			localInteractions[i]->init();
+			localInteractions[i]->init(dt, w);
 		}
 	}
 
 
-	void Robot::doLocalInteractions(World *w, PhysicalObject *po, double dt)
+	void Robot::doLocalInteractions(double dt, World *w, PhysicalObject *po)
 	{
 		for (size_t i=0; i<localInteractions.size(); i++)
 		{
 			const Vector vectCenter(this->pos.x - po->pos.x, this->pos.y - po->pos.y );
 			if (vectCenter.norm2() <  (localInteractions[i]->r+po->getRadius())*(localInteractions[i]->r+po->getRadius()))
-				localInteractions[i]->objectStep(dt, po, w);
-			else 
+				localInteractions[i]->objectStep(dt, w, po);
+			else
 				return;
 		}
 	}
 
 
-	void Robot::doLocalWallsInteraction(World *w)
+	void Robot::doLocalWallsInteraction(double dt, World* w)
 	{
 		for (size_t i=0; i<localInteractions.size(); i++)
 		{
 			if ((this->pos.x>localInteractions[i]->r) && (this->pos.y>localInteractions[i]->r) && (w->w-this->pos.x>localInteractions[i]->r) && (w->h-this->pos.y>localInteractions[i]->r))
 				return;
 			else
-				localInteractions[i]->wallsStep(w);
+				localInteractions[i]->wallsStep(dt, w);
 		}
 	}
 
-	void Robot::finalizeLocalInteractions(double dt)
+	void Robot::finalizeLocalInteractions(double dt, World* w)
 	{
 		for (size_t i=0; i<localInteractions.size(); i++ )
 		{
-			localInteractions[i]->finalize(dt);
+			localInteractions[i]->finalize(dt, w);
 		}
 	}
 
-	void Robot::doGlobalInteractions(World *w, double dt)
+	void Robot::doGlobalInteractions(double dt, World* w)
 	{
 		for (size_t i=0; i<globalInteractions.size(); i++)
 		{
@@ -580,15 +580,34 @@ namespace Enki
 		}
 	}
 
-	World::World(double width, double height) :
+	World::World(double width, double height, const Color& wallsColor) :
+		wallsType(WALLS_SQUARE),
 		w(width),
 		h(height),
+		r(0),
+		wallsColor(wallsColor),
 		bluetoothBase(NULL)
 	{
-		useWalls = true;
-		
-		// walls are gray
-		setWallsColor(Color::gray);
+	}
+	
+	World::World(double r, const Color& wallsColor) :
+		wallsType(WALLS_CIRCULAR),
+		w(0),
+		h(0),
+		r(r),
+		wallsColor(wallsColor),
+		bluetoothBase(NULL)
+	{
+	}
+	
+	World::World() :
+		wallsType(WALLS_NONE),
+		w(0),
+		h(0),
+		r(0),
+		wallsColor(Color::gray),
+		bluetoothBase(NULL)
+	{
 	}
 
 	World::~World()
@@ -600,12 +619,15 @@ namespace Enki
 			delete bluetoothBase;
 	}
 	
+	/*
+	Texture of world walls is disabled now, re-enable a proper support if required
 	void World::setWallsColor(const Color& color)
 	{
 		for (size_t i = 0; i < 4; i++)
 			wallTextures[i].resize(1, color);
 	}
-
+	*/
+	
 	bool World::isPointInside(const Point &p, const Point &c, const Polygone &bs, Vector *distVector)
 	// p = candidate point of object; c = pos of object; bs = bounding surface of other object; distVector = deinterlacing dist to be calculated
 	{
@@ -641,7 +663,7 @@ namespace Enki
 		return true;
 	}
 
-	void World::collideWithWalls(PhysicalObject *object)
+	void World::collideWithSquareWalls(PhysicalObject *object)
 	{
 		// object is circle only
 		if (object->hull.empty())
@@ -737,7 +759,13 @@ namespace Enki
 			}
 		}
 	}
-
+	
+	void World::collideWithCircularWalls(PhysicalObject *object)
+	{
+		// TODO
+		assert(false);
+	}
+	
 	void World::collideCircleWithShape(PhysicalObject *circularObject, PhysicalObject *shapedObject, const Polygone &shape)
 	{
 		// test if circularObject is inside a shape
@@ -928,8 +956,12 @@ namespace Enki
 			// collide objects with walls and physics step
 			for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 			{
-				if (useWalls)
-					collideWithWalls(*i);
+				switch (wallsType)
+				{
+					case WALLS_SQUARE: collideWithSquareWalls(*i); break;
+					case WALLS_CIRCULAR: collideWithCircularWalls(*i); break;
+					default: break;
+				}
 				(*i)->finalizePhysicsInteractions(overSampledDt);
 			}
 		}
@@ -937,8 +969,8 @@ namespace Enki
 		// init interactions
 		for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 		{
-			(*i)->initLocalInteractions();
-			(*i)->initGlobalInteractions();
+			(*i)->initLocalInteractions(dt, this);
+			(*i)->initGlobalInteractions(dt, this);
 		}
 
 		// interract objects together
@@ -948,7 +980,7 @@ namespace Enki
 			{
 				if ((*i) != (*j))
 				{
-					(*i)->doLocalInteractions(this, (*j), dt);
+					(*i)->doLocalInteractions(dt, this, (*j));
 				}
 			}
 		}
@@ -956,13 +988,13 @@ namespace Enki
 		// interract objects with walls and control step
 		for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 		{
-			if (useWalls)
-				(*i)->doLocalWallsInteraction(this);
-			(*i)->doGlobalInteractions(this, dt);
-			
-			(*i)->finalizeLocalInteractions(dt);
-			(*i)->finalizeGlobalInteractions();
-			(*i)->controlStep(overSampledDt);
+			PhysicalObject* o = *i;
+			if (wallsType != WALLS_NONE)
+				o->doLocalWallsInteraction(dt, this);
+			o->doGlobalInteractions(dt, this);
+			o->finalizeLocalInteractions(dt, this);
+			o->finalizeGlobalInteractions(dt, this);
+			o->controlStep(dt);
 		}
 		if (bluetoothBase)
 			bluetoothBase->step(dt, this);

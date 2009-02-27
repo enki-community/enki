@@ -49,9 +49,9 @@ namespace Enki
 	{
 	}
 	
-	void EPuckScannerTurret::finalize(double dt)
+	void EPuckScannerTurret::finalize(double dt, World* w)
 	{
-		OmniCam::finalize(dt);
+		OmniCam::finalize(dt, w);
 		
 		// apply sensor response
 		const double a1 =        1116;

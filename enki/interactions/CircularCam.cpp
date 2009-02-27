@@ -75,7 +75,7 @@ namespace Enki
 		pixelOperation = &depthTest;
 	}
 
-	void CircularCam::objectStep(double dt, PhysicalObject *po, World *w) 
+	void CircularCam::objectStep(double dt, World *w, PhysicalObject *po)
 	{
 		// if we see over the object
 		if (height > po->getHeight())
@@ -286,7 +286,7 @@ namespace Enki
 		}
 	}
 
-	void CircularCam::init()
+	void CircularCam::init(double dt, World* w)
 	{
 		// compute absolute position and orientation
 		const Matrix22 rot(owner->angle);
@@ -295,22 +295,23 @@ namespace Enki
 		
 		// fill zbuffer with infinite
 		std::fill( &zbuffer[0], &zbuffer[zbuffer.size()], std::numeric_limits<double>::max() );
-		std::fill( &image[0], &image[image.size()], Color::black);
+		std::fill( &image[0], &image[image.size()], w->wallsColor);
 	}
 	
-	void CircularCam::wallsStep(World *w)
+	void CircularCam::wallsStep(double dt, World* w)
 	{
-		if (w->wallTextures[0].size() > 0)
+		// disable world texture for now
+		/*if (w->wallTextures[0].size() > 0)
 			drawTexturedLine(Point(0, 0), Point(w->w, 0), w->wallTextures[0]);
 		if (w->wallTextures[1].size() > 0)
 			drawTexturedLine(Point(w->w, 0), Point(w->w, w->h), w->wallTextures[1]);
 		if (w->wallTextures[2].size() > 0)
 			drawTexturedLine(Point(w->w, w->h), Point(0, w->h), w->wallTextures[2]);
 		if (w->wallTextures[3].size() > 0)
-			drawTexturedLine(Point(0, w->h), Point(0, 0), w->wallTextures[3]);
+			drawTexturedLine(Point(0, w->h), Point(0, 0), w->wallTextures[3]);*/
 	}
 	
-	void CircularCam::finalize(double dt)
+	void CircularCam::finalize(double dt, World* w)
 	{
 		if (useFog)
 		{
@@ -340,28 +341,28 @@ namespace Enki
 		this->owner = owner;
 	}
 
-	void OmniCam::objectStep(double dt, PhysicalObject *po, World *w) 
+	void OmniCam::objectStep(double dt, World *w, PhysicalObject *po) 
 	{
-		cam0.objectStep(dt, po, w);
-		cam1.objectStep(dt, po, w);
+		cam0.objectStep(dt, w, po);
+		cam1.objectStep(dt, w, po);
 	};
 
-	void OmniCam::init()
+	void OmniCam::init(double dt, World* w)
 	{
-		cam0.init();
-		cam1.init();
+		cam0.init(dt, w);
+		cam1.init(dt, w);
 	}
 	
-	void OmniCam::wallsStep(World *w)
+	void OmniCam::wallsStep(double dt, World* w)
 	{
-		cam0.wallsStep(w);
-		cam1.wallsStep(w);
+		cam0.wallsStep(dt, w);
+		cam1.wallsStep(dt, w);
 	}
 	
-	void OmniCam::finalize(double dt)
+	void OmniCam::finalize(double dt, World* w)
 	{
-		cam0.finalize(dt);
-		cam1.finalize(dt);
+		cam0.finalize(dt, w);
+		cam1.finalize(dt, w);
 		size_t camPixelCount = cam0.zbuffer.size();
 		std::copy(&cam0.zbuffer[0], &cam0.zbuffer[camPixelCount], &zbuffer[0]);
 		std::copy(&cam1.zbuffer[0], &cam1.zbuffer[camPixelCount], &zbuffer[camPixelCount]);
