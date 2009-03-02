@@ -264,7 +264,7 @@ int main(int argc, char *argv[])
 	QApplication app(argc, argv);
 	
 	// Create the world and the viewer
-	World world(120, 120);
+	World world(120, 120, Color(0.9, 0.9, 0.9));
 	EnkiPlayground viewer(&world);
 	
 	viewer.show();

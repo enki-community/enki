@@ -429,16 +429,15 @@ namespace Enki
 		glNewList(worldList, GL_COMPILE);
 		
 		glNormal3d(0, 0, 1);
-		glColor3d(1, 1, 1);
-		glColor3d(.90980392, .90980392, .90980392);
+		glColor3d(world->wallsColor.r(), world->wallsColor.g(), world->wallsColor.b());
+		
+		glDisable(GL_LIGHTING);
 		
 		switch (world->wallsType)
 		{
 			case World::WALLS_SQUARE:
 			{
 				// TODO: use world texture if any
-				glDisable(GL_LIGHTING);
-				
 				glBegin(GL_QUADS);
 				glVertex3d(-infPlanSize, -infPlanSize, wallsHeight);
 				glVertex3d(infPlanSize+world->w, -infPlanSize, wallsHeight);
@@ -463,7 +462,7 @@ namespace Enki
 				
 				glEnable(GL_TEXTURE_2D);
 				glBindTexture(GL_TEXTURE_2D, worldTexture);
-				glColor3d(1, 1, 1);
+				glColor3d(world->wallsColor.r() / .90980392, world->wallsColor.g() / .90980392, world->wallsColor.b() / .90980392);
 				
 				renderWorldSegment(Segment(world->w, 0, 0, 0));
 				renderWorldSegment(Segment(world->w, world->h, world->w, 0));
@@ -473,7 +472,7 @@ namespace Enki
 				glDisable(GL_TEXTURE_2D);
 				
 				glNormal3d(0, 0, 1);
-				glColor3d(.90980392, .90980392, .90980392);
+				glColor3d(world->wallsColor.r(), world->wallsColor.g(), world->wallsColor.b());
 				glBegin(GL_QUADS);
 				glVertex3d(10, 10, 0);
 				glVertex3d(world->w-10, 10, 0);
@@ -481,7 +480,6 @@ namespace Enki
 				glVertex3d(10, world->h-10, 0);
 				glEnd();
 				
-				glEnable(GL_LIGHTING);
 			}
 			break;
 			
@@ -502,6 +500,8 @@ namespace Enki
 			}
 			break;
 		}
+		
+		glEnable(GL_LIGHTING);
 		
 		glEndList();
 	}
