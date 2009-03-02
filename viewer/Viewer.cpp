@@ -539,9 +539,7 @@ namespace Enki
 					glVertex3d(cos(angEnd)*(r+infPlanSize), sin(angEnd)*(r+infPlanSize), 10);
 					glVertex3d(cos(angEnd)*r, sin(angEnd)*r, 10);
 					glEnd();
-					//segmentCount
 				}
-				// TODO:
 			}
 			break;
 			
