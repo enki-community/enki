@@ -56,12 +56,14 @@ protected:
 	#ifdef USE_SDL
 	QVector<SDL_Joystick *> joysticks;
 	#endif
+	bool subjectiveView;
 	QVector<EPuck*> epucks;
 	QMap<PhysicalObject*, int> bullets;
 	
 public:
 	EnkiPlayground(World *world, QWidget *parent = 0) :
-		ViewerWidget(world, parent)
+		ViewerWidget(world, parent),
+		subjectiveView(false)
 	{
 		#define PROBLEM_GENERIC_TOY
 		#define PROBLEM_BALL_LINE
@@ -236,6 +238,15 @@ public:
 			}
 			doDumpFrames |= SDL_JoystickGetButton(joysticks[i], 0);
 		}
+		if (joysticks.size() > 0 && subjectiveView)
+		{
+			const EPuck* epuck = epucks[0];
+			Vector p(epuck->pos);
+			pos.setX(-p.x+cos(-yaw)*7);
+			pos.setY(-p.y+sin(-yaw)*7);
+			yaw = -epuck->angle;
+			altitude = 11;
+		}
 		#endif
 		QMap<PhysicalObject*, int>::iterator i = bullets.begin();
 		while (i != bullets.end())
@@ -255,6 +266,19 @@ public:
 			}
 		}
 		ViewerWidget::timerEvent(event);
+	}
+	
+	virtual void keyPressEvent ( QKeyEvent * event )
+	{
+		if (event->key() == Qt::Key_C)
+		{
+			subjectiveView = !subjectiveView;
+			if (subjectiveView)
+				pitch = M_PI/8;
+			event->accept();
+		}
+		else
+			ViewerWidget::keyPressEvent(event);
 	}
 };
 

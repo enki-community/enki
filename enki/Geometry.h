@@ -176,6 +176,8 @@ namespace Enki
 		Matrix22 operator *(double f) const { Matrix22 n; n._11 = _11 * f; n._21 = _21 * f; n._12 = _12 * f; n._22 = _22 * f; return n; }
 		//! Divide each component by scalar f and return the resulting matrix
 		Matrix22 operator /(double f) const { Matrix22 n; n._11 = _11 / f; n._21 = _21 / f; n._12 = _12 / f; n._22 = _22 / f; return n; }
+		//! Return the transpose of the matrix
+		Matrix22 transpose() const { Matrix22 n; n._11 = _11; n._21 = _12; n._12 = _21; n._22 = _22; return n; }
 		
 		//! Multiply vector v and return the resulting vector
 		Point operator*(const Point &v) const { Point n; n.x = v.x*_11 + v.y*_12; n.y = v.x*_21 + v.y*_22; return n; }

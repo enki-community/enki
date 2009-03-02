@@ -493,6 +493,7 @@ namespace Enki
 					const double angMid((angStart+angEnd)/2);
 					const double innerR(world->r - 10);
 					const double r(world->r);
+					
 					glBegin(GL_TRIANGLES);
 					glVertex3d(0, 0, 0);
 					glVertex3d(cos(angStart) * innerR, sin(angStart) * innerR, 0);
