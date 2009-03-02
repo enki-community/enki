@@ -485,6 +485,62 @@ namespace Enki
 			
 			case World::WALLS_CIRCULAR:
 			{
+				const int segmentCount = (int)((world->r*2.*M_PI) / 10.);
+				for (int i = 0; i < segmentCount; ++i)
+				{
+					const double angStart(((double)i * 2. * M_PI) / (double)segmentCount);
+					const double angEnd(((double)(i+1) * 2. * M_PI) / (double)segmentCount);
+					const double angMid((angStart+angEnd)/2);
+					const double innerR(world->r - 10);
+					const double r(world->r);
+					glBegin(GL_TRIANGLES);
+					glVertex3d(0, 0, 0);
+					glVertex3d(cos(angStart) * innerR, sin(angStart) * innerR, 0);
+					glVertex3d(cos(angEnd) * innerR, sin(angEnd) * innerR, 0);
+					glEnd();
+					
+					glEnable(GL_TEXTURE_2D);
+					glBindTexture(GL_TEXTURE_2D, worldTexture);
+					glColor3d(world->wallsColor.r() / .90980392, world->wallsColor.g() / .90980392, world->wallsColor.b() / .90980392);
+					
+					// draw sides
+					glNormal3d(-cos(angMid), -sin(angMid), 0);
+					glBegin(GL_QUADS);
+					glTexCoord2f(0.5f, 0.5f);
+					glVertex3d(cos(angEnd)*r, sin(angEnd)*r, 0);
+					glTexCoord2f(0.99f, 0.5f);
+					glVertex3d(cos(angStart)*r, sin(angStart)*r, 0);
+					glTexCoord2f(0.99f, 0.99f);
+					glVertex3d(cos(angStart)*r, sin(angStart)*r, 10);
+					glTexCoord2f(0.5f, 0.99f);
+					glVertex3d(cos(angEnd)*r, sin(angEnd)*r, 10);
+					glEnd();
+					
+					// draw ground
+					glNormal3d(0, 0, 1);
+					glBegin(GL_QUADS);
+					glTexCoord2f(0.5f, 0.01f);
+					glVertex3d(cos(angEnd) * innerR, sin(angEnd) * innerR, 0);
+					glTexCoord2f(0.99f, 0.01f);
+					glVertex3d(cos(angStart) * innerR, sin(angStart) * innerR, 0);
+					glTexCoord2f(0.99f, 0.5f);
+					glVertex3d(cos(angStart) * r, sin(angStart) * r, 0);
+					glTexCoord2f(0.5f, 0.5f);
+					glVertex3d(cos(angEnd) * r, sin(angEnd) * r, 0);
+					glEnd();
+					
+					glDisable(GL_TEXTURE_2D);
+					
+					glNormal3d(0, 0, 1);
+					glColor3d(world->wallsColor.r(), world->wallsColor.g(), world->wallsColor.b());
+					glBegin(GL_QUADS);
+					glVertex3d(cos(angStart)*r, sin(angStart)*r, 10);
+					glVertex3d(cos(angStart)*(r+infPlanSize), sin(angStart)*(r+infPlanSize), 10);
+					glVertex3d(cos(angEnd)*(r+infPlanSize), sin(angEnd)*(r+infPlanSize), 10);
+					glVertex3d(cos(angEnd)*r, sin(angEnd)*r, 10);
+					glEnd();
+					//segmentCount
+				}
 				// TODO:
 			}
 			break;
