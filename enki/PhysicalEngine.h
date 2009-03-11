@@ -228,7 +228,7 @@ namespace Enki
 			double height;
 			//! The shape of the object in object coordinates.
 			Polygone shape;
-			//! The shape of the object in world coordinates, updated on initLocalInteractions().
+			//! The shape of the object in world coordinates, updated on initPhysicsInteractions().
 			Polygone transformedShape;
 			
 			// visual properties

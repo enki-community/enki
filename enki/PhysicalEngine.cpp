@@ -180,12 +180,14 @@ namespace Enki
 		Hull newHull(*this);
 		for (const_iterator it = that.begin(); it != that.end(); ++it)
 			newHull.push_back(*it);
+		return newHull;
 	}
 	
 	PhysicalObject::Hull& PhysicalObject::Hull::operator+=(const Hull& that)
 	{
 		for (const_iterator it = that.begin(); it != that.end(); ++it)
 			push_back(*it);
+		return *this;
 	}
 	
 	// PhysicalObject
@@ -913,9 +915,10 @@ namespace Enki
 			{
 				// iterate on all shapes of both objects
 				for (PhysicalObject::Hull::const_iterator it = object1->hull.begin(); it != object1->hull.end(); ++it)
+				{
+					const Polygone& shape1 = it->getTransformedShape();
 					for (PhysicalObject::Hull::const_iterator jt = object2->hull.begin(); jt != object2->hull.end(); ++jt)
 					{
-						const Polygone& shape1 = it->getTransformedShape();
 						const Polygone& shape2 = jt->getTransformedShape();
 						// TODO: move this into a polygone collision function
 						
@@ -952,6 +955,7 @@ namespace Enki
 							}
 						}
 					}
+				}
 			}
 			else
 			{
