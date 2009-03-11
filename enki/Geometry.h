@@ -220,19 +220,30 @@ namespace Enki
 			const double s1db = o.dist (b);
 			return (s2da*s2db<0) && (s1da*s1db<0);
 		}
+		
+		//! Return the middle point
+		Point getMiddlePoint() const
+		{
+			return (a + b) / 2;
+		}
 	};
 	
 	//! Polygone, which is a vector of points. Anti-clockwise, standard trigonometric orientation
 	/*! \ingroup an */
 	struct Polygone: public std::vector<Point>
 	{
+		//! Return the i-th segment
+		Segment getSegment(size_t i) const
+		{
+			return Segment((*this)[i], (*this)[(i + 1) % size()]);
+		}
+		
 		//! Return true if p is inside this polygone
 		bool isPointInside(const Point& p) const
 		{
 			for (size_t i = 0; i < size(); i++)
 			{
-				Segment s((*this)[i], (*this)[(i + 1) % size()]);
-				if (s.dist(p) < 0)
+				if (getSegment(i).dist(p) < 0)
 					return false;
 			}
 			return true;
@@ -288,13 +299,13 @@ namespace Enki
 		}
 		
 		//! Translate of a specific distance, overload for convenience
-		void translate(const double& x, const double& y)
+		void translate(const double x, const double y)
 		{
 			translate(Vector(x,y));
 		}
 		
 		//! Rotate by a specific angle
-		void rotate(double angle)
+		void rotate(const double angle)
 		{
 			Matrix22 rot(angle);
 			for (iterator it = begin(); it != end(); ++it)

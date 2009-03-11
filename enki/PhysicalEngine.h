@@ -250,6 +250,16 @@ namespace Enki
 			Hull(const Part& part) : std::vector<Part>(1, part) {}
 			//! Return the convex hull of this hull, using a simple Jarvis march/gift wrapping algorithm
 			Polygone getConvexHull() const;
+			//! Translate of a specific distance
+			void translate(const Vector& delta);
+			//! Translate of a specific distance, overload for convenience
+			void translate(const double x, const double y);
+			//! Rotate by a specific angle
+			void rotate(const double angle);
+			//! Add this hull to another one
+			Hull operator+(const Hull& that) const;
+			//! Add this hull to another one
+			Hull& operator+=(const Hull& that);
 		};
 		
 	private:		// variables
@@ -452,12 +462,17 @@ namespace Enki
 		void removeObject(PhysicalObject *o);
 		//! Set to 0 the userData member of all object whose value userData->deletedWithObject are false; call this before the creator of user data is destroyed, this method is typically called from a viewer just before its destruction.
 		void disconnectExternalObjectsUserData();
+		
 		//! Set the seed of the random generator.
 		void setRandomSeed(unsigned long seed);
 		//! Initialise and activate the Bluetooth base
 		void initBluetoothBase();
 		//! Return the address of the Bluetooth base
 		BluetoothBase* getBluetoothBase();
+	
+	protected:
+		//! Can implement world specific control. By default do nothing
+		virtual void controlStep(double dt) { }
 	};
 	
 	//! Fast random for use by Enki

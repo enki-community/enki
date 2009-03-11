@@ -157,6 +157,36 @@ namespace Enki
 		return convexHull;
 	}
 	
+	void PhysicalObject::Hull::translate(const Vector& delta)
+	{
+		for (iterator it = begin(); it != end(); ++it)
+			it->shape.translate(delta);
+	}
+	
+	void PhysicalObject::Hull::translate(const double x, const double y)
+	{
+		for (iterator it = begin(); it != end(); ++it)
+			it->shape.translate(x, y);
+	}
+	
+	void PhysicalObject::Hull::rotate(const double angle)
+	{
+		for (iterator it = begin(); it != end(); ++it)
+			it->shape.rotate(angle);
+	}
+	
+	PhysicalObject::Hull PhysicalObject::Hull::operator+(const Hull& that) const
+	{
+		Hull newHull(*this);
+		for (const_iterator it = that.begin(); it != that.end(); ++it)
+			newHull.push_back(*it);
+	}
+	
+	PhysicalObject::Hull& PhysicalObject::Hull::operator+=(const Hull& that)
+	{
+		for (const_iterator it = that.begin(); it != that.end(); ++it)
+			push_back(*it);
+	}
 	
 	// PhysicalObject
 	
@@ -1035,6 +1065,10 @@ namespace Enki
 			o->finalizeGlobalInteractions(dt, this);
 			o->controlStep(dt);
 		}
+		
+		// do a control step for the world
+		controlStep(dt);
+		// TODO: cleanup this
 		if (bluetoothBase)
 			bluetoothBase->step(dt, this);
 	}
