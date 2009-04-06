@@ -54,6 +54,8 @@ namespace Enki
 		height(height),
 		shape(shape)
 	{
+		computeCenter();
+		
 		transformedShape.resize(shape.size());
 	}
 	
@@ -62,6 +64,8 @@ namespace Enki
 		shape(shape),
 		textures(textures)
 	{
+		computeCenter();
+		
 		transformedShape.resize(shape.size());
 		
 		if (textures.size() != shape.size())
@@ -85,7 +89,8 @@ namespace Enki
 	}
 	
 	PhysicalObject::Part::Part(double l1, double l2, double height) :
-		height(height)
+		height(height),
+		center(0, 0)
 	{
 		const double hl1 = l1 / 2;
 		const double hl2 = l2 / 2;
@@ -95,17 +100,28 @@ namespace Enki
 	
 	void PhysicalObject::Part::updateRadius(double& radius)
 	{
-		for (size_t i = 0; i < 4; i++)
+		for (size_t i = 0; i < shape.size(); i++)
 			radius = std::max(radius, shape[i].norm());
 	}
-		
+	
+	void PhysicalObject::Part::computeCenter()
+	{
+		center = Point(0, 0);
+		for (size_t i = 0; i < shape.size(); ++i)
+			center += shape[i];
+		center /= shape.size();
+	}
+	
 	void PhysicalObject::Part::computeTransformedShape(const Matrix22& rot, const Point& trans)
 	{
 		assert(!shape.empty());
 		assert(transformedShape.size() == shape.size());
 		for (size_t i = 0; i < shape.size(); ++i)
 			transformedShape[i] = rot * (shape)[i] + trans;
+		transformedCenter = rot * center + trans;
 	}
+	
+	
 	
 	// Hull
 	
@@ -306,6 +322,8 @@ namespace Enki
 		if (hull.empty())
 			return;
 		
+		// Numerical method:
+		
 		// get bounding box of the whole hull
 		Point bottomLeft, topRight;
 		Hull::iterator it = hull.begin();
@@ -341,6 +359,8 @@ namespace Enki
 			it->shape.translate(-cm);
 			it->updateRadius(r);
 		}
+		
+		// Exact method:
 	}
 	
 	void PhysicalObject::computeTransformedShape()
@@ -926,7 +946,7 @@ namespace Enki
 						for (size_t i = 0; i < shape1.size(); i++)
 						{
 							const Point &candidate = shape1[i];
-							if (isPointInside(candidate, object1->pos, shape2, &dist))
+							if (isPointInside(candidate, it->getTransformedCenter(), shape2, &dist))
 							{
 								if (dist.norm2() > maxNorm)
 								{
@@ -942,7 +962,7 @@ namespace Enki
 						for (size_t i=0; i < shape2.size(); i++)
 						{
 							const Point &candidate = shape2[i];
-							if (isPointInside(candidate, object2->pos, shape1, &dist))
+							if (isPointInside(candidate, jt->getTransformedCenter(), shape1, &dist))
 							{
 								if (dist.norm2() > maxNorm)
 								{

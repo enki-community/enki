@@ -217,6 +217,8 @@ namespace Enki
 			inline double getHeight() const { return height; }
 			inline const Polygone& getShape() const { return shape; }
 			inline const Polygone& getTransformedShape() const { return transformedShape; }
+			inline const Point& getCenter() const { return center; }
+			inline const Point& getTransformedCenter() const { return transformedCenter; }
 			inline const Textures& getTextures() const { return textures; }
 			inline bool isTextured() const { return !textures.empty(); }
 			
@@ -226,10 +228,14 @@ namespace Enki
 			
 			//! The height of the part, used for interaction with the sensors of other robots.
 			double height;
-			//! The shape of the object in object coordinates.
+			//! The shape of the part in object coordinates.
 			Polygone shape;
-			//! The shape of the object in world coordinates, updated on initPhysicsInteractions().
+			//! The shape of the part in world coordinates, updated on initPhysicsInteractions().
 			Polygone transformedShape;
+			//! The geometrical center of the part in object coordinates.
+			Point center;
+			//! The geometrical center of the part in world coordinates, updated on initPhysicsInteractions().
+			Point transformedCenter;
 			
 			// visual properties
 			
@@ -237,6 +243,8 @@ namespace Enki
 			Textures textures;
 		
 		private:
+			//! Compute the center of this shape in object coordinates
+			void computeCenter();
 			//! Compute the shape of this part in world coordinates with respect to object
 			void computeTransformedShape(const Matrix22& rot, const Point& trans);
 		};
