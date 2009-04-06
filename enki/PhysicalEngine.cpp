@@ -936,9 +936,11 @@ namespace Enki
 				// iterate on all shapes of both objects
 				for (PhysicalObject::Hull::const_iterator it = object1->hull.begin(); it != object1->hull.end(); ++it)
 				{
+					const Point& shape1Center = it->getTransformedCenter();
 					const Polygone& shape1 = it->getTransformedShape();
 					for (PhysicalObject::Hull::const_iterator jt = object2->hull.begin(); jt != object2->hull.end(); ++jt)
 					{
+						const Point& shape2Center = jt->getTransformedCenter();
 						const Polygone& shape2 = jt->getTransformedShape();
 						// TODO: move this into a polygone collision function
 						
@@ -946,7 +948,7 @@ namespace Enki
 						for (size_t i = 0; i < shape1.size(); i++)
 						{
 							const Point &candidate = shape1[i];
-							if (isPointInside(candidate, it->getTransformedCenter(), shape2, &dist))
+							if (isPointInside(candidate, shape1Center, shape2, &dist))
 							{
 								if (dist.norm2() > maxNorm)
 								{
@@ -962,7 +964,7 @@ namespace Enki
 						for (size_t i=0; i < shape2.size(); i++)
 						{
 							const Point &candidate = shape2[i];
-							if (isPointInside(candidate, jt->getTransformedCenter(), shape1, &dist))
+							if (isPointInside(candidate, shape2Center, shape1, &dist))
 							{
 								if (dist.norm2() > maxNorm)
 								{
