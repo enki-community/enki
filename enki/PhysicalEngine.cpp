@@ -104,6 +104,17 @@ namespace Enki
 			radius = std::max(radius, shape[i].norm());
 	}
 	
+	double PhysicalObject::Part::getArea() const
+	{
+		const size_t count = shape.size();
+		if (count < 3)
+			return 0;
+		double area = 0;
+		for (size_t i = 0; i < count - 2; ++i)
+			area += getTriangleArea(shape[0], shape[i+1], shape[i+2]);
+		return area;
+	}
+	
 	void PhysicalObject::Part::computeCenter()
 	{
 		center = Point(0, 0);
@@ -323,7 +334,7 @@ namespace Enki
 			return;
 		
 		// Numerical method:
-		
+		/*
 		// get bounding box of the whole hull
 		Point bottomLeft, topRight;
 		Hull::iterator it = hull.begin();
@@ -350,17 +361,28 @@ namespace Enki
 		assert(area != 0);
 		cm /= area;
 		area = area / (dx * dy);
+		*/
+		
+		// Exact method:
+		Point cm;
+		double area = 0;
+		for (Hull::iterator it = hull.begin(); it != hull.end(); ++it)
+		{
+			const Part& part = *it;
+			const double partArea = part.getArea();
+			cm += part.getCenter() * partArea;
+			area += partArea;
+		}
+		cm /= area;
 		
 		// shift all shapes to the CM
-		pos += cm;
+		pos += Matrix22(angle) * cm;
 		r = 0;
-		for (it = hull.begin(); it != hull.end(); ++it)
+		for (Hull::iterator it = hull.begin(); it != hull.end(); ++it)
 		{
 			it->shape.translate(-cm);
 			it->updateRadius(r);
 		}
-		
-		// Exact method:
 	}
 	
 	void PhysicalObject::computeTransformedShape()

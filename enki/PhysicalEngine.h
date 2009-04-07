@@ -221,6 +221,7 @@ namespace Enki
 			inline const Point& getTransformedCenter() const { return transformedCenter; }
 			inline const Textures& getTextures() const { return textures; }
 			inline bool isTextured() const { return !textures.empty(); }
+			double getArea() const;
 			
 		private:
 			friend class PhysicalObject;

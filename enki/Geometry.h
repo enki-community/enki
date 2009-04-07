@@ -343,6 +343,7 @@ namespace Enki
 	};
 	
 	//! Print a polygone to a stream
+	/*! \ingroup an */
 	std::ostream & operator << (std::ostream & outs, const Polygone &polygone);
 	
 	//! Normlize an angle to be between -PI and +PI.
@@ -354,6 +355,13 @@ namespace Enki
 		while (angle < -M_PI)
 			angle += 2*M_PI;
 		return angle;
+	}
+	
+	//! Return the area of the triangle formed by a,b,c in mathematical order (CCW)
+	/*! \ingroup an */
+	inline double getTriangleArea(const Point &a, const Point &b, const Point &c)
+	{
+		return (a.x-c.x) * (b.y-c.y) - (a.y-c.y) * (b.x-c.x);
 	}
   
 	//! get the intersection point between two line segments
