@@ -108,25 +108,28 @@ namespace Enki
 	
 	void PhysicalObject::Part::computeAreaAndCentroid()
 	{
-		// from: http://en.wikipedia.org/wiki/Centroid
+		// from: http://local.wasp.uwa.edu.au/~pbourke/geometry/polyarea/
+		const size_t size = shape.size();
 		
 		// area
 		area = 0;
-		for (size_t i = 0; i < shape.size() - 1; ++i)
+		for (size_t i = 0; i < size; ++i)
 		{
-			area += (shape[i].x * shape[i+1].y - shape[i+1].x * shape[i].y);
+			area += (shape[i].x * shape[(i+1) % size].y - shape[(i+1) % size].x * shape[i].y);
 		}
 		area /= 2;
 		
 		// centroid
 		centroid = Point(0, 0);
-		for (size_t i = 0; i < shape.size() - 1; ++i)
+		for (size_t i = 0; i < shape.size(); ++i)
 		{
-			const double multiplicator = (shape[i].x * shape[i+1].y - shape[i+1].x * shape[i].y);
-			centroid.x += (shape[i].x + shape[i+1].x) * multiplicator;
-			centroid.y += (shape[i].y + shape[i+1].y) * multiplicator;
+			const double multiplicator = (shape[i].x * shape[(i+1) % size].y - shape[(i+1) % size].x * shape[i].y);
+			centroid.x += (shape[i].x + shape[(i+1) % size].x) * multiplicator;
+			centroid.y += (shape[i].y + shape[(i+1) % size].y) * multiplicator;
 		}
 		centroid /= (6 * area);
+		
+		std::cerr << this << " " << area << " " << centroid << std::endl;
 	}
 	
 	void PhysicalObject::Part::computeTransformedShape(const Matrix22& rot, const Point& trans)
@@ -407,7 +410,6 @@ namespace Enki
 				it->computeTransformedShape(rotMat, pos);
 		}
 	}
-	
 	
 	
 	static double sgn(double v)
