@@ -357,12 +357,13 @@ namespace Enki
 		return angle;
 	}
 	
+	/*
+	unused for now
 	//! Return the area of the triangle formed by a,b,c in mathematical order (CCW)
-	/*! \ingroup an */
-	inline double getTriangleArea(const Point &a, const Point &b, const Point &c)
+	/*inline double getTriangleArea(const Point &a, const Point &b, const Point &c)
 	{
 		return (a.x-c.x) * (b.y-c.y) - (a.y-c.y) * (b.x-c.x);
-	}
+	}*/
   
 	//! get the intersection point between two line segments
 	//! returns Point(HUGE_VAL, HUGE_VAL) if there's no intersection

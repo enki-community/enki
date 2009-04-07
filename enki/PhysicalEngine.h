@@ -203,9 +203,9 @@ namespace Enki
 		class Part
 		{
 		public:
-			//! Constructor, builds a shaped part without any texture;
+			//! Constructor, builds a shaped part without any texture; shape must be closed and convex.
 			Part(const Polygone& shape, double height);
-			//! Constructor, builds a shaped part with a textured shape;
+			//! Constructor, builds a shaped part with a textured shape; shape must be closed and convex.
 			Part(const Polygone& shape, double height, const Textures& textures);
 			//! Constructor, builds a rectangular part of size l1xl2, with a given height and color, and update radius
 			Part(double l1, double l2, double height);
@@ -215,13 +215,13 @@ namespace Enki
 			
 			// getters
 			inline double getHeight() const { return height; }
+			inline double getArea() const { return area; }
 			inline const Polygone& getShape() const { return shape; }
 			inline const Polygone& getTransformedShape() const { return transformedShape; }
-			inline const Point& getCenter() const { return center; }
-			inline const Point& getTransformedCenter() const { return transformedCenter; }
+			inline const Point& getCentroid() const { return centroid; }
+			inline const Point& getTransformedCentroid() const { return transformedCentroid; }
 			inline const Textures& getTextures() const { return textures; }
 			inline bool isTextured() const { return !textures.empty(); }
-			double getArea() const;
 			
 		private:
 			friend class PhysicalObject;
@@ -229,14 +229,16 @@ namespace Enki
 			
 			//! The height of the part, used for interaction with the sensors of other robots.
 			double height;
+			//! The area of this part
+			double area;
 			//! The shape of the part in object coordinates.
 			Polygone shape;
 			//! The shape of the part in world coordinates, updated on initPhysicsInteractions().
 			Polygone transformedShape;
-			//! The geometrical center of the part in object coordinates.
-			Point center;
-			//! The geometrical center of the part in world coordinates, updated on initPhysicsInteractions().
-			Point transformedCenter;
+			//! The centroid (barycenter) of the part in object coordinates.
+			Point centroid;
+			//! The centroid (barycenter) of the part in world coordinates, updated on initPhysicsInteractions().
+			Point transformedCentroid;
 			
 			// visual properties
 			
@@ -244,8 +246,8 @@ namespace Enki
 			Textures textures;
 		
 		private:
-			//! Compute the center of this shape in object coordinates
-			void computeCenter();
+			//! Compute the area and the centroid (barycenter) of this shape in object coordinates.
+			void computeAreaAndCentroid();
 			//! Compute the shape of this part in world coordinates with respect to object
 			void computeTransformedShape(const Matrix22& rot, const Point& trans);
 		};

@@ -54,7 +54,7 @@ namespace Enki
 		height(height),
 		shape(shape)
 	{
-		computeCenter();
+		computeAreaAndCentroid();
 		
 		transformedShape.resize(shape.size());
 	}
@@ -64,7 +64,7 @@ namespace Enki
 		shape(shape),
 		textures(textures)
 	{
-		computeCenter();
+		computeAreaAndCentroid();
 		
 		transformedShape.resize(shape.size());
 		
@@ -90,10 +90,12 @@ namespace Enki
 	
 	PhysicalObject::Part::Part(double l1, double l2, double height) :
 		height(height),
-		center(0, 0)
+		area(l1*l2),
+		centroid(0, 0)
 	{
 		const double hl1 = l1 / 2;
 		const double hl2 = l2 / 2;
+		
 		shape << Point(-hl1, -hl2) << Point(hl1, -hl2) << Point(hl1, hl2) << Point(-hl1, hl2);
 		transformedShape.resize(shape.size());
 	}
@@ -104,23 +106,27 @@ namespace Enki
 			radius = std::max(radius, shape[i].norm());
 	}
 	
-	double PhysicalObject::Part::getArea() const
+	void PhysicalObject::Part::computeAreaAndCentroid()
 	{
-		const size_t count = shape.size();
-		if (count < 3)
-			return 0;
-		double area = 0;
-		for (size_t i = 0; i < count - 2; ++i)
-			area += getTriangleArea(shape[0], shape[i+1], shape[i+2]);
-		return area;
-	}
-	
-	void PhysicalObject::Part::computeCenter()
-	{
-		center = Point(0, 0);
-		for (size_t i = 0; i < shape.size(); ++i)
-			center += shape[i];
-		center /= shape.size();
+		// from: http://en.wikipedia.org/wiki/Centroid
+		
+		// area
+		area = 0;
+		for (size_t i = 0; i < shape.size() - 1; ++i)
+		{
+			area += (shape[i].x * shape[i+1].y - shape[i+1].x * shape[i].y);
+		}
+		area /= 2;
+		
+		// centroid
+		centroid = Point(0, 0);
+		for (size_t i = 0; i < shape.size() - 1; ++i)
+		{
+			const double multiplicator = (shape[i].x * shape[i+1].y - shape[i+1].x * shape[i].y);
+			centroid.x += (shape[i].x + shape[i+1].x) * multiplicator;
+			centroid.y += (shape[i].y + shape[i+1].y) * multiplicator;
+		}
+		centroid /= (6 * area);
 	}
 	
 	void PhysicalObject::Part::computeTransformedShape(const Matrix22& rot, const Point& trans)
@@ -129,7 +135,7 @@ namespace Enki
 		assert(transformedShape.size() == shape.size());
 		for (size_t i = 0; i < shape.size(); ++i)
 			transformedShape[i] = rot * (shape)[i] + trans;
-		transformedCenter = rot * center + trans;
+		transformedCentroid = rot * centroid + trans;
 	}
 	
 	
@@ -311,9 +317,10 @@ namespace Enki
 		}
 		else
 		{
+			// Numerical method:
 			// arbitrary shaped object, numerically compute moment of inertia
 			momentOfInertia = 0;
-			double area = 0;
+			double numericalArea = 0;
 			const double dr = r / 50.;
 			for (double ix = -r; ix < r; ix += dr)
 				for (double iy = -r; iy < r; iy += dr)
@@ -321,10 +328,16 @@ namespace Enki
 						if (it->shape.isPointInside(Point(ix, iy)))
 						{
 							momentOfInertia += ix * ix + iy * iy;
-							area++;
+							numericalArea++;
 						}
 			
-			momentOfInertia *= mass / area;
+			momentOfInertia *= mass / numericalArea;
+			
+			// Exact method:
+			/*
+			TODO: check this and implement
+			http://lab.polygonal.de/2006/08/17/calculating-the-moment-of-inertia-of-a-convex-polygon/
+			*/
 		}
 	}
 	
@@ -370,7 +383,7 @@ namespace Enki
 		{
 			const Part& part = *it;
 			const double partArea = part.getArea();
-			cm += part.getCenter() * partArea;
+			cm += part.getCentroid() * partArea;
 			area += partArea;
 		}
 		cm /= area;
@@ -958,11 +971,11 @@ namespace Enki
 				// iterate on all shapes of both objects
 				for (PhysicalObject::Hull::const_iterator it = object1->hull.begin(); it != object1->hull.end(); ++it)
 				{
-					const Point& shape1Center = it->getTransformedCenter();
+					const Point& shape1Centroid = it->getTransformedCentroid();
 					const Polygone& shape1 = it->getTransformedShape();
 					for (PhysicalObject::Hull::const_iterator jt = object2->hull.begin(); jt != object2->hull.end(); ++jt)
 					{
-						const Point& shape2Center = jt->getTransformedCenter();
+						const Point& shape2Centroid = jt->getTransformedCentroid();
 						const Polygone& shape2 = jt->getTransformedShape();
 						// TODO: move this into a polygone collision function
 						
@@ -970,7 +983,7 @@ namespace Enki
 						for (size_t i = 0; i < shape1.size(); i++)
 						{
 							const Point &candidate = shape1[i];
-							if (isPointInside(candidate, shape1Center, shape2, &dist))
+							if (isPointInside(candidate, shape1Centroid, shape2, &dist))
 							{
 								if (dist.norm2() > maxNorm)
 								{
@@ -986,7 +999,7 @@ namespace Enki
 						for (size_t i=0; i < shape2.size(); i++)
 						{
 							const Point &candidate = shape2[i];
-							if (isPointInside(candidate, shape2Center, shape1, &dist))
+							if (isPointInside(candidate, shape2Centroid, shape1, &dist))
 							{
 								if (dist.norm2() > maxNorm)
 								{
