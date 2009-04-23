@@ -261,12 +261,14 @@ namespace Enki
 			Hull(const Part& part) : std::vector<Part>(1, part) {}
 			//! Return the convex hull of this hull, using a simple Jarvis march/gift wrapping algorithm
 			Polygone getConvexHull() const;
-			//! Translate of a specific distance
+		private:
+		/*	//! Translate of a specific distance
 			void translate(const Vector& delta);
 			//! Translate of a specific distance, overload for convenience
 			void translate(const double x, const double y);
 			//! Rotate by a specific angle
-			void rotate(const double angle);
+			void rotate(const double angle);*/
+		public:
 			//! Add this hull to another one
 			Hull operator+(const Hull& that) const;
 			//! Add this hull to another one

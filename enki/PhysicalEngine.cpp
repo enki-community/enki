@@ -128,8 +128,6 @@ namespace Enki
 			centroid.y += (shape[i].y + shape[(i+1) % size].y) * multiplicator;
 		}
 		centroid /= (6 * area);
-		
-		std::cerr << this << " " << area << " " << centroid << std::endl;
 	}
 	
 	void PhysicalObject::Part::computeTransformedShape(const Matrix22& rot, const Point& trans)
@@ -191,24 +189,6 @@ namespace Enki
 		}
 		
 		return convexHull;
-	}
-	
-	void PhysicalObject::Hull::translate(const Vector& delta)
-	{
-		for (iterator it = begin(); it != end(); ++it)
-			it->shape.translate(delta);
-	}
-	
-	void PhysicalObject::Hull::translate(const double x, const double y)
-	{
-		for (iterator it = begin(); it != end(); ++it)
-			it->shape.translate(x, y);
-	}
-	
-	void PhysicalObject::Hull::rotate(const double angle)
-	{
-		for (iterator it = begin(); it != end(); ++it)
-			it->shape.rotate(angle);
 	}
 	
 	PhysicalObject::Hull PhysicalObject::Hull::operator+(const Hull& that) const
@@ -1035,17 +1015,11 @@ namespace Enki
 		{
 			// collide 2 circles
 			const Vector ud = distOCtoOC.unitary();
-			//std::cout << object1 << " to " << object2 << " : " << ud << std::endl;
 			const double dLength = distOCtoOC.norm();
 			dist = ud * (addedRay-dLength);
-			//std::cout << object1 << " to " << object2 << " : " << addedRay << " " << dLength << std::endl;
 			collisionPoint = object2->pos + ud * object2->r;
 			
-			//std::cout << "o1 a : " << object1->pos << " " << object1->speed << std::endl;
-			//std::cout << "o2 a : " << object2->pos << " " << object2->speed << std::endl;
 			object1->collideWithObject(*object2, collisionPoint, dist);
-			//std::cout << "o1 b : " << object1->pos << " " << object1->speed << std::endl;
-			//std::cout << "o2 b : " << object2->pos << " " << object2->speed << std::endl;
 			return;
 		}
 
