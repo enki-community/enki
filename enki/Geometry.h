@@ -459,6 +459,32 @@ namespace Enki
   
 		return Point(HUGE_VAL, HUGE_VAL);
 	}
+	
+	//! Returns 2 times the signed triangle area. 
+	/** positive if abc winds counter-clockwise,
+	   negative if abc winds clockwise,
+	   zero if abc is degenerate.
+	   See: Real-time collision detection, C. Ericson, Page 152 */
+	/*! \ingroup an */
+	inline double getTriangleAreaTwice(const Point &a, const Point &b, const Point &c)
+	{
+		return (a.x - c.x) * (b.y - c.y) - (a.y - c.y) * (b.x - c.x);
+	}
+	
+	//! Returns signed height of triangle abc with base ab
+	/** positive if abc winds counter-clockwise
+	   negative if abc winds clockwise,
+	   zero if abc is degenerate. */
+	/*! \ingroup an */
+	inline double getTriangleHeight(const Point &a, const Point &b, const Point &c)
+	{
+		const double ba_norm = (b-a).norm();
+		if (ba_norm < std::numeric_limits<double>::epsilon())
+			return 0;
+		
+		// area of the parallelogram divided by the length of the base
+		return getTriangleAreaTwice(a, b, c) / ba_norm;
+	}
 }
 
 #endif

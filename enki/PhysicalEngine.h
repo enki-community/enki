@@ -250,6 +250,8 @@ namespace Enki
 			void computeAreaAndCentroid();
 			//! Compute the shape of this part in world coordinates with respect to object
 			void computeTransformedShape(const Matrix22& rot, const Point& trans);
+			//! Compute the shape of this part wrt a particular rotation and translation
+			void applyTransformation(const Matrix22& rot, const Point& trans);
 		};
 		
 		//! A hull is a vector of Hull
@@ -261,18 +263,12 @@ namespace Enki
 			Hull(const Part& part) : std::vector<Part>(1, part) {}
 			//! Return the convex hull of this hull, using a simple Jarvis march/gift wrapping algorithm
 			Polygone getConvexHull() const;
-		private:
-		/*	//! Translate of a specific distance
-			void translate(const Vector& delta);
-			//! Translate of a specific distance, overload for convenience
-			void translate(const double x, const double y);
-			//! Rotate by a specific angle
-			void rotate(const double angle);*/
-		public:
 			//! Add this hull to another one
 			Hull operator+(const Hull& that) const;
 			//! Add this hull to another one
 			Hull& operator+=(const Hull& that);
+			//! Compute the shape of this hull wrt a particular rotation and translation
+			void applyTransformation(const Matrix22& rot, const Point& trans);
 		};
 		
 	private:		// variables

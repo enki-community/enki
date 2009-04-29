@@ -139,6 +139,13 @@ namespace Enki
 		transformedCentroid = rot * centroid + trans;
 	}
 	
+	void PhysicalObject::Part::applyTransformation(const Matrix22& rot, const Point& trans)
+	{
+		for (size_t i = 0; i < shape.size(); ++i)
+			(shape)[i] = rot * (shape)[i] + trans;
+		centroid = rot * centroid + trans;
+	}
+	
 	
 	
 	// Hull
@@ -204,6 +211,12 @@ namespace Enki
 		for (const_iterator it = that.begin(); it != that.end(); ++it)
 			push_back(*it);
 		return *this;
+	}
+	
+	void PhysicalObject::Hull::applyTransformation(const Matrix22& rot, const Point& trans)
+	{
+		for (iterator it = begin(); it != end(); ++it)
+			it->applyTransformation(rot, trans);
 	}
 	
 	// PhysicalObject
@@ -700,36 +713,55 @@ namespace Enki
 	bool World::isPointInside(const Point &p, const Point &c, const Polygone &bs, Vector *distVector)
 	// p = candidate point of object; c = pos of object; bs = bounding surface of other object; distVector = deinterlacing dist to be calculated
 	{
-		const Vector centerToPoint = p-c;
-		double score = -10;
+		// Segment 1 from points c to d
+		const Point d = p;
+		bool intersection_found = false;
+		 
 		for (size_t i=0; i<bs.size(); i++)
 		{
 			const size_t next = (i+1)%bs.size();
-			const Segment seg(bs[i].x, bs[i].y, bs[next].x, bs[next].y);
-
-			const Vector nn(seg.a.y-seg.b.y, seg.b.x-seg.a.x);	//orthog. vector for segment
-			const Vector u = nn.unitary();
-
-			const double d = (p-seg.a)*u;		//distance it is inside; if neg. it is outside
-			if (d<0)
+			// Segment 2 from points a to b
+			const Point a(bs[i].x, bs[i].y);
+			const Point b(bs[next].x, bs[next].y);
+			
+			// test if segments 1 and 2 overlap 
+			// see: Real-time collision detection, C. Ericson, Page 152-153
+			
+			const double a1 = getTriangleAreaTwice(a,b,d);
+			const double a2 = getTriangleAreaTwice(a,b,c);
+			
+			if (a1 * a2 < 0.0f)
 			{
-				return false;
-			}
-			else
-			{
-				const double newScore = -d;
-				if (newScore >= score)
+				const double a3 = getTriangleAreaTwice(c,d,a);
+				const double a4 = a3 + a2 - a1;
+				if (a3 * a4 < 0.0f)
 				{
-					const Vector dv = u * (-d);
-					if (dv * centerToPoint < 0)
+					// Segments 1 and 2 intersect
+					intersection_found = true;
+					
+					const double dist = getTriangleHeight(a,b,d); // TODO: abs necessary?
+					
+					if (dist < 0)
 					{
-						*distVector = dv;
-						score = newScore;
+						// both c and p are outside bs
+						// the intersection can be handled when checking the points of bs					
+						return false; 
 					}
+					
+					Vector n = (b-a).perp().unitary();			
+					*distVector = n * (-dist); // TODO: ok that we modify this even if we might return false??						
+					/*
+						std::cout << "Hull: " << bs << std::endl;
+						std::cout << "i: " << i << std::endl;
+						std::cout << "next: " << next << std::endl;						
+						std::cout << "p: " << p  << std::endl;
+						std::cout << "c: " << c  << std::endl;	
+						assert(false);					
+					*/
 				}
 			}
 		}
-		return true;
+		return intersection_found;
 	}
 
 	void World::collideWithSquareWalls(PhysicalObject *object)
