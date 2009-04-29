@@ -100,12 +100,6 @@ namespace Enki
 		transformedShape.resize(shape.size());
 	}
 	
-	void PhysicalObject::Part::updateRadius(double& radius)
-	{
-		for (size_t i = 0; i < shape.size(); i++)
-			radius = std::max(radius, shape[i].norm());
-	}
-	
 	void PhysicalObject::Part::computeAreaAndCentroid()
 	{
 		// from: http://local.wasp.uwa.edu.au/~pbourke/geometry/polyarea/
@@ -139,10 +133,14 @@ namespace Enki
 		transformedCentroid = rot * centroid + trans;
 	}
 	
-	void PhysicalObject::Part::applyTransformation(const Matrix22& rot, const Point& trans)
+	void PhysicalObject::Part::applyTransformation(const Matrix22& rot, const Point& trans, double* radius = 0)
 	{
 		for (size_t i = 0; i < shape.size(); ++i)
+		{
 			(shape)[i] = rot * (shape)[i] + trans;
+			if (radius)
+				*radius = std::max(*radius, shape[i].norm());
+		}
 		centroid = rot * centroid + trans;
 	}
 	
@@ -213,10 +211,14 @@ namespace Enki
 		return *this;
 	}
 	
-	void PhysicalObject::Hull::applyTransformation(const Matrix22& rot, const Point& trans)
+	void PhysicalObject::Hull::applyTransformation(const Matrix22& rot, const Point& trans, double* radius)
 	{
+		if (radius)
+			*radius = 0;
 		for (iterator it = begin(); it != end(); ++it)
-			it->applyTransformation(rot, trans);
+		{
+			it->applyTransformation(rot, trans, radius);
+		}
 	}
 	
 	// PhysicalObject
@@ -386,12 +388,7 @@ namespace Enki
 		
 		// shift all shapes to the CM
 		pos += Matrix22(angle) * cm;
-		r = 0;
-		for (Hull::iterator it = hull.begin(); it != hull.end(); ++it)
-		{
-			it->shape.translate(-cm);
-			it->updateRadius(r);
-		}
+		hull.applyTransformation(Matrix22::identity(), -cm, &r);
 	}
 	
 	void PhysicalObject::computeTransformedShape()

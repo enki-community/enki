@@ -184,6 +184,8 @@ namespace Enki
 		
 		//! Creates a diagonal matrix
 		static Matrix22 fromDiag(double _1, double _2 ) { return Matrix22(_1, 0, 0, _2); }
+		//! Create an identity matrix
+		static Matrix22 identity() { return fromDiag(1,1); }
 	};
 	
 	//! A segment in a 2D space, basically two points
