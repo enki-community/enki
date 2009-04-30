@@ -210,6 +210,9 @@ namespace Enki
 			//! Constructor, builds a rectangular part of size l1xl2, with a given height and color, and update radius
 			Part(double l1, double l2, double height);
 			
+			//! Compute the shape of this part wrt a particular rotation and translation
+			void applyTransformation(const Matrix22& rot, const Point& trans, double* radius);
+			
 			// getters
 			inline double getHeight() const { return height; }
 			inline double getArea() const { return area; }
@@ -247,8 +250,6 @@ namespace Enki
 			void computeAreaAndCentroid();
 			//! Compute the shape of this part in world coordinates with respect to object
 			void computeTransformedShape(const Matrix22& rot, const Point& trans);
-			//! Compute the shape of this part wrt a particular rotation and translation
-			void applyTransformation(const Matrix22& rot, const Point& trans, double* radius);
 		};
 		
 		//! A hull is a vector of Hull
