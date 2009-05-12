@@ -668,9 +668,7 @@ namespace Enki
 	
 	void ViewerWidget::initializeGL()
 	{
-		glClearColor(0.6, 0.7, 1.0, 0.0);
-		glClearColor(1, 1, 1, 1.0);
-		glClearColor(.90980392, .90980392, .90980392, 1.0);
+		glClearColor(world->wallsColor.r(), world->wallsColor.g(), world->wallsColor.b(), 1.0);
 		
 		float LightAmbient[] = {0.6, 0.6, 0.6, 1};
 		float LightDiffuse[] = {1.2, 1.2, 1.2, 1};
