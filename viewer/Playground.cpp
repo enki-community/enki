@@ -280,6 +280,14 @@ public:
 		else
 			ViewerWidget::keyPressEvent(event);
 	}
+	
+	virtual void sceneCompletedHook()
+	{
+		glColor3d(0,0,0);
+		renderText(10, height()-50, tr("rotate camera by moving mouse while pressing ctrl+left mouse button"));
+		renderText(10, height()-30, tr("move camera on x/y by moving mouse while pressing ctrl+shift+left mouse button"));
+		renderText(10, height()-10, tr("move camera on z by moving mouse while pressing ctrl+shift+right mouse button"));
+	}
 };
 
 // http://qtnode.net/wiki?title=Qt_with_cmake
