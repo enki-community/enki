@@ -14,7 +14,15 @@ if (QT4_FOUND)
 	
 	include(${QT_USE_FILE})
 	
-	set(viewer_lib_SRCS Viewer.cpp objects/EPuckBody.cpp objects/EPuckRest.cpp objects/EPuckRing.cpp objects/EPuckWheelLeft.cpp objects/EPuckWheelRight.cpp)
+	set(viewer_lib_SRCS
+		Viewer.cpp
+		objects/EPuckBody.cpp
+		objects/EPuckRest.cpp
+		objects/EPuckRing.cpp
+		objects/EPuckWheelLeft.cpp
+		objects/EPuckWheelRight.cpp
+		objects/marxbot-base.cpp
+		objects/marxbot-wheel.cpp)
 	set(viewer_test_SRCS Playground.cpp)
 	
 	qt4_automoc(${viewer_lib_SRCS})

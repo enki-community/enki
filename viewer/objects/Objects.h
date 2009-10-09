@@ -45,6 +45,9 @@ namespace Enki
 	GLint GenEPuckRing();
 	GLint GenEPuckWheelLeft();
 	GLint GenEPuckWheelRight();
+	
+	GLint GenMarxbotBase();
+	GLint GenMarxbotWheel();
 }
 
 #endif

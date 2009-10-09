@@ -35,6 +35,7 @@
 #include "Viewer.h"
 #include <Viewer.moc>
 #include <enki/robots/e-puck/EPuck.h>
+#include <enki/robots/marxbot/Marxbot.h>
 #include <enki/robots/alice/Alice.h>
 #include <QApplication>
 #include <QtGui>
@@ -205,6 +206,138 @@ namespace Enki
 			glDisable(GL_TEXTURE_2D);
 			glCallList(lists[0]);
 			glDisable(GL_BLEND);
+		}
+	};
+	
+	
+	class MarxbotModel : public ViewerWidget::CustomRobotModel
+	{
+	public:
+		MarxbotModel(ViewerWidget* viewer)
+		{
+			textures.resize(1);
+			textures[0] = viewer->bindTexture(QPixmap(QString(":/textures/marxbot.png")), GL_TEXTURE_2D);
+			lists.resize(2);
+			lists[0] = GenMarxbotBase();
+			lists[1] = GenMarxbotWheel();
+		}
+		
+		void cleanup(ViewerWidget* viewer)
+		{
+			for (int i = 0; i < textures.size(); i++)
+				viewer->deleteTexture(textures[i]);
+			for (int i = 0; i < lists.size(); i++)
+				glDeleteLists(lists[i], 1);
+		}
+		
+		virtual void draw(PhysicalObject* object) const
+		{
+			DifferentialWheeled* dw = polymorphic_downcast<DifferentialWheeled*>(object);
+			
+			const double wheelRadius = 2.9;
+			const double wheelCirc = 2 * M_PI * wheelRadius;
+			
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, textures[0]);
+			glColor3d(1, 1, 1);
+			
+			
+			// body
+			glPushMatrix();
+			glCallList(lists[0]);
+			glPopMatrix();
+			
+			// wheels
+			glPushMatrix();
+			glTranslatef(0,0,wheelRadius);
+				glPushMatrix();
+				glRotated((fmod(dw->rightOdometry, wheelCirc) * 360) / wheelCirc, 0, 1, 0);
+				glCallList(lists[1]);
+				glPopMatrix();
+				glPushMatrix();
+				glRotated(180.f, 0, 0, 1);
+				glRotated((fmod(-dw->leftOdometry, wheelCirc) * 360) / wheelCirc, 0, 1, 0);
+				glCallList(lists[1]);
+				glPopMatrix();
+			glPopMatrix();
+			
+			glDisable(GL_TEXTURE_2D);
+			
+			
+			/*const double radiosityScale = 1.01;
+			
+			glTranslated(0, 0, wheelRadius);
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, textures[0]);
+			
+			glColor3d(1, 1, 1);
+			
+			glCallList(lists[0]);
+			
+			glCallList(lists[1]);
+			
+			//glColor3d(1-object->getColor().components[0], 1+object->getColor().components[1], 1+object->getColor().components[2]);
+			glColor3d(0.6+object->getColor().components[0]-0.3*object->getColor().components[1]-0.3*object->getColor().components[2], 0.6+object->getColor().components[1]-0.3*object->getColor().components[0]-0.3*object->getColor().components[2], 0.6+object->getColor().components[2]-0.3*object->getColor().components[0]-0.3*object->getColor().components[1]);
+			glCallList(lists[2]);
+			
+			glColor3d(1, 1, 1);
+			
+			// wheels
+			glPushMatrix();
+			glRotated((fmod(dw->leftOdometry, wheelCirc) * 360) / wheelCirc, 0, 1, 0);
+			glCallList(lists[3]);
+			glPopMatrix();
+			
+			glPushMatrix();
+			glRotated((fmod(dw->rightOdometry, wheelCirc) * 360) / wheelCirc, 0, 1, 0);
+			glCallList(lists[4]);
+			glPopMatrix();
+			
+			// shadow
+			glBindTexture(GL_TEXTURE_2D, textures[1]);
+			glDisable(GL_LIGHTING);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_ZERO, GL_SRC_COLOR);
+			
+			// bottom shadow
+			glPushMatrix();
+			// disable writing of z-buffer
+			glDepthMask( GL_FALSE );
+			//glTranslated(0, 0, -wheelRadius+0.01);
+			glTranslated(0, 0, -wheelRadius);
+			glEnable(GL_POLYGON_OFFSET_FILL);
+			glBegin(GL_QUADS);
+			glTexCoord2f(0.49f, 0.01f);
+			glVertex2f(-5.f, -5.f);
+			glTexCoord2f(0.49f, 0.49f);
+			glVertex2f(5.f, -5.f);
+			glTexCoord2f(0.01f, 0.49f);
+			glVertex2f(5.f, 5.f);
+			glTexCoord2f(0.01f, 0.01f);
+			glVertex2f(-5.f, 5.f);
+			glEnd();
+			glDisable(GL_POLYGON_OFFSET_FILL);
+			glDepthMask( GL_TRUE );
+			glPopMatrix();
+			
+			// wheel shadow
+			glPushMatrix();
+			glScaled(radiosityScale, radiosityScale, radiosityScale);
+			glTranslated(0, -0.025, 0);
+			glCallList(lists[3]);
+			glPopMatrix();
+			
+			glPushMatrix();
+			glScaled(radiosityScale, radiosityScale, radiosityScale);
+			glTranslated(0, 0.025, 0);
+			glCallList(lists[4]);
+			glPopMatrix();
+			
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glDisable(GL_BLEND);
+			glEnable(GL_LIGHTING);
+			
+			glDisable(GL_TEXTURE_2D);*/
 		}
 	};
 	
@@ -704,6 +837,8 @@ namespace Enki
 		
 		// render all static types
 		managedObjects[&typeid(EPuck)] = new EPuckModel(this);
+		managedObjects[&typeid(Marxbot)] = new MarxbotModel(this);
+		
 		// let subclass manage their static types
 		renderObjectsTypesHook();
 		

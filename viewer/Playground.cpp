@@ -34,6 +34,7 @@
 #include "Viewer.h"
 #include <enki/PhysicalEngine.h>
 #include <enki/robots/e-puck/EPuck.h>
+#include <enki/robots/marxbot/Marxbot.h>
 #include <enki/robots/alice/Alice.h>
 #include <QApplication>
 #include <QtGui>
@@ -141,6 +142,12 @@ public:
 		#ifdef PROBLEM_LONE_EPUCK
 		addDefaultsRobots(world);
 		#endif // PROBLEM_LONE_EPUCK
+		
+		Marxbot *marxbot = new Marxbot;
+		marxbot->pos = Point(60, 50);
+		marxbot->leftSpeed = 8;
+		marxbot->rightSpeed = 2;
+		world->addObject(marxbot);
 		
 		#ifdef USE_SDL
 		if((SDL_Init(SDL_INIT_JOYSTICK)==-1))
