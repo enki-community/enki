@@ -300,6 +300,41 @@ namespace Enki
 	
 	void CircularCam::wallsStep(double dt, World* w)
 	{
+		Texture texture(1, w->wallsColor);
+		
+		switch (w->wallsType)
+		{
+			// TODO: use world texture if any
+			case World::WALLS_SQUARE:
+			{
+				drawTexturedLine(Point(0, 0), Point(w->w, 0), texture);
+				drawTexturedLine(Point(w->w, 0), Point(w->w, w->h), texture);
+				drawTexturedLine(Point(w->w, w->h), Point(0, w->h), texture);
+				drawTexturedLine(Point(0, w->h), Point(0, 0), texture);
+			}
+			break;
+			
+			case World::WALLS_CIRCULAR:
+			{
+				const double r(w->r);
+				const int segmentCount((r*2.*M_PI) / 10.);
+				for (int i = 0; i < segmentCount; ++i)
+				{
+					const double angStart(((double)i * 2. * M_PI) / (double)segmentCount);
+					const double angEnd(((double)(i+1) * 2. * M_PI) / (double)segmentCount);
+					drawTexturedLine(
+						Point(cos(angStart)*r, sin(angStart)*r),
+						Point(cos(angEnd)*r, sin(angEnd)*r),
+						texture
+					);
+				}
+			}
+			break;
+			
+			default:
+			break;
+		}
+		
 		// disable world texture for now
 		/*if (w->wallTextures[0].size() > 0)
 			drawTexturedLine(Point(0, 0), Point(w->w, 0), w->wallTextures[0]);

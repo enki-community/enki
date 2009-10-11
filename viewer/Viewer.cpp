@@ -618,14 +618,14 @@ namespace Enki
 			
 			case World::WALLS_CIRCULAR:
 			{
-				const int segmentCount = (int)((world->r*2.*M_PI) / 10.);
+				const double r(world->r);
+				const int segmentCount = (int)((r*2.*M_PI) / 10.);
 				for (int i = 0; i < segmentCount; ++i)
 				{
 					const double angStart(((double)i * 2. * M_PI) / (double)segmentCount);
 					const double angEnd(((double)(i+1) * 2. * M_PI) / (double)segmentCount);
 					const double angMid((angStart+angEnd)/2);
-					const double innerR(world->r - 10);
-					const double r(world->r);
+					const double innerR(r - 10);
 					
 					glBegin(GL_TRIANGLES);
 					glVertex3d(0, 0, 0);

@@ -121,8 +121,7 @@ namespace Enki
 			//! The reception buffer is full and no additional data can be written
 			RECEPTION_BUFFER_FULL = 4
 		};
-
-
+		
 		//! Constructor
 		BluetoothBase();
 		//! Destructor
