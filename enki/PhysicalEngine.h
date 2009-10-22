@@ -143,6 +143,8 @@ namespace Enki
 			bool deletedWithObject; //!< if true, deleted along with the physical object.
 			
 		public:
+			//! Ask the user data to garbage collect itself if appropriate (i.e. not a singleton)
+			void deleteIfRequired() { if (deletedWithObject) delete this; }
 			//! Virtual destructor, call destructor of child classes
 			virtual ~UserData() {}
 		};
@@ -326,6 +328,8 @@ namespace Enki
 
 	private:		// setup methods
 		
+		//! When a physical parameter (color, shape, ...) has been changed, the user data must be updated.
+		void dirtyUserData();
 		//! Compute the moment of inertia tensor depending on radius, mass, height, and hull, assuming that the hull is centered around the center of mass, which is done by setupCentorOfMass()
 		void computeMomentOfInertia();
 		//! Compute the center of mass and move bounding surfaces accordingly. Does not update the moment of inertia tensor.

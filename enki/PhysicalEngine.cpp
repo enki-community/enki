@@ -247,6 +247,15 @@ namespace Enki
 		}
 	}
 	
+	void PhysicalObject::dirtyUserData()
+	{
+		if (userData)
+		{
+			userData->deleteIfRequired();
+			userData = 0;
+		}
+	}
+	
 	void PhysicalObject::setCylindric(double radius, double height, double mass)
 	{
 		// remove any hull
@@ -261,6 +270,8 @@ namespace Enki
 		
 		// update the moment of inertia
 		computeMomentOfInertia();
+		
+		dirtyUserData();
 	}
 	
 	void PhysicalObject::setRectangular(double l1, double l2, double height, double mass)
@@ -277,6 +288,8 @@ namespace Enki
 		
 		// update the moment of inertia
 		computeMomentOfInertia();
+		
+		dirtyUserData();
 	}
 	
 	void PhysicalObject::setCustomHull(const Hull& hull, double mass)
@@ -295,16 +308,23 @@ namespace Enki
 		
 		// update the moment of inertia
 		computeMomentOfInertia();
+		
+		dirtyUserData();
 	}
 	
 	void PhysicalObject::setColor(const Color &color)
 	{
 		this->color = color;
+		
+		dirtyUserData();
+		
 	}
 	
 	void PhysicalObject::setInfraredReflectiveness(double value)
 	{
 		this->infraredReflectiveness = value;
+		
+		dirtyUserData();
 	}
 	
 	void PhysicalObject::computeMomentOfInertia()

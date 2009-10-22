@@ -35,6 +35,8 @@
 #define __ENKI_TYPES_H
 
 #include <vector>
+#include <sstream>
+#include <string>
 #include <cassert>
 
 /*!	\file Types.h
@@ -108,6 +110,9 @@ namespace Enki
 		void threshold(const Color &limit) { for (size_t i=0; i<3; i++) components[i] = components[i] > limit.components[i] ? components[i] : 0; }
 		//! Return the grey level value
 		double toGray() const { return (components[0] + components[1] + components[2]) / 3; }
+		
+		//! Return a string describing this color
+		std::string toString() const { std::ostringstream oss; oss << "(r = " << components[0] << ", g = " << components[1] << ", b = " << components[2] << ", a = " << components[3] << ")"; return oss.str(); }
 		
 		//! Red component value getter
 		double r() const { return components[0]; }
