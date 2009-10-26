@@ -462,7 +462,7 @@ namespace Enki
 		//! Construct a world with no walls
 		World();
 		//! Destructor, destroy all objects
-		~World();
+		virtual ~World();
 		
 		//! Simulate a timestep of dt. dt should be below 1 (typically .02-.1); physicsOversampling is the amount of time the physics is run per step, as usual collisions require a more precise simulation than the sensor-motor loop frequency.
 		void step(double dt, unsigned physicsOversampling = 1);

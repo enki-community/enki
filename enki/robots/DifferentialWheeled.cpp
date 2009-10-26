@@ -65,6 +65,8 @@ namespace Enki
 		leftOdometry = rightOdometry = 0.0;
 	}
 	
+	#if 0
+	// NOTE: not used for now
 	static double sgn(double v)
 	{
 		if (v > 0)
@@ -84,6 +86,7 @@ namespace Enki
 		else
 			return v;
 	}
+	#endif
 	
 	void DifferentialWheeled::controlStep(double dt)
 	{

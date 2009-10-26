@@ -432,7 +432,7 @@ namespace Enki
 			return 0;
 	}
 
-	/*
+	#if 0
 	void PhysicalObject::physicsStep(double dt)
 	{
 		// NOTE: not used for now, see later if we should remove or not
@@ -450,8 +450,9 @@ namespace Enki
 		b = f (tn + h⁄2, xn + h⁄2 a)
 		c = f (tn + h⁄2, xn + h⁄2 b)
 		d = f (tn + h, xn + h c)
-		
-	}*/
+		*/
+	}
+	#endif
 	
 	void PhysicalObject::applyForces(double dt)
 	{

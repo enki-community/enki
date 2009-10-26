@@ -706,8 +706,8 @@ namespace Enki
 	};
 	GLint GenEPuckBody()
 	{
-	int i;
-	int j;
+	unsigned i;
+	unsigned j;
 	
 	GLint lid=glGenLists(1);
 	glNewList(lid, GL_COMPILE);
