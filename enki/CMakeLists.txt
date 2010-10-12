@@ -20,3 +20,30 @@ add_library (enki
 	robots/s-bot/SbotObject.cpp
 	robots/marxbot/Marxbot.cpp
 )
+
+set(ENKI_HDR
+	Random.h
+	interactions/ActiveSoundSource.h
+	interactions/Bluetooth.h
+	interactions/Microphone.h
+	interactions/CircularCam.h
+	interactions/IRSensor.h
+	Interaction.h
+	robots/e-puck/EPuck.h
+	robots/khepera/Khepera.h
+	robots/alice/Alice.h
+	robots/alice/AliceCommunication.h
+	robots/alice/AliceCam.h
+	robots/s-bot/Sbot.h
+	robots/s-bot/SbotObject.h
+	robots/DifferentialWheeled.h
+	robots/marxbot/Marxbot.h
+	PhysicalEngine.h
+	Types.h
+	Geometry.h
+	BluetoothBase.h
+)
+install(FILES ${ENKI_HDR}
+	DESTINATION include/enki/
+)
+install(TARGETS enki ARCHIVE DESTINATION lib)

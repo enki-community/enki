@@ -39,4 +39,11 @@ if (QT4_FOUND)
 	
 	target_link_libraries(enkiplayground enkiviewer enki ${QT_QTOPENGL_LIBRARIES} ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${EXTRA_LIBS})
 
+	set(ENKI_VIEWER_HDR
+		Viewer.h
+	)
+	install(FILES ${ENKI_VIEWER_HDR}
+		DESTINATION include/viewer/
+	)
+	install(TARGETS enkiviewer ARCHIVE DESTINATION lib)
 endif (QT4_FOUND)
