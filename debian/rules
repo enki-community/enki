@@ -1,0 +1,28 @@
+#!/usr/bin/make -f
+
+build: clean
+	mkdir debian/build
+	cd debian/build && cmake -D CMAKE_BUILD_TYPE=relwithdebuginfo -D CMAKE_INSTALL_PREFIX=../tmp/usr ../..
+	cd debian/build && make
+
+clean:
+	rm -rf debian/files debian/substvars debian/tmp debian/build
+
+binary: binary-arch binary-indep
+
+binary-indep:
+
+binary-arch:
+	rm -rf debian/tmp
+	install -d debian/tmp/DEBIAN
+	install -d debian/tmp/usr/share/doc/libenki
+	strip --strip-unneeded -R .note -R .comment debian/build/enki/libenki.a
+	strip --strip-unneeded -R .note -R .comment debian/build/viewer/libenkiviewer.a
+	cp changelog debian/tmp/usr/share/doc/libenki/changelog
+	cp debian/changelog debian/tmp/usr/share/doc/libenki/changelog.debian
+	cp debian/copyright debian/tmp/usr/share/doc/libenki
+	cd debian/build && make install
+	chown -R root.root debian/tmp
+	chmod -R o-s,go=u,go-ws debian/tmp
+	dpkg-gencontrol
+	dpkg --build debian/tmp ..
