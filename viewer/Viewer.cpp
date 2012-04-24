@@ -37,6 +37,7 @@
 #include <enki/robots/e-puck/EPuck.h>
 #include <enki/robots/marxbot/Marxbot.h>
 #include <enki/robots/alice/Alice.h>
+#include <GL/glu.h>
 #include <QApplication>
 #include <QtGui>
 
