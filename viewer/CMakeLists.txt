@@ -6,13 +6,17 @@ if (SDL_FOUND)
 	add_definitions("-DUSE_SDL")
 endif (SDL_FOUND)
 
+set(QT_USE_QTOPENGL TRUE)
 find_package(Qt4)
 
 if (QT4_FOUND)
-
 	find_package(OpenGL REQUIRED)
-	
 	include(${QT_USE_FILE})
+	add_definitions(${QT_DEFINITIONS})
+	
+	if (CMAKE_HOST_UNIX)
+		add_definitions("-fPIC")
+	endif (CMAKE_HOST_UNIX)
 	
 	set(viewer_lib_SRCS
 		Viewer.cpp
@@ -30,14 +34,14 @@ if (QT4_FOUND)
 	
 	qt4_add_resources(viewer_lib_RCC_SRCS enki-viewer-textures.qrc)
 	
-	include_directories (${enki_SOURCE_DIR} ${QT_INCLUDE_DIR} ${QT_QTOPENGL_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR} ${CMAKE_BINARY_DIR}/viewer)
+	include_directories (${enki_SOURCE_DIR} ${OPENGL_INCLUDE_DIR} ${CMAKE_BINARY_DIR}/viewer)
 	
 	link_directories (${enki_BINARY_DIR})
 	
 	add_library (enkiviewer ${viewer_lib_SRCS} ${viewer_lib_RCC_SRCS})
 	add_executable(enkiplayground ${viewer_test_SRCS})
 	
-	target_link_libraries(enkiplayground enkiviewer enki ${QT_QTOPENGL_LIBRARIES} ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${EXTRA_LIBS})
+	target_link_libraries(enkiplayground enkiviewer enki ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${EXTRA_LIBS})
 
 	set(ENKI_VIEWER_HDR
 		Viewer.h

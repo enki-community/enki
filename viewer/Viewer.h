@@ -87,6 +87,8 @@ namespace Enki
 		GLuint worldList;
 		GLuint worldTexture;
 		GLuint wallTexture;
+		GLuint worldCenterTexture;
+		const QString worldCenterTextureName;
 		
 		typedef QMap<const std::type_info*, ViewerUserData*> ManagedObjectsMap;
 		typedef QMapIterator<const std::type_info*, ViewerUserData*> ManagedObjectsMapIterator;
@@ -106,7 +108,7 @@ namespace Enki
 		int dumpFramesCounter;
 	
 	public:
-		ViewerWidget(World *world, QWidget *parent = 0);
+		ViewerWidget(World *world, QWidget *parent = 0, const QString& worldCenterTextureName = QString());
 		~ViewerWidget();
 	
 	public slots:

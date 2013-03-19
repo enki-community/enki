@@ -343,10 +343,11 @@ namespace Enki
 	};
 	
 	
-	ViewerWidget::ViewerWidget(World *world, QWidget *parent) :
+	ViewerWidget::ViewerWidget(World *world, QWidget *parent, const QString& worldCenterTextureName) :
 		QGLWidget(parent),
 		world(world),
 		worldList(0),
+		worldCenterTextureName(worldCenterTextureName),
 		mouseGrabbed(false),
 		yaw(-M_PI/2),
 		pitch((3*M_PI)/8),
@@ -366,6 +367,8 @@ namespace Enki
 			glDeleteLists(worldList, 1);
 			deleteTexture (worldTexture);
 			deleteTexture (wallTexture);
+			if (worldCenterTextureName.isEmpty())
+				deleteTexture (worldCenterTexture);
 		}
 		
 		ManagedObjectsMapIterator i(managedObjects);
@@ -603,17 +606,27 @@ namespace Enki
 				renderWorldSegment(Segment(0, world->h, world->w, world->h));
 				renderWorldSegment(Segment(0, 0, 0, world->h));
 				
-				glDisable(GL_TEXTURE_2D);
+				const bool hasGroundTexture(!worldCenterTextureName.isEmpty());
+				if (!hasGroundTexture)
+					glDisable(GL_TEXTURE_2D);
+				else
+					glBindTexture(GL_TEXTURE_2D, worldCenterTexture);
 				
 				glNormal3d(0, 0, 1);
 				glColor3d(world->wallsColor.r(), world->wallsColor.g(), world->wallsColor.b());
 				glBegin(GL_QUADS);
+				glTexCoord2f(0.0f, 0.0f);
 				glVertex3d(10, 10, 0);
+				glTexCoord2f(1.0f, 0.0f);
 				glVertex3d(world->w-10, 10, 0);
+				glTexCoord2f(1.0f, 1.0f);
 				glVertex3d(world->w-10, world->h-10, 0);
+				glTexCoord2f(0.0f, 1.0f);
 				glVertex3d(10, world->h-10, 0);
-				glEnd();
 				
+				if (hasGroundTexture)
+					glDisable(GL_TEXTURE_2D);
+				glEnd();
 			}
 			break;
 			
@@ -833,6 +846,8 @@ namespace Enki
 		
 		worldTexture = bindTexture(QPixmap(QString(":/textures/world.png")), GL_TEXTURE_2D, GL_LUMINANCE8);
 		wallTexture = bindTexture(QPixmap(QString(":/textures/wall.png")), GL_TEXTURE_2D, GL_LUMINANCE8);
+		if (!worldCenterTextureName.isEmpty())
+			worldCenterTexture = bindTexture(QPixmap(worldCenterTextureName));
 		worldList = glGenLists(1);
 		renderWorld();
 		
