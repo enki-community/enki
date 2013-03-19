@@ -407,7 +407,7 @@ namespace Enki
 	};
 
 	//! The world is the container of all objects and robots.
-	/*! It is a rectangular arena with walls at all sides.
+	/*! It is either a rectangular arena with walls at all sides, a circular area with walls, or an infinite surface.
 		\ingroup core
 	*/
 	class World
@@ -443,6 +443,7 @@ namespace Enki
 		//! Base for the Bluetooth connections between robots
 		BluetoothBase* bluetoothBase;
 
+	protected:
 		//! Do the collision of a circular object with one with a different shape (convex boundingsurface)
 		void collideCircleWithShape(PhysicalObject *circularObject, PhysicalObject *shapedObject, const Polygone &shape);
 		//! Collide two objects. Correct functions will be called depending on type of object (circular or other shape).
@@ -480,6 +481,9 @@ namespace Enki
 		void initBluetoothBase();
 		//! Return the address of the Bluetooth base
 		BluetoothBase* getBluetoothBase();
+		
+		//! Choose whether the world should take ownership of PhysicalObjects added, and delete them. Default is true.
+		static void takeObjectOwnership(bool doTake);
 	
 	protected:
 		//! Can implement world specific control. By default do nothing

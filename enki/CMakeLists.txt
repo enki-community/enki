@@ -1,6 +1,10 @@
 include_directories (${enki_SOURCE_DIR})
 
-add_library (enki
+if (CMAKE_HOST_UNIX)
+	add_definitions("-fPIC")
+endif (CMAKE_HOST_UNIX)
+
+add_library(enki
 	Geometry.cpp
 	Types.cpp
 	PhysicalEngine.cpp

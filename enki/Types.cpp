@@ -45,4 +45,9 @@ namespace Enki
 	const Color Color::red(1, 0, 0);
 	const Color Color::green(0, 1, 0);
 	const Color Color::blue(0, 0, 1);
+	
+	std::ostream & operator<<(std::ostream &os, const Color& c)
+	{
+		return os << "(r = " << c.components[0] << ", g = " << c.components[1] << ", b = " << c.components[2] << ", a = " << c.components[3] << ")";
+	}
 }

@@ -679,6 +679,8 @@ namespace Enki
 			globalInteractions[i]->step(dt, w);
 		}
 	}
+	
+	static bool worldTakeObjectOwnership = true;
 
 	World::World(double width, double height, const Color& wallsColor) :
 		wallsType(WALLS_SQUARE),
@@ -712,8 +714,9 @@ namespace Enki
 
 	World::~World()
 	{
-		for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
-			delete (*i);
+		if (worldTakeObjectOwnership)
+			for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
+				delete (*i);
 		
 		if (bluetoothBase)
 			delete bluetoothBase;
@@ -1193,6 +1196,11 @@ namespace Enki
 			bluetoothBase = new BluetoothBase();
 	
 		return bluetoothBase;
+	}
+	
+	void World::takeObjectOwnership(bool doTake)
+	{
+		worldTakeObjectOwnership = doTake;
 	}
 }
 

@@ -112,7 +112,7 @@ namespace Enki
 		double toGray() const { return (components[0] + components[1] + components[2]) / 3; }
 		
 		//! Return a string describing this color
-		std::string toString() const { std::ostringstream oss; oss << "(r = " << components[0] << ", g = " << components[1] << ", b = " << components[2] << ", a = " << components[3] << ")"; return oss.str(); }
+		std::string toString() const { std::ostringstream oss; oss << *this; return oss.str(); }
 		
 		//! Red component value getter
 		double r() const { return components[0]; }
@@ -150,8 +150,10 @@ namespace Enki
 		static const Color green;
 		//! blue (0, 0, 1)
 		static const Color blue;
+		
+		friend std::ostream & operator<<(std::ostream &os, const Color& c);
 	};
-
+	
 	//! A texture
 	typedef std::vector<Color> Texture;
 	
