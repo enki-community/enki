@@ -192,14 +192,18 @@ struct EPuckWrap: EPuck, wrapper<EPuck>
 
 struct PythonViewer: public ViewerWidget
 {
-	PythonViewer(World& world, Vector camPos, double camAltitude, double camYaw, double camPitch):
-		ViewerWidget(&world)
+	PyThreadState *pythonSavedState;
+	 
+	PythonViewer(World& world, Vector camPos, double camAltitude, double camYaw, double camPitch, double _wallsHeight):
+		ViewerWidget(&world),
+		pythonSavedState(0)
 	{
 		pos.setX(-camPos.x);
 		pos.setY(-camPos.y);
 		altitude = camAltitude;
 		yaw = -camYaw;
 		pitch = -camPitch;
+		wallsHeight = _wallsHeight;
 		
 		managedObjectsAliases[&typeid(EPuckWrap)] = &typeid(EPuck);
 	}
@@ -211,17 +215,33 @@ struct PythonViewer: public ViewerWidget
 		renderText(10, height()-30, tr("move camera on x/y by moving mouse while pressing ctrl+shift+left mouse button"));
 		renderText(10, height()-10, tr("move camera on z by moving mouse while pressing ctrl+shift+right mouse button"));
 	}
+	
+	void timerEvent(QTimerEvent * event)
+	{
+		// get back Python lock
+		if (pythonSavedState)
+			PyEval_RestoreThread(pythonSavedState);
+		// touch Python objects while locked
+		world->step(1./30., 3);
+		updateGL();
+		// release Python lock
+		if (pythonSavedState)
+			pythonSavedState = PyEval_SaveThread();
+	}
 };
 
-void runInViewer(World& world, Vector camPos = Vector(0,0), double camAltitude = 0, double camYaw = 0, double camPitch = 0)
+void runInViewer(World& world, Vector camPos = Vector(0,0), double camAltitude = 0, double camYaw = 0, double camPitch = 0, double wallsHeight = 10)
 {
 	int argc(1);
 	char* argv[1] = {(char*)"dummy"}; // FIXME: recovery sys.argv
 	QApplication app(argc, argv);
-	PythonViewer viewer(world, camPos, camAltitude, camYaw, camPitch);
+	PythonViewer viewer(world, camPos, camAltitude, camYaw, camPitch, wallsHeight);
 	viewer.setWindowTitle("PyEnki Viewer");
 	viewer.show();
+	viewer.pythonSavedState = PyEval_SaveThread();
 	app.exec();
+	if (viewer.pythonSavedState)
+		PyEval_RestoreThread(viewer.pythonSavedState);
 }
 
 void run(World& world, unsigned steps)
@@ -231,7 +251,7 @@ void run(World& world, unsigned steps)
 }
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(step_overloads, step, 1, 2)
-BOOST_PYTHON_FUNCTION_OVERLOADS(runInViewer_overloads, runInViewer, 1, 5)
+BOOST_PYTHON_FUNCTION_OVERLOADS(runInViewer_overloads, runInViewer, 1, 6)
 
 BOOST_PYTHON_MODULE(pyenki)
 {
@@ -361,8 +381,6 @@ BOOST_PYTHON_MODULE(pyenki)
 		.def("removeObject", &World::removeObject)
 		.def("setRandomSeed", &World::setRandomSeed)
 		.def("run", run)
-		.def("runInViewer", runInViewer, runInViewer_overloads(args("self", "camPos", "camAltitude", "camYaw", "camPitch")))
+		.def("runInViewer", runInViewer, runInViewer_overloads(args("self", "camPos", "camAltitude", "camYaw", "camPitch", "wallsHeight")))
 	;
-	
-	// TODO: add viewer
 }
