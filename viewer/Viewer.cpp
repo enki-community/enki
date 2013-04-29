@@ -353,6 +353,7 @@ namespace Enki
 		pitch((3*M_PI)/8),
 		pos(-world->w * 0.5, -world->h * 0.2),
 		altitude(world->h * 0.5),
+		wallsHeight(10),
 		doDumpFrames(false),
 		dumpFramesCounter(0)
 	{
@@ -479,7 +480,7 @@ namespace Enki
 		Vector v = segment.b - segment.a;
 		Vector vu = v.unitary();
 		Vector n = Vector(v.y, -v.x).unitary();
-		int count = (int)(v.norm()-20) / 10;
+		int count = ((int)(v.norm()-20) / 10+1);
 		double l = (v.norm()-20) / (double)count;
 		Vector dv = vu * l;
 		Vector dvm = vu * 10;
@@ -494,9 +495,9 @@ namespace Enki
 		glTexCoord2f(0.5f, 0.5f);
 		glVertex3d((pos+dvm).x, (pos+dvm).y, 0);
 		glTexCoord2f(0.5f, 0.99f);
-		glVertex3d((pos+dvm).x, (pos+dvm).y, 10);
+		glVertex3d((pos+dvm).x, (pos+dvm).y, wallsHeight);
 		glTexCoord2f(0.01f, 0.99f);
-		glVertex3d(pos.x, pos.y, 10);
+		glVertex3d(pos.x, pos.y, wallsHeight);
 		glEnd();
 		
 		glNormal3d(vu.x, vu.y, 0);
@@ -506,9 +507,9 @@ namespace Enki
 		glTexCoord2f(0.01f, 0.5f);
 		glVertex3d(pos.x, pos.y, 0);
 		glTexCoord2f(0.01f, 0.99f);
-		glVertex3d(pos.x, pos.y, 10);
+		glVertex3d(pos.x, pos.y, wallsHeight);
 		glTexCoord2f(0.5f, 0.99f);
-		glVertex3d(pos.x + dvpm.x, pos.y + dvpm.y, 10);
+		glVertex3d(pos.x + dvpm.x, pos.y + dvpm.y, wallsHeight);
 		glEnd();
 		
 		glNormal3d(0, 0, 1);
@@ -535,9 +536,9 @@ namespace Enki
 			glTexCoord2f(0.99f, 0.5f);
 			glVertex3d((pos+dv).x, (pos+dv).y, 0);
 			glTexCoord2f(0.99f, 0.99f);
-			glVertex3d((pos+dv).x, (pos+dv).y, 10);
+			glVertex3d((pos+dv).x, (pos+dv).y, wallsHeight);
 			glTexCoord2f(0.5f, 0.99f);
-			glVertex3d(pos.x, pos.y, 10);
+			glVertex3d(pos.x, pos.y, wallsHeight);
 			glEnd();
 			
 			// draw ground
@@ -560,7 +561,6 @@ namespace Enki
 	
 	void ViewerWidget::renderWorld()
 	{
-		const double wallsHeight = 10;
 		const double infPlanSize = 3000;
 		
 		glNewList(worldList, GL_COMPILE);
@@ -607,10 +607,10 @@ namespace Enki
 				renderWorldSegment(Segment(0, 0, 0, world->h));
 				
 				const bool hasGroundTexture(!worldCenterTextureName.isEmpty());
-				if (!hasGroundTexture)
-					glDisable(GL_TEXTURE_2D);
-				else
+				if (hasGroundTexture)
 					glBindTexture(GL_TEXTURE_2D, worldCenterTexture);
+				else
+					glDisable(GL_TEXTURE_2D);
 				
 				glNormal3d(0, 0, 1);
 				glColor3d(world->wallsColor.r(), world->wallsColor.g(), world->wallsColor.b());

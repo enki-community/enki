@@ -103,6 +103,7 @@ namespace Enki
 		double pitch;
 		QPointF pos;
 		double altitude;
+		double wallsHeight;
 		
 		bool doDumpFrames;
 		int dumpFramesCounter;
