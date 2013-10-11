@@ -21,13 +21,15 @@ if (QT4_FOUND)
 	
 	set(viewer_lib_SRCS
 		Viewer.cpp
+		EPuckModel.cpp
 		objects/EPuckBody.cpp
 		objects/EPuckRest.cpp
 		objects/EPuckRing.cpp
 		objects/EPuckWheelLeft.cpp
 		objects/EPuckWheelRight.cpp
-		objects/marxbot-base.cpp
-		objects/marxbot-wheel.cpp)
+		MarxbotModel.cpp
+		objects/MarxbotBase.cpp
+		objects/MarxbotWheel.cpp)
 	set(viewer_test_SRCS Playground.cpp)
 	
 	qt4_automoc(${viewer_lib_SRCS})
