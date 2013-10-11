@@ -1,7 +1,7 @@
 
 /*
     Enki - a fast 2D robot simulator
-    Copyright (C) 1999-2008 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 1999-2013 Stephane Magnenat <stephane at magnenat dot net>
     Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
     Copyright (c) 2004-2005 Antoine Beyeler <abeyeler at ab-ware dot com>
     Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
@@ -12,7 +12,7 @@
     arising from research using this software are asked to add the 
     following reference:
     Enki - a fast 2D robot simulator
-    http://lis.epfl.ch/enki
+    http://home.gna.org/enki
     Stephane Magnenat <stephane at magnenat dot net>,
     Markus Waibel <markus dot waibel at epfl dot ch>
     Laboratory of Intelligent Systems, EPFL, Lausanne.

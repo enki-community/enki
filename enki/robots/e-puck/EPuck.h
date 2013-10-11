@@ -11,7 +11,7 @@
     arising from research using this software are asked to add the 
     following reference:
     Enki - a fast 2D robot simulator
-    http://lis.epfl.ch/enki
+    http://home.gna.org/enki
     Stephane Magnenat <stephane at magnenat dot net>,
     Markus Waibel <markus dot waibel at epfl dot ch>
     Laboratory of Intelligent Systems, EPFL, Lausanne.
