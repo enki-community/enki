@@ -292,8 +292,6 @@ namespace Enki
 		double height;
 		//! The overall color of this object, if hull is empyt or if it does not contain any texture
 		Color color;
-		//! The infrared reflection factor of the part. It acts only on proximity sensors. 1 one, the object is seen normally. If less than 1, the range on which the object is visible dimishes. If 0, the object is invisible to proximity sensors. For now it is global to the PhysicalObject, but ideally it should be part of the color
-		double infraredReflectiveness;
 		
 	public:			// methods
 		
@@ -309,7 +307,6 @@ namespace Enki
 		inline bool isCylindric() const { return hull.empty(); }
 		inline const Hull& getHull() const { return hull; }
 		inline const Color& getColor() const { return color; }
-		inline double getInfraredReflectiveness() const { return infraredReflectiveness; }
 		inline double getMass() const { return mass; }
 		inline double getMomentOfInertia() const { return momentOfInertia; }
 		
@@ -323,9 +320,7 @@ namespace Enki
 		void setCustomHull(const Hull& hull, double mass);
 		//! Set the overall color of this object, if hull is empty or if it does not contain any texture
 		void setColor(const Color &color);
-		//! Set the infrared reflectiveness of the object
-		void setInfraredReflectiveness(double value);
-
+		
 	private:		// setup methods
 		
 		//! When a physical parameter (color, shape, ...) has been changed, the user data must be updated.

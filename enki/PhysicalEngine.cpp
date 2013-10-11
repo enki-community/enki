@@ -233,8 +233,7 @@ namespace Enki
 		viscousFrictionCoefficient(0.01),
 		viscousMomentFrictionCoefficient(0.01),
 		angle(0),
-		angSpeed(0),
-		infraredReflectiveness(1)
+		angSpeed(0)
 	{
 		setCylindric(1, 1, 1);
 	}
@@ -318,13 +317,6 @@ namespace Enki
 		
 		dirtyUserData();
 		
-	}
-	
-	void PhysicalObject::setInfraredReflectiveness(double value)
-	{
-		this->infraredReflectiveness = value;
-		
-		dirtyUserData();
 	}
 	
 	void PhysicalObject::computeMomentOfInertia()

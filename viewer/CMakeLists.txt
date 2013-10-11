@@ -4,6 +4,7 @@ if (SDL_FOUND)
 	include_directories(${SDL_INCLUDE_DIR})
 	set(EXTRA_LIBS ${SDL_LIBRARY} ${EXTRA_LIBS})
 	add_definitions("-DUSE_SDL")
+	message("SDL found")
 endif (SDL_FOUND)
 
 set(QT_USE_QTOPENGL TRUE)

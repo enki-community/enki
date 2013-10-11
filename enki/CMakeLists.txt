@@ -17,9 +17,6 @@ add_library(enki
 	robots/DifferentialWheeled.cpp
 	robots/khepera/Khepera.cpp
 	robots/e-puck/EPuck.cpp
-	robots/alice/Alice.cpp
-	robots/alice/AliceCommunication.cpp
-	robots/alice/AliceCam.cpp
 	robots/s-bot/Sbot.cpp
 	robots/s-bot/SbotObject.cpp
 	robots/marxbot/Marxbot.cpp

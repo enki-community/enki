@@ -46,22 +46,43 @@
 
 namespace Enki
 {
-	/*!	\defgroup responsefunctor Response function classes
-	Different response functions for different sensors
-	*/
-	
-	//! Functor for the sensor response
-	/*! \ingroup responsefunctor */
-	struct SensorResponseFunctor
-	{
-		//! Virtual destructor, do nothing
-		virtual ~SensorResponseFunctor() {}
-		//! Return the response for a given distance and object color
-		virtual double operator()(double, const Color &) = 0;
-	};
-	
 	//! A generic infrared sensor
-	/*! \ingroup interaction */
+	/*! \ingroup interaction 
+	
+	This sensor is based on a inverse square response function and three casted rays.
+	
+	During objectStep() and wallsStep() it casts the three rays,
+	separated by an angle of 15 degrees. Distances are in cm. For negative distance values, i.e. a sensor inside an object, wall, etc., the value of the sensor response function at distance 0 will be used. If a ray fails to touch the object, the distance returned will be HUGE_VAL; the sensor response function will return a 0 sensor response for this case.
+	
+	Upon finalize(), it computes finalValue and finalDist.
+	It does so first using the following equation for each ray:
+	
+		               m * (c - x0*x0)
+		value = F(x) = ----------------
+		               x*x - 2*x0*x + c
+	
+	where x is the distance to the obstacle.
+	
+	It then combines the three rays with this equation:
+	
+		finalValue = F(d_center) + F(d_left) + F(d_right) - 2*F(d_center*alpha)
+	
+	where d_R is the distance of ray R, and alpha is 1/cos(15 degrees).
+	
+	Finally, it computes the final distance using:
+	
+		finalDist = F-1(finalValue)
+	
+	where:
+		                                       m
+		F-1(v) = x0 + sqrt( (x0*x0-c) * ( 1 - --- ) )
+		                                       v
+	
+	
+	TODO
+	SensorResponseFunctors translate the distances stored in the rayValues[] into actual sensor activations.  An appropriate noise model (if realistic modelling is desired) should be included in the sensor response function.
+	 
+	*/
 	class IRSensor : public LocalInteraction
 	{
 	protected:
@@ -70,22 +91,27 @@ namespace Enki
 		//! Absolute orientation in the world, updated on init()
 		double absOrientation;
 		//! Relative position on the robot
-		Vector pos;
+		const Vector pos;
 		//! Height above ground, the sensor will not see any object of smaller height
-		double height;
+		const double height;
 		//! Relative orientation on the robot
-		double orientation;
+		const double orientation;
 		//! Actual detection range
-		double range;
+		const double range;
 		//! Aperture angle
-		double aperture;
+		const double aperture;
+		//! 1/cos(aperture)
+		const double alpha;
 		//! Number of rays used, each ray has an aperture of aperture/rayCount to the next one. Rays are assembled from right to left (i.e. counterclockwise)
-		unsigned rayCount;
-		//! Array of size rayCount used to compute the response of different rays using implementations of SensorResponseFunctor functors.
-		/*!
-		SensorResponseFunctors translate the distances stored in the rayValues[] into actual sensor activations. Distances are in cm. For negative distance values, i.e. a sensor inside an object, wall, etc., the value of the sensor response function at distance 0 will be used. If a ray fails to touch the object, the distance returned will be HUGE_VAL; the sensor response function should typically return a 0 sensor activation for this case. An appropriate noise model (if realistic modelling is desired) should be included in the sensor response function.
-		*/
-		std::valarray<SensorResponseFunctor *> sensorResponseKernel;
+		const unsigned rayCount;
+		//! Maximum possible response value, might be inside the robot if x0<0, first parameter of response function
+		const double m;
+		//! Position of the maximum of response (might be negative, inside the robot), second parametere of response function
+		const double x0;
+		//! Third parameter of response function
+		const double c;
+		//! Standard deviation of Gaussian noise in the response space
+		const double noiseSd;
 		
 		//! Radius for the smallest circle enclosing all rays
 		double smartRadius;
@@ -94,23 +120,33 @@ namespace Enki
 		//! Current position of the center of the smartRadius in absolute (world) coordinates, updated on init()
 		Vector absSmartPos;
 		//! Temporary ray values containing the lowest distance found up to now
-		std::valarray<double> rayValues;
-		//! Temporary ray values containing the color of the closest segment up to now
-		std::valarray<Color> rayColors;
+		std::vector<double> rayDists;
+		//! Temporary ray values containing the response value of the closest object found up to now
+		std::vector<double> rayValues;
 		//! The angle for each ray relative to the sensor orientation in relative (robot) coordinates
-		std::valarray<double> rayAngles;
+		std::vector<double> rayAngles;
 		//! The angle for each ray relative to the sensor orientation in absolute (world) coordinates
-		std::valarray<double> absRayAngles;
+		std::vector<double> absRayAngles;
 	
-	public:
 		//! Final sensor value
 		double finalValue;
+		//! Final computed distance
+		double finalDist;
 		
 	public:
 		//! Constructor
-		//! e.g.: "left(this, Vector (0.95, 0.95), 1.2, M_PI/4, 2.5, M_PI/6, 3, AliceIRNormalSensorModel)"
-		//! i.e. for left: position on bot is x=0.95, y=0.95 from center of bot, height of sensor is 1.2, looking 45 deg to the left, +/-30 deg opening angle, 3cm max sensor range, a raycount of 3, SensorResponseFunctor in AliceIRNormalSensorModel array
-		IRSensor(Robot *owner, Vector pos, double height, double orientation, double range, double aperture, unsigned rayCount, SensorResponseFunctor **sensorResponseKernel);
+		/*!
+			\param owner robot which embeds this sensor
+			\param pos relative position (x,y) on the robot
+			\param height height above ground, the sensor will not see any object of smaller height
+			\param orientation relative orientation on the robot
+			\param range detection range, objects over this range will not be seen
+			\param m maximum possible response value, might be inside the robot if x0<0, first parameter of response function
+			\param x0 position of the maximum of response (might be negative, inside the robot), second parametere of response function
+			\param c third parameter of response function
+			\param noiseSd standard deviation of Gaussian noise in the response space
+		*/
+		IRSensor(Robot *owner, Vector pos, double height, double orientation, double range, double m, double x0, double c, double noiseSd = 0.);
 		//! Reset distance values
 		void init(double dt, World* w);
 		//! Check for all potential intersections using smartRadius of sensor and calculate and find closest distance for each ray.
@@ -120,24 +156,37 @@ namespace Enki
 		//! Applies the SensorResponseFunction to each ray and combines all rays using weights defined in the rayCombinationKernel.
 		void finalize(double dt, World* w);
 		
+		//! Return the final sensor value
+		double getValue(void) const { return finalValue; }
+		//! Return the distance through the inverse response of the final sensor value 
+		double getDist(void) const { return finalDist; }
+		//! Return the value of a ray
+		double getRayValue(unsigned i) const { return rayValues.at(i); }
+		//! Return the distance of a ray
+		double getRayDist(unsigned i) const { return rayDists.at(i); }
+		
 		//! Return the absolute position of the IR sensor, updated at each time step on init()
-		Point getAbsolutePosition(void) { return absPos; }
+		Point getAbsolutePosition(void) const { return absPos; }
 		//! Return the absolute orientation of the IR sensor, updated at each time step on init()
-		double getAbsoluteOrientation(void) { return absOrientation; }
+		double getAbsoluteOrientation(void) const { return absOrientation; }
 		//! Return the number of rays
-		unsigned getRayCount(void) { return rayCount; }
+		unsigned getRayCount(void) const { return rayCount; }
 		//! Return the aperture of the sensor
-		double getAperture(void) { return aperture; }
+		double getAperture(void) const { return aperture; }
 		//! Return the range of the sensor
-		double getRange(void) { return range; }
+		double getRange(void) const { return range; }
 		//! Return the radius for the smallest circle enclosing all rays
-		double getSmartRadius(void) { return smartRadius; }
+		double getSmartRadius(void) const { return smartRadius; }
 		//! Return current position of the center of the smartRadius, i.e. center of the smallest circle enclosing all rays in relative (robot) coordinates
-		Point getAbsSmartPos(void) { return absSmartPos; }
-		//! Return the distance of the middle ray; this may be usefull for inaccurate simulations
-		double getDist(void) { double val = rayValues[rayValues.size() / 2]; return std::min(val, range); }
-	
-	private:
+		Point getAbsSmartPos(void) const { return absSmartPos; }
+		
+	protected:
+		//! If dist is smaller than current ray distance, update distance and response value
+		void updateRay(size_t i, double dist);
+		//! Return the response for a given distance
+		double responseFunction(double x) const;
+		//! Return the inverse response for a given distance
+		double inverseResponseFunction(double v) const;
 		//! Returns distance to PhysicalObject po for angle rayAngle.
 		//! Note: The polygon MUST be convex and have vertices oriented counterclockwise (ccw). This code does not check for and verify these conditions. Returns distance to shortest intersection point or HUGE_VAL if there is no intersection
 		double distanceToPolygon(double rayAngle, const Polygone &p) const;

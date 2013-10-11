@@ -155,14 +155,14 @@ struct EPuckWrap: EPuck, wrapper<EPuck>
 	list getProxSensorValues(void)
 	{
 		list l;
-		l.append(infraredSensor0.finalValue);
-		l.append(infraredSensor1.finalValue);
-		l.append(infraredSensor2.finalValue);
-		l.append(infraredSensor3.finalValue);
-		l.append(infraredSensor4.finalValue);
-		l.append(infraredSensor5.finalValue);
-		l.append(infraredSensor6.finalValue);
-		l.append(infraredSensor7.finalValue);
+		l.append(infraredSensor0.getValue());
+		l.append(infraredSensor1.getValue());
+		l.append(infraredSensor2.getValue());
+		l.append(infraredSensor3.getValue());
+		l.append(infraredSensor4.getValue());
+		l.append(infraredSensor5.getValue());
+		l.append(infraredSensor6.getValue());
+		l.append(infraredSensor7.getValue());
 		return l;
 	}
 	
@@ -333,7 +333,6 @@ BOOST_PYTHON_MODULE(pyenki)
 		.def_readwrite_by_value("speed", &PhysicalObject::speed)
 		.def_readwrite("angSpeed", &PhysicalObject::angSpeed)
 		.add_property("color",  make_function(&PhysicalObject::getColor, return_value_policy<copy_const_reference>()), &PhysicalObject::setColor)
-		.add_property("infraredReflectiveness", &PhysicalObject::getInfraredReflectiveness, &PhysicalObject::setInfraredReflectiveness)
 	;
 	
 	class_<CircularPhysicalObject, bases<PhysicalObject> >("CircularObject",

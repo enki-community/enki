@@ -94,11 +94,12 @@ namespace Enki
 				if (channel+i < noOfChannels) pitch[channel+i] = gaussian*signal;
 			}
 			*/
-			channel += (unsigned)round(gaussianRand(0, variance));
-			if (channel < 0)
-				channel = 0;
-			if (channel >= noOfChannels)
-				channel = noOfChannels-1;
+			int c = (int)channel + round(gaussianRand(0, variance));
+			if (c < 0)
+				c = 0;
+			if (c >= noOfChannels)
+				c = noOfChannels-1;
+			channel = c;
 			pitch[channel] = signal;
 		}
 	}

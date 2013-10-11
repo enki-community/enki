@@ -38,58 +38,16 @@
 */
 namespace Enki
 {
-	//! Calculate the signal strength as a function of the distance.
-	/*! The nearer we are, the higher the sensor activation.
-		This model is very simple and not very good but sufficient for simple demonstration.
-		\ingroup responsefunctor
-	*/
-	struct KheperaIRSensorModel : public SensorResponseFunctor
-	{
-		virtual double operator()(double dist, const Color &color)
-		{
-			dist -= 1.0;
-			if(dist < 0.0)
-				dist = 0.0;
-			// add proportional noise; +/-3% and fit
-			dist *= (0.97 + random.getRange(0.06));
-			return 1100.0 * exp(-dist / 2.5);
-		}
-	};
-	/*	double KheperaIRSensorModel(double dist)
-	{
-		// add proportional noise; +/-3% and fit
-		dist *= (0.97 + random.getRange(0.06));
-		return 1100.0 * exp(-dist / 2.5);
-	}*/
-
-	
-	//! We use only one ray per sensor for the Khepera.
-	KheperaIRSensorModel kheperaIRSensorModel;
-	//! Pointer to sensor model for Khepera, one value C array.
-	SensorResponseFunctor *kheperaIRSensorModelPtr = &kheperaIRSensorModel;
-	
-	/*
-	infraredSensor0(this, Vector(1, 1.5),    1.8, M_PI/2, 10, 0, 1, kheperaRayCombinationKernel, KheperaIRSensorModelmake),
-		infraredSensor1(this, Vector(2, 2),      1.8, M_PI/4, 10, 0, 1, kheperaRayCombinationKernel, KheperaIRSensorModel),
-		infraredSensor2(this, Vector(1.6, 0.6),  1.8, 0,       10, 0, 1, kheperaRayCombinationKernel, KheperaIRSensorModel),
-		infraredSensor3(this, Vector(1.6, -0.6), 1.8, 0,       10, 0, 1, kheperaRayCombinationKernel, KheperaIRSensorModel),
-		infraredSensor4(this, Vector(2, -2),     1.8, -M_PI/4,  10, 0, 1, kheperaRayCombinationKernel, KheperaIRSensorModel),
-		infraredSensor5(this, Vector(1, -1.5),   1.8, -M_PI/2,  10, 0, 1, kheperaRayCombinationKernel, KheperaIRSensorModel),
-		infraredSensor6(this, Vector(-1.5, -1),  1.8, -M_PI,   10, 0, 1, kheperaRayCombinationKernel, KheperaIRSensorModel),
-		infraredSensor7(this, Vector(-1.5, 1),   1.8, -M_PI,   10, 0, 1, kheperaRayCombinationKernel, KheperaIRSensorModel),
-
-	*/
-	
 	Khepera::Khepera(unsigned capabilities) :
 		DifferentialWheeled(5.2, 100, 0.05),
-		infraredSensor0(this, Vector(1.0, 1.5),  1.8, M_PI/2, 10, 0, 1, &kheperaIRSensorModelPtr),
-		infraredSensor1(this, Vector(1.3, 1.3),  1.8, M_PI/4, 10, 0, 1, &kheperaIRSensorModelPtr),
-		infraredSensor2(this, Vector(1.6, 0.6),  1.8, 0,      10, 0, 1, &kheperaIRSensorModelPtr),
-		infraredSensor3(this, Vector(1.6, -0.6), 1.8, 0,      10, 0, 1, &kheperaIRSensorModelPtr),
-		infraredSensor4(this, Vector(1.3, -1.3), 1.8, -M_PI/4,10, 0, 1, &kheperaIRSensorModelPtr),
-		infraredSensor5(this, Vector(1.0, -1.5), 1.8, -M_PI/2,10, 0, 1, &kheperaIRSensorModelPtr),
-		infraredSensor6(this, Vector(-1.5, -1.0),1.8, -M_PI,  10, 0, 1, &kheperaIRSensorModelPtr),
-		infraredSensor7(this, Vector(-1.5, 1.0), 1.8, -M_PI,  10, 0, 1, &kheperaIRSensorModelPtr),
+		infraredSensor0(this, Vector(1.0, 1.5),  1.8, M_PI/2, 10, 1200, -0.9, 7, 20),
+		infraredSensor1(this, Vector(1.3, 1.3),  1.8, M_PI/4, 10, 1200, -0.9, 7, 20),
+		infraredSensor2(this, Vector(1.6, 0.6),  1.8, 0,      10, 1200, -0.9, 7, 20),
+		infraredSensor3(this, Vector(1.6, -0.6), 1.8, 0,      10, 1200, -0.9, 7, 20),
+		infraredSensor4(this, Vector(1.3, -1.3), 1.8, -M_PI/4,10, 1200, -0.9, 7, 20),
+		infraredSensor5(this, Vector(1.0, -1.5), 1.8, -M_PI/2,10, 1200, -0.9, 7, 20),
+		infraredSensor6(this, Vector(-1.5, -1.0),1.8, -M_PI,  10, 1200, -0.9, 7, 20),
+		infraredSensor7(this, Vector(-1.5, 1.0), 1.8, -M_PI,  10, 1200, -0.9, 7, 20),
 		camera(this, Vector(0, 0), 0, 0.0, M_PI/4, 50)
 	{
 		if (capabilities & CAPABILITIY_BASIC_SENSORS)

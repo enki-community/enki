@@ -40,6 +40,9 @@
 
 namespace Enki
 {
+	// TODO: use similar function as for distance sensors
+	// if we were to use IRSensors, the parameters would be
+	// around m=3000, x0=0.2, c=1
 	double marxbotVirtualBumperResponseFunction(double dist)
 	{
 		if (dist<0.5)

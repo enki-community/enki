@@ -36,6 +36,7 @@
 #include <iostream>
 #include <sstream>
 #include <limits>
+#include <algorithm>
 
 /*!	\file IRSensor.cpp
 	\brief Implementation of the generic infrared sensor
@@ -43,51 +44,51 @@
 
 namespace Enki
 {
-	IRSensor::IRSensor(Robot *owner, Vector pos, double height, double orientation, 
-					   double range, double aperture, unsigned rayCount, 
-					   SensorResponseFunctor **sensorResponseKernel)
+	using namespace std;
+	
+	IRSensor::IRSensor(Robot *owner, Vector pos, double height, double orientation, double range, double m, double x0, double c, double noiseSd):
+		pos(pos),
+		height(height),
+		orientation(orientation),
+		range(range),
+		aperture(15.*M_PI/180.),
+		alpha(1/cos(aperture)),
+		rayCount(3),
+		m(m),
+		x0(x0),
+		c(0),
+		noiseSd(noiseSd)
 	{
 		assert(owner);
-		assert(sensorResponseKernel);
-		
 		this->owner = owner;
-		this->pos = pos;
-		this->height = height;
-		this->orientation = orientation;
-		this->range = range;
-		this->aperture = aperture;
-		this->rayCount = rayCount;
+		// must be strictly positive to avoid division by zero and negative numbers in response function
+		assert(c-x0*x0 > 0);
+		// maximum must be positive
+		assert(m > 0);
+		
+		rayDists.resize(rayCount);
 		rayValues.resize(rayCount);
-		rayColors.resize(rayCount);
 		rayAngles.resize(rayCount);
 		absRayAngles.resize(rayCount);
 		// compute ray orientation
-		if (rayCount == 1)
-			rayAngles[0] = 0;
-		else 
-			for (size_t i = 0; i<rayCount; i++)
-				rayAngles[i] = - aperture + (i*2.0*aperture)/(rayCount-1.0);
-		this->sensorResponseKernel.resize(rayCount);
-		std::copy(sensorResponseKernel, sensorResponseKernel+rayCount, 
-				  &this->sensorResponseKernel[0]);
-		// calculate interaction radius, which is measured from center of bot
+		for (size_t i = 0; i<rayCount; i++)
+			rayAngles[i] = - aperture + (i*2.0*aperture)/(rayCount-1.0);
+		// calculate interaction radius, which is measured from center of robot
 		this->r = sqrt(pos.norm2()+range*range-2*pos.norm()*range*cos(M_PI-orientation+pos.angle()));
 		// calculate the smartRadius
-		if (rayCount == 1)
-			this->smartRadius = range/2.0;
-		else
-			this->smartRadius = range*sqrt(1.25-cos(aperture));
+		this->smartRadius = range*sqrt(1.25-cos(aperture));
 		// calculate relative position for center of central ray
 		this->smartPos = Point (range/2*cos(orientation), range/2*sin(orientation));
-		// no activation util first loop
+		// no activation until first loop
 		finalValue = 0;
+		finalDist = range;
 	}
 
 	void IRSensor::init(double dt, World* w)
 	{
 		// fill initial values with very large value; will be replaced if smaller distance is found
-		std::fill(&rayValues[0], &rayValues[rayCount], HUGE_VAL);
-		std::fill(&rayColors[0], &rayColors[rayCount], Color::white);
+		std::fill(&rayDists[0], &rayDists[rayCount], range);
+		std::fill(&rayValues[0], &rayValues[rayCount], 0);
 		
 		// compute absolute position and orientation
 		const Matrix22 rot(owner->angle);
@@ -99,7 +100,216 @@ namespace Enki
 		// calculate current position of center of central ray
 		absSmartPos = rot * smartPos + absPos;
 	}
+	
+	// robot bounding circle overlaps with po
+	// each sensor is composed of n rays
+	// modified by yvan.bourquin@epfl.ch to take into account the exact bounding surface
+	void IRSensor::objectStep (double dt, World *w, PhysicalObject *po)
+	{
+		// if we see over the object get out of here
+		if (height > po->getHeight())
+			return;
+		
+		const double radius = po->getRadius();
+		const Color& color = po->getColor();
 
+		// if dist from center point of rays to obj is bigger than sum of obj radii, don't bother
+		const Vector v = po->pos-absSmartPos;
+		const double radiusSum = radius + smartRadius;
+		if (v.norm2() > (radiusSum * radiusSum))
+			return;
+
+		// Vector from sensor to object bounding circle center
+		const Vector v1 = po->pos-absPos;
+		// Radius squared of object
+		const double r2 = radius * radius;
+		// The number of rays
+		
+		if (po->isCylindric())
+		{
+			// Calculate distance for each ray...
+			for (size_t i = 0; i<rayCount; i++)
+			{
+				double dist = HUGE_VAL;
+				// angle between sensor ray and v1
+				const double myAngle = absRayAngles[i] - v1.angle();
+				const double sine = sin(myAngle);
+				// normal distance of bounding circle center to sensor ray
+				const double distsc2 = v1.norm2() * (sine * sine);
+				
+				// if there is an intersection with the object's bounding circle
+				if (distsc2 <= r2)
+				{
+					// compute distance of intersection with bounding circle
+					dist = (sqrt(v1.norm2()-distsc2) - sqrt(r2-distsc2));
+					dist = std::max(dist, 0.);
+					updateRay(i, dist);
+				}
+			}
+		}
+		else
+		{
+			// Calculate distance for each ray...
+			for (size_t i = 0; i<rayCount; i++)
+			{
+				double dist = HUGE_VAL;
+				// angle between sensor ray and v1
+				const double myAngle = absRayAngles[i] - v1.angle();
+				const double sine = sin(myAngle);
+				// normal distance of bounding circle center to sensor ray
+				const double distsc2 = v1.norm2() * (sine * sine);
+				
+				// if there is an intersection with the object's bounding circle
+				if (distsc2 < r2)
+				{
+					// iterate over all shapes
+					for (PhysicalObject::Hull::const_iterator it = po->getHull().begin(); it != po->getHull().end(); ++it)
+					{
+						if (height > it->getHeight())
+							continue;
+						
+						// check intersection with polygon
+						dist = distanceToPolygon(absRayAngles[i], it->getTransformedShape());
+						updateRay(i, dist);
+					}
+				}
+			}
+		}
+	}
+
+	void IRSensor::wallsStep (double dt, World* w)
+	{
+		switch (w->wallsType)
+		{
+			case World::WALLS_SQUARE:
+			{
+				// if radius from center point of rays is not touching walls, don't bother
+				if ((absSmartPos.x-smartRadius>0) && (absSmartPos.y-smartRadius>0) && (absSmartPos.x+smartRadius<w->w) && (absSmartPos.y+smartRadius<w->h))
+					return;
+		
+				// if sensor is inside a wall distance is 0
+				if ((absPos.x<0) || (absPos.x>w->w) || (absPos.y<0) || (absPos.y>w->h))
+				{
+					std::fill(&rayDists[0], &rayDists[rayCount], m);
+					std::fill(&rayValues[0], &rayValues[rayCount], 0);
+					return;
+				}
+		
+				for (size_t i = 0; i < rayCount; i++)
+				{
+					const Vector rayDir(cos(absRayAngles[i]), sin(absRayAngles[i]));
+					
+					// the absolute position of the sensor ray's end point
+					const Point absRayEndPoint = absPos+rayDir*range;
+					double candidate0 = HUGE_VAL;
+					double candidate1 = HUGE_VAL;
+					
+					// we have a candidate if our sensor sticks out into the left wall
+					if (absRayEndPoint.x < 0)
+						candidate0 = -absPos.x / (absRayEndPoint.x-absPos.x); 	// idea: a/b = c/d;
+					// or the right wall
+					else if (absRayEndPoint.x > w->w)
+						candidate0 = (w->w-absPos.x) / (absRayEndPoint.x-absPos.x);
+					// or the bottom wall
+					if (absRayEndPoint.y < 0) 
+						candidate1 = -absPos.y / (absRayEndPoint.y-absPos.y);
+					// or the top wall
+					else if (absRayEndPoint.y > w->h) 
+						candidate1 = (w->h-absPos.y) / (absRayEndPoint.y-absPos.y);
+					
+					double dist = std::min(candidate0, candidate1);
+					dist *= range;
+					updateRay(i, dist);
+				}
+			}
+			break;
+			
+			case World::WALLS_CIRCULAR:
+			{
+				// if outside the world, ignore, walls are not seen from outside
+				const double r2(w->r*w->r);
+				if (absPos.norm2() >= r2)
+					return;
+				// if too far away from walls, return
+				if (absSmartPos.norm() + smartRadius < w->r)
+					return;
+				
+				for (size_t i = 0; i < rayCount; i++)
+				{
+					// inside the world
+					const double c2(absPos.norm2());
+					const double c(sqrt(c2));
+					const double alpha(absRayAngles[i] - absPos.angle());
+					const double bp(-c*cos(alpha) + sqrt(r2-c2*sin(alpha)*sin(alpha)));
+					const double bm(-c*cos(alpha) - sqrt(r2-c2*sin(alpha)*sin(alpha)));
+					double dist;
+					if (cos(alpha) < 0)
+						dist = std::min(bp, bm);
+					else
+						dist = std::max(bp, bm);
+					updateRay(i, dist);
+				}
+			}
+			break;
+			
+			default:
+			break;
+		}
+	}
+	
+	// we combine all the sensor values
+	void IRSensor::finalize(double dt, World* w)
+	{
+		finalValue = rayValues[0] + rayValues[1] + rayValues[2];
+		finalValue = std::max(0., std::min(m, gaussianRand(finalValue, noiseSd)));
+		finalDist = inverseResponseFunction(finalValue);
+	}
+	
+	void IRSensor::updateRay(size_t i, double dist)
+	{
+		// if we have a smaller distance than the initial one, replace it
+		if (dist < rayDists[i])
+		{
+			rayDists[i] = dist;
+			rayValues[i] = responseFunction(dist);
+			if (i == 1)
+				rayValues[i] -= 2 * responseFunction(dist*alpha);
+		}
+	}
+	
+	double IRSensor::responseFunction(double x) const
+	{
+		const double numerator(m*(c-x0*x0));
+		const double denominator(x*x-2*x0*x+c);
+		if (x < x0)
+			return m;
+		else if (x > range)
+			return 0;
+		else
+			return numerator/denominator;
+	}
+	
+	double IRSensor::inverseResponseFunction(double v) const
+	{
+		assert(v >= 0);
+		assert(v <= m);
+		if (v == 0)
+			return range;
+		double dist;
+		if (v == m)
+		{
+			dist = x0/2;
+		}
+		else
+		{
+			const double a(x0*x0-c);
+			dist = x0+sqrt(a*(1.-m/v));
+		}
+		if (dist < 0)
+			return 0;
+		return std::min(dist, range);
+	}
+	
 	// Detect collision with a physical object's bounding polygon
 	// Cyrus & Beck line/polygon intersection algorithm
 	//   adapted by yvan.bourquin@epfl.ch from the
@@ -168,178 +378,6 @@ namespace Enki
 		// ray.a + tE * dS = point where S enters polygon
 		// ray.a + tL * dS = point where S leaves polygon
   		return (dS * tE).norm();
-	}
-
-
-	// robot bounding circle overlaps with po
-	// each sensor is composed of n rays
-	// modified by yvan.bourquin@epfl.ch to take into account the exact bounding surface
-	void IRSensor::objectStep (double dt, World *w, PhysicalObject *po)
-	{
-		// if we see over the object get out of here
-		if (height > po->getHeight())
-			return;
-		
-		const double radius = po->getRadius();
-		const double irReflectiveness = po->getInfraredReflectiveness();
-		const Color& color = po->getColor();
-
-		// if dist from center point of rays to obj is bigger than sum of obj radii, don't bother
-		const Vector v = po->pos-absSmartPos;
-		const double radiusSum = radius + smartRadius*irReflectiveness;
-		if (v.norm2() > (radiusSum * radiusSum))
-			return;
-
-		// Vector from sensor to object bounding circle center
-		const Vector v1 = po->pos-absPos;
-		// Radius squared of object
-		const double r2 = radius * radius;
-		// The number of rays
-		
-		if (po->isCylindric())
-		{
-			// Calculate distance for each ray...
-			for (size_t i = 0; i<rayCount; i++)
-			{
-				double dist = HUGE_VAL;
-				// angle between sensor ray and v1
-				const double myAngle = absRayAngles[i] - v1.angle();
-				const double sine = sin(myAngle);
-				// normal distance of bounding circle center to sensor ray
-				const double distsc2 = v1.norm2() * (sine * sine)*(1.0*irReflectiveness);
-				
-				// if there is an intersection with the object's bounding circle
-				if (distsc2 < r2)
-				{
-					// compute distance of intersection with bounding circle
-					dist = (sqrt(v1.norm2()-distsc2) - sqrt(r2-distsc2))*(1.0/irReflectiveness);
-					if (dist<0)
-						dist = 0;
-					
-					// if we have a smaller distance than the initial one, replace it
-					if (dist < rayValues[i]*(1.0/irReflectiveness))
-					{
-						rayValues[i] = dist*(1.0/irReflectiveness);
-						// FIXME: we do not support textures here
-						rayColors[i] = color;
-					}
-				}
-			}
-		}
-		else
-		{
-			// Calculate distance for each ray...
-			for (size_t i = 0; i<rayCount; i++)
-			{
-				double dist = HUGE_VAL;
-				// angle between sensor ray and v1
-				const double myAngle = absRayAngles[i] - v1.angle();
-				const double sine = sin(myAngle);
-				// normal distance of bounding circle center to sensor ray
-				const double distsc2 = v1.norm2() * (sine * sine)*(1.0*irReflectiveness);
-				
-				// if there is an intersection with the object's bounding circle
-				if (distsc2 < r2)
-				{
-					// iterate over all shapes
-					for (PhysicalObject::Hull::const_iterator it = po->getHull().begin(); it != po->getHull().end(); ++it)
-					{
-						if (height > it->getHeight())
-							continue;
-						
-						// check intersection with polygon
-						dist = distanceToPolygon(absRayAngles[i], it->getTransformedShape())*(1.0/irReflectiveness);
-						
-						// if we have a smaller distance than the initial one, replace it
-						if (dist < rayValues[i]*(1.0/irReflectiveness))
-						{
-							rayValues[i] = dist*(1.0/irReflectiveness);
-							// FIXME: we do not support textures here
-							rayColors[i] = color;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	void IRSensor::wallsStep (double dt, World* w)
-	{
-		switch (w->wallsType)
-		{
-			case World::WALLS_SQUARE:
-			{
-				// if radius from center point of rays is not touching walls, don't bother
-				if ((absSmartPos.x-smartRadius>0) && (absSmartPos.y-smartRadius>0) && (absSmartPos.x+smartRadius<w->w) && (absSmartPos.y+smartRadius<w->h))
-					return;
-		
-				// if sensor is inside a wall distance is 0
-				if ((absPos.x<0) || (absPos.x>w->w) || (absPos.y<0) || (absPos.y>w->h))
-				{
-					std::fill(&rayValues[0], &rayValues[rayCount], 0);
-					std::fill(&rayColors[0], &rayColors[rayCount], Color::white);
-					return;
-				}
-		
-				for (size_t i = 0; i < rayCount; i++)
-				{
-					const Vector rayDir(cos(absRayAngles[i]), sin(absRayAngles[i]));
-					
-					// the absolute position of the sensor ray's end point
-					const Point absRayEndPoint = absPos+rayDir*range;
-					double candidate0 = HUGE_VAL; //infinity
-					double candidate1 = HUGE_VAL;
-					double newDist;
-					
-					// we have a candidate if our sensor sticks out into the left wall
-					if (absRayEndPoint.x < 0)
-						candidate0 = -absPos.x / (absRayEndPoint.x-absPos.x); 	// idea: a/b = c/d;
-					// or the right wall
-					else if (absRayEndPoint.x > w->w)
-						candidate0 = (w->w-absPos.x) / (absRayEndPoint.x-absPos.x);
-					// or the bottom wall
-					if (absRayEndPoint.y < 0) 
-						candidate1 = -absPos.y / (absRayEndPoint.y-absPos.y);
-					// or the top wall
-					else if (absRayEndPoint.y > w->h) 
-						candidate1 = (w->h-absPos.y) / (absRayEndPoint.y-absPos.y);
-		
-					newDist = std::min(candidate0, candidate1);
-					newDist *= range;
-		
-					// if we have a smaller distance than the initial one, replace it
-					if (newDist < rayValues[i])
-					{
-						rayValues[i] = newDist;
-						rayColors[i] = w->wallsColor;
-					}
-				}
-			}
-			break;
-			
-			case World::WALLS_CIRCULAR:
-			{
-				// TODO
-			}
-			break;
-			
-			default:
-			break;
-		}
-	}
-	
-	// we combine all the sensor values
-	void IRSensor::finalize(double dt, World* w)
-	{
-		finalValue = 0;
-		for (size_t i = 0; i<rayCount; i++)
-		{
-			// we combine all the rays using the sensorModel
-			finalValue += (*sensorResponseKernel[i])(rayValues[i], rayColors[i]);
-		}
-		// we apply final proportional (+/-7%) noise
-		//FIXME: user-specified/controlled noise!	
-		finalValue *= (.93 + random.getRange(.14));
 	}
 }
 

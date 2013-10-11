@@ -35,7 +35,6 @@
 #include <enki/PhysicalEngine.h>
 #include <enki/robots/e-puck/EPuck.h>
 #include <enki/robots/marxbot/Marxbot.h>
-#include <enki/robots/alice/Alice.h>
 #include <QApplication>
 #include <QtGui>
 #include <iostream>
@@ -180,6 +179,7 @@ public:
 			epucks.push_back(epuck);
 			world->addObject(epuck);
 		}
+		cout << "Added " << joystickCount << " controlled e-pucks." << endl;
 		#else // USE_SDL
 		addDefaultsRobots(world);
 		#endif // USE_SDL
@@ -220,6 +220,7 @@ public:
 		{
 			#define SPEED_MAX 13.
 			EPuck* epuck = epucks[i];
+			//cout << "S " << epuck->infraredSensor2.getRayDist(0) << " " << epuck->infraredSensor2.getRayDist(1) << " " << epuck->infraredSensor2.getRayDist(2) << endl;
 			#if 0 
 			epuck->leftSpeed = - SDL_JoystickGetAxis(joysticks[i], 1) / (32767. / SPEED_MAX);
 			epuck->rightSpeed = - SDL_JoystickGetAxis(joysticks[i], 4) / (32767. / SPEED_MAX);

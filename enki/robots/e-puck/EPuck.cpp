@@ -76,44 +76,19 @@ namespace Enki
 	}
 	
 	
-	//! Calculate the signal strength as a function of the distance.
-	/*! The nearer we are, the higher the sensor activation.
-	This model is very simple and not very good but sufficient for simple demonstration.
-	\ingroup responsefunctor
-	*/
-	struct EPuckIRSensorModel : public SensorResponseFunctor
-	{
-		virtual double operator()(double dist, const Color &color)
-		{
-			if (dist<0.5)
-				dist = -440*dist+2965.98144;
-			else
-				dist = 4526*exp(-0.9994*dist);
-			
-			dist *= (0.97 + random.getRange(0.06));
-			dist += random.getRange(20.0);
-			
-			return dist;
-		}
-	};
-	
-	
-	//! We use only one ray per sensor for the e-puck.
-	EPuckIRSensorModel epuckIRSensorModel;
-	//! Pointer to sensor model for e-puck, one value C array.
-	SensorResponseFunctor *epuckIRSensorModelPtr = &epuckIRSensorModel;
+	#define deg2rad(x) ((x)*M_PI/180.)
 	
 	EPuck::EPuck(unsigned capabilities) :
 		DifferentialWheeled(5.1, 12.8, 0.05),
 		
-		infraredSensor0(this, Vector(3.3, -1.1),  2.5, -4*M_PI/45.0, 12, 0, 1, &epuckIRSensorModelPtr),
-		infraredSensor1(this, Vector(2.6, -2.6),  2.5, -M_PI/4.0,    12, 0, 1, &epuckIRSensorModelPtr),
-		infraredSensor2(this, Vector(0.0, -3.3),  2.5, -M_PI/2.0,    12, 0, 1, &epuckIRSensorModelPtr),
-		infraredSensor3(this, Vector(-2.9, -1.7), 2.5, -5*M_PI/6.0,  12, 0, 1, &epuckIRSensorModelPtr),
-		infraredSensor4(this, Vector(-2.9, 1.7),  2.5, 5*M_PI/6.0,   12, 0, 1, &epuckIRSensorModelPtr),
-		infraredSensor5(this, Vector(0, 3.3),     2.5, M_PI/2.0,     12, 0, 1, &epuckIRSensorModelPtr),
-		infraredSensor6(this, Vector(2.6, 2.6),   2.5, M_PI/4.0,     12, 0, 1, &epuckIRSensorModelPtr),
-		infraredSensor7(this, Vector(3.3, 1.1),   2.5, 4*M_PI/45.0,  12, 0, 1, &epuckIRSensorModelPtr),
+		infraredSensor0(this, Vector(3.35, -1.05),  2.5, -deg2rad(18), 12, 3731, 0.3, 0.7, 20),
+		infraredSensor1(this, Vector(2.3, -2.6),  2.5, -deg2rad(45),   12, 3731, 0.3, 0.7, 20),
+		infraredSensor2(this, Vector(0.0, -3.3),  2.5, -deg2rad(90),   12, 3731, 0.3, 0.7, 20),
+		infraredSensor3(this, Vector(-3.0, -1.8), 2.5, -deg2rad(142),  12, 3731, 0.3, 0.7, 20),
+		infraredSensor4(this, Vector(-3.0, 1.8),  2.5, deg2rad(142),   12, 3731, 0.3, 0.7, 20),
+		infraredSensor5(this, Vector(0, 3.3),     2.5, deg2rad(90),    12, 3731, 0.3, 0.7, 20),
+		infraredSensor6(this, Vector(2.3, 2.6),   2.5, deg2rad(45),    12, 3731, 0.3, 0.7, 20),
+		infraredSensor7(this, Vector(3.35, 1.05),   2.5, deg2rad(18),  12, 3731, 0.3, 0.7, 20),
 		camera(this, Vector(3.7, 0.0), 2.2, 0.0, M_PI/6.0, 60),
 		scannerTurret(this, 7.2, 32),
 		bluetooth(NULL)
@@ -152,7 +127,6 @@ namespace Enki
 		
 		setCylindric(3.7, 4.7, 152);
 		setColor(Color(0, 0.7, 0));
-		// 0.6 of infraredReflectiveness would be more realistic instead of the default 1
 	}
 	
 	EPuck::~EPuck()
