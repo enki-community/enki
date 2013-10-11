@@ -56,7 +56,7 @@ namespace Enki
 		rayCount(3),
 		m(m),
 		x0(x0),
-		c(0),
+		c(c),
 		noiseSd(noiseSd)
 	{
 		assert(owner);

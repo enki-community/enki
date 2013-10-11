@@ -1,4 +1,5 @@
 import pyenki
+import math
 
 class MyEPuck(pyenki.EPuck):
 	def controlStep(self, dt):
@@ -7,7 +8,9 @@ class MyEPuck(pyenki.EPuck):
 		print('Control step')
 		print('pos: ' + str(self.pos))
 		print('IR dists: ' + str(self.proximitySensorDistances))
+		assert(not any(map(math.isnan, self.proximitySensorDistances)))
 		print('IR values: ' + str(self.proximitySensorValues))
+		assert(not any(map(math.isnan, self.proximitySensorValues)))
 		print('Cam image: ' + str(self.cameraImage))
 		print len(self.cameraImage), self.cameraImage[0]
 
