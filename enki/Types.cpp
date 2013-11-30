@@ -39,6 +39,15 @@
 
 namespace Enki
 {
+	Color Color::fromRGBA(uint32_t color)
+	{
+		const unsigned r((color>>0)&0xff);
+		const unsigned g((color>>8)&0xff);
+		const unsigned b((color>>16)&0xff);
+		const unsigned a((color>>24)&0xff);
+		return Color(double(r)/255., double(g)/255., double(b)/255., double(a)/255.);
+	}
+	
 	const Color Color::black(0, 0, 0);
 	const Color Color::white(1, 1, 1);
 	const Color Color::gray(0.5, 0.5, 0.5);

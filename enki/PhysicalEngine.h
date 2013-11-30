@@ -184,21 +184,6 @@ namespace Enki
 		//! The rotation speed of the object, standard trigonometric orientation.
 		double angSpeed;
 		
-		// space coordinates double-derivatives
-		
-		/*
-		The only accelerations we have for now are friction and are computed inside PhysicalObject::step()
-		Both collisions and forces due to wheels of differential wheeled robots are computed instantly
-		
-		//! The acceleration of the object
-		Vector acc;
-		//! The angular acceleration of the object
-		double angAcc;
-		
-		//! The static friction threshold of the object. If the force resulting from the interaction between non-infinite mass objects is smaller than this, this object will not move.
-		double staticFrictionThreshold;
-		*/
-		
 		// Geometry
 		
 		//! A part is one of the convex geometrical element that composes the physical object
@@ -275,6 +260,12 @@ namespace Enki
 		
 		// Physics
 		
+		//! position before collision, used to compute interlacedDistance
+		Vector posBeforeCollision;
+		
+		//! How much this object did penetrate other objects in the course of physics steps since last control step
+		double interlacedDistance;
+		
 		// mass and inertia tensor
 		
 		//! The mass of the object. If below zero, the object can't move (infinite mass).
@@ -309,6 +300,7 @@ namespace Enki
 		inline const Color& getColor() const { return color; }
 		inline double getMass() const { return mass; }
 		inline double getMomentOfInertia() const { return momentOfInertia; }
+		inline double getInterlacedDistance() const { return interlacedDistance; }
 		
 		// setters
 		
@@ -337,7 +329,7 @@ namespace Enki
 		/*//! A physics simulation step for this object. It is considered as deinterlaced. The position and orientation are updated.
 		virtual void physicsStep(double dt);*/
 		//! Control step, not oversampled
-		virtual void controlStep(double dt) { }
+		virtual void controlStep(double dt);
 		//! Apply forces, typically friction to reduce speed, but one can override to change behaviour.
 		virtual void applyForces(double dt);
 
@@ -430,6 +422,13 @@ namespace Enki
 		//! The color of the world walls
 		const Color wallsColor;
 		
+		//! the width of the ground texture, if any
+		const unsigned groundTextureWidth;
+		//! the height of the ground texture, if any
+		const unsigned groundTextureHeight;
+		//! the date of the ground texture, organised as scanlines of pixels in RGBA (0xAABBGGRR in little endian); empty if there is no ground texture
+		const std::vector<uint32_t> groundTextureData;
+		
 		typedef std::set<PhysicalObject *> Objects;
 		typedef Objects::iterator ObjectsIterator;
 		
@@ -452,13 +451,18 @@ namespace Enki
 
 	public:
 		//! Construct a world with square walls, takes width and height of the world arena in cm.
-		World(double width, double height, const Color& wallsColor = Color::gray);
+		World(double width, double height, const Color& wallsColor = Color::gray, unsigned texWidth = 0, unsigned texHeight = 0, const uint32_t* texData = 0);
 		//! Construct a world with circle walls, takes radius of the world arena in cm.
-		World(double r, const Color& wallsColor = Color::gray);
+		World(double r, const Color& wallsColor = Color::gray, unsigned texWidth = 0, unsigned texHeight = 0, const uint32_t* texData = 0);
 		//! Construct a world with no walls
 		World();
 		//! Destructor, destroy all objects
 		virtual ~World();
+		
+		//! Return whether the ground has a texture
+		bool hasGroundTexture() const;
+		//! Return the colour of the ground at a given point, or white.
+		Color getGroundTexture(const Point& p) const;
 		
 		//! Simulate a timestep of dt. dt should be below 1 (typically .02-.1); physicsOversampling is the amount of time the physics is run per step, as usual collisions require a more precise simulation than the sensor-motor loop frequency.
 		void step(double dt, unsigned physicsOversampling = 1);

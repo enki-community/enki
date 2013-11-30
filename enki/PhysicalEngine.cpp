@@ -233,7 +233,8 @@ namespace Enki
 		viscousFrictionCoefficient(0.01),
 		viscousMomentFrictionCoefficient(0.01),
 		angle(0),
-		angSpeed(0)
+		angSpeed(0),
+		interlacedDistance(0)
 	{
 		setCylindric(1, 1, 1);
 	}
@@ -446,6 +447,11 @@ namespace Enki
 	}
 	#endif
 	
+	void PhysicalObject::controlStep(double dt)
+	{
+		interlacedDistance = 0.;
+	}
+	
 	void PhysicalObject::applyForces(double dt)
 	{
 		/*
@@ -500,10 +506,15 @@ namespace Enki
 		
 		pos += speed * dt;
 		angle += angSpeed * dt;
+		
+		// store position after integration
+		posBeforeCollision  = pos;
 	}
 
 	void PhysicalObject::finalizePhysicsInteractions(double dt)
 	{
+		// increment interlacedDistance based on pos before and after physics
+		interlacedDistance += (posBeforeCollision - pos).norm();
 		angle = normalizeAngle(angle);
 	}
 	
@@ -674,22 +685,28 @@ namespace Enki
 	
 	static bool worldTakeObjectOwnership = true;
 
-	World::World(double width, double height, const Color& wallsColor) :
+	World::World(double width, double height, const Color& wallsColor, unsigned groundTextureWidth, unsigned groundTextureHeight, const uint32_t* groundTextureData) :
 		wallsType(WALLS_SQUARE),
 		w(width),
 		h(height),
 		r(0),
 		wallsColor(wallsColor),
+		groundTextureWidth(groundTextureWidth),
+		groundTextureHeight(groundTextureHeight),
+		groundTextureData(groundTextureData, groundTextureData+(groundTextureWidth*groundTextureHeight)),
 		bluetoothBase(NULL)
 	{
 	}
 	
-	World::World(double r, const Color& wallsColor) :
+	World::World(double r, const Color& wallsColor, unsigned groundTextureWidth, unsigned groundTextureHeight, const uint32_t* groundTextureData) :
 		wallsType(WALLS_CIRCULAR),
 		w(0),
 		h(0),
 		r(r),
 		wallsColor(wallsColor),
+		groundTextureWidth(groundTextureWidth),
+		groundTextureHeight(groundTextureHeight),
+		groundTextureData(groundTextureData, groundTextureData+(groundTextureWidth*groundTextureHeight)),
 		bluetoothBase(NULL)
 	{
 	}
@@ -700,6 +717,8 @@ namespace Enki
 		h(0),
 		r(0),
 		wallsColor(Color::gray),
+		groundTextureWidth(0),
+		groundTextureHeight(0),
 		bluetoothBase(NULL)
 	{
 	}
@@ -712,6 +731,35 @@ namespace Enki
 		
 		if (bluetoothBase)
 			delete bluetoothBase;
+	}
+	
+	bool World::hasGroundTexture() const
+	{
+		return !groundTextureData.empty();
+	}
+	
+	Color World::getGroundTexture(const Point& p) const
+	{
+		if (groundTextureData.empty() || wallsType == WALLS_NONE)
+			return Color::white;
+		int texX, texY;
+		if (wallsType == WALLS_SQUARE)
+		{
+			texX = p.x * groundTextureWidth / w;
+			texY = p.y * groundTextureHeight / h;
+		}
+		else if (wallsType == WALLS_CIRCULAR)
+		{
+			texX = (p.x+r) * groundTextureWidth / (2*r);
+			texY = (p.y+r) * groundTextureHeight / (2*r);
+		}
+		else
+			abort();
+		
+		if (texX < 0 || texX >= groundTextureWidth || texY < 0 || texY >= groundTextureHeight)
+			return Color::white;
+		uint32_t data = groundTextureData[texY * groundTextureWidth + texX];
+		return Color::fromRGBA(data);
 	}
 	
 	/*
@@ -1083,7 +1131,7 @@ namespace Enki
 		const double overSampledDt = dt / (double)physicsOversampling;
 		for (unsigned po = 0; po < physicsOversampling; po++)
 		{
-			// init interactions
+			// init physics interactions
 			for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 				(*i)->initPhysicsInteractions(overSampledDt);
 			
@@ -1117,14 +1165,14 @@ namespace Enki
 			}
 		}
 		
-		// init interactions
+		// init non-physics interactions
 		for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 		{
 			(*i)->initLocalInteractions(dt, this);
 			(*i)->initGlobalInteractions(dt, this);
 		}
 
-		// interract objects together
+		// interact objects together
 		for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 		{
 			for (ObjectsIterator j = objects.begin(); j != objects.end(); ++j)
@@ -1136,7 +1184,7 @@ namespace Enki
 			}
 		}
 
-		// interract objects with walls and control step
+		// interact objects with walls and control step
 		for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 		{
 			PhysicalObject* o = *i;

@@ -38,6 +38,7 @@
 #include <sstream>
 #include <string>
 #include <cassert>
+#include <stdint.h> // C99 in waiting for widespread C++11 support
 
 /*!	\file Types.h
 	\brief Basic useful types
@@ -137,6 +138,9 @@ namespace Enki
 		
 		//! Set the value of alpha component
 		void setA(double value) { components[3] = value; }
+		
+		//! Build from an RGBA uint32_t (0xAABBGGRR in little endian)
+		static Color fromRGBA(uint32_t color);
 		
 		//! black (0, 0, 0)
 		static const Color black;

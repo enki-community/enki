@@ -61,6 +61,8 @@ namespace Enki
 		Q_OBJECT
 	
 	public:
+		const int timerPeriodMs;
+		
 		class ViewerUserData : public PhysicalObject::UserData
 		{
 		public:
@@ -87,8 +89,7 @@ namespace Enki
 		GLuint worldList;
 		GLuint worldTexture;
 		GLuint wallTexture;
-		GLuint worldCenterTexture;
-		const QString worldCenterTextureName;
+		GLuint worldGroundTexture;
 		
 		typedef QMap<const std::type_info*, ViewerUserData*> ManagedObjectsMap;
 		typedef QMapIterator<const std::type_info*, ViewerUserData*> ManagedObjectsMapIterator;
@@ -109,7 +110,7 @@ namespace Enki
 		int dumpFramesCounter;
 	
 	public:
-		ViewerWidget(World *world, QWidget *parent = 0, const QString& worldCenterTextureName = QString());
+		ViewerWidget(World *world, QWidget *parent = 0);
 		~ViewerWidget();
 	
 	public slots:

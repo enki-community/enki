@@ -255,8 +255,7 @@ struct PythonViewer: public ViewerWidget
 		if (pythonSavedState)
 			PyEval_RestoreThread(pythonSavedState);
 		// touch Python objects while locked
-		world->step(1./30., 3);
-		updateGL();
+		ViewerWidget::timerEvent(event);
 		// release Python lock
 		if (pythonSavedState)
 			pythonSavedState = PyEval_SaveThread();
@@ -357,6 +356,7 @@ BOOST_PYTHON_MODULE(pyenki)
 		.def_readonly("isCylindric", &PhysicalObject::isCylindric)
 		.def_readonly("mass", &PhysicalObject::getMass)
 		.def_readonly("momentOfInertia", &PhysicalObject::getMomentOfInertia)
+		.def_readonly("interlacedDistance", &PhysicalObject::getInterlacedDistance)
 		.def_readwrite("collisionElasticity", &PhysicalObject::collisionElasticity)
 		.def_readwrite("dryFrictionCoefficient", &PhysicalObject::dryFrictionCoefficient)
 		.def_readwrite("viscousFrictionCoefficient", &PhysicalObject::viscousFrictionCoefficient)

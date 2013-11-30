@@ -95,11 +95,12 @@ namespace Enki
 		deletedWithObject = false;
 	}
 	
-	ViewerWidget::ViewerWidget(World *world, QWidget *parent, const QString& worldCenterTextureName) :
+	
+	ViewerWidget::ViewerWidget(World *world, QWidget *parent) :
 		QGLWidget(parent),
+		timerPeriodMs(30),
 		world(world),
 		worldList(0),
-		worldCenterTextureName(worldCenterTextureName),
 		mouseGrabbed(false),
 		yaw(-M_PI/2),
 		pitch((3*M_PI)/8),
@@ -120,8 +121,8 @@ namespace Enki
 			glDeleteLists(worldList, 1);
 			deleteTexture (worldTexture);
 			deleteTexture (wallTexture);
-			if (worldCenterTextureName.isEmpty())
-				deleteTexture (worldCenterTexture);
+			if (world->hasGroundTexture())
+				glDeleteTextures(1, &worldGroundTexture);
 		}
 		
 		ManagedObjectsMapIterator i(managedObjects);
@@ -237,7 +238,11 @@ namespace Enki
 		Vector dv = vu * l;
 		Vector dvm = vu * 10;
 		Vector dvpm = Vector(vu.y, -vu.x) * 10;
+		
+		// vertical part
 		Point pos = segment.a;
+		
+		glColor3d(world->wallsColor.r(), world->wallsColor.g(), world->wallsColor.b());
 		
 		// draw corner
 		glNormal3d(n.x, n.y, 0);
@@ -264,6 +269,36 @@ namespace Enki
 		glVertex3d(pos.x + dvpm.x, pos.y + dvpm.y, wallsHeight);
 		glEnd();
 		
+		pos += vu*10;
+		
+		// draw sides
+		for (int i = 0; i < count; i++)
+		{
+			glNormal3d(n.x, n.y, 0);
+			glBegin(GL_QUADS);
+			glTexCoord2f(0.5f, 0.5f);
+			glVertex3d(pos.x, pos.y, 0);
+			glTexCoord2f(0.99f, 0.5f);
+			glVertex3d((pos+dv).x, (pos+dv).y, 0);
+			glTexCoord2f(0.99f, 0.99f);
+			glVertex3d((pos+dv).x, (pos+dv).y, wallsHeight);
+			glTexCoord2f(0.5f, 0.99f);
+			glVertex3d(pos.x, pos.y, wallsHeight);
+			glEnd();
+			
+			pos += dv;
+		}
+		
+		// shadow part
+		pos = segment.a;
+		
+		glColor3d(1, 1, 1);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ZERO, GL_SRC_COLOR);
+		glDepthMask( GL_FALSE );
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		
+		// draw corner ground 
 		glNormal3d(0, 0, 1);
 		glBegin(GL_QUADS);
 		glTexCoord2f(0.01f, 0.01f);
@@ -278,22 +313,9 @@ namespace Enki
 		
 		pos += vu*10;
 		
+		// draw side ground
 		for (int i = 0; i < count; i++)
 		{
-			// draw sides
-			glNormal3d(n.x, n.y, 0);
-			glBegin(GL_QUADS);
-			glTexCoord2f(0.5f, 0.5f);
-			glVertex3d(pos.x, pos.y, 0);
-			glTexCoord2f(0.99f, 0.5f);
-			glVertex3d((pos+dv).x, (pos+dv).y, 0);
-			glTexCoord2f(0.99f, 0.99f);
-			glVertex3d((pos+dv).x, (pos+dv).y, wallsHeight);
-			glTexCoord2f(0.5f, 0.99f);
-			glVertex3d(pos.x, pos.y, wallsHeight);
-			glEnd();
-			
-			// draw ground
 			glNormal3d(0, 0, 1);
 			glBegin(GL_QUADS);
 			glTexCoord2f(0.5f, 0.01f);
@@ -309,6 +331,10 @@ namespace Enki
 			pos += dv;
 		}
 		
+		glDisable(GL_POLYGON_OFFSET_FILL);
+		glDepthMask( GL_TRUE );
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDisable(GL_BLEND);
 	}
 	
 	void ViewerWidget::renderWorld()
@@ -349,36 +375,34 @@ namespace Enki
 				glVertex3d(world->w, world->h, wallsHeight);
 				glEnd();
 				
+				if (world->hasGroundTexture())
+				{
+					glEnable(GL_TEXTURE_2D);
+					glBindTexture(GL_TEXTURE_2D, worldGroundTexture);
+				}
+				
+				glNormal3d(0, 0, 1);
+				glColor3d(world->wallsColor.r(), world->wallsColor.g(), world->wallsColor.b());
+				glBegin(GL_QUADS);
+				glTexCoord2f(0.0f, 0.0f);
+				glVertex3d(0, 0, 0);
+				glTexCoord2f(1.0f, 0.0f);
+				glVertex3d(world->w, 0, 0);
+				glTexCoord2f(1.0f, 1.0f);
+				glVertex3d(world->w, world->h, 0);
+				glTexCoord2f(0.0f, 1.0f);
+				glVertex3d(0, world->h, 0);
+				glEnd();
+				
 				glEnable(GL_TEXTURE_2D);
 				glBindTexture(GL_TEXTURE_2D, worldTexture);
-				glColor3d(world->wallsColor.r() / .90980392, world->wallsColor.g() / .90980392, world->wallsColor.b() / .90980392);
 				
 				renderWorldSegment(Segment(world->w, 0, 0, 0));
 				renderWorldSegment(Segment(world->w, world->h, world->w, 0));
 				renderWorldSegment(Segment(0, world->h, world->w, world->h));
 				renderWorldSegment(Segment(0, 0, 0, world->h));
 				
-				const bool hasGroundTexture(!worldCenterTextureName.isEmpty());
-				if (hasGroundTexture)
-					glBindTexture(GL_TEXTURE_2D, worldCenterTexture);
-				else
-					glDisable(GL_TEXTURE_2D);
-				
-				glNormal3d(0, 0, 1);
-				glColor3d(world->wallsColor.r(), world->wallsColor.g(), world->wallsColor.b());
-				glBegin(GL_QUADS);
-				glTexCoord2f(0.0f, 0.0f);
-				glVertex3d(10, 10, 0);
-				glTexCoord2f(1.0f, 0.0f);
-				glVertex3d(world->w-10, 10, 0);
-				glTexCoord2f(1.0f, 1.0f);
-				glVertex3d(world->w-10, world->h-10, 0);
-				glTexCoord2f(0.0f, 1.0f);
-				glVertex3d(10, world->h-10, 0);
-				
-				if (hasGroundTexture)
-					glDisable(GL_TEXTURE_2D);
-				glEnd();
+				glDisable(GL_TEXTURE_2D);
 			}
 			break;
 			
@@ -401,7 +425,6 @@ namespace Enki
 					
 					glEnable(GL_TEXTURE_2D);
 					glBindTexture(GL_TEXTURE_2D, worldTexture);
-					glColor3d(world->wallsColor.r() / .90980392, world->wallsColor.g() / .90980392, world->wallsColor.b() / .90980392);
 					
 					// draw sides
 					glNormal3d(-cos(angMid), -sin(angMid), 0);
@@ -432,7 +455,6 @@ namespace Enki
 					glDisable(GL_TEXTURE_2D);
 					
 					glNormal3d(0, 0, 1);
-					glColor3d(world->wallsColor.r(), world->wallsColor.g(), world->wallsColor.b());
 					glBegin(GL_QUADS);
 					glVertex3d(cos(angStart)*r, sin(angStart)*r, 10);
 					glVertex3d(cos(angStart)*(r+infPlanSize), sin(angStart)*(r+infPlanSize), 10);
@@ -598,8 +620,16 @@ namespace Enki
 		
 		worldTexture = bindTexture(QPixmap(QString(":/textures/world.png")), GL_TEXTURE_2D, GL_LUMINANCE8);
 		wallTexture = bindTexture(QPixmap(QString(":/textures/wall.png")), GL_TEXTURE_2D, GL_LUMINANCE8);
-		if (!worldCenterTextureName.isEmpty())
-			worldCenterTexture = bindTexture(QPixmap(worldCenterTextureName));
+		if (world->hasGroundTexture())
+		{
+			std::cerr << "has ground texture " << world->groundTextureWidth << " " << world->groundTextureHeight << std::endl;
+			
+			glGenTextures(1, &worldGroundTexture);
+			glBindTexture(GL_TEXTURE_2D, worldGroundTexture);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, world->groundTextureWidth, world->groundTextureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, &world->groundTextureData[0]);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		}
 		worldList = glGenLists(1);
 		renderWorld();
 		
@@ -610,7 +640,7 @@ namespace Enki
 		// let subclass manage their static types
 		renderObjectsTypesHook();
 		
-		startTimer(30);
+		startTimer(timerPeriodMs);
 	}
 	
 	void ViewerWidget::paintGL()
@@ -701,7 +731,7 @@ namespace Enki
 	
 	void ViewerWidget::timerEvent(QTimerEvent * event)
 	{
-		world->step(1./30., 3);
+		world->step(double(timerPeriodMs)/1000., 3);
 		updateGL();
 	}
 	

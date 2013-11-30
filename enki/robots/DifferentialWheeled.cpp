@@ -53,7 +53,8 @@ namespace Enki
 		distBetweenWheels(distBetweenWheels),
 		maxSpeed(maxSpeed),
 		noiseAmount(noiseAmount),
-		cmdAngSpeed(0)
+		cmdAngSpeed(0),
+		cmdSpeed(0)
 	{
 		leftSpeed = rightSpeed = 0;
 		resetEncoders();
@@ -65,58 +66,43 @@ namespace Enki
 		leftOdometry = rightOdometry = 0.0;
 	}
 	
-	#if 0
-	// NOTE: not used for now
-	static double sgn(double v)
-	{
-		if (v > 0)
-			return 1;
-		else if (v < 0)
-			return -1;
-		else
-			return 0;
-	}
-	
-	static double clamp(double v, double range)
-	{
-		if (v < -range)
-			return -range;
-		else if (v > range)
-			return range;
-		else
-			return v;
-	}
-	#endif
-	
 	void DifferentialWheeled::controlStep(double dt)
 	{
 		// +/- noiseAmout % of motor noise
-		double baseFactor = 1 - noiseAmount;
-		double noiseFactor = 2 * noiseAmount;
-		double realLeftSpeed = clamp(leftSpeed, -maxSpeed, maxSpeed);
-		realLeftSpeed *= (baseFactor + random.getRange(noiseFactor));
-		double realRightSpeed = clamp(rightSpeed, -maxSpeed, maxSpeed);
-		realRightSpeed  *= (baseFactor + random.getRange(noiseFactor));
+		const double baseFactor = 1 - noiseAmount;
+		const double noiseFactor = 2 * noiseAmount;
+		
+		const double realLeftSpeed = clamp(
+			leftSpeed * (baseFactor + random.getRange(noiseFactor)),
+			-maxSpeed,maxSpeed
+		);
+		const double realRightSpeed = clamp(
+			rightSpeed * (baseFactor + random.getRange(noiseFactor)),
+			-maxSpeed, maxSpeed
+		);
 		
 		// set non slipping, override speed
-		double forwardSpeed =  (realLeftSpeed + realRightSpeed) * 0.5;
+		cmdSpeed = (realLeftSpeed + realRightSpeed) * 0.5;
 		cmdAngSpeed = (realRightSpeed - realLeftSpeed) / distBetweenWheels;
-		cmdSpeed = Vector(
-						forwardSpeed * cos(angle + angSpeed * dt * 0.5),
-						forwardSpeed * sin(angle + angSpeed * dt * 0.5)
-				);
 		
 		// Compute encoders
 		leftEncoder = realLeftSpeed;
 		rightEncoder = realRightSpeed;
 		leftOdometry += leftEncoder * dt;
 		rightOdometry += rightEncoder * dt;
+		
+		// Call parent
+		Robot::controlStep(dt);
 	}
 	
 	void DifferentialWheeled::applyForces(double dt)
 	{
+		const Vector cmdVelocity(
+			cmdSpeed * cos(angle + angSpeed * dt * 0.5),
+			cmdSpeed * sin(angle + angSpeed * dt * 0.5)
+		);
 		angSpeed = cmdAngSpeed;
-		speed = cmdSpeed;
+		speed = cmdVelocity;
 	}
 }
 
