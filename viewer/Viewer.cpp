@@ -417,10 +417,32 @@ namespace Enki
 					const double angMid((angStart+angEnd)/2);
 					const double innerR(r - 10);
 					
+					glDisable(GL_TEXTURE_2D);
+					glNormal3d(0, 0, 1);
+					glColor3d(world->wallsColor.r(), world->wallsColor.g(), world->wallsColor.b());
+					
+					// draw to infinity
+					glBegin(GL_QUADS);
+					glVertex3d(cos(angStart)*r, sin(angStart)*r, 10);
+					glVertex3d(cos(angStart)*(r+infPlanSize), sin(angStart)*(r+infPlanSize), 10);
+					glVertex3d(cos(angEnd)*(r+infPlanSize), sin(angEnd)*(r+infPlanSize), 10);
+					glVertex3d(cos(angEnd)*r, sin(angEnd)*r, 10);
+					glEnd();
+					
+					// draw ground center
+					if (world->hasGroundTexture())
+					{
+						glEnable(GL_TEXTURE_2D);
+						glBindTexture(GL_TEXTURE_2D, worldGroundTexture);
+					}
+					
 					glBegin(GL_TRIANGLES);
+					glTexCoord2f(0.5f, 0.5f);
 					glVertex3d(0, 0, 0);
-					glVertex3d(cos(angStart) * innerR, sin(angStart) * innerR, 0);
-					glVertex3d(cos(angEnd) * innerR, sin(angEnd) * innerR, 0);
+					glTexCoord2f(0.5f+0.5f*cosf(angStart), 0.5f+0.5f*sinf(angStart));
+					glVertex3d(cos(angStart) * r, sin(angStart) * r, 0);
+					glTexCoord2f(0.5f+0.5f*cosf(angEnd), 0.5f+0.5f*sinf(angEnd));
+					glVertex3d(cos(angEnd) * r, sin(angEnd) * r, 0);
 					glEnd();
 					
 					glEnable(GL_TEXTURE_2D);
@@ -439,7 +461,13 @@ namespace Enki
 					glVertex3d(cos(angEnd)*r, sin(angEnd)*r, 10);
 					glEnd();
 					
-					// draw ground
+					// draw ground shadow
+					glColor3d(1, 1, 1);
+					glEnable(GL_BLEND);
+					glBlendFunc(GL_ZERO, GL_SRC_COLOR);
+					glDepthMask( GL_FALSE );
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					
 					glNormal3d(0, 0, 1);
 					glBegin(GL_QUADS);
 					glTexCoord2f(0.5f, 0.01f);
@@ -452,15 +480,10 @@ namespace Enki
 					glVertex3d(cos(angEnd) * r, sin(angEnd) * r, 0);
 					glEnd();
 					
-					glDisable(GL_TEXTURE_2D);
-					
-					glNormal3d(0, 0, 1);
-					glBegin(GL_QUADS);
-					glVertex3d(cos(angStart)*r, sin(angStart)*r, 10);
-					glVertex3d(cos(angStart)*(r+infPlanSize), sin(angStart)*(r+infPlanSize), 10);
-					glVertex3d(cos(angEnd)*(r+infPlanSize), sin(angEnd)*(r+infPlanSize), 10);
-					glVertex3d(cos(angEnd)*r, sin(angEnd)*r, 10);
-					glEnd();
+					glDisable(GL_POLYGON_OFFSET_FILL);
+					glDepthMask( GL_TRUE );
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+					glDisable(GL_BLEND);
 				}
 			}
 			break;
@@ -622,13 +645,11 @@ namespace Enki
 		wallTexture = bindTexture(QPixmap(QString(":/textures/wall.png")), GL_TEXTURE_2D, GL_LUMINANCE8);
 		if (world->hasGroundTexture())
 		{
-			std::cerr << "has ground texture " << world->groundTextureWidth << " " << world->groundTextureHeight << std::endl;
-			
 			glGenTextures(1, &worldGroundTexture);
 			glBindTexture(GL_TEXTURE_2D, worldGroundTexture);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, world->groundTextureWidth, world->groundTextureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, &world->groundTextureData[0]);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		}
 		worldList = glGenLists(1);
 		renderWorld();

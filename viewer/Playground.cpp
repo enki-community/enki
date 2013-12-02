@@ -183,6 +183,8 @@ public:
 		#else // USE_SDL
 		addDefaultsRobots(world);
 		#endif // USE_SDL
+		altitude = 150;
+		pos = QPointF(0,60);
 	}
 	
 	void addDefaultsRobots(World *world)
@@ -218,8 +220,12 @@ public:
 		doDumpFrames = false;
 		for (int i = 0; i < joysticks.size(); ++i)
 		{
-			#define SPEED_MAX 13.
 			EPuck* epuck = epucks[i];
+			
+			if (world->hasGroundTexture())
+				cout << "Robot " << i << " is on ground of colour " << world->getGroundColor(epuck->pos) << endl;
+			
+			#define SPEED_MAX 13.
 			//cout << "S " << epuck->infraredSensor2.getRayDist(0) << " " << epuck->infraredSensor2.getRayDist(1) << " " << epuck->infraredSensor2.getRayDist(2) << endl;
 			#if 0 
 			epuck->leftSpeed = - SDL_JoystickGetAxis(joysticks[i], 1) / (32767. / SPEED_MAX);
@@ -230,6 +236,7 @@ public:
 			epuck->leftSpeed = y + x;
 			epuck->rightSpeed = y - x;
 			#endif
+			
 			if ((SDL_JoystickGetButton(joysticks[i], 6) || SDL_JoystickGetButton(joysticks[i], 7)) &&
 				(++fireCounter % 2) == 0)
 			{
@@ -304,8 +311,12 @@ int main(int argc, char *argv[])
 	QApplication app(argc, argv);
 	
 	// Create the world and the viewer
-	//World world(120, 120, Color(0.9, 0.9, 0.9));
-	World world(120, Color(0.9, 0.9, 0.9));
+	bool igt(app.arguments().size() > 1);
+	QImage gt;
+	if (igt)
+		gt = QGLWidget::convertToGLFormat(QImage(app.arguments().last()));
+	igt = !gt.isNull();
+	World world(120, Color(0.9, 0.9, 0.9), igt ? gt.width() : 0, igt ? gt.height() : 0, igt ? (uint32_t*)gt.constBits() : 0);
 	EnkiPlayground viewer(&world);
 	
 	viewer.show();

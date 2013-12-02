@@ -738,7 +738,7 @@ namespace Enki
 		return !groundTextureData.empty();
 	}
 	
-	Color World::getGroundTexture(const Point& p) const
+	Color World::getGroundColor(const Point& p) const
 	{
 		if (groundTextureData.empty() || wallsType == WALLS_NONE)
 			return Color::white;
