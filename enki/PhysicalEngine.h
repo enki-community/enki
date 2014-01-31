@@ -422,12 +422,24 @@ namespace Enki
 		//! The color of the world walls
 		const Color wallsColor;
 		
-		//! the width of the ground texture, if any
-		const unsigned groundTextureWidth;
-		//! the height of the ground texture, if any
-		const unsigned groundTextureHeight;
-		//! the date of the ground texture, organised as scanlines of pixels in RGBA (0xAABBGGRR in little endian); empty if there is no ground texture
-		const std::vector<uint32_t> groundTextureData;
+		//! 2-D Texture for ground
+		struct GroundTexture
+		{
+			//! the width of the ground texture, if any
+			unsigned width;
+			//! the height of the ground texture, if any
+			unsigned height;
+			//! the date of the ground texture, organised as scanlines of pixels in RGBA (0xAABBGGRR in little endian); empty if there is no ground texture
+			std::vector<uint32_t> data;
+			
+			//! build an empty texture
+			GroundTexture();
+			//! build a texture from an existing pointer
+			GroundTexture(unsigned width, unsigned height, const uint32_t* data);
+		};
+		
+		//! Current ground texture
+		const GroundTexture groundTexture;
 		
 		typedef std::set<PhysicalObject *> Objects;
 		typedef Objects::iterator ObjectsIterator;
@@ -451,9 +463,9 @@ namespace Enki
 
 	public:
 		//! Construct a world with square walls, takes width and height of the world arena in cm.
-		World(double width, double height, const Color& wallsColor = Color::gray, unsigned texWidth = 0, unsigned texHeight = 0, const uint32_t* texData = 0);
+		World(double width, double height, const Color& wallsColor = Color::gray, const GroundTexture& groundTexture = GroundTexture());
 		//! Construct a world with circle walls, takes radius of the world arena in cm.
-		World(double r, const Color& wallsColor = Color::gray, unsigned texWidth = 0, unsigned texHeight = 0, const uint32_t* texData = 0);
+		World(double r, const Color& wallsColor = Color::gray, const GroundTexture& groundTexture = GroundTexture());
 		//! Construct a world with no walls
 		World();
 		//! Destructor, destroy all objects

@@ -41,6 +41,8 @@
 #include "../enki/robots/e-puck/EPuck.h"
 #include "../viewer/Viewer.h"
 #include <QApplication>
+#include <QImage>
+#include <QGLWidget>
 
 using namespace boost::python;
 using namespace Enki;
@@ -146,6 +148,57 @@ struct Vector_from_python
 		void* storage = ((converter::rvalue_from_python_storage<Vector>*)data)->storage.bytes;
 		new (storage) Vector(x,y);
 		data->convertible = storage;
+	}
+};
+
+// wrappers for world
+
+static World::GroundTexture loadTexture(const std::string& fileName)
+{
+	/*World::GroundTexture t;
+	
+	std::ifstream ifs(ppmFileName.c_str(), std::ifstream::in);
+	if (!ifs.good())
+		throw std::runtime_error("Cannot open file " + ppmFileName);
+	std::string magic;
+	ifs >> magic;
+	if (magic != "P3")
+		throw std::runtime_error("Not a PPM file: " + ppmFileName);
+	ifs >> t.width;
+	ifs >> t.height;
+	int valuesScale;
+	ifs >> valuesScale;
+	t.data.reserve(t.width*t.height);
+	for (int y = 0; y < t.height; ++y)
+	{
+		for (int x = 0; x < t.width; ++x)
+		{
+			unsigned r, g, b;
+			ifs >> r >> g >> b;
+			if (ifs.eof())
+				throw std::runtime_error("Early end-of-file: " + ppmFileName);
+			r = (r * 255) / valuesScale;
+			g = (g * 255) / valuesScale;
+			b = (b * 255) / valuesScale;
+			t.data.push_back(r|(g<<8)|(b<<16));
+		}
+	}
+	
+	return t;*/
+	QImage gt(QGLWidget::convertToGLFormat(QImage(fileName.c_str())));
+	return World::GroundTexture(gt.width(), gt.height(), (uint32_t*)gt.constBits());
+}
+
+struct WorldWithTexturedGround: public World
+{
+	WorldWithTexturedGround(double width, double height, const std::string& ppmFileName, const Color& wallsColor = Color::gray):
+		World(width, height, wallsColor, loadTexture(ppmFileName))
+	{
+	}
+	
+	WorldWithTexturedGround(double r, const std::string& ppmFileName, const Color& wallsColor = Color::gray):
+		World(r, wallsColor, loadTexture(ppmFileName))
+	{
 	}
 };
 
@@ -366,6 +419,7 @@ BOOST_PYTHON_MODULE(pyenki)
 		.def_readwrite_by_value("speed", &PhysicalObject::speed)
 		.def_readwrite("angSpeed", &PhysicalObject::angSpeed)
 		.add_property("color",  make_function(&PhysicalObject::getColor, return_value_policy<copy_const_reference>()), &PhysicalObject::setColor)
+		// warning setting the "color" property at run time using the viewer from the non-gui thread will lead to a crash because it will do an OpenGL call from that thread
 	;
 	
 	class_<CircularPhysicalObject, bases<PhysicalObject> >("CircularObject",
@@ -414,5 +468,11 @@ BOOST_PYTHON_MODULE(pyenki)
 		.def("setRandomSeed", &World::setRandomSeed)
 		.def("run", run)
 		.def("runInViewer", runInViewer, runInViewer_overloads(args("self", "camPos", "camAltitude", "camYaw", "camPitch", "wallsHeight")))
+	;
+	
+	class_<WorldWithTexturedGround, bases<World> >("WorldWithTexturedGround",
+		init<double, double, const std::string&, optional<const Color&> >(args("width", "height", "ppmFileName", "wallsColor"))
+	)
+		.def(init<double, const std::string&, optional<const Color&> >(args("r", "ppmFileName", "wallsColor")))
 	;
 }

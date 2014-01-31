@@ -684,29 +684,36 @@ namespace Enki
 	}
 	
 	static bool worldTakeObjectOwnership = true;
+	
+	World::GroundTexture::GroundTexture():
+		width(0),
+		height(0)
+	{}
+	
+	World::GroundTexture::GroundTexture(unsigned width, unsigned height, const uint32_t* data):
+		width(width),
+		height(height),
+		data(data, data+width*height)
+	{}
 
-	World::World(double width, double height, const Color& wallsColor, unsigned groundTextureWidth, unsigned groundTextureHeight, const uint32_t* groundTextureData) :
+	World::World(double width, double height, const Color& wallsColor, const GroundTexture& groundTexture) :
 		wallsType(WALLS_SQUARE),
 		w(width),
 		h(height),
 		r(0),
 		wallsColor(wallsColor),
-		groundTextureWidth(groundTextureWidth),
-		groundTextureHeight(groundTextureHeight),
-		groundTextureData(groundTextureData, groundTextureData+(groundTextureWidth*groundTextureHeight)),
+		groundTexture(groundTexture),
 		bluetoothBase(NULL)
 	{
 	}
 	
-	World::World(double r, const Color& wallsColor, unsigned groundTextureWidth, unsigned groundTextureHeight, const uint32_t* groundTextureData) :
+	World::World(double r, const Color& wallsColor, const GroundTexture& groundTexture) :
 		wallsType(WALLS_CIRCULAR),
 		w(0),
 		h(0),
 		r(r),
 		wallsColor(wallsColor),
-		groundTextureWidth(groundTextureWidth),
-		groundTextureHeight(groundTextureHeight),
-		groundTextureData(groundTextureData, groundTextureData+(groundTextureWidth*groundTextureHeight)),
+		groundTexture(groundTexture),
 		bluetoothBase(NULL)
 	{
 	}
@@ -717,8 +724,6 @@ namespace Enki
 		h(0),
 		r(0),
 		wallsColor(Color::gray),
-		groundTextureWidth(0),
-		groundTextureHeight(0),
 		bluetoothBase(NULL)
 	{
 	}
@@ -735,30 +740,30 @@ namespace Enki
 	
 	bool World::hasGroundTexture() const
 	{
-		return !groundTextureData.empty();
+		return !groundTexture.data.empty();
 	}
 	
 	Color World::getGroundColor(const Point& p) const
 	{
-		if (groundTextureData.empty() || wallsType == WALLS_NONE)
+		if (groundTexture.data.empty() || wallsType == WALLS_NONE)
 			return Color::white;
 		int texX, texY;
 		if (wallsType == WALLS_SQUARE)
 		{
-			texX = p.x * groundTextureWidth / w;
-			texY = p.y * groundTextureHeight / h;
+			texX = p.x * groundTexture.width / w;
+			texY = p.y * groundTexture.height / h;
 		}
 		else if (wallsType == WALLS_CIRCULAR)
 		{
-			texX = (p.x+r) * groundTextureWidth / (2*r);
-			texY = (p.y+r) * groundTextureHeight / (2*r);
+			texX = (p.x+r) * groundTexture.width / (2*r);
+			texY = (p.y+r) * groundTexture.height / (2*r);
 		}
 		else
 			abort();
 		
-		if (texX < 0 || texX >= groundTextureWidth || texY < 0 || texY >= groundTextureHeight)
+		if (texX < 0 || texX >= groundTexture.width || texY < 0 || texY >= groundTexture.height)
 			return Color::white;
-		uint32_t data = groundTextureData[texY * groundTextureWidth + texX];
+		uint32_t data = groundTexture.data[texY * groundTexture.width + texX];
 		return Color::fromRGBA(data);
 	}
 	

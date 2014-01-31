@@ -316,7 +316,7 @@ int main(int argc, char *argv[])
 	if (igt)
 		gt = QGLWidget::convertToGLFormat(QImage(app.arguments().last()));
 	igt = !gt.isNull();
-	World world(120, Color(0.9, 0.9, 0.9), igt ? gt.width() : 0, igt ? gt.height() : 0, igt ? (uint32_t*)gt.constBits() : 0);
+	World world(120, Color(0.9, 0.9, 0.9), igt ? World::GroundTexture(gt.width(), gt.height(), (uint32_t*)gt.constBits()) : World::GroundTexture());
 	EnkiPlayground viewer(&world);
 	
 	viewer.show();

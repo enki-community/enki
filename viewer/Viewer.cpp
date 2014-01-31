@@ -647,7 +647,7 @@ namespace Enki
 		{
 			glGenTextures(1, &worldGroundTexture);
 			glBindTexture(GL_TEXTURE_2D, worldGroundTexture);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, world->groundTextureWidth, world->groundTextureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, &world->groundTextureData[0]);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, world->groundTexture.width, world->groundTexture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &world->groundTexture.data[0]);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		}
