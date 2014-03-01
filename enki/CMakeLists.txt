@@ -22,8 +22,12 @@ add_library(enki
 	robots/marxbot/Marxbot.cpp
 )
 
+set_target_properties(enki PROPERTIES VERSION ${LIB_VERSION_STRING} 
+                                        SOVERSION ${LIB_VERSION_MAJOR})
+
 install(DIRECTORY . 
 	DESTINATION include/enki/
 	FILES_MATCHING PATTERN "*.h"
 )
-install(TARGETS enki ARCHIVE DESTINATION lib)
+install(TARGETS enki LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+                     ARCHIVE DESTINATION ${LIB_INSTALL_DIR})
