@@ -56,3 +56,22 @@ github repository.
 
 9. Publish the RPMs and SRPM found in ~/rpmbuild/RPMS and ~/rpmbuild/SRPMS
 
+
+To create pre-release or post-release RPMs 
+------------------------------------------
+
+If you want to create pre-release RPMs for an upcoming github 
+source release or post-release RPMS based on a commit that
+occurred after the most recent github source release, follow
+the directions above with the following changes:
+
+Instead of step 2, determine the commit hash from the official
+github repository that you want the RPMs to be based on.
+
+When editing the spec file in step 3, set the "Version:" tag to the
+future github source release number (for pre-release RPMs) or past 
+github source release number (for post-release RPMS) and follow the 
+other directions in that file concerning pre-release and post-release 
+RPMs.
+
+
