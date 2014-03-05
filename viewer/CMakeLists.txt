@@ -42,6 +42,9 @@ if (QT4_FOUND)
 	link_directories (${enki_BINARY_DIR})
 	
 	add_library (enkiviewer ${viewer_lib_SRCS} ${viewer_lib_RCC_SRCS})
+	set_target_properties(enkiviewer PROPERTIES VERSION ${LIB_VERSION_STRING} 
+                                        SOVERSION ${LIB_VERSION_MAJOR})
+
 	add_executable(enkiplayground ${viewer_test_SRCS})
 	
 	target_link_libraries(enkiplayground enkiviewer enki ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${EXTRA_LIBS})
@@ -52,5 +55,6 @@ if (QT4_FOUND)
 	install(FILES ${ENKI_VIEWER_HDR}
 		DESTINATION include/viewer/
 	)
-	install(TARGETS enkiviewer ARCHIVE DESTINATION lib)
+	install(TARGETS enkiviewer ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
+                                   LIBRARY DESTINATION ${LIB_INSTALL_DIR})
 endif (QT4_FOUND)

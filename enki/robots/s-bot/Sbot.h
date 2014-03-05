@@ -144,7 +144,7 @@ namespace Enki
 		SbotMicrophone mic;
 		//! 1 speaker
 		ActiveSoundSource speaker;
-		virtual void step(double dt);
+		virtual void step(double dt) = 0;
 
 	public:
 		//! Constructor, initialises microphones and speaker
