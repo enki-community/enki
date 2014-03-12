@@ -316,7 +316,11 @@ int main(int argc, char *argv[])
 	if (igt)
 		gt = QGLWidget::convertToGLFormat(QImage(app.arguments().last()));
 	igt = !gt.isNull();
-	World world(120, Color(0.9, 0.9, 0.9), igt ? World::GroundTexture(gt.width(), gt.height(), (uint32_t*)gt.constBits()) : World::GroundTexture());
+	#if QT_VERSION >= QT_VERSION_CHECK(4,7,0)
+	World world(120, Color(0.9, 0.9, 0.9), igt ? World::GroundTexture(gt.width(), gt.height(), (const uint32_t*)gt.constBits()) : World::GroundTexture());
+	#else
+	World world(120, Color(0.9, 0.9, 0.9), igt ? World::GroundTexture(gt.width(), gt.height(), (uint32_t*)gt.bits()) : World::GroundTexture());
+	#endif
 	EnkiPlayground viewer(&world);
 	
 	viewer.show();
