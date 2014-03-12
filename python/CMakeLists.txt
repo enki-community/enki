@@ -17,7 +17,7 @@ if (PYTHONLIBS_FOUND AND PYTHONINTERP_FOUND AND QT4_FOUND)
 	find_package(Boost COMPONENTS python)
 	if (Boost_FOUND)
 		message("boost::python found, generating python bindings")
-		include_directories(${enki_SOURCE_DIR} ${PYTHON_INCLUDE_DIRS})
+		include_directories(${enki_SOURCE_DIR} ${PYTHON_INCLUDE_DIRS} ${Boost_INCLUDE_DIR})
 		python_add_module(pyenki enki.cpp)
 		target_link_libraries(pyenki enki enkiviewer ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 		# fix for old python_add_module
