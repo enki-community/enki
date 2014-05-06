@@ -1,3 +1,9 @@
+libenki (2.0~git.20140506) trusty; urgency=medium
+
+  * Added Python compilation
+
+ -- Stéphane Magnenat <stephane@nospam.magnenat.net>  Tue, 06 May 2014 18:09:25 +0200
+
 libenki (2.0~git.20140131) precise; urgency=low
 
   * Deb pre-release
