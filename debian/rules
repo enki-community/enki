@@ -2,7 +2,7 @@
 
 build: clean
 	mkdir debian/build
-	cd debian/build && cmake -D CMAKE_BUILD_TYPE=relwithdebuginfo -D CMAKE_INSTALL_PREFIX=../tmp/usr ../..
+	cd debian/build && cmake -DCMAKE_BUILD_TYPE=relwithdebuginfo -DPYTHON_DEB_INSTALL_TARGET=true -DCMAKE_INSTALL_PREFIX=../tmp/usr ../..
 	cd debian/build && make
 
 clean:
