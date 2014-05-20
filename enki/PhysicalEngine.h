@@ -477,7 +477,7 @@ namespace Enki
 		Color getGroundColor(const Point& p) const;
 		
 		//! Simulate a timestep of dt. dt should be below 1 (typically .02-.1); physicsOversampling is the amount of time the physics is run per step, as usual collisions require a more precise simulation than the sensor-motor loop frequency.
-		void step(double dt, unsigned physicsOversampling = 1);
+		virtual void step(double dt, unsigned physicsOversampling = 1);
 		//! Add an object to the world, simply add it to the vector. Object will be automatically deleted when world will be destroyed.
 		//! If the object is already in the world, do nothing
 		void addObject(PhysicalObject *o);
