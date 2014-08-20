@@ -38,7 +38,11 @@
 #include <enki/robots/e-puck/EPuck.h>
 #include "MarxbotModel.h"
 #include <enki/robots/marxbot/Marxbot.h>
-#include <GL/glu.h>
+#ifdef __APPLE__
+	#include <OpenGL/glu.h>
+#else // __APPLE__
+	#include <GL/glu.h>
+#endif // __APPLE__
 #include <QApplication>
 #include <QtGui>
 
