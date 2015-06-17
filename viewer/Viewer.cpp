@@ -135,6 +135,31 @@ namespace Enki
 		}
 	}
 	
+	void ViewerWidget::setCamera (QPointF pos, double altitude, double yaw, double pitch)
+	{
+		this->pos = pos;
+		this->altitude = altitude;
+		this->yaw = yaw;
+		this->pitch = pitch;
+	}
+
+	void ViewerWidget::setCameraPosition (double x, double y, double altitude)
+	{
+		this->pos.rx () = x;
+		this->pos.ry () = y;
+		this->altitude = altitude;
+	}
+
+	void ViewerWidget::setCameraYaw (double yaw)
+	{
+		this->yaw = yaw;
+	}
+
+	void ViewerWidget::setCameraPitch (double pitch)
+	{
+		this->pitch = pitch;
+	}
+
 	void ViewerWidget::restartDumpFrames()
 	{
 		dumpFramesCounter = 0;

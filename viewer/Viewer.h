@@ -112,6 +112,11 @@ namespace Enki
 	public:
 		ViewerWidget(World *world, QWidget *parent = 0);
 		~ViewerWidget();
+
+		void setCamera (QPointF pos, double altitude, double yaw, double pitch);
+		void setCameraPosition (double x, double y, double altitude);
+		void setCameraYaw (double yaw);
+		void setCameraPitch (double pitch);
 	
 	public slots:
 		void restartDumpFrames();
