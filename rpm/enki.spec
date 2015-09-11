@@ -11,7 +11,7 @@ Version:        %{source_major}.%{source_minor}.%{source_patch}
 
 # Update the following line with the git commit hash of the revision to use
 # for example by running git show-ref -s --tags RELEASE_TAG
-%global commit e138769516c8bd9aae51f7e71fd483c060615c2d
+%global commit a24aa3b7910000e622b5d4e3396ddf2e2d3816ff
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
 
 # Update the following line to set commit_is_tagged_as_source_release to 0 if
@@ -29,7 +29,7 @@ Version:        %{source_major}.%{source_minor}.%{source_patch}
 # release version (i.e. the "Version:" line above refers to a future
 # source release version), then set the number to 0.0. Otherwise, leave the
 # the number unchanged. It will get bumped when you run rpmdev-bumpspec.
-Release:        0.4%{?snapshot}%{?dist}
+Release:        0.6%{?snapshot}%{?dist}
 
 Summary:        An open source robot simulator written in C++
 
@@ -47,7 +47,7 @@ License:        GPL-2.0
 License:        GPLv2
 %endif
 URL:            http://home.gna.org/enki/
-Source0:        https://github.com/enki-community/enki/archive/%{commit}/%{name}-%{version}-%{shortcommit}.tar.gz
+Source0:        https://github.com/enki-community/enki/archive/%{commit}/%{name}-%{version}-%{commit}.tar.gz
 Patch0:         enki-rpm.patch
 
 BuildRequires: SDL-devel
@@ -148,6 +148,14 @@ make install DESTDIR=$RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Sep 11 2015 Dean Brettle <dean@brettle.com> - 2.0.0-0.6.20150911gita24aa3b
+- Sync with 2.0-pre.20140520
+
+* Mon Apr 28 2014 Dean Brettle <dean@brettle.com> - 2.0.0-0.5.20140427gitf845f18
+- Changed shortcommit to commit in Source0 to help OpenSUSE build server
+  and started basing builds off of commit that includes RPM fixes and other more
+  recent fixes.
+
 * Tue Mar 04 2014 Dean Brettle <dean@brettle.com> - 2.0.0-0.4.20140303gite138769
 - Updated spec to build on openSUSE and put libs in libenki2 package and python
   module in python-pyenki package.
