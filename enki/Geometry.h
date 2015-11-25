@@ -36,7 +36,9 @@
 
 #ifdef WIN32
 #define _USE_MATH_DEFINES
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #endif
 #include <cmath>
 #include <vector>
