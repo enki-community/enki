@@ -9,9 +9,9 @@ endif (SDL_FOUND)
 
 set(QT_USE_QTOPENGL TRUE)
 find_package(Qt4)
+find_package(OpenGL)
 
-if (QT4_FOUND)
-	find_package(OpenGL REQUIRED)
+if (QT4_FOUND AND OPENGL_FOUND)
 	include(${QT_USE_FILE})
 	add_definitions(${QT_DEFINITIONS})
 	
@@ -58,4 +58,4 @@ if (QT4_FOUND)
 	)
 	install(TARGETS enkiviewer ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
                                    LIBRARY DESTINATION ${LIB_INSTALL_DIR})
-endif (QT4_FOUND)
+endif (QT4_FOUND AND OPENGL_FOUND)
