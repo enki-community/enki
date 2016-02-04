@@ -6,10 +6,10 @@ find_package(PythonLibs)
 
 set(QT_USE_QTOPENGL TRUE)
 find_package(Qt4)
+find_package(OpenGL)
 
 # make sure we have the right modules
-if (PYTHONLIBS_FOUND AND PYTHONINTERP_FOUND AND QT4_FOUND)
-	find_package(OpenGL REQUIRED)
+if (PYTHONLIBS_FOUND AND PYTHONINTERP_FOUND AND QT4_FOUND AND OPENGL_FOUND)
 	include(${QT_USE_FILE})
 	add_definitions(${QT_DEFINITIONS})
 	
@@ -36,6 +36,6 @@ if (PYTHONLIBS_FOUND AND PYTHONINTERP_FOUND AND QT4_FOUND)
 	elseif (Boost_FOUND)
 		message("You need boost::python to generate python bindings")
 	endif (Boost_FOUND)
-else (PYTHONLIBS_FOUND AND PYTHONINTERP_FOUND AND QT4_FOUND)
-	message("Python libs or executable or Qt4 not found, skipping Python bindings")
-endif (PYTHONLIBS_FOUND AND PYTHONINTERP_FOUND AND QT4_FOUND)
+else (PYTHONLIBS_FOUND AND PYTHONINTERP_FOUND AND QT4_FOUND AND OPENGL_FOUND)
+	message("Python libs or executable, or Qt4, or OpenGL not found, skipping Python bindings")
+endif (PYTHONLIBS_FOUND AND PYTHONINTERP_FOUND AND QT4_FOUND AND OPENGL_FOUND)
