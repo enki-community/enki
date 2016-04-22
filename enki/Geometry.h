@@ -50,6 +50,10 @@
 #define round(x) floor((x) + 0.5)
 #endif
 
+#ifndef M_PI
+#define M_PI (3.14159265358979323846)
+#endif
+
 /*!	\file Geometry.h
 	\brief The mathematic classes for 2D geometry
 */
