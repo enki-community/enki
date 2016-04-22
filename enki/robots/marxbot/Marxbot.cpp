@@ -73,5 +73,8 @@ namespace Enki
 		unsigned physicalNumber = (24 + 12 - number) % 24;
 		return marxbotVirtualBumperResponseFunction(sqrt(rotatingDistanceSensor.zbuffer[(physicalNumber * 180) / 24]) - getRadius());
 	}
+
+    Marxbot::~Marxbot() {
+    }
 }
 
