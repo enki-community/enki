@@ -46,13 +46,13 @@ namespace Enki
 	
 	Thymio2::Thymio2() :
 		DifferentialWheeled(9.4, 16.6, 0.027),
-		infraredSensor0(this, Vector(6.5, 4.9),   3.5, 0.66491, 14, 4505, 0.03, 73.29, 2.87),
-		infraredSensor1(this, Vector(7.6, 2.5),   3.5, 0.31780, 14, 4505, 0.03, 73.29, 2.87),
-		infraredSensor2(this, Vector(8.0, 0.0),   3.5, 0.0,     14, 4505, 0.03, 73.29, 2.87),
-		infraredSensor3(this, Vector(7.6, 2.5),   3.5, 0.31780, 14, 4505, 0.03, 73.29, 2.87),
-		infraredSensor4(this, Vector(6.5, -4.9),  3.5, 0.66491, 14, 4505, 0.03, 73.29, 2.87),
-		infraredSensor5(this, Vector(-3.0, 3.0),  3.5, -M_PI,   14, 4505, 0.03, 73.29, 2.87),
-		infraredSensor6(this, Vector(-3.0, -3.0), 3.5, -M_PI,   14, 4505, 0.03, 73.29, 2.87),
+		infraredSensor0(this, Vector(6.5, 4.9),   3.5, 0.66491, 14, 4505, 0.03, 10, 2.87),
+		infraredSensor1(this, Vector(7.6, 2.5),   3.5, 0.31780, 14, 4505, 0.03, 10, 2.87),
+		infraredSensor2(this, Vector(8.0, 0.0),   3.5, 0.0,     14, 4505, 0.03, 10, 2.87),
+		infraredSensor3(this, Vector(7.6, 2.5),   3.5, 0.31780, 14, 4505, 0.03, 10, 2.87),
+		infraredSensor4(this, Vector(6.5, -4.9),  3.5, 0.66491, 14, 4505, 0.03, 10, 2.87),
+		infraredSensor5(this, Vector(-3.0, 3.0),  3.5, -M_PI,   14, 4505, 0.03, 10, 2.87),
+		infraredSensor6(this, Vector(-3.0, -3.0), 3.5, -M_PI,   14, 4505, 0.03, 10, 2.87),
 		groundSensor0(this, Vector(7.2, 1.2),  -806.93, 853.24, 0.45),
 		groundSensor1(this, Vector(7.2, -1.2), -806.93, 853.24, 0.45)
 	{
