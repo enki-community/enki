@@ -505,8 +505,6 @@ BOOST_PYTHON_MODULE(pyenki)
 	
 	class_<Thymio2Wrap, bases<DifferentialWheeled>, boost::noncopyable>("Thymio2")
 		.def("controlStep", &Thymio2Wrap::controlStep)
-		.def_readwrite("targetLeftSpeed", &Thymio2Wrap::targetLeftSpeed)
-		.def_readwrite("targetRightSpeed", &Thymio2Wrap::targetRightSpeed)
 		.def_readonly("proximitySensorValues", &Thymio2Wrap::getProxSensorValues)
 		.def_readonly("proximitySensorDistances", &Thymio2Wrap::getProxSensorDistances)
 		.def_readonly("groundSensorValues", &Thymio2Wrap::getGroundSensorValues)

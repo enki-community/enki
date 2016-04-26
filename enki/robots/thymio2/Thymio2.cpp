@@ -85,21 +85,11 @@ namespace Enki
 		thymio2Shape.push_back(Enki::Point(distance * cos(M_PI - angle2), distance * sin(M_PI + angle2)));
 		Enki::PhysicalObject::Hull hull(Enki::PhysicalObject::Part(thymio2Shape, height));
 		setCustomHull(hull, 200);
+		setColor(Color(0.98, 0.98, 0.98));
 	}
 	
 	Thymio2::~Thymio2()
 	{
-	}
-	
-	void Thymio2::controlStep(double dt)
-	{
-		const double maxSpeedAseba(500);
-		const double maxSpeedCmS(16.6);
-		
-		leftSpeed = targetLeftSpeed * maxSpeedCmS / maxSpeedAseba;
-		rightSpeed = targetRightSpeed * maxSpeedCmS / maxSpeedAseba;
-		
-		DifferentialWheeled::controlStep(dt);
 	}
 }
 

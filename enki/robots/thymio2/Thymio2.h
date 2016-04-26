@@ -69,20 +69,11 @@ namespace Enki
 		//! The ground sensor 1 (right)
 		GroundSensor groundSensor1;
 		
-		// speed commands
-		//! Left speed command
-		double targetLeftSpeed;
-		//! Right speed command
-		double targetRightSpeed;
-		
 	public:
 		//! Create a Thymio II
 		Thymio2();
 		//! Destructor
 		~Thymio2();
-		
-		//! Set the real speed of the robot given leftSpeed and rightSpeed. Add noise. Update encoders. Compute PWM and current, including limits.
-		virtual void controlStep(double dt);
 	};
 }
 
