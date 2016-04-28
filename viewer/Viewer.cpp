@@ -509,69 +509,69 @@ namespace Enki
 		glEndList();
 	}
 	
+	void ViewerWidget::renderShape(const Polygone& shape, const double height, const Color& color)
+	{
+		const size_t segmentCount = shape.size();
+		
+		// TODO: use object texture if any
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, wallTexture);
+		
+		// sides
+		for (size_t i = 0; i < segmentCount; ++i)
+		{
+			// TODO: ugly, separate function for object and shadow
+			glColor3d(color.components[0], color.components[1], color.components[2]);
+			renderSegment(Segment(shape[i], shape[(i+1) % segmentCount] ), height);
+			glColor3d(1, 1, 1);
+			renderSegmentShadow(Segment(shape[i], shape[(i+1) % segmentCount] ), height);
+			renderInterSegmentShadow(
+				shape[i],
+				shape[(i+1) % segmentCount],
+				shape[(i+2) % segmentCount],
+				height
+			);
+		}
+		
+		glDisable(GL_TEXTURE_2D);
+		
+		// top
+		glColor3d(color.components[0], color.components[1], color.components[2]);
+		glNormal3d(1, 1, 0);
+		glBegin(GL_TRIANGLE_FAN);
+		for (size_t i = 0; i < segmentCount; ++i)
+			glVertex3d(shape[i].x, shape[i].y, height);
+		glEnd();
+	}
+	
 	void ViewerWidget::renderSimpleObject(PhysicalObject *object)
 	{
 		SimpleDisplayList *userData = new SimpleDisplayList;
 		object->userData = userData;
 		glNewList(userData->list, GL_COMPILE);
 		
+		glDisable(GL_LIGHTING);
 		if (!object->getHull().empty())
 		{
-			glDisable(GL_LIGHTING);
 			for (PhysicalObject::Hull::const_iterator it = object->getHull().begin(); it != object->getHull().end(); ++it)
 			{
-				const Polygone& shape = it->getShape();
-				const double height = it->getHeight();
-				const Color& color = object->getColor();
-				size_t segmentCount = shape.size();
-				
-				// TODO: use object texture if any
-				
-				glEnable(GL_TEXTURE_2D);
-				glBindTexture(GL_TEXTURE_2D, wallTexture);
-				
-				// sides
-				for (size_t i = 0; i < segmentCount; ++i)
-				{
-					// TODO: ugly, separate function for object and shadow
-					glColor3d(color.components[0], color.components[1], color.components[2]);
-					renderSegment(Segment(shape[i], shape[(i+1) % segmentCount] ), height);
-					glColor3d(1, 1, 1);
-					renderSegmentShadow(Segment(shape[i], shape[(i+1) % segmentCount] ), height);
-					renderInterSegmentShadow(
-						shape[i],
-						shape[(i+1) % segmentCount],
-						shape[(i+2) % segmentCount],
-						height
-					);
-				}
-				
-				glDisable(GL_TEXTURE_2D);
-				
-				// top
-				glColor3d(color.components[0], color.components[1], color.components[2]);
-				glNormal3d(1, 1, 0);
-				glBegin(GL_TRIANGLE_FAN);
-				for (size_t i = 0; i < segmentCount; ++i)
-					glVertex3d(shape[i].x, shape[i].y, height);
-				glEnd();
+				renderShape(it->getShape(), it->getHeight(), object->getColor());
 			}
-			glEnable(GL_LIGHTING);
 		}
 		else
 		{
-			GLUquadric * quadratic = gluNewQuadric();
-			assert(quadratic);
-			
-			// sides
-			gluCylinder(quadratic, object->getRadius(), object->getRadius(), object->getHeight(), 32, 1);
-			
-			// top
-			glTranslated(0, 0, object->getHeight());
-			gluDisk(quadratic, 0, object->getRadius(), 32, 1);
-			
-			gluDeleteQuadric(quadratic);
+			Polygone shape;
+			const size_t segmentCount(32);
+			shape.reserve(segmentCount);
+			const double radius(object->getRadius());
+			for (size_t i=0; i<segmentCount; ++i)
+			{
+				const double alpha(i*2.*M_PI/double(segmentCount));
+				shape.push_back(Point(cos(alpha) * radius, sin(alpha) * radius));
+			}
+			renderShape(shape, object->getHeight(), object->getColor());
 		}
+		glEnable(GL_LIGHTING);
 		
 		renderObjectHook(object);
 		
