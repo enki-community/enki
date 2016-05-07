@@ -419,8 +419,8 @@ namespace Enki
 		/* Texture of world walls is disabled now, re-enable a proper support if required
 		//! Texture of walls.
 		Texture wallTextures[4];*/
-		//! The color of the world walls
-		const Color wallsColor;
+		//! The color of the world walls and ground
+		const Color color;
 		
 		//! 2-D Texture for ground
 		struct GroundTexture
@@ -429,7 +429,7 @@ namespace Enki
 			unsigned width;
 			//! the height of the ground texture, if any
 			unsigned height;
-			//! the date of the ground texture, organised as scanlines of pixels in RGBA (0xAABBGGRR in little endian); empty if there is no ground texture
+			//! the date of the ground texture, organised as scanlines of pixels in ARGB (0xAARRGGBB in little endian); empty if there is no ground texture
 			std::vector<uint32_t> data;
 			
 			//! build an empty texture

@@ -696,23 +696,23 @@ namespace Enki
 		data(data, data+width*height)
 	{}
 
-	World::World(double width, double height, const Color& wallsColor, const GroundTexture& groundTexture) :
+	World::World(double width, double height, const Color& color, const GroundTexture& groundTexture) :
 		wallsType(WALLS_SQUARE),
 		w(width),
 		h(height),
 		r(0),
-		wallsColor(wallsColor),
+		color(color),
 		groundTexture(groundTexture),
 		bluetoothBase(NULL)
 	{
 	}
 	
-	World::World(double r, const Color& wallsColor, const GroundTexture& groundTexture) :
+	World::World(double r, const Color& color, const GroundTexture& groundTexture) :
 		wallsType(WALLS_CIRCULAR),
 		w(0),
 		h(0),
 		r(r),
-		wallsColor(wallsColor),
+		color(color),
 		groundTexture(groundTexture),
 		bluetoothBase(NULL)
 	{
@@ -723,7 +723,7 @@ namespace Enki
 		w(0),
 		h(0),
 		r(0),
-		wallsColor(Color::gray),
+		color(Color::gray),
 		bluetoothBase(NULL)
 	{
 	}
@@ -746,7 +746,7 @@ namespace Enki
 	Color World::getGroundColor(const Point& p) const
 	{
 		if (groundTexture.data.empty() || wallsType == WALLS_NONE)
-			return Color::white;
+			return color;
 		int texX, texY;
 		if (wallsType == WALLS_SQUARE)
 		{
@@ -762,9 +762,9 @@ namespace Enki
 			abort();
 		
 		if (texX < 0 || texX >= groundTexture.width || texY < 0 || texY >= groundTexture.height)
-			return Color::white;
+			return color;
 		uint32_t data = groundTexture.data[texY * groundTexture.width + texX];
-		return Color::fromRGBA(data);
+		return Color::fromARGB(data);
 	}
 	
 	/*

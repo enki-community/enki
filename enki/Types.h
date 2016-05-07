@@ -139,8 +139,10 @@ namespace Enki
 		//! Set the value of alpha component
 		void setA(double value) { components[3] = value; }
 		
-		//! Build from an RGBA uint32_t (0xAABBGGRR in little endian)
-		static Color fromRGBA(uint32_t color);
+		//! Build from an ARGB uint32_t (0xAARRGGBB in little endian)
+		static Color fromARGB(uint32_t color);
+		//! Build from an ABGR uint32_t (0xAABBGGRR in little endian)
+		static Color fromABGR(uint32_t color);
 		
 		//! black (0, 0, 0)
 		static const Color black;

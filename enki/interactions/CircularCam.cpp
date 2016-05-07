@@ -295,12 +295,12 @@ namespace Enki
 		
 		// fill zbuffer with infinite
 		std::fill( &zbuffer[0], &zbuffer[zbuffer.size()], std::numeric_limits<double>::max() );
-		std::fill( &image[0], &image[image.size()], w->wallsColor);
+		std::fill( &image[0], &image[image.size()], w->color);
 	}
 	
 	void CircularCam::wallsStep(double dt, World* w)
 	{
-		Texture texture(1, w->wallsColor);
+		Texture texture(1, w->color);
 		
 		switch (w->wallsType)
 		{

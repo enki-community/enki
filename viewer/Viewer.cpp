@@ -246,7 +246,7 @@ namespace Enki
 		// vertical part
 		Point pos = segment.a;
 		
-		glColor3d(world->wallsColor.r(), world->wallsColor.g(), world->wallsColor.b());
+		glColor3d(world->color.r(), world->color.g(), world->color.b());
 		
 		// draw corner
 		glNormal3d(n.x, n.y, 0);
@@ -348,7 +348,7 @@ namespace Enki
 		glNewList(worldList, GL_COMPILE);
 		
 		glNormal3d(0, 0, 1);
-		glColor3d(world->wallsColor.r(), world->wallsColor.g(), world->wallsColor.b());
+		glColor3d(world->color.r(), world->color.g(), world->color.b());
 		
 		glDisable(GL_LIGHTING);
 		
@@ -386,7 +386,7 @@ namespace Enki
 				}
 				
 				glNormal3d(0, 0, 1);
-				glColor3d(world->wallsColor.r(), world->wallsColor.g(), world->wallsColor.b());
+				glColor3d(world->color.r(), world->color.g(), world->color.b());
 				glBegin(GL_QUADS);
 				glTexCoord2f(0.0f, 0.0f);
 				glVertex3d(0, 0, 0);
@@ -423,7 +423,7 @@ namespace Enki
 					
 					glDisable(GL_TEXTURE_2D);
 					glNormal3d(0, 0, 1);
-					glColor3d(world->wallsColor.r(), world->wallsColor.g(), world->wallsColor.b());
+					glColor3d(world->color.r(), world->color.g(), world->color.b());
 					
 					// draw to infinity
 					glBegin(GL_QUADS);
@@ -616,7 +616,7 @@ namespace Enki
 	
 	void ViewerWidget::initializeGL()
 	{
-		glClearColor(world->wallsColor.r(), world->wallsColor.g(), world->wallsColor.b(), 1.0);
+		glClearColor(world->color.r(), world->color.g(), world->color.b(), 1.0);
 		
 		float LightAmbient[] = {0.6, 0.6, 0.6, 1};
 		float LightDiffuse[] = {1.2, 1.2, 1.2, 1};
@@ -651,7 +651,7 @@ namespace Enki
 		{
 			glGenTextures(1, &worldGroundTexture);
 			glBindTexture(GL_TEXTURE_2D, worldGroundTexture);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, world->groundTexture.width, world->groundTexture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &world->groundTexture.data[0]);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, world->groundTexture.width, world->groundTexture.height, 0, GL_BGRA, GL_UNSIGNED_BYTE, &world->groundTexture.data[0]);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		}
