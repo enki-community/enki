@@ -49,14 +49,25 @@ namespace Enki
 	{
 		assert(owner);
 		this->owner = owner;
+		// compute kernel up to a constant factor
 		const double var(spatialSd * spatialSd);
+		double sum(0);
 		for (int i = 0; i < 9; ++i)
 		{
 			for (int j = 0; j < 9; ++j)
 			{
 				const double x(double(i-4) / 4.);
 				const double y(double(j-4) / 4.);
-				filter[i][j] = exp(-(x * x + y * y) / (2 * var)) / (sqrt(2. * M_PI) * spatialSd);
+				filter[i][j] = exp(-(x * x + y * y) / (2. * var));
+				sum += filter[i][j];
+			}
+		}
+		// renormalize function
+		for (int i = 0; i < 9; ++i)
+		{
+			for (int j = 0; j < 9; ++j)
+			{
+				filter[i][j] /= sum; 
 			}
 		}
 	}
