@@ -38,11 +38,12 @@
 #include <enki/robots/e-puck/EPuck.h>
 #include "MarxbotModel.h"
 #include <enki/robots/marxbot/Marxbot.h>
-#ifdef __APPLE__
-	#include <OpenGL/glu.h>
-#else // __APPLE__
-	#include <GL/glu.h>
-#endif // __APPLE__
+#ifdef Q_OS_WIN
+	#ifndef GL_BGRA
+		// Windows only ships with OpenGL 1.1, while GL_BGRA is defined in version 1.2
+		#define GL_BGRA GL_BGRA_EXT
+	#endif // GL_BGRA
+#endif // Q_OS_WIN
 #include <QApplication>
 #include <QtGui>
 
