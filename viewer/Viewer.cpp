@@ -109,8 +109,8 @@ namespace Enki
 		mouseGrabbed(false),
 		yaw(-M_PI/2),
 		pitch((3*M_PI)/8),
-		pos(-world->w * 0.5, -world->h * 0.2),
-		altitude(world->h * 0.5),
+		pos(-world->w * 0.5, -qMax(0., world->r)),
+		altitude(qMax(qMax(world->w, world->h), world->r*2) * 0.85),
 		wallsHeight(10),
 		doDumpFrames(false),
 		dumpFramesCounter(0)
