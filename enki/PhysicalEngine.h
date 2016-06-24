@@ -332,7 +332,9 @@ namespace Enki
 		virtual void controlStep(double dt);
 		//! Apply forces, typically friction to reduce speed, but one can override to change behaviour.
 		virtual void applyForces(double dt);
-
+		
+		//! The object collided with o during the current physical step, if o is null, it collided with walls. Called just before the object is de-interlaced
+		virtual void collisionEvent(PhysicalObject *o) {}
 		
 		//! Initialize the object specific interactions, do nothing for PhysicalObject.
 		virtual void initLocalInteractions(double dt, World* w) { }

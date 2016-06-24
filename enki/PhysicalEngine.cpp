@@ -536,6 +536,9 @@ namespace Enki
 		const double j = num / denom;
 		speed += (n * j) / mass;
 		angSpeed += r_ap.cross(n * j) / momentOfInertia;
+		
+		// call the collision callback
+		collisionEvent(0);
 	}
 
 	void PhysicalObject::collideWithObject(PhysicalObject &that, const Point &cp, const Vector &dist)
@@ -601,6 +604,10 @@ namespace Enki
 		}
 		//else
 		//	std::cerr << "Non physics collideWithObject between " << this << " and " << &that << std::endl;
+		
+		// call the collision callback
+		collisionEvent(&that);
+		that.collisionEvent(this);
 		
 		// FIXME: this is fully non physic
 		// calculate deinterlace vector to put that out of contact - mass ratios ensure physics
