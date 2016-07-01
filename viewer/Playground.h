@@ -34,6 +34,11 @@
 #ifndef __ENKI_PLAYGROUND_H
 #define __ENKI_PLAYGROUND_H
 
+#ifdef USE_SDL
+#include <SDL.h>
+#include <SDL_joystick.h>
+#endif
+
 #include <enki/PhysicalEngine.h>
 #include <enki/robots/e-puck/EPuck.h>
 #include <enki/robots/thymio2/Thymio2.h>
