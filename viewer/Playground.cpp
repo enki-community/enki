@@ -183,8 +183,8 @@ public:
 		#else // USE_SDL
 		addDefaultsRobots(world);
 		#endif // USE_SDL
-		altitude = 150;
-		pos = QPointF(0,60);
+		camera.altitude = 150;
+		camera.pos = QPointF(0,-60);
 	}
 	
 	void addDefaultsRobots(World *world)
@@ -289,7 +289,7 @@ public:
 		{
 			subjectiveView = !subjectiveView;
 			if (subjectiveView)
-				pitch = M_PI/8;
+				camera.pitch = -M_PI/8;
 			event->accept();
 		}
 		else

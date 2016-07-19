@@ -100,6 +100,14 @@ namespace Enki
 		deletedWithObject = false;
 	}
 	
+	ViewerWidget::CameraPose::CameraPose(QPointF pos, double altitude, double yaw, double pitch):
+		pos(pos),
+		altitude(altitude),
+		yaw(yaw),
+		pitch(pitch)
+	{
+		
+	}
 	
 	ViewerWidget::ViewerWidget(World *world, QWidget *parent) :
 		QGLWidget(parent),
@@ -107,10 +115,12 @@ namespace Enki
 		world(world),
 		worldList(0),
 		mouseGrabbed(false),
-		yaw(-M_PI/2),
-		pitch((3*M_PI)/8),
-		pos(-world->w * 0.5, -qMax(0., world->r)),
-		altitude(qMax(qMax(world->w, world->h), world->r*2) * 0.85),
+		camera(CameraPose(
+			QPointF(world->w * 0.5, qMax(0., world->r)),
+			qMax(qMax(world->w, world->h), world->r*2) * 0.85,
+			M_PI/2,
+			-(3*M_PI)/8
+		)),
 		wallsHeight(10),
 		doDumpFrames(false),
 		dumpFramesCounter(0)
@@ -138,6 +148,19 @@ namespace Enki
 			data->cleanup(this);
 			delete data;
 		}
+	}
+	
+	void ViewerWidget::setCamera(QPointF pos, double altitude, double yaw, double pitch)
+	{
+		camera.pos = pos;
+		camera.altitude = altitude;
+		camera.yaw = yaw;
+		camera.pitch = pitch;
+	}
+	
+	void ViewerWidget::setCamera(double x, double y, double altitude, double yaw, double pitch)
+	{
+		setCamera(QPointF(x,y), altitude, yaw, pitch);
 	}
 	
 	void ViewerWidget::restartDumpFrames()
@@ -683,11 +706,11 @@ namespace Enki
 		glLoadIdentity();
 		
 		glRotated(-90, 1, 0, 0);
-		glRotated(rad2deg * pitch, 1, 0, 0);
+		glRotated(rad2deg * -camera.pitch, 1, 0, 0);
 		glRotated(90, 0, 0, 1);
-		glRotated(rad2deg * yaw, 0, 0, 1);
+		glRotated(rad2deg * -camera.yaw, 0, 0, 1);
 		
-		glTranslated(pos.x(), pos.y(), -altitude);
+		glTranslated(-camera.pos.x(), -camera.pos.y(), -camera.altitude);
 		
 		float LightPosition[] = {world->w/2, world->h/2, 60, 1};
 		glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);
@@ -786,20 +809,20 @@ namespace Enki
 			{
 				if (event->modifiers() & Qt::ShiftModifier)
 				{
-					pos.rx() += 0.5 * cos(yaw) * (double)diff.y() + 0.5 * sin(yaw) * (double)diff.x();
-					pos.ry() += 0.5 * sin(yaw) * -(double)diff.y() + 0.5 * cos(yaw) * (double)diff.x();
+					camera.pos.rx() -= 0.5 * cos(-camera.yaw) * (double)diff.y() + 0.5 * sin(-camera.yaw) * (double)diff.x();
+					camera.pos.ry() -= 0.5 * sin(-camera.yaw) * -(double)diff.y() + 0.5 * cos(-camera.yaw) * (double)diff.x();
 				}
 				else
 				{
-					yaw += 0.01 * (double)diff.x();
-					pitch = clamp(pitch + 0.01 * (double)diff.y(), -M_PI / 2, M_PI / 2);
+					camera.yaw -= 0.01 * (double)diff.x();
+					camera.pitch = clamp(camera.pitch - 0.01 * (double)diff.y(), -M_PI / 2, M_PI / 2);
 				}
 			}
 			else if (event->buttons() & Qt::RightButton)
 			{
 				if (event->modifiers() & Qt::ShiftModifier)
 				{
-					altitude += -(double)diff.y();
+					camera.altitude += -(double)diff.y();
 				}
 				else
 				{
@@ -809,30 +832,6 @@ namespace Enki
 			
 			mouseGrabPos = event->pos();
 		}
-		
-		/*if (mouseGrabbed)
-		{
-			QPoint diff = event->pos() - mouseGrabPos;
-			
-			if (event->modifiers() & Qt::ShiftModifier)
-			{
-				if (event->modifiers() & Qt::ControlModifier)
-				{
-					altitude += -(double)diff.y();
-				}
-				else
-				{
-					pos.rx() += 0.5 * cos(yaw) * (double)diff.y() + 0.5 * sin(yaw) * (double)diff.x();
-					pos.ry() += 0.5 * sin(yaw) * -(double)diff.y() + 0.5 * cos(yaw) * (double)diff.x();
-				}
-			}
-			else
-			{
-				yaw += 0.01 * (double)diff.x();
-				pitch = clamp(pitch + 0.01 * (double)diff.y(), -M_PI / 2, M_PI / 2);
-			}
-			mouseGrabPos = event->pos();
-		}*/
 	}
 	
 	void ViewerWidget::wheelEvent(QWheelEvent * event)
