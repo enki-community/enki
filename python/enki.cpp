@@ -1,6 +1,6 @@
 /*
     Enki - a fast 2D robot simulator
-    Copyright (C) 1999-2013 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 1999-2016 Stephane Magnenat <stephane at magnenat dot net>
     Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
     Copyright (c) 2004-2005 Antoine Beyeler <abeyeler at ab-ware dot com>
     Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
@@ -39,6 +39,7 @@
 #include "../enki/Geometry.h"
 #include "../enki/PhysicalEngine.h"
 #include "../enki/robots/e-puck/EPuck.h"
+#include "../enki/robots/thymio2/Thymio2.h"
 #include "../viewer/Viewer.h"
 #include <QApplication>
 #include <QImage>
@@ -281,6 +282,51 @@ struct EPuckWrap: EPuck, wrapper<EPuck>
 	}
 };
 
+struct Thymio2Wrap: Thymio2, wrapper<Thymio2>
+{
+	virtual void controlStep(double dt)
+	{
+		if (override controlStep = this->get_override("controlStep"))
+			controlStep(dt);
+		
+		Thymio2::controlStep(dt);
+	}
+	
+	list getProxSensorValues(void)
+	{
+		list l;
+		l.append(infraredSensor0.getValue());
+		l.append(infraredSensor1.getValue());
+		l.append(infraredSensor2.getValue());
+		l.append(infraredSensor3.getValue());
+		l.append(infraredSensor4.getValue());
+		l.append(infraredSensor5.getValue());
+		l.append(infraredSensor6.getValue());
+		return l;
+	}
+	
+	list getProxSensorDistances(void)
+	{
+		list l;
+		l.append(infraredSensor0.getDist());
+		l.append(infraredSensor1.getDist());
+		l.append(infraredSensor2.getDist());
+		l.append(infraredSensor3.getDist());
+		l.append(infraredSensor4.getDist());
+		l.append(infraredSensor5.getDist());
+		l.append(infraredSensor6.getDist());
+		return l;
+	}
+	
+	list getGroundSensorValues(void)
+	{
+		list l;
+		l.append(groundSensor0.getValue());
+		l.append(groundSensor1.getValue());
+		return l;
+	}
+};
+
 struct PythonViewer: public ViewerWidget
 {
 	PyThreadState *pythonSavedState;
@@ -455,6 +501,13 @@ BOOST_PYTHON_MODULE(pyenki)
 		.def_readonly("proximitySensorValues", &EPuckWrap::getProxSensorValues)
 		.def_readonly("proximitySensorDistances", &EPuckWrap::getProxSensorDistances)
 		.def_readonly("cameraImage", &EPuckWrap::getCameraImage)
+	;
+	
+	class_<Thymio2Wrap, bases<DifferentialWheeled>, boost::noncopyable>("Thymio2")
+		.def("controlStep", &Thymio2Wrap::controlStep)
+		.def_readonly("proximitySensorValues", &Thymio2Wrap::getProxSensorValues)
+		.def_readonly("proximitySensorDistances", &Thymio2Wrap::getProxSensorDistances)
+		.def_readonly("groundSensorValues", &Thymio2Wrap::getGroundSensorValues)
 	;
 	
 	// World

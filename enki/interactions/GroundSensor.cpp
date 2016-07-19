@@ -31,20 +31,67 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#include "Geometry.h"
+#include "GroundSensor.h"
+
+/*!	\file GroundSensor.cpp
+	\brief Implementation of the ground infrared sensor
+*/
 
 namespace Enki
 {
-	std::ostream & operator << (std::ostream & outs, const Vector &vector)
+	using namespace std;
+	
+	GroundSensor::GroundSensor(Robot *owner, Vector pos, double mFactor, double aFactor, double spatialSd, double noiseSd):
+		pos(pos),
+		mFactor(mFactor),
+		aFactor(aFactor),
+		noiseSd(noiseSd)
 	{
-		outs << "(" << vector.x << ", " << vector.y << ")";
-		return outs;
+		assert(owner);
+		this->owner = owner;
+		// compute kernel up to a constant factor
+		const double var(spatialSd * spatialSd);
+		double sum(0);
+		for (int i = 0; i < 9; ++i)
+		{
+			for (int j = 0; j < 9; ++j)
+			{
+				const double x(double(i-4) / 4.);
+				const double y(double(j-4) / 4.);
+				filter[i][j] = exp(-(x * x + y * y) / (2. * var));
+				sum += filter[i][j];
+			}
+		}
+		// renormalize function
+		for (int i = 0; i < 9; ++i)
+		{
+			for (int j = 0; j < 9; ++j)
+			{
+				filter[i][j] /= sum; 
+			}
+		}
 	}
 	
-	std::ostream & operator << (std::ostream & outs, const Polygone &polygone)
+	void GroundSensor::init(double dt, World* w)
 	{
-		for (Polygone::const_iterator it = polygone.begin(); it != polygone.end(); ++it)
-			outs << *it << " ";
-		return outs;
+		// compute absolute position
+		const Matrix22 rot(owner->angle);
+		absPos = owner->pos + rot * pos;
+		
+		// compute sensor value on a gaussian filtered ground
+		double v(0);
+		for (int i = 0; i < 9; ++i)
+		{
+			for (int j = 0; j < 9; ++j)
+			{
+				const double x(double(i-4) / 4.);
+				const double y(double(j-4) / 4.);
+				const double groundIntensity(w->getGroundColor(Point(absPos.x+x, absPos.y+y)).toGray());
+				v += filter[i][j] * groundIntensity;
+			}
+		}
+		
+		// changing value to response space and adding Gaussian noise before returning value
+		finalValue = gaussianRand(v * mFactor + aFactor, noiseSd);
 	}
 }

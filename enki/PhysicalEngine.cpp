@@ -1,6 +1,6 @@
 /*
     Enki - a fast 2D robot simulator
-    Copyright (C) 1999-2013 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 1999-2016 Stephane Magnenat <stephane at magnenat dot net>
     Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
     Copyright (c) 2004-2005 Antoine Beyeler <abeyeler at ab-ware dot com>
     Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
@@ -536,6 +536,9 @@ namespace Enki
 		const double j = num / denom;
 		speed += (n * j) / mass;
 		angSpeed += r_ap.cross(n * j) / momentOfInertia;
+		
+		// call the collision callback
+		collisionEvent(0);
 	}
 
 	void PhysicalObject::collideWithObject(PhysicalObject &that, const Point &cp, const Vector &dist)
@@ -601,6 +604,10 @@ namespace Enki
 		}
 		//else
 		//	std::cerr << "Non physics collideWithObject between " << this << " and " << &that << std::endl;
+		
+		// call the collision callback
+		collisionEvent(&that);
+		that.collisionEvent(this);
 		
 		// FIXME: this is fully non physic
 		// calculate deinterlace vector to put that out of contact - mass ratios ensure physics
@@ -696,23 +703,23 @@ namespace Enki
 		data(data, data+width*height)
 	{}
 
-	World::World(double width, double height, const Color& wallsColor, const GroundTexture& groundTexture) :
+	World::World(double width, double height, const Color& color, const GroundTexture& groundTexture) :
 		wallsType(WALLS_SQUARE),
 		w(width),
 		h(height),
 		r(0),
-		wallsColor(wallsColor),
+		color(color),
 		groundTexture(groundTexture),
 		bluetoothBase(NULL)
 	{
 	}
 	
-	World::World(double r, const Color& wallsColor, const GroundTexture& groundTexture) :
+	World::World(double r, const Color& color, const GroundTexture& groundTexture) :
 		wallsType(WALLS_CIRCULAR),
 		w(0),
 		h(0),
 		r(r),
-		wallsColor(wallsColor),
+		color(color),
 		groundTexture(groundTexture),
 		bluetoothBase(NULL)
 	{
@@ -723,7 +730,7 @@ namespace Enki
 		w(0),
 		h(0),
 		r(0),
-		wallsColor(Color::gray),
+		color(Color::gray),
 		bluetoothBase(NULL)
 	{
 	}
@@ -746,7 +753,7 @@ namespace Enki
 	Color World::getGroundColor(const Point& p) const
 	{
 		if (groundTexture.data.empty() || wallsType == WALLS_NONE)
-			return Color::white;
+			return color;
 		int texX, texY;
 		if (wallsType == WALLS_SQUARE)
 		{
@@ -762,9 +769,9 @@ namespace Enki
 			abort();
 		
 		if (texX < 0 || texX >= groundTexture.width || texY < 0 || texY >= groundTexture.height)
-			return Color::white;
+			return color;
 		uint32_t data = groundTexture.data[texY * groundTexture.width + texX];
-		return Color::fromRGBA(data);
+		return Color::fromARGB(data);
 	}
 	
 	/*

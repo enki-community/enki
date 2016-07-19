@@ -1,6 +1,6 @@
 /*
     Enki - a fast 2D robot simulator
-    Copyright (C) 1999-2013 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 1999-2016 Stephane Magnenat <stephane at magnenat dot net>
     Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
     Copyright (c) 2004-2005 Antoine Beyeler <abeyeler at ab-ware dot com>
     Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
@@ -38,7 +38,12 @@
 #include <enki/robots/e-puck/EPuck.h>
 #include "MarxbotModel.h"
 #include <enki/robots/marxbot/Marxbot.h>
-#include <GL/glu.h>
+#ifdef Q_OS_WIN
+	#ifndef GL_BGRA
+		// Windows only ships with OpenGL 1.1, while GL_BGRA is defined in version 1.2
+		#define GL_BGRA GL_BGRA_EXT
+	#endif // GL_BGRA
+#endif // Q_OS_WIN
 #include <QApplication>
 #include <QtGui>
 
@@ -104,8 +109,8 @@ namespace Enki
 		mouseGrabbed(false),
 		yaw(-M_PI/2),
 		pitch((3*M_PI)/8),
-		pos(-world->w * 0.5, -world->h * 0.2),
-		altitude(world->h * 0.5),
+		pos(-world->w * 0.5, -qMax(0., world->r)),
+		altitude(qMax(qMax(world->w, world->h), world->r*2) * 0.85),
 		wallsHeight(10),
 		doDumpFrames(false),
 		dumpFramesCounter(0)
@@ -267,7 +272,7 @@ namespace Enki
 		// vertical part
 		Point pos = segment.a;
 		
-		glColor3d(world->wallsColor.r(), world->wallsColor.g(), world->wallsColor.b());
+		glColor3d(world->color.r(), world->color.g(), world->color.b());
 		
 		// draw corner
 		glNormal3d(n.x, n.y, 0);
@@ -369,7 +374,7 @@ namespace Enki
 		glNewList(worldList, GL_COMPILE);
 		
 		glNormal3d(0, 0, 1);
-		glColor3d(world->wallsColor.r(), world->wallsColor.g(), world->wallsColor.b());
+		glColor3d(world->color.r(), world->color.g(), world->color.b());
 		
 		glDisable(GL_LIGHTING);
 		
@@ -407,7 +412,7 @@ namespace Enki
 				}
 				
 				glNormal3d(0, 0, 1);
-				glColor3d(world->wallsColor.r(), world->wallsColor.g(), world->wallsColor.b());
+				glColor3d(world->color.r(), world->color.g(), world->color.b());
 				glBegin(GL_QUADS);
 				glTexCoord2f(0.0f, 0.0f);
 				glVertex3d(0, 0, 0);
@@ -444,7 +449,7 @@ namespace Enki
 					
 					glDisable(GL_TEXTURE_2D);
 					glNormal3d(0, 0, 1);
-					glColor3d(world->wallsColor.r(), world->wallsColor.g(), world->wallsColor.b());
+					glColor3d(world->color.r(), world->color.g(), world->color.b());
 					
 					// draw to infinity
 					glBegin(GL_QUADS);
@@ -530,69 +535,69 @@ namespace Enki
 		glEndList();
 	}
 	
+	void ViewerWidget::renderShape(const Polygone& shape, const double height, const Color& color)
+	{
+		const size_t segmentCount = shape.size();
+		
+		// TODO: use object texture if any
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, wallTexture);
+		
+		// sides
+		for (size_t i = 0; i < segmentCount; ++i)
+		{
+			// TODO: ugly, separate function for object and shadow
+			glColor3d(color.components[0], color.components[1], color.components[2]);
+			renderSegment(Segment(shape[i], shape[(i+1) % segmentCount] ), height);
+			glColor3d(1, 1, 1);
+			renderSegmentShadow(Segment(shape[i], shape[(i+1) % segmentCount] ), height);
+			renderInterSegmentShadow(
+				shape[i],
+				shape[(i+1) % segmentCount],
+				shape[(i+2) % segmentCount],
+				height
+			);
+		}
+		
+		glDisable(GL_TEXTURE_2D);
+		
+		// top
+		glColor3d(color.components[0], color.components[1], color.components[2]);
+		glNormal3d(1, 1, 0);
+		glBegin(GL_TRIANGLE_FAN);
+		for (size_t i = 0; i < segmentCount; ++i)
+			glVertex3d(shape[i].x, shape[i].y, height);
+		glEnd();
+	}
+	
 	void ViewerWidget::renderSimpleObject(PhysicalObject *object)
 	{
 		SimpleDisplayList *userData = new SimpleDisplayList;
 		object->userData = userData;
 		glNewList(userData->list, GL_COMPILE);
 		
+		glDisable(GL_LIGHTING);
 		if (!object->getHull().empty())
 		{
-			glDisable(GL_LIGHTING);
 			for (PhysicalObject::Hull::const_iterator it = object->getHull().begin(); it != object->getHull().end(); ++it)
 			{
-				const Polygone& shape = it->getShape();
-				const double height = it->getHeight();
-				const Color& color = object->getColor();
-				size_t segmentCount = shape.size();
-				
-				// TODO: use object texture if any
-				
-				glEnable(GL_TEXTURE_2D);
-				glBindTexture(GL_TEXTURE_2D, wallTexture);
-				
-				// sides
-				for (size_t i = 0; i < segmentCount; ++i)
-				{
-					// TODO: ugly, separate function for object and shadow
-					glColor3d(color.components[0], color.components[1], color.components[2]);
-					renderSegment(Segment(shape[i], shape[(i+1) % segmentCount] ), height);
-					glColor3d(1, 1, 1);
-					renderSegmentShadow(Segment(shape[i], shape[(i+1) % segmentCount] ), height);
-					renderInterSegmentShadow(
-						shape[i],
-						shape[(i+1) % segmentCount],
-						shape[(i+2) % segmentCount],
-						height
-					);
-				}
-				
-				glDisable(GL_TEXTURE_2D);
-				
-				// top
-				glColor3d(color.components[0], color.components[1], color.components[2]);
-				glNormal3d(1, 1, 0);
-				glBegin(GL_TRIANGLE_FAN);
-				for (size_t i = 0; i < segmentCount; ++i)
-					glVertex3d(shape[i].x, shape[i].y, height);
-				glEnd();
+				renderShape(it->getShape(), it->getHeight(), object->getColor());
 			}
-			glEnable(GL_LIGHTING);
 		}
 		else
 		{
-			GLUquadric * quadratic = gluNewQuadric();
-			assert(quadratic);
-			
-			// sides
-			gluCylinder(quadratic, object->getRadius(), object->getRadius(), object->getHeight(), 32, 1);
-			
-			// top
-			glTranslated(0, 0, object->getHeight());
-			gluDisk(quadratic, 0, object->getRadius(), 32, 1);
-			
-			gluDeleteQuadric(quadratic);
+			Polygone shape;
+			const size_t segmentCount(32);
+			shape.reserve(segmentCount);
+			const double radius(object->getRadius());
+			for (size_t i=0; i<segmentCount; ++i)
+			{
+				const double alpha(i*2.*M_PI/double(segmentCount));
+				shape.push_back(Point(cos(alpha) * radius, sin(alpha) * radius));
+			}
+			renderShape(shape, object->getHeight(), object->getColor());
 		}
+		glEnable(GL_LIGHTING);
 		
 		renderObjectHook(object);
 		
@@ -637,7 +642,7 @@ namespace Enki
 	
 	void ViewerWidget::initializeGL()
 	{
-		glClearColor(world->wallsColor.r(), world->wallsColor.g(), world->wallsColor.b(), 1.0);
+		glClearColor(world->color.r(), world->color.g(), world->color.b(), 1.0);
 		
 		float LightAmbient[] = {0.6, 0.6, 0.6, 1};
 		float LightDiffuse[] = {1.2, 1.2, 1.2, 1};
@@ -672,7 +677,7 @@ namespace Enki
 		{
 			glGenTextures(1, &worldGroundTexture);
 			glBindTexture(GL_TEXTURE_2D, worldGroundTexture);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, world->groundTexture.width, world->groundTexture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &world->groundTexture.data[0]);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, world->groundTexture.width, world->groundTexture.height, 0, GL_BGRA, GL_UNSIGNED_BYTE, &world->groundTexture.data[0]);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		}

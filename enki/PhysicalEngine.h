@@ -1,6 +1,6 @@
 /*
     Enki - a fast 2D robot simulator
-    Copyright (C) 1999-2013 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 1999-2016 Stephane Magnenat <stephane at magnenat dot net>
     Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
     Copyright (c) 2004-2005 Antoine Beyeler <abeyeler at ab-ware dot com>
     Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
@@ -332,7 +332,9 @@ namespace Enki
 		virtual void controlStep(double dt);
 		//! Apply forces, typically friction to reduce speed, but one can override to change behaviour.
 		virtual void applyForces(double dt);
-
+		
+		//! The object collided with o during the current physical step, if o is null, it collided with walls. Called just before the object is de-interlaced
+		virtual void collisionEvent(PhysicalObject *o) {}
 		
 		//! Initialize the object specific interactions, do nothing for PhysicalObject.
 		virtual void initLocalInteractions(double dt, World* w) { }
@@ -419,8 +421,8 @@ namespace Enki
 		/* Texture of world walls is disabled now, re-enable a proper support if required
 		//! Texture of walls.
 		Texture wallTextures[4];*/
-		//! The color of the world walls
-		const Color wallsColor;
+		//! The color of the world walls and ground
+		const Color color;
 		
 		//! 2-D Texture for ground
 		struct GroundTexture
@@ -429,7 +431,7 @@ namespace Enki
 			unsigned width;
 			//! the height of the ground texture, if any
 			unsigned height;
-			//! the date of the ground texture, organised as scanlines of pixels in RGBA (0xAABBGGRR in little endian); empty if there is no ground texture
+			//! the date of the ground texture, organised as scanlines of pixels in ARGB (0xAARRGGBB in little endian); empty if there is no ground texture
 			std::vector<uint32_t> data;
 			
 			//! build an empty texture

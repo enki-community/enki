@@ -1,3 +1,15 @@
+libenki (2.0~git.20160624) trusty; urgency=medium
+
+  * Added callback for collision detection
+
+ -- Stéphane Magnenat <stephane@nospam.magnenat.net>  Fri, 24 Jun 2016 22:16:03 +0200
+
+libenki (2.0~git.20160511) trusty; urgency=medium
+
+  * Added preliminary Thymio2 support
+
+ -- Stéphane Magnenat <stephane@nospam.magnenat.net>  Wed, 11 May 2016 11:13:34 +0200
+
 libenki (2.0~git.20140506) trusty; urgency=medium
 
   * Added Python compilation

@@ -16,8 +16,7 @@ binary-arch:
 	rm -rf debian/tmp
 	install -d debian/tmp/DEBIAN
 	install -d debian/tmp/usr/share/doc/libenki
-	strip --strip-unneeded -R .note -R .comment debian/build/enki/libenki.a
-	strip --strip-unneeded -R .note -R .comment debian/build/viewer/libenkiviewer.a
+	strip --strip-unneeded -R .note -R .comment debian/build/*/*.a
 	cp changelog debian/tmp/usr/share/doc/libenki/changelog
 	cp debian/changelog debian/tmp/usr/share/doc/libenki/changelog.debian
 	cp debian/copyright debian/tmp/usr/share/doc/libenki

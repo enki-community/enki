@@ -10,6 +10,7 @@ add_library(enki
 	PhysicalEngine.cpp
 	BluetoothBase.cpp
 	interactions/IRSensor.cpp
+	interactions/GroundSensor.cpp
 	interactions/CircularCam.cpp
 	interactions/Bluetooth.cpp
 	interactions/ActiveSoundSource.cpp
@@ -20,6 +21,7 @@ add_library(enki
 	robots/s-bot/Sbot.cpp
 	robots/s-bot/SbotObject.cpp
 	robots/marxbot/Marxbot.cpp
+	robots/thymio2/Thymio2.cpp
 )
 
 set_target_properties(enki PROPERTIES VERSION ${LIB_VERSION_STRING} 

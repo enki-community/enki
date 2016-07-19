@@ -1,6 +1,6 @@
 /*
     Enki - a fast 2D robot simulator
-    Copyright (C) 1999-2013 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 1999-2016 Stephane Magnenat <stephane at magnenat dot net>
     Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
     Copyright (c) 2004-2005 Antoine Beyeler <abeyeler at ab-ware dot com>
     Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
@@ -39,7 +39,16 @@
 
 namespace Enki
 {
-	Color Color::fromRGBA(uint32_t color)
+	Color Color::fromARGB(uint32_t color)
+	{
+		const unsigned a((color>>24)&0xff);
+		const unsigned r((color>>16)&0xff);
+		const unsigned g((color>>8)&0xff);
+		const unsigned b((color>>0)&0xff);
+		return Color(double(r)/255., double(g)/255., double(b)/255., double(a)/255.);
+	}
+	
+	Color Color::fromABGR(uint32_t color)
 	{
 		const unsigned r((color>>0)&0xff);
 		const unsigned g((color>>8)&0xff);

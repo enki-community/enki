@@ -1,6 +1,6 @@
 /*
     Enki - a fast 2D robot simulator
-    Copyright (C) 1999-2013 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 1999-2016 Stephane Magnenat <stephane at magnenat dot net>
     Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
     Copyright (c) 2004-2005 Antoine Beyeler <abeyeler at ab-ware dot com>
     Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
@@ -139,8 +139,10 @@ namespace Enki
 		//! Set the value of alpha component
 		void setA(double value) { components[3] = value; }
 		
-		//! Build from an RGBA uint32_t (0xAABBGGRR in little endian)
-		static Color fromRGBA(uint32_t color);
+		//! Build from an ARGB uint32_t (0xAARRGGBB in little endian)
+		static Color fromARGB(uint32_t color);
+		//! Build from an ABGR uint32_t (0xAABBGGRR in little endian)
+		static Color fromABGR(uint32_t color);
 		
 		//! black (0, 0, 0)
 		static const Color black;

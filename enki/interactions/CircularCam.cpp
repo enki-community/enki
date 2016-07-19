@@ -1,6 +1,6 @@
 /*
     Enki - a fast 2D robot simulator
-    Copyright (C) 1999-2013 Stephane Magnenat <stephane at magnenat dot net>
+    Copyright (C) 1999-2016 Stephane Magnenat <stephane at magnenat dot net>
     Copyright (C) 2004-2005 Markus Waibel <markus dot waibel at epfl dot ch>
     Copyright (c) 2004-2005 Antoine Beyeler <abeyeler at ab-ware dot com>
     Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
@@ -295,12 +295,12 @@ namespace Enki
 		
 		// fill zbuffer with infinite
 		std::fill( &zbuffer[0], &zbuffer[zbuffer.size()], std::numeric_limits<double>::max() );
-		std::fill( &image[0], &image[image.size()], w->wallsColor);
+		std::fill( &image[0], &image[image.size()], w->color);
 	}
 	
 	void CircularCam::wallsStep(double dt, World* w)
 	{
-		Texture texture(1, w->wallsColor);
+		Texture texture(1, w->color);
 		
 		switch (w->wallsType)
 		{

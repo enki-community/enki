@@ -4,14 +4,14 @@ if (SDL_FOUND)
 	include_directories(${SDL_INCLUDE_DIR})
 	set(EXTRA_LIBS ${SDL_LIBRARY} ${EXTRA_LIBS})
 	add_definitions("-DUSE_SDL")
-	message("SDL found")
+	message(STATUS "SDL found")
 endif (SDL_FOUND)
 
 set(QT_USE_QTOPENGL TRUE)
 find_package(Qt4)
+find_package(OpenGL)
 
-if (QT4_FOUND)
-	find_package(OpenGL REQUIRED)
+if (QT4_FOUND AND OPENGL_FOUND)
 	include(${QT_USE_FILE})
 	add_definitions(${QT_DEFINITIONS})
 	
@@ -44,6 +44,7 @@ if (QT4_FOUND)
 	add_library (enkiviewer ${viewer_lib_SRCS} ${viewer_lib_RCC_SRCS})
 	set_target_properties(enkiviewer PROPERTIES VERSION ${LIB_VERSION_STRING} 
                                         SOVERSION ${LIB_VERSION_MAJOR})
+	target_link_libraries(enkiviewer enki ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${EXTRA_LIBS})
 
 	add_executable(enkiplayground ${viewer_test_SRCS})
 	
@@ -57,4 +58,4 @@ if (QT4_FOUND)
 	)
 	install(TARGETS enkiviewer ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
                                    LIBRARY DESTINATION ${LIB_INSTALL_DIR})
-endif (QT4_FOUND)
+endif (QT4_FOUND AND OPENGL_FOUND)
