@@ -100,10 +100,10 @@ namespace Enki
 		
 		bool mouseGrabbed;
 		QPoint mouseGrabPos;
-		double yaw;
-		double pitch;
-		QPointF pos;
-		double altitude;
+		double yaw; //!< negative yaw, hence protected
+		double pitch; //!< negative pitch, hence protected
+		QPointF pos; //!< negative pos (-x, -y), hence protected
+		double altitude; //!< positive altitude, inconsistent with pos, hence protected
 		double wallsHeight;
 		
 		bool doDumpFrames;
