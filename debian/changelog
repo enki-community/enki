@@ -1,3 +1,9 @@
+libenki (2.0~git.20160719) trusty; urgency=medium
+
+  * Restructured camera pose API in viewer
+
+ -- Stéphane Magnenat <stephane@nospam.magnenat.net>  Tue, 19 Jul 2016 10:47:49 +0200
+
 libenki (2.0~git.20160624) trusty; urgency=medium
 
   * Added callback for collision detection
