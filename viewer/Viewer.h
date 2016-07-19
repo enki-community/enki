@@ -82,7 +82,20 @@ namespace Enki
 		public:
 			CustomRobotModel();
 		};
-	
+		
+		// Camera pose
+		struct CameraPose
+		{
+			QPointF pos; //!< (x,y) position of the camera
+			double altitude; //!< altitude (z) of the camera
+			double yaw; //!< yaw angle, mathematical orientation
+			double pitch; //!< pitch angle, negative looking down, positive looking up
+			
+			CameraPose(QPointF pos, double altitude, double yaw, double pitch);
+		};
+		
+		CameraPose camera; //!< current camera pose
+		
 	protected:
 		World *world;
 		
@@ -100,10 +113,6 @@ namespace Enki
 		
 		bool mouseGrabbed;
 		QPoint mouseGrabPos;
-		double yaw;
-		double pitch;
-		QPointF pos;
-		double altitude;
 		double wallsHeight;
 		
 		bool doDumpFrames;
@@ -112,13 +121,10 @@ namespace Enki
 	public:
 		ViewerWidget(World *world, QWidget *parent = 0);
 		~ViewerWidget();
-
-		void setCamera (QPointF pos, double altitude, double yaw, double pitch);
-		void setCameraPosition (double x, double y, double altitude);
-		void setCameraYaw (double yaw);
-		void setCameraPitch (double pitch);
 	
 	public slots:
+		void setCamera(QPointF pos, double altitude, double yaw, double pitch);
+		void setCamera(double x, double y, double altitude, double yaw, double pitch);
 		void restartDumpFrames();
 		void setDumpFrames(bool doDump);
 		

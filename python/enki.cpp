@@ -335,11 +335,11 @@ struct PythonViewer: public ViewerWidget
 		ViewerWidget(&world),
 		pythonSavedState(0)
 	{
-		pos.setX(-camPos.x);
-		pos.setY(-camPos.y);
-		altitude = camAltitude;
-		yaw = -camYaw;
-		pitch = -camPitch;
+		camera.pos.setX(camPos.x);
+		camera.pos.setY(camPos.y);
+		camera.altitude = camAltitude;
+		camera.yaw = camYaw;
+		camera.pitch = camPitch;
 		wallsHeight = _wallsHeight;
 		
 		managedObjectsAliases[&typeid(EPuckWrap)] = &typeid(EPuck);
