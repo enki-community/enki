@@ -125,9 +125,13 @@ namespace Enki
 		ViewerWidget(World *world, QWidget *parent = 0);
 		~ViewerWidget();
 
+		void addManagedObjectsAlias(const std::type_info* key, const std::type_info* value);
+
+		World* getWorld();
 		QVector3D getPointedPoint();
 		PhysicalObject* getPointedObject();
 		PhysicalObject* getSelectedObject();
+
 		void timerEvent(double elapsedTime);
 	
 	public slots:

@@ -151,6 +151,16 @@ namespace Enki
 		}
 	}
 
+	void ViewerWidget::addManagedObjectsAlias(const std::type_info* key, const std::type_info* value)
+	{
+		managedObjectsAliases[key] = value;
+	}
+
+	World* ViewerWidget::getWorld()
+	{
+		return world;
+	}
+
 	QVector3D ViewerWidget::getPointedPoint()
 	{
 		return pointedPoint;
