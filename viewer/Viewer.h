@@ -61,8 +61,6 @@ namespace Enki
 		Q_OBJECT
 	
 	public:
-		const int timerPeriodMs;
-		
 		class ViewerUserData : public PhysicalObject::UserData
 		{
 		public:
@@ -145,7 +143,6 @@ namespace Enki
 		void paintGL();
 		void resizeGL(int width, int height);
 		
-		void timerEvent(QTimerEvent * event);
 		void mousePressEvent(QMouseEvent *event);
 		void mouseReleaseEvent(QMouseEvent * event);
 		void mouseMoveEvent(QMouseEvent *event);
