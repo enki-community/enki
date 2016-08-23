@@ -100,54 +100,54 @@ namespace Enki
 		{
 			switch(i)
 			{
-				case TOP_LEFT:     ledColor[i] = pack(255,255,0,255); 
+				case TOP_LEFT:     ledColor[i] = pack(255,255,0,0); 
 						   ledCenter[i].push_back(vec2i(350,638)); ledSize[i].push_back(vec2i(250,200));
 						   ledCenter[i].push_back(vec2i(175,598)); ledSize[i].push_back(vec2i(100,120));
 						   ledCenter[i].push_back(vec2i(600,670)); ledSize[i].push_back(vec2i(240,120));
 						   ledCenter[i].push_back(vec2i(814,279)); ledSize[i].push_back(vec2i(100,240));
 						   break;
-				case TOP_RIGHT:    ledColor[i] = pack(255,255,0,255);
+				case TOP_RIGHT:    ledColor[i] = pack(255,255,0,0);
 						   ledCenter[i].push_back(vec2i(350,920)); ledSize[i].push_back(vec2i(250,200));
 						   ledCenter[i].push_back(vec2i(175,960)); ledSize[i].push_back(vec2i(100,120));
 						   ledCenter[i].push_back(vec2i(852,670)); ledSize[i].push_back(vec2i(240,120));
 						   ledCenter[i].push_back(vec2i(600,856)); ledSize[i].push_back(vec2i(240,100));
 						   break;
-				case BOTTOM_LEFT:  ledColor[i] = pack(255,128,0,255);
+				case BOTTOM_LEFT:  ledColor[i] = pack(255,128,0,0);
 						   ledCenter[i].push_back(vec2i(740,476)); ledSize[i].push_back(vec2i(116,116));
 						   ledCenter[i].push_back(vec2i(622,418)); ledSize[i].push_back(vec2i(116,235));
 						   break;
-				case BOTTOM_RIGHT: ledColor[i] = pack(0,128,255,255);
+				case BOTTOM_RIGHT: ledColor[i] = pack(0,128,255,0);
 						   ledCenter[i].push_back(vec2i(788,790)); ledSize[i].push_back(vec2i(116,116));
 						   ledCenter[i].push_back(vec2i(622,160)); ledSize[i].push_back(vec2i(116,235));
 						   break;
 
-				case BUTTON_UP:    ledColor[i] = pack(255,000,000,255); ledCenter[i].push_back(vec2i( 80,780)); ledSize[i].push_back(vec2i(20,40)); break;
-				case BUTTON_DOWN:  ledColor[i] = pack(255,000,000,255); ledCenter[i].push_back(vec2i(140,780)); ledSize[i].push_back(vec2i(20,40)); break;
-				case BUTTON_LEFT:  ledColor[i] = pack(255,000,000,255); ledCenter[i].push_back(vec2i(110,810)); ledSize[i].push_back(vec2i(40,20)); break;
-				case BUTTON_RIGHT: ledColor[i] = pack(255,000,000,255); ledCenter[i].push_back(vec2i(110,750)); ledSize[i].push_back(vec2i(40,20)); break;
+				case BUTTON_UP:    ledColor[i] = pack(255,000,000,0); ledCenter[i].push_back(vec2i( 80,780)); ledSize[i].push_back(vec2i(20,40)); break;
+				case BUTTON_DOWN:  ledColor[i] = pack(255,000,000,0); ledCenter[i].push_back(vec2i(140,780)); ledSize[i].push_back(vec2i(20,40)); break;
+				case BUTTON_LEFT:  ledColor[i] = pack(255,000,000,0); ledCenter[i].push_back(vec2i(110,810)); ledSize[i].push_back(vec2i(40,20)); break;
+				case BUTTON_RIGHT: ledColor[i] = pack(255,000,000,0); ledCenter[i].push_back(vec2i(110,750)); ledSize[i].push_back(vec2i(40,20)); break;
 
-				case RING_0:       ledColor[i] = pack(255,128,000,255); ledCenter[i].push_back(vec2i( 20,780)); ledSize[i].push_back(vec2i(40,70)); break;
-				case RING_1:       ledColor[i] = pack(255,128,000,255); ledCenter[i].push_back(vec2i( 37,707)); ledSize[i].push_back(vec2i(74,74)); break;
-				case RING_2:       ledColor[i] = pack(255,128,000,255); ledCenter[i].push_back(vec2i(110,690)); ledSize[i].push_back(vec2i(70,40)); break;
-				case RING_3:       ledColor[i] = pack(255,128,000,255); ledCenter[i].push_back(vec2i(183,707)); ledSize[i].push_back(vec2i(74,74)); break;
-				case RING_4:       ledColor[i] = pack(255,128,000,255); ledCenter[i].push_back(vec2i(200,780)); ledSize[i].push_back(vec2i(40,70)); break;
-				case RING_5:       ledColor[i] = pack(255,128,000,255); ledCenter[i].push_back(vec2i(183,853)); ledSize[i].push_back(vec2i(74,74)); break;
-				case RING_6:       ledColor[i] = pack(255,128,000,255); ledCenter[i].push_back(vec2i(110,870)); ledSize[i].push_back(vec2i(70,40)); break;
-				case RING_7:       ledColor[i] = pack(255,128,000,255); ledCenter[i].push_back(vec2i( 37,853)); ledSize[i].push_back(vec2i(74,74)); break;
+				case RING_0:       ledColor[i] = pack(255,128,000,0); ledCenter[i].push_back(vec2i( 20,780)); ledSize[i].push_back(vec2i(40,70)); break;
+				case RING_1:       ledColor[i] = pack(255,128,000,0); ledCenter[i].push_back(vec2i( 37,707)); ledSize[i].push_back(vec2i(74,74)); break;
+				case RING_2:       ledColor[i] = pack(255,128,000,0); ledCenter[i].push_back(vec2i(110,690)); ledSize[i].push_back(vec2i(70,40)); break;
+				case RING_3:       ledColor[i] = pack(255,128,000,0); ledCenter[i].push_back(vec2i(183,707)); ledSize[i].push_back(vec2i(74,74)); break;
+				case RING_4:       ledColor[i] = pack(255,128,000,0); ledCenter[i].push_back(vec2i(200,780)); ledSize[i].push_back(vec2i(40,70)); break;
+				case RING_5:       ledColor[i] = pack(255,128,000,0); ledCenter[i].push_back(vec2i(183,853)); ledSize[i].push_back(vec2i(74,74)); break;
+				case RING_6:       ledColor[i] = pack(255,128,000,0); ledCenter[i].push_back(vec2i(110,870)); ledSize[i].push_back(vec2i(70,40)); break;
+				case RING_7:       ledColor[i] = pack(255,128,000,0); ledCenter[i].push_back(vec2i( 37,853)); ledSize[i].push_back(vec2i(74,74)); break;
 
-				case IR_FRONT_0:   ledColor[i] = pack(255,000,000,255); ledCenter[i].push_back(vec2i(565, 90)); ledSize[i].push_back(vec2i(20,20)); break;
-				case IR_FRONT_1:   ledColor[i] = pack(255,000,000,255); ledCenter[i].push_back(vec2i(565,163)); ledSize[i].push_back(vec2i(20,20)); break;
-				case IR_FRONT_2:   ledColor[i] = pack(255,000,000,255); ledCenter[i].push_back(vec2i(565,250)); ledSize[i].push_back(vec2i(20,20)); break;
-				case IR_FRONT_3:   ledColor[i] = pack(255,000,000,255); ledCenter[i].push_back(vec2i(565,328)); ledSize[i].push_back(vec2i(20,20)); break;
-				case IR_FRONT_4:   ledColor[i] = pack(255,000,000,255); ledCenter[i].push_back(vec2i(565,416)); ledSize[i].push_back(vec2i(20,20)); break;
-				case IR_FRONT_5:   ledColor[i] = pack(255,000,000,255); ledCenter[i].push_back(vec2i(565,486)); ledSize[i].push_back(vec2i(20,20)); break;
-				case IR_BACK_0:    ledColor[i] = pack(255,000,000,255); ledCenter[i].push_back(vec2i(888,670)); ledSize[i].push_back(vec2i(20,20)); break;
-				case IR_BACK_1:    ledColor[i] = pack(255,000,000,255); ledCenter[i].push_back(vec2i(568,670)); ledSize[i].push_back(vec2i(20,20)); break;
+				case IR_FRONT_0:   ledColor[i] = pack(255,000,000,0); ledCenter[i].push_back(vec2i(565, 90)); ledSize[i].push_back(vec2i(20,20)); break;
+				case IR_FRONT_1:   ledColor[i] = pack(255,000,000,0); ledCenter[i].push_back(vec2i(565,163)); ledSize[i].push_back(vec2i(20,20)); break;
+				case IR_FRONT_2:   ledColor[i] = pack(255,000,000,0); ledCenter[i].push_back(vec2i(565,250)); ledSize[i].push_back(vec2i(20,20)); break;
+				case IR_FRONT_3:   ledColor[i] = pack(255,000,000,0); ledCenter[i].push_back(vec2i(565,328)); ledSize[i].push_back(vec2i(20,20)); break;
+				case IR_FRONT_4:   ledColor[i] = pack(255,000,000,0); ledCenter[i].push_back(vec2i(565,416)); ledSize[i].push_back(vec2i(20,20)); break;
+				case IR_FRONT_5:   ledColor[i] = pack(255,000,000,0); ledCenter[i].push_back(vec2i(565,486)); ledSize[i].push_back(vec2i(20,20)); break;
+				case IR_BACK_0:    ledColor[i] = pack(255,000,000,0); ledCenter[i].push_back(vec2i(888,670)); ledSize[i].push_back(vec2i(20,20)); break;
+				case IR_BACK_1:    ledColor[i] = pack(255,000,000,0); ledCenter[i].push_back(vec2i(568,670)); ledSize[i].push_back(vec2i(20,20)); break;
 
-				case LEFT_BLUE:    ledColor[i] = pack(000,000,255,255); ledCenter[i].push_back(vec2i(796,414)); ledSize[i].push_back(vec2i(40,40)); break;
-				case LEFT_RED:     ledColor[i] = pack(255,000,000,255); ledCenter[i].push_back(vec2i(796,484)); ledSize[i].push_back(vec2i(40,40)); break;
-				case RIGHT_BLUE:   ledColor[i] = pack(000,000,255,255); ledCenter[i].push_back(vec2i(724,844)); ledSize[i].push_back(vec2i(40,40)); break;
-				case RIGHT_RED:    ledColor[i] = pack(255,000,000,255); ledCenter[i].push_back(vec2i(790,844)); ledSize[i].push_back(vec2i(40,40)); break;
+				case LEFT_BLUE:    ledColor[i] = pack(000,000,255,0); ledCenter[i].push_back(vec2i(796,414)); ledSize[i].push_back(vec2i(40,40)); break;
+				case LEFT_RED:     ledColor[i] = pack(255,000,000,0); ledCenter[i].push_back(vec2i(796,484)); ledSize[i].push_back(vec2i(40,40)); break;
+				case RIGHT_BLUE:   ledColor[i] = pack(000,000,255,0); ledCenter[i].push_back(vec2i(724,844)); ledSize[i].push_back(vec2i(40,40)); break;
+				case RIGHT_RED:    ledColor[i] = pack(255,000,000,0); ledCenter[i].push_back(vec2i(790,844)); ledSize[i].push_back(vec2i(40,40)); break;
 				default: break;
 			}
 

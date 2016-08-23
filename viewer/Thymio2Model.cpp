@@ -49,6 +49,11 @@ namespace Enki
 	{
 		viewer = v;
 
+		textures.resize(1);
+		textures[1] = v->bindTexture(QPixmap(QString(":/textures/thymio-bottomLed-diffusionMap.png")), GL_TEXTURE_2D);
+		bodyTexture = QImage(QString(":/textures/thymio-body-texture.png"));
+		bodyDiffusionMap = QImage(QString(":/textures/thymio-body-diffusionMap.png"));
+
 		lists.resize(2);
 		lists[0] = GenThymio2Body();
 		lists[1] = GenThymio2Wheel();
@@ -65,7 +70,7 @@ namespace Enki
 	void Thymio2Model::draw(PhysicalObject* object) const
 	{
 		Thymio2* thymio = polymorphic_downcast<Thymio2*>(object);
-		if(thymio->updateLedTexture(0,0))
+		if(thymio->updateLedTexture((uint32_t*)bodyTexture.bits(), (uint32_t*)bodyDiffusionMap.bits() ))
 		{
 			viewer->deleteTexture(thymio->textureID);
 			thymio->textureID = viewer->bindTexture(QImage((uint8_t*)(thymio->ledTexture),Thymio2::textureDimension,Thymio2::textureDimension,QImage::Format_ARGB32), GL_TEXTURE_2D);
@@ -81,6 +86,53 @@ namespace Enki
 		glPushMatrix();
 		glTranslatef(0.3,0,0);
 		glCallList(lists[0]);
+
+		// bottom lighting
+		glBindTexture(GL_TEXTURE_2D, textures[1]);
+		if(thymio->getColorInt(Thymio2::BOTTOM_LEFT) & 0xFF000000)
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glDepthMask( GL_FALSE );
+			glEnable(GL_POLYGON_OFFSET_FILL);
+
+			Color color = thymio->getColor(Thymio2::BOTTOM_LEFT);
+			glColor4d(color.r(),color.g(),color.b(),color.a());
+
+			glBegin (GL_QUADS);
+				glNormal3f (0,0,1);
+				glTexCoord2f(0.99f,0.01f); glVertex3f(0,-8,0);
+				glTexCoord2f(0.99f,0.99f); glVertex3f(8,-8,0);
+				glTexCoord2f(0.01f,0.99f); glVertex3f(8, 0,0);
+				glTexCoord2f(0.01f,0.01f); glVertex3f(0, 0,0);
+			glEnd();
+
+			glDisable(GL_POLYGON_OFFSET_FILL);
+			glDepthMask( GL_TRUE );
+			glDisable(GL_BLEND);
+		}
+		if(thymio->getColorInt(Thymio2::BOTTOM_RIGHT) & 0xFF000000)
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glDepthMask( GL_FALSE );
+			glEnable(GL_POLYGON_OFFSET_FILL);
+
+			Color color = thymio->getColor(Thymio2::BOTTOM_RIGHT);
+			glColor4d(color.r(),color.g(),color.b(),color.a());
+
+			glBegin (GL_QUADS);
+				glNormal3f (0,0,1);
+				glTexCoord2f(0.01f,0.01f); glVertex3f(0, 0,0);
+				glTexCoord2f(0.01f,0.99f); glVertex3f(8, 0,0);
+				glTexCoord2f(0.99f,0.99f); glVertex3f(8, 8,0);
+				glTexCoord2f(0.99f,0.01f); glVertex3f(0, 8,0);
+			glEnd();
+
+			glDisable(GL_POLYGON_OFFSET_FILL);
+			glDepthMask( GL_TRUE );
+			glDisable(GL_BLEND);
+		}
 		glPopMatrix();
 
 		// wheels

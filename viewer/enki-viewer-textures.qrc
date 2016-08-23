@@ -5,5 +5,8 @@
 	<file>textures/world.png</file>
 	<file>textures/wall.png</file>
 	<file>textures/marxbot.png</file>
+	<file>textures/thymio-body-texture.png</file>
+	<file>textures/thymio-body-diffusionMap.png</file>
+	<file>textures/thymio-bottomLed-diffusionMap.png</file>
 </qresource>
 </RCC>

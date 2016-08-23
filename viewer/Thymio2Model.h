@@ -46,6 +46,8 @@ namespace Enki
 		virtual void cleanup(ViewerWidget* viewer);
 		virtual void draw(PhysicalObject* object) const;
 
+		QImage bodyDiffusionMap,bodyTexture;
+
 	protected:
 		ViewerWidget* viewer;
 	};
