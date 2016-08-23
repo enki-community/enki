@@ -65,14 +65,19 @@ namespace Enki
 	void Thymio2Model::draw(PhysicalObject* object) const
 	{
 		Thymio2* thymio = polymorphic_downcast<Thymio2*>(object);
-		
+		if(thymio->updateLedTexture(0,0))
+		{
+			viewer->deleteTexture(thymio->textureID);
+			thymio->textureID = viewer->bindTexture(QImage((uint8_t*)(thymio->ledTexture),Thymio2::textureDimension,Thymio2::textureDimension,QImage::Format_ARGB32), GL_TEXTURE_2D);
+		}
+
 		const double wheelRadius = 2.1;
 		const double wheelCirc = 2 * M_PI * wheelRadius;
 
 		// body
 		glColor3d(object->getColor().components[0], object->getColor().components[1], object->getColor().components[2]);
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		glBindTexture(GL_TEXTURE_2D, thymio->textureID);
 		glPushMatrix();
 		glTranslatef(0.3,0,0);
 		glCallList(lists[0]);

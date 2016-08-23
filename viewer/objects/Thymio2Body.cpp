@@ -490,8 +490,7 @@ namespace Enki
 					unsigned int ni = face_indicies[i][3*j+2] - 1;
 
 					glNormal3f (normals[ni][0],normals[ni][1],normals[ni][2]);
-					glMultiTexCoord2f(GL_TEXTURE0,textures[ti][0],textures[ti][1]);
-					glMultiTexCoord2f(GL_TEXTURE1,textures[ti][0],textures[ti][1]);
+					glTexCoord2f(textures[ti][0],textures[ti][1]);
 					glVertex3f(vertices[vi][0],vertices[vi][1],vertices[vi][2]);
 				}
 			}
