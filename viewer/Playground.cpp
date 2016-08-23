@@ -166,9 +166,39 @@ EnkiPlayground::EnkiPlayground(World *world, QWidget *parent) : timerPeriodMs(30
 		viewer->camera.altitude = 10;
 		viewer->camera.yaw = 0;
 		viewer->camera.pitch = 0;
-	setCentralWidget(viewer);
+	frameCounter = new QLabel(QString("frame: "));
+		frameCounter->setFixedSize(100,30);
+		frameCounter->setStyleSheet("background-color:rgb(150,150,150);");
+	pointedPosition = new QLabel("cursor: 0 ; 0");
+		pointedPosition->setFixedSize(220,30);
+		pointedPosition->setStyleSheet("background-color:rgb(150,150,150);");
+	resetButton = new QPushButton("reset");
+		resetButton->setFixedSize(100,30);
+		connect(resetButton,SIGNAL(clicked(bool)),this,SLOT(resetCallback(bool)));
+		resetButton->setStyleSheet("background-color:rgb(150,150,150);");
+	centralWidget = new QWidget();
+		centralWidget->setStyleSheet("background-color:rgb(0,0,0);");
+	toolbar = new QHBoxLayout();
+		toolbar->setContentsMargins(0,0,0,0);
+	mainwidget = new QWidget(this);
+		setCentralWidget(mainwidget);
+
+	QVBoxLayout* layout1 = new QVBoxLayout();
+	mainwidget->setLayout(layout1);
+	QWidget* widget2 = new QWidget();
+		widget2->setFixedHeight(40);
+		widget2->setStyleSheet("background-color:rgb(250,150,150);");
+
+	widget2->setLayout(toolbar);
+	layout1->addWidget(widget2);
+	toolbar->addWidget(resetButton);
+	toolbar->addWidget(frameCounter);
+	toolbar->addWidget(pointedPosition);
+	toolbar->addWidget(new QWidget());
+	layout1->addWidget(viewer);
 
 	startTimer(timerPeriodMs);
+	time.start();
 }
 
 EnkiPlayground::~EnkiPlayground()
@@ -259,6 +289,10 @@ void EnkiPlayground::timerEvent(QTimerEvent * event)
 
 	// update widgets
 	viewer->timerEvent(timerPeriodMs/1000.);
+	frameCounter->setText(QString("frame: ") + QString::number(time.elapsed()));
+	QVector3D p = viewer->getPointedPoint();
+	pointedPosition->setText("cursor: (" + QString::number(p.x(),'f',2) + " , " + QString::number(p.y(),'f',2) + " , " + QString::number(p.z(),'f',2) + " )" );
+	time.restart();
 }
 
 void EnkiPlayground::keyPressEvent(QKeyEvent* event)
@@ -273,6 +307,7 @@ void EnkiPlayground::keyPressEvent(QKeyEvent* event)
 void EnkiPlayground::resizeEvent(QResizeEvent* event)
 {
 	QMainWindow::resizeEvent(event);
+	mainwidget->resize(event->size());
 }
 
 void EnkiPlayground::resetCallback(bool clicked)

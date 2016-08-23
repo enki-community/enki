@@ -68,9 +68,10 @@ protected:
 	Thymio2* thymio;
 
 	ViewerWidget* viewer;
-
-
-
+	QHBoxLayout* toolbar;
+	QLabel *frameCounter, *pointedPosition;
+	QWidget* centralWidget, *mainwidget;
+	QPushButton* resetButton;
 
 public:
 	EnkiPlayground(World* world, QWidget *parent = 0);
