@@ -367,6 +367,15 @@ namespace Enki
 		void collideWithObject(PhysicalObject &that, const Point &cp, const Vector &dist);
 	};
 
+	struct PhysicalObjectSave
+	{
+		Point pos;
+		double angle;
+
+		PhysicalObjectSave() : pos(0,0), angle(0) {};
+		PhysicalObjectSave(const Point& p,const double& a) : pos(p), angle(a) {};
+	};
+
 	//! A robot is a PhysicalObject that has additional interactions and a controller.
 	/*! \ingroup core */
 	class Robot: public PhysicalObject

@@ -710,6 +710,7 @@ namespace Enki
 		}
 		worldList = glGenLists(1);
 		renderWorld();
+		saveWorld();
 		
 		// render all static types
 		managedObjects[&typeid(EPuck)] = new EPuckModel(this);
@@ -894,6 +895,32 @@ namespace Enki
 	{
 		world->step(elapsedTime, 3);
 		updateGL();
+	}
+
+	void ViewerWidget::resetScene()
+	{
+		for (World::ObjectsIterator it = world->objects.begin(); it != world->objects.end(); ++it)
+		{
+			std::map<PhysicalObject*,PhysicalObjectSave>::iterator obj = initialStateWorld.find(*it);
+			if(obj != initialStateWorld.end())
+			{
+				(*it)->pos = obj->second.pos;
+				(*it)->angle = obj->second.angle;
+				(*it)->speed = Vector(0,0);
+				(*it)->angSpeed = 0;
+
+				Thymio2* thymio = polymorphic_downcast<Thymio2*>(*it);
+				if (thymio)
+					thymio->resetEncoders();
+			}
+		}
+	}
+
+	void ViewerWidget::saveWorld()
+	{
+		initialStateWorld.clear();
+		for (World::ObjectsIterator it = world->objects.begin(); it != world->objects.end(); ++it)
+			initialStateWorld[(*it)] = PhysicalObjectSave((*it)->pos,(*it)->angle);
 	}
 	
 	void ViewerWidget::mousePressEvent(QMouseEvent *event)

@@ -312,7 +312,7 @@ void EnkiPlayground::resizeEvent(QResizeEvent* event)
 
 void EnkiPlayground::resetCallback(bool clicked)
 {
-	//viewer->resetScene();
+	viewer->resetScene();
 }
 
 

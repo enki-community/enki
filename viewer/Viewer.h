@@ -98,6 +98,7 @@ namespace Enki
 		
 	protected:
 		World *world;
+		std::map<PhysicalObject*,PhysicalObjectSave> initialStateWorld;
 		
 		GLuint worldList;
 		GLuint worldTexture;
@@ -139,6 +140,8 @@ namespace Enki
 		void setCamera(double x, double y, double altitude, double yaw, double pitch);
 		void restartDumpFrames();
 		void setDumpFrames(bool doDump);
+		virtual void resetScene();
+		virtual void saveWorld();
 		
 	protected:
 		void renderInterSegmentShadow(const Vector& a, const Vector& b, const Vector& c, double height);
