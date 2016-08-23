@@ -55,7 +55,7 @@ EnkiPlayground::EnkiPlayground(World *world, QWidget *parent) : timerPeriodMs(30
 		for (double a = 0; a < 2*M_PI; a += 2*M_PI/amount)
 			p.push_back(Point(radius * cos(a), radius * sin(a)));
 		
-		PhysicalObject* o = new PhysicalObject();
+		PhysicalObject* o = new PhysicalObject(true);
 		PhysicalObject::Hull hull(Enki::PhysicalObject::Part(p, height));
 		o->setCustomHull(hull, -1);
 		o->setColor(Color(0.4,0.6,0.8));
@@ -65,7 +65,7 @@ EnkiPlayground::EnkiPlayground(World *world, QWidget *parent) : timerPeriodMs(30
 	
 	for (int i = 0; i < 20; i++)
 	{
-		PhysicalObject* o = new PhysicalObject();
+		PhysicalObject* o = new PhysicalObject(true);
 		o->pos = Point(UniformRand(20, 100)(), UniformRand(20, 100)());
 		o->setCylindric(1, 1, 10);
 		o->setColor(Color(0.9, 0.2, 0.2));
@@ -80,7 +80,7 @@ EnkiPlayground::EnkiPlayground(World *world, QWidget *parent) : timerPeriodMs(30
 	p2.push_back(Point(5,-1));
 	for (int i = 0; i < 5; i++)
 	{
-		PhysicalObject* o = new PhysicalObject();
+		PhysicalObject* o = new PhysicalObject(true);
 		PhysicalObject::Hull hull(Enki::PhysicalObject::Part(p2, 3));
 		o->setCustomHull(hull, 30);
 		o->setColor(Color(0.2, 0.1, 0.6));
@@ -91,7 +91,7 @@ EnkiPlayground::EnkiPlayground(World *world, QWidget *parent) : timerPeriodMs(30
 	
 	// cross shape
 	{
-		PhysicalObject* o = new PhysicalObject();
+		PhysicalObject* o = new PhysicalObject(true);
 		PhysicalObject::Hull hull;
 		hull.push_back(Enki::PhysicalObject::Part(Polygone() << Point(5,1) << Point(-5,1) << Point(-5,-1) << Point(5,-1), 2));
 		hull.push_back(Enki::PhysicalObject::Part(Polygone() << Point(1,5) << Point(-1,5) << Point(-1,-5) << Point(1,-5), 4));
@@ -106,7 +106,7 @@ EnkiPlayground::EnkiPlayground(World *world, QWidget *parent) : timerPeriodMs(30
 	#ifdef PROBLEM_BALL_LINE
 	for (double d = 40; d < 60; d += 8)
 	{
-		PhysicalObject* o = new PhysicalObject();
+		PhysicalObject* o = new PhysicalObject(true);
 		o->pos = Point(d, 20);
 		o->setCylindric(4, 2, 10);
 		o->setColor(Color(0.2, 0.2, 0.6));
@@ -160,6 +160,13 @@ EnkiPlayground::EnkiPlayground(World *world, QWidget *parent) : timerPeriodMs(30
 	#else // USE_SDL
 	addDefaultsRobots(world);
 	#endif // USE_SDL
+
+	viewer = new ViewerWidget(world);
+		viewer->camera.pos = QPointF(0,0);
+		viewer->camera.altitude = 10;
+		viewer->camera.yaw = 0;
+		viewer->camera.pitch = 0;
+	setCentralWidget(viewer);
 
 	startTimer(timerPeriodMs);
 }
@@ -249,6 +256,9 @@ void EnkiPlayground::timerEvent(QTimerEvent * event)
 			delete o;
 		}
 	}
+
+	// update widgets
+	viewer->timerEvent(timerPeriodMs/1000.);
 }
 
 void EnkiPlayground::keyPressEvent(QKeyEvent* event)

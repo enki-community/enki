@@ -42,6 +42,8 @@
 #include <QtGui>
 #include <QGLWidget>
 
+#include "Viewer.h"
+
 using namespace Enki;
 using namespace std;
 
@@ -64,6 +66,11 @@ protected:
 
 	QTime time;
 	Thymio2* thymio;
+
+	ViewerWidget* viewer;
+
+
+
 
 public:
 	EnkiPlayground(World* world, QWidget *parent = 0);

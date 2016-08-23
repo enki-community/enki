@@ -176,6 +176,8 @@ namespace Enki
 		Point pos;
 		//! The orientation of the object in the world, standard trigonometric orientation.
 		double angle;
+		//! if the object can be mouved by picking feature
+		bool mouvableByPicking;
 		
 		// space coordinates derivatives
 		
@@ -287,7 +289,7 @@ namespace Enki
 	public:			// methods
 		
 		//! Constructor
-		PhysicalObject();
+		PhysicalObject(bool mouvable = false);
 		//! Destructor
 		virtual ~PhysicalObject();
 		
@@ -376,6 +378,9 @@ namespace Enki
 		std::vector<GlobalInteraction *> globalInteractions;
 		
 	public:
+		//! Constructor
+		Robot() : PhysicalObject(true) {};
+
 		//! Add a new local interaction, re-sort interaction vector from long ranged to short ranged.
 		void addLocalInteraction(LocalInteraction *li);
 		//! Add a global interaction, just add it at the end of the vector.

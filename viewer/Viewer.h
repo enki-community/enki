@@ -39,6 +39,8 @@
 #include <QPoint>
 #include <QPointF>
 #include <QMap>
+#include <QVector3D>
+
 #include <enki/Geometry.h>
 #include <enki/PhysicalEngine.h>
 
@@ -115,10 +117,18 @@ namespace Enki
 		
 		bool doDumpFrames;
 		int dumpFramesCounter;
+
+		PhysicalObject *pointedObject, *selectedObject;
+		QVector3D pointedPoint;
 	
 	public:
 		ViewerWidget(World *world, QWidget *parent = 0);
 		~ViewerWidget();
+
+		QVector3D getPointedPoint();
+		PhysicalObject* getPointedObject();
+		PhysicalObject* getSelectedObject();
+		void timerEvent(double elapsedTime);
 	
 	public slots:
 		void setCamera(QPointF pos, double altitude, double yaw, double pitch);
@@ -142,6 +152,8 @@ namespace Enki
 		void initializeGL();
 		void paintGL();
 		void resizeGL(int width, int height);
+		void renderScene();
+		void picking(float left,float right,float bottom,float top,float zNear,float zFar);
 		
 		void mousePressEvent(QMouseEvent *event);
 		void mouseReleaseEvent(QMouseEvent * event);

@@ -225,7 +225,7 @@ namespace Enki
 	
 	const double PhysicalObject::g = 9.81;
 	
-	PhysicalObject::PhysicalObject(void) :
+	PhysicalObject::PhysicalObject(bool mouvable) :
 		userData(NULL),
 		// default physical parameters
 		collisionElasticity(0.9),
@@ -233,6 +233,7 @@ namespace Enki
 		viscousFrictionCoefficient(0.01),
 		viscousMomentFrictionCoefficient(0.01),
 		angle(0),
+		mouvableByPicking(mouvable),
 		angSpeed(0),
 		interlacedDistance(0)
 	{

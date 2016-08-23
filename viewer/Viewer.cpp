@@ -125,6 +125,8 @@ namespace Enki
 		dumpFramesCounter(0)
 	{
 		initTexturesResources();
+		pointedObject = 0;
+		selectedObject = 0;
 	}
 	
 	ViewerWidget::~ViewerWidget()
@@ -147,6 +149,21 @@ namespace Enki
 			data->cleanup(this);
 			delete data;
 		}
+	}
+
+	QVector3D ViewerWidget::getPointedPoint()
+	{
+		return pointedPoint;
+	}
+
+	PhysicalObject* ViewerWidget::getPointedObject()
+	{
+		return pointedObject;
+	}
+
+	PhysicalObject* ViewerWidget::getSelectedObject()
+	{
+		return selectedObject;
 	}
 	
 	void ViewerWidget::setCamera(QPointF pos, double altitude, double yaw, double pitch)
@@ -689,15 +706,12 @@ namespace Enki
 		renderObjectsTypesHook();
 	}
 	
-	void ViewerWidget::paintGL()
+	void ViewerWidget::renderScene()
 	{
-		// clean screen
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
 		float aspectRatio = (float)width() / (float)height();
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glFrustum(-1 * aspectRatio, 1 * aspectRatio, -1, 1, 2, 2000);
+		glFrustum(-aspectRatio,aspectRatio, -1,1, 2,2000);
 		
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
@@ -711,17 +725,16 @@ namespace Enki
 		
 		float LightPosition[] = {world->w/2, world->h/2, 60, 1};
 		glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);
-		
-		// draw world and all objects
+
 		glCallList(worldList);
 		for (World::ObjectsIterator it = world->objects.begin(); it != world->objects.end(); ++it)
 		{
-			// if required, render this object
+			// if required, initialize this object (display list)
 			if (!(*it)->userData)
 			{
 				bool found = false;
 				const std::type_info* typeToSearch = &typeid(**it);
-				
+
 				// search the alias map
 				ManagedObjectsAliasesMapIterator aliasIt(managedObjectsAliases);
 				while (aliasIt.hasNext())
@@ -733,7 +746,7 @@ namespace Enki
 						break;
 					}
 				}
-				
+
 				// search the real map
 				ManagedObjectsMapIterator dataIt(managedObjects);
 				while (dataIt.hasNext())
@@ -747,24 +760,112 @@ namespace Enki
 					}
 				}
 				
-				
 				if (!found)
 					renderSimpleObject(*it);
 			}
-			
+
+			// draw object
 			glPushMatrix();
 			
 			glTranslated((*it)->pos.x, (*it)->pos.y, 0);
 			glRotated(rad2deg * (*it)->angle, 0, 0, 1);
 			
 			ViewerUserData* userData = polymorphic_downcast<ViewerUserData *>((*it)->userData);
+
 			userData->draw(*it);
 			displayObjectHook(*it);
 			
 			glPopMatrix();
 		}
+	}
+
+	void ViewerWidget::picking(float left,float right,float bottom,float top,float zNear,float zFar)
+	{
+		pointedObject = 0;
+		QPoint cursorPosition = mapFromGlobal(QCursor::pos());
+
+		if(!rect().contains(cursorPosition,true)) // window don't contain cursor
+			return;
+
+		// prepare matricies for invertion
+		QMatrix4x4 projection;
+			projection.setToIdentity();
+			projection.frustum(left, right, bottom, top, zNear, zFar);
+		QMatrix4x4 modelview;
+			modelview.setToIdentity();
+			modelview.rotate(-90, 1, 0, 0);
+			modelview.rotate(rad2deg * -camera.pitch, 1, 0, 0);
+			modelview.rotate(90, 0, 0, 1);
+			modelview.rotate(rad2deg * -camera.yaw, 0, 0, 1);
+			modelview.translate(-camera.pos.x(), -camera.pos.y(), -camera.altitude);
+		QMatrix4x4 transformMatrix = (projection*modelview).inverted();
+
+		// cursor position in viewport coordinates
+		float fragmentX = (float)(cursorPosition.x() - width()/2)/(width()/2);
+		float fragmentY = (float)(height() - cursorPosition.y() - height()/2)/(height()/2);
+		float depth;
+		glReadPixels( cursorPosition.x(), height() - cursorPosition.y(), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth );
+
+		QVector4D input(fragmentX, fragmentY, 2*depth - 1, 1);
+		input = transformMatrix*input;
 		
+		if(input.w() != 0.0) // valid pointed point
+		{
+			pointedPoint = QVector3D(input.x(),input.y(),input.z());
+			pointedPoint /= input.w();
+		}
+		else return;
+
+		// prepare to find which object is pointed
+		Point cursor2Dpoint(pointedPoint.x(),pointedPoint.y());
+		float cursorRadius = 0.05f;
+		for (World::ObjectsIterator it = world->objects.begin(); it != world->objects.end(); ++it)
+		{
+			const Vector distOCtoOC = (*it)->pos - cursor2Dpoint;		// distance between object bounding circle center and pointed point
+			const double addedRay = (*it)->getRadius() + cursorRadius;	// sum of bounded circle radius
+			if (distOCtoOC.norm2() <= (addedRay*addedRay)) 			// cursor point colide bounding circle
+			{
+				if(!(*it)->getHull().empty())				// check pointer circle and bject hull
+				{
+					PhysicalObject::Hull hull = (*it)->getHull();
+					for (PhysicalObject::Hull::const_iterator it2 = hull.begin(); it2 != hull.end(); ++it2) // check all convex shape of hull
+					{
+						const Polygone shape = it2->getTransformedShape();
+						unsigned int inside = 0;
+
+						// standard test : if circularObject is inside a convex shape
+						for (unsigned int i=0; i<shape.size(); i++)
+						{
+							const size_t next=(i+1)%shape.size();
+							const Segment s(shape[i].x, shape[i].y, shape[next].x, shape[next].y);
+							const double d = s.dist(cursor2Dpoint);
+
+							if(d<0 && std::abs(d)>cursorRadius) // out of hull
+								break;
+							else inside++;
+						}
+						if(inside == shape.size()) // inside of hull
+						{
+							pointedObject = *it;
+							break;
+						}
+					}
+				}
+				else	// object circle collide cursor circle => test already done !
+					pointedObject = *it;
+			}
+		}
+	}
+
+	void ViewerWidget::paintGL()
+	{
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		renderScene();
 		sceneCompletedHook();
+
+		float aspectRatio = (float)width() / (float)height();
+		picking(-aspectRatio,aspectRatio, -1,1, 2,2000);
+		
 		
 		if (doDumpFrames)
 			grabFrameBuffer().save(QString("enkiviewer-frame%1.png").arg((int)dumpFramesCounter++, (int)8, (int)10, QChar('0')));
@@ -774,10 +875,18 @@ namespace Enki
 	{
 		glViewport(0, 0, width, height);
 	}
+
+	void ViewerWidget::timerEvent(double elapsedTime)
+	{
+		world->step(elapsedTime, 3);
+		updateGL();
+	}
 	
 	void ViewerWidget::mousePressEvent(QMouseEvent *event)
 	{
 		mouseGrabPos = event->pos();
+		selectedObject = pointedObject;
+
 		/*if (event->button() == Qt::RightButton)
 		{
 			mouseGrabbed = true;
@@ -820,8 +929,22 @@ namespace Enki
 					// TODO: zoom
 				}
 			}
-			
 			mouseGrabPos = event->pos();
+		}
+		else if(selectedObject != 0)
+		{
+			if ((event->buttons() & Qt::LeftButton) && selectedObject->mouvableByPicking)
+			{
+				selectedObject->pos = Point(pointedPoint.x(),pointedPoint.y());
+				selectedObject->speed = Vector(0,0);
+				selectedObject->angSpeed = 0;
+			}
+			else if ((event->buttons() & Qt::RightButton) && selectedObject->mouvableByPicking)
+			{
+				QPoint diff = event->pos() - mouseGrabPos;
+				selectedObject->angle -= 0.01 * (double)diff.x();
+				mouseGrabPos = event->pos();
+			}
 		}
 	}
 	
