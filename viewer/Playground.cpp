@@ -300,6 +300,8 @@ void EnkiPlayground::keyPressEvent(QKeyEvent* event)
 	if (event->key() == Qt::Key_C)
 	{
 		subjectiveView = !subjectiveView;
+		if (subjectiveView)
+			viewer->camera.pitch = -M_PI/8;
 		event->accept();
 	}
 }
