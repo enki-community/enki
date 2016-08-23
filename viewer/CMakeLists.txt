@@ -29,7 +29,10 @@ if (QT4_FOUND AND OPENGL_FOUND)
 		objects/EPuckWheelRight.cpp
 		MarxbotModel.cpp
 		objects/MarxbotBase.cpp
-		objects/MarxbotWheel.cpp)
+		objects/MarxbotWheel.cpp
+		Thymio2Model.cpp
+		objects/Thymio2Body.cpp
+		objects/Thymio2Wheel.cpp)
 	set(viewer_test_SRCS Playground.cpp)
 	
 	qt4_automoc(${viewer_lib_SRCS})
