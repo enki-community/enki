@@ -87,7 +87,7 @@ namespace Enki
 		thymio2Shape.push_back(Enki::Point(distance * cos(M_PI - angle2), distance * sin(M_PI + angle2)));
 		Enki::PhysicalObject::Hull hull(Enki::PhysicalObject::Part(thymio2Shape, height));
 		setCustomHull(hull, 200);
-		setColor(Color(0.98, 0.98, 0.98));
+		setColor(Color(0.7, 0.7, 0.7));
 
 		textureID = 0;
 		ledTexture = new uint32_t[textureDimension*textureDimension];

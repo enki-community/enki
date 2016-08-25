@@ -928,6 +928,15 @@ namespace Enki
 		mouseGrabPos = event->pos();
 		selectedObject = pointedObject;
 
+		int buttonCode = 0;
+		if(event->buttons() & Qt::LeftButton) buttonCode = 1;
+		else if(event->buttons() & Qt::RightButton) buttonCode = 2;
+		else if(event->buttons() & Qt::MiddleButton) buttonCode = 3;
+		else if(event->buttons() & Qt::MidButton) buttonCode = 3;
+
+		Robot* robot = dynamic_cast<Robot*>(pointedObject);
+		if(robot) robot->clickedInteraction(true,buttonCode,pointedPoint.x(),pointedPoint.y(),pointedPoint.z());
+
 		/*if (event->button() == Qt::RightButton)
 		{
 			mouseGrabbed = true;
@@ -937,6 +946,15 @@ namespace Enki
 	
 	void ViewerWidget::mouseReleaseEvent(QMouseEvent * event)
 	{
+		int buttonCode = 0;
+		if(event->buttons() & Qt::LeftButton) buttonCode = 1;
+		else if(event->buttons() & Qt::RightButton) buttonCode = 2;
+		else if(event->buttons() & Qt::MiddleButton) buttonCode = 3;
+		else if(event->buttons() & Qt::MidButton) buttonCode = 3;
+
+		Robot* robot = dynamic_cast<Robot*>(pointedObject);
+		if(robot) robot->clickedInteraction(false,buttonCode,pointedPoint.x(),pointedPoint.y(),pointedPoint.z());
+
 		/*if (event->button() == Qt::RightButton)
 			mouseGrabbed = false;*/
 	}
