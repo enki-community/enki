@@ -726,7 +726,7 @@ namespace Enki
 		float aspectRatio = (float)width() / (float)height();
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glFrustum(-aspectRatio,aspectRatio, -1,1, 2,2000);
+		glFrustum(-aspectRatio, aspectRatio, -1, 1, 2, 2000);
 		
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
@@ -794,12 +794,12 @@ namespace Enki
 		}
 	}
 
-	void ViewerWidget::picking(float left,float right,float bottom,float top,float zNear,float zFar)
+	void ViewerWidget::picking(float left, float right, float bottom, float top, float zNear, float zFar)
 	{
 		pointedObject = 0;
 		QPoint cursorPosition = mapFromGlobal(QCursor::pos());
 
-		if(!rect().contains(cursorPosition,true)) // window don't contain cursor
+		if (!rect().contains(cursorPosition,true)) // window don't contain cursor
 			return;
 
 		// prepare matricies for invertion
@@ -824,7 +824,7 @@ namespace Enki
 		QVector4D input(fragmentX, fragmentY, 2*depth - 1, 1);
 		input = transformMatrix*input;
 		
-		if(input.w() != 0.0) // valid pointed point
+		if (input.w() != 0.0) // valid pointed point
 		{
 			pointedPoint = QVector3D(input.x(),input.y(),input.z());
 			pointedPoint /= input.w();
@@ -990,7 +990,7 @@ namespace Enki
 			}
 			mouseGrabPos = event->pos();
 		}
-		else if(selectedObject != 0)
+		else if (selectedObject != 0)
 		{
 			if ((event->buttons() & Qt::LeftButton) && selectedObject->mouvableByPicking)
 			{

@@ -408,7 +408,7 @@ namespace Enki
 		//! Sort local interactions. Called by addLocalInteraction ; can be called by subclasses in case of interaction radius change.
 		void sortLocalInteractions(void);
 
-		virtual void clickedInteraction(bool pressed,int buttonCode,double pointX,double pointY,double pointZ){};
+		virtual void clickedInteraction(bool pressed, int buttonCode, double pointX, double pointY, double pointZ){};
 	};
 
 	//! The world is the container of all objects and robots.

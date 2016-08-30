@@ -162,10 +162,10 @@ EnkiPlayground::EnkiPlayground(World *world, QWidget *parent) : timerPeriodMs(30
 	#endif // USE_SDL
 
 	viewer = new ViewerWidget(world);
-		viewer->camera.pos = QPointF(20,0);
-		viewer->camera.altitude = 30;
-		viewer->camera.yaw = 3.1415927;
-		viewer->camera.pitch = -1;
+		viewer->camera.pos = QPointF(2.6,0);
+		viewer->camera.altitude = 10;
+		viewer->camera.yaw = -1.57;
+		viewer->camera.pitch = -1.57;
 	frameCounter = new QLabel(QString("frame: "));
 		frameCounter->setFixedSize(100,30);
 		frameCounter->setStyleSheet("background-color:rgb(150,150,150);");

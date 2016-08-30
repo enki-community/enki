@@ -69,7 +69,7 @@ namespace Enki
 		//! The ground sensor 1 (right)
 		GroundSensor groundSensor1;
 
-		static const unsigned int textureDimension;
+		static unsigned int textureDimension;
 		unsigned int textureID;
 		unsigned int* ledTexture;
 		bool ledTextureNeedUpdate;
@@ -129,12 +129,26 @@ namespace Enki
 
 
 	protected:
+		class vec2f{
+		public:
+			vec2f(float a = 0,float b = 0):x(a),y(b){};
+			float x;
+			float y;
+
+			vec2f operator* (float f);
+			vec2f operator+ (vec2f v);
+		};
 		class vec2i{
 		public:
 			vec2i(unsigned int a = 0,unsigned int b = 0):x(a),y(b){};
+			vec2i(const vec2f& v):x((int)v.x), y((int)v.y){};
 			unsigned int x;
 			unsigned int y;
+
+			vec2f operator* (float f);
 		};
+		
+
 		uint32_t ledColor[LED_COUNT];
 		std::vector<vec2i> ledCenter[LED_COUNT];
 		std::vector<vec2i> ledSize[LED_COUNT];
