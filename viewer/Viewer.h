@@ -160,7 +160,7 @@ namespace Enki
 		void paintGL();
 		void resizeGL(int width, int height);
 		void renderScene();
-		void picking(float left,float right,float bottom,float top,float zNear,float zFar);
+		void picking(float left, float right, float bottom, float top, float zNear, float zFar);
 		
 		void mousePressEvent(QMouseEvent *event);
 		void mouseReleaseEvent(QMouseEvent * event);
