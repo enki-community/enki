@@ -228,7 +228,7 @@ void EnkiPlayground::timerEvent(QTimerEvent * event)
 	static int fireCounter = 0;
 	#ifdef USE_SDL
 	SDL_JoystickUpdate();
-	doDumpFrames = false;
+	viewer->doDumpFrames = false;
 	for (int i = 0; i < joysticks.size(); ++i)
 	{
 		EPuck* epuck = epucks[i];
@@ -256,16 +256,16 @@ void EnkiPlayground::timerEvent(QTimerEvent * event)
 			bullets[o] = 300;
 			world->addObject(o);
 		}
-		doDumpFrames |= SDL_JoystickGetButton(joysticks[i], 0);
+		viewer->doDumpFrames |= SDL_JoystickGetButton(joysticks[i], 0);
 	}
 	if (joysticks.size() > 0 && subjectiveView)
 	{
 		const EPuck* epuck = epucks[0];
 		Vector p(epuck->pos);
-		camera.pos.setX(p.x+cos(camera.yaw)*7);
-		camera.pos.setY(p.y+sin(camera.yaw)*7);
-		camera.yaw = epuck->angle;
-		camera.altitude = 11;
+		viewer->camera.pos.setX(p.x+cos(viewer->camera.yaw)*7);
+		viewer->camera.pos.setY(p.y+sin(viewer->camera.yaw)*7);
+		viewer->camera.yaw = epuck->angle;
+		viewer->camera.altitude = 11;
 	}
 	#endif
 
