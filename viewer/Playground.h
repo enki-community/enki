@@ -31,20 +31,70 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef __ENKI_VIEWER_MARXBOT_MODEL_H
-#define __ENKI_VIEWER_MARXBOT_MODEL_H
+#ifndef __ENKI_PLAYGROUND_H
+#define __ENKI_PLAYGROUND_H
+
+#include <enki/PhysicalEngine.h>
+#include <enki/robots/e-puck/EPuck.h>
+#include <enki/robots/thymio2/Thymio2.h>
+#include <enki/robots/marxbot/Marxbot.h>
+#include <QApplication>
+#include <QtGui>
+#include <QGLWidget>
 
 #include "Viewer.h"
 
-namespace Enki
-{
-	class MarxbotModel : public ViewerWidget::CustomRobotModel
-	{
-	public:
-		MarxbotModel(ViewerWidget* viewer);
-		virtual void cleanup(ViewerWidget* viewer);
-		virtual void draw(PhysicalObject* object) const;
-	};
-} // namespace Enki
+using namespace Enki;
+using namespace std;
 
-#endif // __ENKI_VIEWER_MARXBOT_MODEL_H
+class EnkiPlayground : public QMainWindow
+{
+	Q_OBJECT
+
+public:
+	const int timerPeriodMs;
+
+
+protected:
+	#ifdef USE_SDL
+	QVector<SDL_Joystick *> joysticks;
+	#endif
+	bool subjectiveView;
+	QVector<EPuck*> epucks;
+	QMap<PhysicalObject*, int> bullets;
+	World* world;
+
+	QTime time;
+	Thymio2* thymio;
+
+	ViewerWidget* viewer;
+	QHBoxLayout* toolbar;
+	QLabel *frameCounter, *pointedPosition;
+	QWidget* centralWidget, *mainwidget;
+	QPushButton *resetButton, *trackballButton;
+
+	struct PhysicalObjectSave
+	{
+		Point pos;
+		double angle;
+
+		PhysicalObjectSave() : pos(0,0), angle(0) {};
+		PhysicalObjectSave(const Point& p,const double& a) : pos(p), angle(a) {};
+	};
+	std::map<PhysicalObject*,PhysicalObjectSave> saveState;
+
+public:
+	EnkiPlayground(World* world, QWidget *parent = 0);
+	~EnkiPlayground();
+
+	void addDefaultsRobots(World*world);
+	void timerEvent(QTimerEvent* event);
+	void keyPressEvent(QKeyEvent* event);
+	void resizeEvent(QResizeEvent* event);
+
+public slots:
+	void resetCallback();
+	void saveWorld();
+};
+
+#endif

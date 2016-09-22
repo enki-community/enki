@@ -31,20 +31,26 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef __ENKI_VIEWER_MARXBOT_MODEL_H
-#define __ENKI_VIEWER_MARXBOT_MODEL_H
+#ifndef __ENKI_VIEWER_THYMIO2_MODEL_H
+#define __ENKI_VIEWER_THYMIO2_MODEL_H
 
 #include "Viewer.h"
+#include <enki/robots/thymio2/Thymio2.h>
 
 namespace Enki
 {
-	class MarxbotModel : public ViewerWidget::CustomRobotModel
+	class Thymio2Model : public ViewerWidget::CustomRobotModel
 	{
 	public:
-		MarxbotModel(ViewerWidget* viewer);
+		Thymio2Model(ViewerWidget* viewer);
 		virtual void cleanup(ViewerWidget* viewer);
 		virtual void draw(PhysicalObject* object) const;
+
+		QImage bodyDiffusionMap,bodyTexture;
+
+	protected:
+		ViewerWidget* viewer;
 	};
 } // namespace Enki
 
-#endif // __ENKI_VIEWER_MARXBOT_MODEL_H
+#endif // __ENKI_VIEWER_THYMIO2_MODEL_H
