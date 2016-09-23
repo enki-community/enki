@@ -76,8 +76,7 @@ namespace Enki
 
 		enum LED_INDEX
 		{
-			TOP_LEFT = 0,
-			TOP_RIGHT,
+			TOP = 0,
 			BOTTOM_LEFT,
 			BOTTOM_RIGHT,
 
@@ -105,8 +104,8 @@ namespace Enki
 			IR_BACK_0,
 			IR_BACK_1,
 
-			LEFT_BLUE,
 			LEFT_RED,
+			LEFT_BLUE,
 			RIGHT_BLUE,
 			RIGHT_RED,
 
@@ -119,7 +118,7 @@ namespace Enki
 		//! Destructor
 		~Thymio2();
 
-		bool updateLedTexture(uint32_t* base = 0, uint32_t* diffusionMap = 0);
+		bool updateLedTexture(uint32_t* base = 0, uint32_t* diffusionMap0 = 0, uint32_t* diffusionMap1 = 0, uint32_t* diffusionMap2 = 0);
 		void setLedIntensity(LED_INDEX ledIndex, float intensity = 1.f);
 		void setLedIntensity(LED_INDEX ledIndex, unsigned char intensity = 255);
 		void setLedColor(LED_INDEX ledIndex, Color color = Color(1.,1.,1.,1.));

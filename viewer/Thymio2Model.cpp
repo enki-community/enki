@@ -52,8 +52,11 @@ namespace Enki
 		textures.resize(2);
 		textures[1] = v->bindTexture(QPixmap(QString(":/textures/thymio-bottomLed-diffusionMap.png")), GL_TEXTURE_2D);
 		textures[2] = v->bindTexture(QPixmap(QString(":/textures/thymio-wheel-texture.png")), GL_TEXTURE_2D);
+
 		bodyTexture = QImage(QString(":/textures/thymio-body-texture.png"));
-		bodyDiffusionMap = QImage(QString(":/textures/thymio-body-diffusionMap.png"));
+		bodyDiffusionMap0 = QImage(QString(":/textures/thymio-body-diffusionMap0.png"));
+		bodyDiffusionMap1 = QImage(QString(":/textures/thymio-body-diffusionMap1.png"));
+		bodyDiffusionMap2 = QImage(QString(":/textures/thymio-body-diffusionMap2.png"));
 
 		lists.resize(2);
 		lists[0] = GenThymio2Body();
@@ -71,7 +74,7 @@ namespace Enki
 	void Thymio2Model::draw(PhysicalObject* object) const
 	{
 		Thymio2* thymio = polymorphic_downcast<Thymio2*>(object);
-		if(thymio->updateLedTexture((uint32_t*)bodyTexture.bits(), (uint32_t*)bodyDiffusionMap.bits() ))
+		if(thymio->updateLedTexture((uint32_t*)bodyTexture.bits(), (uint32_t*)bodyDiffusionMap0.bits(), (uint32_t*)bodyDiffusionMap1.bits(), (uint32_t*)bodyDiffusionMap2.bits() ))
 		{
 			viewer->deleteTexture(thymio->textureID);
 			thymio->textureID = viewer->bindTexture(QImage((uint8_t*)(thymio->ledTexture),Thymio2::textureDimension,Thymio2::textureDimension,QImage::Format_ARGB32), GL_TEXTURE_2D);
@@ -103,10 +106,10 @@ namespace Enki
 
 			glBegin (GL_QUADS);
 				glNormal3f (0,0,1);
-				glTexCoord2f(0.99f,0.01f); glVertex3f(0,-8,0);
-				glTexCoord2f(0.99f,0.99f); glVertex3f(8,-8,0);
-				glTexCoord2f(0.01f,0.99f); glVertex3f(8, 0,0);
 				glTexCoord2f(0.01f,0.01f); glVertex3f(0, 0,0);
+				glTexCoord2f(0.01f,0.99f); glVertex3f(8, 0,0);
+				glTexCoord2f(0.99f,0.99f); glVertex3f(8, 8,0);
+				glTexCoord2f(0.99f,0.01f); glVertex3f(0, 8,0);
 			glEnd();
 
 			glDisable(GL_POLYGON_OFFSET_FILL);
@@ -125,10 +128,10 @@ namespace Enki
 
 			glBegin (GL_QUADS);
 				glNormal3f (0,0,1);
-				glTexCoord2f(0.01f,0.01f); glVertex3f(0, 0,0);
+				glTexCoord2f(0.99f,0.01f); glVertex3f(0,-8,0);
+				glTexCoord2f(0.99f,0.99f); glVertex3f(8,-8,0);
 				glTexCoord2f(0.01f,0.99f); glVertex3f(8, 0,0);
-				glTexCoord2f(0.99f,0.99f); glVertex3f(8, 8,0);
-				glTexCoord2f(0.99f,0.01f); glVertex3f(0, 8,0);
+				glTexCoord2f(0.01f,0.01f); glVertex3f(0, 0,0);
 			glEnd();
 
 			glDisable(GL_POLYGON_OFFSET_FILL);
