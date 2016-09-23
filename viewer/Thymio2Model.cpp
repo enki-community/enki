@@ -50,8 +50,8 @@ namespace Enki
 		viewer = v;
 
 		textures.resize(2);
-		textures[1] = v->bindTexture(QPixmap(QString(":/textures/thymio-bottomLed-diffusionMap.png")), GL_TEXTURE_2D);
-		textures[2] = v->bindTexture(QPixmap(QString(":/textures/thymio-wheel-texture.png")), GL_TEXTURE_2D);
+		textures[0] = v->bindTexture(QPixmap(QString(":/textures/thymio-bottomLed-diffusionMap.png")), GL_TEXTURE_2D);
+		textures[1] = v->bindTexture(QPixmap(QString(":/textures/thymio-wheel-texture.png")), GL_TEXTURE_2D);
 
 		bodyTexture = QImage(QString(":/textures/thymio-body-texture.png"));
 		bodyDiffusionMap0 = QImage(QString(":/textures/thymio-body-diffusionMap0.png"));
@@ -93,7 +93,7 @@ namespace Enki
 		glCallList(lists[0]);
 
 		// bottom lighting
-		glBindTexture(GL_TEXTURE_2D, textures[1]);
+		glBindTexture(GL_TEXTURE_2D, textures[0]);
 		if(thymio->getColorInt(Thymio2::BOTTOM_LEFT) & 0xFF000000)
 		{
 			glEnable(GL_BLEND);
@@ -142,7 +142,7 @@ namespace Enki
 
 		// wheels
 		glColor3d(object->getColor().components[0], object->getColor().components[1], object->getColor().components[2]);
-		glBindTexture(GL_TEXTURE_2D, textures[2]);
+		glBindTexture(GL_TEXTURE_2D, textures[1]);
 
 		glPushMatrix();
 		glTranslatef(-2.3,0,wheelRadius);
