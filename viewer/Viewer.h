@@ -106,6 +106,7 @@ namespace Enki
 		};
 
 		CameraPose camera; //!< current camera pose
+		bool doDumpFrames;
 
 	protected:
 		World *world;
@@ -137,7 +138,6 @@ namespace Enki
 		QPoint mouseGrabPos;
 		double wallsHeight;
 		bool trackballView;
-		bool doDumpFrames;
 		int dumpFramesCounter;
 
 		PhysicalObject *pointedObject, *selectedObject;
