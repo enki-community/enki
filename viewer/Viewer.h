@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -39,6 +39,8 @@
 #include <QPoint>
 #include <QPointF>
 #include <QMap>
+#include <QVector3D>
+
 #include <enki/Geometry.h>
 #include <enki/PhysicalEngine.h>
 
@@ -46,7 +48,6 @@
 	\brief Definition of the Qt-based viewer widget
 */
 
-class QTimerEvent;
 class QMouseEvent;
 class QWheelEvent;
 class QWidget;
@@ -83,18 +84,46 @@ namespace Enki
 			CustomRobotModel();
 		};
 		
-		// Camera pose
+		//! Camera pose
 		struct CameraPose
 		{
-			QPointF pos; //!< (x,y) position of the camera
-			double altitude; //!< altitude (z) of the camera
-			double yaw; //!< yaw angle, mathematical orientation
-			double pitch; //!< pitch angle, negative looking down, positive looking up
+			QPointF pos; 		//!< (x,y) position of the camera
+			double altitude;	//!< altitude (z) of the camera
+			double yaw; 		//!< yaw angle, mathematical orientation
+			double pitch; 		//!< pitch angle, negative looking down, positive looking up
 			
-			CameraPose(QPointF pos, double altitude, double yaw, double pitch);
+			// constructors
+			CameraPose();
+			CameraPose(const QPointF& pos, double altitude, double yaw, double pitch);
+		};
+	
+	protected:
+		//! A camera pose that can be updated given a target position
+		struct UpdatableCameraPose: CameraPose
+		{
+			double userYaw;		//!< yaw controlled by the user, added to the angle of the object in tracking
+			double radius;		//!< radius distance used in tracking mode to compute camera to tracked object distance
+			
+			// the camera base coordinate system
+			QVector3D forward;
+			QVector3D left;
+			QVector3D up;
+
+			// constructors
+			UpdatableCameraPose();
+			UpdatableCameraPose(const QPointF& pos, double altitude, double yaw, double pitch);
+			
+			// assignment to base class
+			UpdatableCameraPose& operator=(const CameraPose& pose);
+
+			// updates of base coordinate system 
+			void update();
+			void updateTracking(double targetAngle, const QVector3D& targetPosition = QVector3D(), double zNear = 2.f);
 		};
 		
-		CameraPose camera; //!< current camera pose
+	public:
+		bool doDumpFrames;
+		unsigned dumpFramesCounter;
 		
 	protected:
 		World *world;
@@ -111,24 +140,57 @@ namespace Enki
 		typedef QMapIterator<const std::type_info*, const std::type_info*> ManagedObjectsAliasesMapIterator;
 		ManagedObjectsAliasesMap managedObjectsAliases;
 		
+		typedef std::pair<QString, double> ViewerErrorMessage;
+		std::list<ViewerErrorMessage> messageList;
+
+		struct ExtendedAttributes
+		{
+			bool movableByPicking;
+
+			ExtendedAttributes():movableByPicking(false){};
+		};
+		std::map<PhysicalObject*, ExtendedAttributes> objectExtendedAttributesList;
+
 		bool mouseGrabbed;
 		QPoint mouseGrabPos;
 		double wallsHeight;
-		
-		bool doDumpFrames;
-		int dumpFramesCounter;
+		UpdatableCameraPose camera; //!< current camera pose
+		bool trackingView; //!< to know if camera is in tracking mode
+		CameraPose nonTrackingCamera; //!< copy of global camera when in tracking view
 	
+		PhysicalObject *pointedObject, *selectedObject;
+		QVector3D pointedPoint;
+		bool movingObject;
+		
+		double elapsedTime;
+
 	public:
 		ViewerWidget(World *world, QWidget *parent = 0);
 		~ViewerWidget();
 	
+		World* getWorld() const;
+		CameraPose getCamera() const;
+		QVector3D getPointedPoint() const;
+		PhysicalObject* getPointedObject() const;
+		PhysicalObject* getSelectedObject() const;
+		bool isTrackingActivated() const;
+		bool isMovableByPicking(PhysicalObject* object) const;
+		
+		void setMovableByPicking(PhysicalObject* object, bool movable = true);
+		void removeExtendedAttributes(PhysicalObject* object);
+
 	public slots:
-		void setCamera(QPointF pos, double altitude, double yaw, double pitch);
+		void setCamera(const QPointF& pos, double altitude, double yaw, double pitch);
 		void setCamera(double x, double y, double altitude, double yaw, double pitch);
 		void restartDumpFrames();
 		void setDumpFrames(bool doDump);
-		
+		void setTracking(bool doTrack);
+		void toggleTracking();
+		void addErrorMessage(const QString& msg, double persistance = 5.0);
+		void showHelp();
+
 	protected:
+		// objects rendering
 		void renderInterSegmentShadow(const Vector& a, const Vector& b, const Vector& c, double height);
 		void renderSegmentShadow(const Segment& segment, double height);
 		void renderSegment(const Segment& segment, double height);
@@ -136,20 +198,34 @@ namespace Enki
 		void renderWorld();
 		void renderShape(const Polygone& shape, const double height, const Color& color);
 		void renderSimpleObject(PhysicalObject *object);
+		
+		// hooks for subclasses
 		virtual void renderObjectsTypesHook();
 		virtual void renderObjectHook(PhysicalObject *object);
 		virtual void displayObjectHook(PhysicalObject *object);
 		virtual void sceneCompletedHook();
+
+		// Qt-OpenGL setup and drawing
+		virtual void initializeGL();
+		virtual void paintGL();
+		virtual void resizeGL(int width, int height);
 		
-		void initializeGL();
-		void paintGL();
-		void resizeGL(int width, int height);
+		// scene rendering and picking
+		virtual void renderScene(double left, double right, double bottom, double top, double zNear, double zFar);
+		void picking(double left, double right, double bottom, double top, double zNear, double zFar);
+		void displayMessages();
+
+		// Qt events handling
+		virtual void keyPressEvent(QKeyEvent* event);
+		virtual void mousePressEvent(QMouseEvent *event);
+		virtual void mouseReleaseEvent(QMouseEvent * event);
+		virtual void mouseMoveEvent(QMouseEvent *event);
+		virtual void mouseDoubleClickEvent(QMouseEvent *event);
+		virtual void wheelEvent(QWheelEvent * event);
+		virtual void timerEvent(QTimerEvent * event);
 		
-		void timerEvent(QTimerEvent * event);
-		void mousePressEvent(QMouseEvent *event);
-		void mouseReleaseEvent(QMouseEvent * event);
-		void mouseMoveEvent(QMouseEvent *event);
-		void wheelEvent(QWheelEvent * event);
+		// helper methods
+		unsigned int getButtonCode(QMouseEvent * event);
 	};
 }
 
