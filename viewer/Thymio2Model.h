@@ -6,11 +6,9 @@
     Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
-    
-    E-puck 3D model is Copyright (C) 2008 Basilio Noris
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -33,24 +31,33 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef __ENKI_VIEWER_OBJECTS_H
-#define __ENKI_VIEWER_OBJECTS_H
+#ifndef __ENKI_VIEWER_THYMIO2_MODEL_H
+#define __ENKI_VIEWER_THYMIO2_MODEL_H
 
-#include <QtOpenGL>
+#include "Viewer.h"
+#include <enki/robots/thymio2/Thymio2.h>
 
 namespace Enki
 {
-	GLint GenEPuckBody();
-	GLint GenEPuckRest();
-	GLint GenEPuckRing();
-	GLint GenEPuckWheelLeft();
-	GLint GenEPuckWheelRight();
-	
-	GLint GenMarxbotBase();
-	GLint GenMarxbotWheel();
+	class Thymio2Model : public ViewerWidget::CustomRobotModel
+	{
+	public:
+		Thymio2Model(ViewerWidget* viewer);
+		virtual void cleanup(ViewerWidget* viewer);
+		virtual void draw(PhysicalObject* object) const;
 
-	GLint GenThymio2Body();
-	GLint GenThymio2Wheel();
-}
+		unsigned textureDimension;
+		QImage bodyDiffusionMap0, bodyDiffusionMap1, bodyDiffusionMap2, bodyTexture;
 
-#endif
+	protected:
+		std::vector<Vector> ledCenter[Thymio2::LED_COUNT];
+		std::vector<Vector> ledSize[Thymio2::LED_COUNT];
+
+		ViewerWidget* viewer;
+
+		unsigned updateLedTexture(Thymio2* thymio) const;
+		void drawRect(uint32_t* target, uint32_t* base, Vector center, Vector size, Color color, uint32_t* diffTex) const;
+	};
+} // namespace Enki
+
+#endif // __ENKI_VIEWER_THYMIO2_MODEL_H

@@ -5,5 +5,12 @@
 	<file>textures/world.png</file>
 	<file>textures/wall.png</file>
 	<file>textures/marxbot.png</file>
+	<file>textures/thymio-body-texture.png</file>
+	<file>textures/thymio-body-diffusionMap0.png</file>
+	<file>textures/thymio-body-diffusionMap1.png</file>
+	<file>textures/thymio-body-diffusionMap2.png</file>
+	<file>textures/thymio-bottomLed-diffusionMap.png</file>
+	<file>textures/thymio-ground-shadow.png</file>
+	<file>textures/thymio-wheel-texture.png</file>
 </qresource>
 </RCC>

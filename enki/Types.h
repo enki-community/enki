@@ -143,6 +143,8 @@ namespace Enki
 		static Color fromARGB(uint32_t color);
 		//! Build from an ABGR uint32_t (0xAABBGGRR in little endian)
 		static Color fromABGR(uint32_t color);
+		//! Pack into ABGR uint32_t (0xAABBGGRR in little endian)
+		static uint32_t toARGB(Color color);
 		
 		//! black (0, 0, 0)
 		static const Color black;

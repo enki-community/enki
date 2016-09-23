@@ -35,6 +35,7 @@
 #include <enki/PhysicalEngine.h>
 #include <enki/robots/e-puck/EPuck.h>
 #include <enki/robots/marxbot/Marxbot.h>
+#include <enki/robots/thymio2/Thymio2.h>
 #include <QApplication>
 #include <QtGui>
 #include <iostream>
@@ -63,6 +64,50 @@ public:
 	EnkiPlayground(World *world, QWidget *parent = 0) :
 		ViewerWidget(world, parent)
 	{
+		#define PROBLEM_CENTERED_THYMIO2
+		
+		#ifdef PROBLEM_CENTERED_THYMIO2
+		{
+			Thymio2 *thymio = new Thymio2;
+			thymio->pos = Point(0, 0);
+			thymio->setLedColor(Thymio2::TOP,Color(1.0,0.0,0.0,1.0));
+			thymio->setLedColor(Thymio2::BOTTOM_LEFT,Color(0.0,1.0,0.0,1.0));
+			thymio->setLedColor(Thymio2::BOTTOM_RIGHT,Color(0.0,0.0,1.0,1.0));
+
+			thymio->setLedIntensity(Thymio2::BUTTON_UP,1.0);
+			thymio->setLedIntensity(Thymio2::BUTTON_DOWN,1.0);
+			thymio->setLedIntensity(Thymio2::BUTTON_LEFT,1.0);
+			thymio->setLedIntensity(Thymio2::BUTTON_RIGHT,1.0);
+
+			thymio->setLedIntensity(Thymio2::RING_0,1.0);
+			thymio->setLedIntensity(Thymio2::RING_1,1.0);
+			thymio->setLedIntensity(Thymio2::RING_2,1.0);
+			thymio->setLedIntensity(Thymio2::RING_3,1.0);
+			thymio->setLedIntensity(Thymio2::RING_4,1.0);
+			thymio->setLedIntensity(Thymio2::RING_5,1.0);
+			thymio->setLedIntensity(Thymio2::RING_6,1.0);
+			thymio->setLedIntensity(Thymio2::RING_7,1.0);
+
+			thymio->setLedIntensity(Thymio2::IR_FRONT_0,1.0);
+			thymio->setLedIntensity(Thymio2::IR_FRONT_1,1.0);
+			thymio->setLedIntensity(Thymio2::IR_FRONT_2,1.0);
+			thymio->setLedIntensity(Thymio2::IR_FRONT_3,1.0);
+			thymio->setLedIntensity(Thymio2::IR_FRONT_4,1.0);
+			thymio->setLedIntensity(Thymio2::IR_FRONT_5,1.0);
+
+			thymio->setLedIntensity(Thymio2::IR_BACK_0,1.0);
+			thymio->setLedIntensity(Thymio2::IR_BACK_1,1.0);
+
+			thymio->setLedIntensity(Thymio2::LEFT_RED,1.0);
+			thymio->setLedIntensity(Thymio2::LEFT_BLUE,1.0);
+			thymio->setLedIntensity(Thymio2::RIGHT_BLUE,1.0);
+			thymio->setLedIntensity(Thymio2::RIGHT_RED,1.0);
+			thymio->leftSpeed = 3;
+			thymio->rightSpeed = 4;
+			world->addObject(thymio);
+		}
+		#endif // PROBLEM_CENTERED_THYMIO2
+
 		#define PROBLEM_GENERIC_TOY
 		#define PROBLEM_BALL_LINE
 		//#define PROBLEM_LONE_EPUCK

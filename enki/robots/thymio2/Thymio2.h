@@ -68,12 +68,43 @@ namespace Enki
 		GroundSensor groundSensor0;
 		//! The ground sensor 1 (right)
 		GroundSensor groundSensor1;
+
+		unsigned int textureID;
+		unsigned int* ledTexture;
+		bool ledTextureNeedUpdate;
+
+		enum LedIndex
+		{
+			TOP = 0,
+			BOTTOM_LEFT, BOTTOM_RIGHT,
+
+			BUTTON_UP, BUTTON_DOWN, BUTTON_LEFT, BUTTON_RIGHT,
+
+			RING_0, RING_1, RING_2, RING_3,
+			RING_4, RING_5, RING_6, RING_7,
+
+			IR_FRONT_0, IR_FRONT_1, IR_FRONT_2,
+			IR_FRONT_3, IR_FRONT_4, IR_FRONT_5,
+
+			IR_BACK_0, IR_BACK_1,
+
+			LEFT_RED, LEFT_BLUE, RIGHT_BLUE, RIGHT_RED,
+
+			LED_COUNT
+		};
 		
 	public:
 		//! Create a Thymio II
 		Thymio2();
 		//! Destructor
 		~Thymio2();
+
+		void setLedIntensity(LedIndex ledIndex, double intensity = 1.f);
+		void setLedColor(LedIndex ledIndex, const Color& color = Color(1.,1.,1.,1.));
+		Color getColorLed(LedIndex ledIndex) const;
+
+	protected:
+		Color ledColor[LED_COUNT];
 	};
 }
 

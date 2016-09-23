@@ -86,10 +86,82 @@ namespace Enki
 		Enki::PhysicalObject::Hull hull(Enki::PhysicalObject::Part(thymio2Shape, height));
 		setCustomHull(hull, 200);
 		setColor(Color(0.98, 0.98, 0.98));
+
+		textureID = 0;
+		ledTexture = NULL;
+		ledTextureNeedUpdate = true;
+		for (unsigned int i=0; i<LED_COUNT; i++)
+		{
+			switch(i)
+			{
+				case TOP:     	   ledColor[i] = Color(0.0,0.0,0.0,0.0); break;
+				case BOTTOM_LEFT:  ledColor[i] = Color(0.0,0.0,0.0,0.0); break;
+				case BOTTOM_RIGHT: ledColor[i] = Color(0.0,0.0,0.0,0.0); break;
+
+				case BUTTON_UP: case BUTTON_DOWN: case BUTTON_LEFT: case BUTTON_RIGHT:
+					ledColor[i] = Color(1.0,0.0,0.0,0.0); break;
+
+				case RING_0: case RING_1: case RING_2: case RING_3:
+				case RING_4: case RING_5: case RING_6: case RING_7:
+					ledColor[i] = Color(1.0,0.5,0.0,0.0); break;
+
+				case IR_FRONT_0: case IR_FRONT_1: case IR_FRONT_2: 
+				case IR_FRONT_3: case IR_FRONT_4: case IR_FRONT_5: 
+				case IR_BACK_0:  case IR_BACK_1: 
+					ledColor[i] = Color(1.0,0.0,0.0,0.0); break;
+
+				case LEFT_BLUE: case RIGHT_BLUE:
+					ledColor[i] = Color(0.0,1.0,1.0,0.0); break;
+				case LEFT_RED:  case RIGHT_RED: 
+					ledColor[i] = Color(1.0,0.0,0.0,0.0); break;
+
+				default: break;
+			}
+		}
 	}
 	
 	Thymio2::~Thymio2()
 	{
+		delete[] ledTexture;
+	}
+
+	void Thymio2::setLedIntensity(LedIndex ledIndex, double intensity)
+	{
+		if (ledIndex<0 || ledIndex>=LED_COUNT)
+			return;
+		intensity = std::max(1., std::min(0., intensity));
+		if (intensity != ledColor[ledIndex].a())
+		{
+			ledColor[ledIndex].setA(intensity);
+			ledTextureNeedUpdate = true;
+		}
+	}
+
+	void Thymio2::setLedColor(LedIndex ledIndex, const Color& color)
+	{
+		if (ledIndex<0 || ledIndex>=LED_COUNT)
+			return;
+		switch (ledIndex)
+		{
+			case TOP: case BOTTOM_LEFT: case BOTTOM_RIGHT:
+				if (color != ledColor[ledIndex])
+				{
+					ledColor[ledIndex] = color;
+					ledTextureNeedUpdate = true;
+				}
+				break;
+			default:
+				setLedIntensity(ledIndex, color.a());
+				break;
+		}
+	}
+
+	Color Thymio2::getColorLed(LedIndex ledIndex) const
+	{
+		if (ledIndex<0 || ledIndex>=LED_COUNT)
+			return Color(0,0,0,0);
+		else
+			return ledColor[ledIndex];
 	}
 }
 
