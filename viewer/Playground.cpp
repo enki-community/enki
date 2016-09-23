@@ -40,7 +40,7 @@
 #include <iostream>
 
 #ifdef USE_SDL
-#include <SDL/SDL.h>
+#include <SDL.h>
 #endif
 
 /*!	\file Studio.cpp
@@ -56,14 +56,12 @@ protected:
 	#ifdef USE_SDL
 	QVector<SDL_Joystick *> joysticks;
 	#endif
-	bool subjectiveView;
 	QVector<EPuck*> epucks;
 	QMap<PhysicalObject*, int> bullets;
 	
 public:
 	EnkiPlayground(World *world, QWidget *parent = 0) :
-		ViewerWidget(world, parent),
-		subjectiveView(false)
+		ViewerWidget(world, parent)
 	{
 		#define PROBLEM_GENERIC_TOY
 		#define PROBLEM_BALL_LINE
@@ -253,15 +251,6 @@ public:
 			}
 			doDumpFrames |= SDL_JoystickGetButton(joysticks[i], 0);
 		}
-		if (joysticks.size() > 0 && subjectiveView)
-		{
-			const EPuck* epuck = epucks[0];
-			Vector p(epuck->pos);
-			camera.pos.setX(p.x+cos(camera.yaw)*7);
-			camera.pos.setY(p.y+sin(camera.yaw)*7);
-			camera.yaw = epuck->angle;
-			camera.altitude = 11;
-		}
 		#endif
 		QMap<PhysicalObject*, int>::iterator i = bullets.begin();
 		while (i != bullets.end())
@@ -283,25 +272,9 @@ public:
 		ViewerWidget::timerEvent(event);
 	}
 	
-	virtual void keyPressEvent ( QKeyEvent * event )
-	{
-		if (event->key() == Qt::Key_C)
-		{
-			subjectiveView = !subjectiveView;
-			if (subjectiveView)
-				camera.pitch = -M_PI/8;
-			event->accept();
-		}
-		else
-			ViewerWidget::keyPressEvent(event);
-	}
-	
 	virtual void sceneCompletedHook()
 	{
-		glColor3d(0,0,0);
-		renderText(10, height()-50, tr("rotate camera by moving mouse while pressing ctrl+left mouse button"));
-		renderText(10, height()-30, tr("move camera on x/y by moving mouse while pressing ctrl+shift+left mouse button"));
-		renderText(10, height()-10, tr("move camera on z by moving mouse while pressing ctrl+shift+right mouse button"));
+		
 	}
 };
 

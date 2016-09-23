@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -38,6 +38,7 @@
 #include <enki/robots/e-puck/EPuck.h>
 #include "MarxbotModel.h"
 #include <enki/robots/marxbot/Marxbot.h>
+
 #ifdef Q_OS_WIN
 	#ifndef GL_BGRA
 		// Windows only ships with OpenGL 1.1, while GL_BGRA is defined in version 1.2
@@ -100,32 +101,89 @@ namespace Enki
 		deletedWithObject = false;
 	}
 	
-	ViewerWidget::CameraPose::CameraPose(QPointF pos, double altitude, double yaw, double pitch):
+	ViewerWidget::CameraPose::CameraPose():
+		altitude(0),
+		yaw(0),
+		pitch(0)
+	{
+	}
+	
+	ViewerWidget::CameraPose::CameraPose(const QPointF& pos, double altitude, double yaw, double pitch):
 		pos(pos),
 		altitude(altitude),
 		yaw(yaw),
 		pitch(pitch)
 	{
-		
 	}
 	
+	ViewerWidget::UpdatableCameraPose::UpdatableCameraPose():
+		userYaw(0),
+		radius(20)
+	{
+	}
+	
+	ViewerWidget::UpdatableCameraPose::UpdatableCameraPose(const QPointF& pos, double altitude, double yaw, double pitch):
+		CameraPose(pos, altitude, yaw, pitch),
+		userYaw(yaw),
+		radius(20)
+	{
+		update();
+	}
+	
+	ViewerWidget::UpdatableCameraPose& ViewerWidget::UpdatableCameraPose::operator=(const CameraPose& pose)
+	{
+		CameraPose::operator=(pose);
+		userYaw = yaw;
+		return *this;
+	}
+	
+	//! Update base coordinate system from pose
+	void ViewerWidget::UpdatableCameraPose::update()
+	{
+		yaw = userYaw;
+		forward = QVector3D( cos(yaw)*cos(pitch), sin(yaw)*cos(pitch), sin(pitch) );
+		left = QVector3D::crossProduct(QVector3D(0,0,1), forward).normalized();
+		up = QVector3D::crossProduct(forward, left).normalized();
+	}
+	
+	//! Update base coordinate system from target and current orientation, override pose
+	void ViewerWidget::UpdatableCameraPose::updateTracking(double targetAngle, const QVector3D& targetPosition, double zNear)
+	{
+		yaw = userYaw + targetAngle;
+		forward = QVector3D( cos(yaw)*cos(pitch), sin(yaw)*cos(pitch), sin(pitch) );
+		left = QVector3D::crossProduct(QVector3D(0,0,1), forward).normalized();
+		up = QVector3D::crossProduct(forward, left).normalized();
+	
+		pos.rx() = targetPosition.x() - radius*forward.x();
+		pos.ry() = targetPosition.y() - radius*forward.y();
+		altitude = targetPosition.z() + zNear*1.01 - radius*forward.z();
+	}
+
 	ViewerWidget::ViewerWidget(World *world, QWidget *parent) :
 		QGLWidget(parent),
 		timerPeriodMs(30),
-		world(world),
-		worldList(0),
-		mouseGrabbed(false),
-		camera(CameraPose(
+		camera(
 			QPointF(world->w * 0.5, qMax(0., world->r)),
 			qMax(qMax(world->w, world->h), world->r*2) * 0.85,
 			M_PI/2,
 			-(3*M_PI)/8
-		)),
-		wallsHeight(10),
+		),
 		doDumpFrames(false),
+		world(world),
+		worldList(0),
+		mouseGrabbed(false),
+		wallsHeight(10),
+		trackingView(false),
 		dumpFramesCounter(0)
 	{
 		initTexturesResources();
+		pointedObject = 0;
+		selectedObject = 0;
+		movingObject = false;
+		elapsedTime = double(30)/1000.; // average second between two frame, can be updated each frame to better precision
+		showHelp();
+		
+		startTimer(timerPeriodMs);
 	}
 	
 	ViewerWidget::~ViewerWidget()
@@ -150,11 +208,64 @@ namespace Enki
 		}
 	}
 	
-	void ViewerWidget::setCamera(QPointF pos, double altitude, double yaw, double pitch)
+	World* ViewerWidget::getWorld() const
+	{
+		return world;
+	}
+	
+	ViewerWidget::CameraPose ViewerWidget::getCamera() const
+	{
+		return camera;
+	}
+
+	QVector3D ViewerWidget::getPointedPoint() const
+	{
+		return pointedPoint;
+	}
+
+	PhysicalObject* ViewerWidget::getPointedObject() const
+	{
+		return pointedObject;
+	}
+
+	PhysicalObject* ViewerWidget::getSelectedObject() const
+	{
+		return selectedObject;
+	}
+
+	bool ViewerWidget::isTrackingActivated() const
+	{
+		return trackingView;
+	}
+
+	bool ViewerWidget::isMovableByPicking(PhysicalObject* object) const
+	{
+		std::map<PhysicalObject*, ExtendedAttributes>::const_iterator it = objectExtendedAttributesList.find(object);
+		if (it != objectExtendedAttributesList.end())
+			return it->second.movableByPicking;
+		else if (object)
+			return object->getMass() >= 0;
+		else
+			return false;
+	}
+
+	/*!
+		\brief Specify if an object is movable by picking.
+		By default all object are not movable, so it's prefered to only specify object wich are mouvable by picking.
+		This function add an extended attribute to an object using an association table, so it's to the user responsibility to
+		delete the extended parameter if object is remove to the world, using the "removeExtendedAttributes" function
+	*/
+	void ViewerWidget::setMovableByPicking(PhysicalObject* object, bool movable)
+	{
+		objectExtendedAttributesList[object].movableByPicking = movable;
+	}
+
+	void ViewerWidget::setCamera(const QPointF& pos, double altitude, double yaw, double pitch)
 	{
 		camera.pos = pos;
 		camera.altitude = altitude;
 		camera.yaw = yaw;
+		camera.userYaw = yaw;
 		camera.pitch = pitch;
 	}
 	
@@ -173,6 +284,53 @@ namespace Enki
 		doDumpFrames = doDump;
 	}
 	
+	void ViewerWidget::setTracking(bool doTrack)
+	{
+		const bool willTrack(doTrack && selectedObject);
+		if (!trackingView && willTrack)
+		{
+			nonTrackingCamera = camera;
+			camera.userYaw = 0;
+			camera.radius = selectedObject->getRadius() * 4;
+		}
+		else if (trackingView && !willTrack)
+		{
+			camera = nonTrackingCamera;
+		}
+		trackingView = willTrack;
+	}
+	
+	void ViewerWidget::toggleTracking()
+	{
+		setTracking(!trackingView);
+	}
+
+	void ViewerWidget::addErrorMessage(const QString& msg, double persistance)
+	{
+		for (std::list<ViewerErrorMessage>::iterator it = messageList.begin(); it!=messageList.end(); it++)
+		{
+			if (it->first == msg)
+			{
+				it->second = persistance;
+				return;
+			}
+		}
+		messageList.push_back(ViewerErrorMessage(msg,persistance));
+	}
+
+	void ViewerWidget::showHelp()
+	{
+		addErrorMessage(tr("Control help :"));
+		addErrorMessage(tr("      keyboard F1 : show this help message"));
+		addErrorMessage(tr("      middle click + mouse move : translate camera"));
+		addErrorMessage(tr("      right click + mouse move : rotate camera"));
+		addErrorMessage(tr("      left click : select object under cursor, if any, otherwise unselect"));
+		addErrorMessage(tr("      left click + mouse move : select object and translate it"));
+		addErrorMessage(tr("      left click + right click + mouse move : select object and rotate it"));
+		addErrorMessage(tr("      left double-click : visually track pointed object"));
+		addErrorMessage(tr("      mouse wheel : zoom (or translate camera)"));
+	}
+
 	void ViewerWidget::renderSegment(const Segment& segment, double height)
 	{
 		Vector v = segment.b - segment.a;
@@ -326,7 +484,7 @@ namespace Enki
 		glDepthMask( GL_FALSE );
 		glEnable(GL_POLYGON_OFFSET_FILL);
 		
-		// draw corner ground 
+		// draw corner ground
 		glNormal3d(0, 0, 1);
 		glBegin(GL_QUADS);
 		glTexCoord2f(0.01f, 0.01f);
@@ -688,19 +846,14 @@ namespace Enki
 		
 		// let subclass manage their static types
 		renderObjectsTypesHook();
-		
-		startTimer(timerPeriodMs);
 	}
 	
-	void ViewerWidget::paintGL()
+	void ViewerWidget::renderScene(double left, double right, double bottom, double top, double zNear, double zFar)
 	{
-		// clean screen
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		float aspectRatio = (float)width() / (float)height();
+		//float aspectRatio = (float)width() / (float)height();
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glFrustum(-1 * aspectRatio, 1 * aspectRatio, -1, 1, 2, 2000);
+		glFrustum(left, right, bottom, top, zNear, zFar);//(-aspectRatio, aspectRatio, -1, 1, 2, 2000);
 		
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
@@ -715,11 +868,10 @@ namespace Enki
 		float LightPosition[] = {world->w/2, world->h/2, 60, 1};
 		glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);
 		
-		// draw world and all objects
 		glCallList(worldList);
 		for (World::ObjectsIterator it = world->objects.begin(); it != world->objects.end(); ++it)
 		{
-			// if required, render this object
+			// if required, initialize this object (display list)
 			if (!(*it)->userData)
 			{
 				bool found = false;
@@ -750,27 +902,162 @@ namespace Enki
 					}
 				}
 				
-				
 				if (!found)
 					renderSimpleObject(*it);
 			}
 			
+			// draw object
 			glPushMatrix();
 			
 			glTranslated((*it)->pos.x, (*it)->pos.y, 0);
 			glRotated(rad2deg * (*it)->angle, 0, 0, 1);
 			
 			ViewerUserData* userData = polymorphic_downcast<ViewerUserData *>((*it)->userData);
+
 			userData->draw(*it);
 			displayObjectHook(*it);
 			
 			glPopMatrix();
 		}
+
+		if (movingObject)
+		{
+			glPushMatrix();
+			
+			glTranslated(selectedObject->pos.x, selectedObject->pos.y, 0);
+			glRotated(rad2deg * selectedObject->angle, 0, 0, 1);
+			
+			ViewerUserData* userData = polymorphic_downcast<ViewerUserData *>(selectedObject->userData);
+
+			userData->draw(selectedObject);
+			displayObjectHook(selectedObject);
+			
+			glPopMatrix();
+		}
+	}
+
+	void ViewerWidget::picking(double left, double right, double bottom, double top, double zNear, double zFar)
+	{
+		pointedObject = 0;
+		QPoint cursorPosition = mapFromGlobal(QCursor::pos());
+
+		if (!rect().contains(cursorPosition,true)) // window don't contain cursor
+			return;
+
+		// prepare matricies for invertion
+		QMatrix4x4 projection;
+			projection.setToIdentity();
+			projection.frustum(left, right, bottom, top, zNear, zFar);
+		QMatrix4x4 modelview;
+			modelview.setToIdentity();
+			modelview.rotate(-90, 1, 0, 0);
+			modelview.rotate(rad2deg * -camera.pitch, 1, 0, 0);
+			modelview.rotate(90, 0, 0, 1);
+			modelview.rotate(rad2deg * -camera.yaw, 0, 0, 1);
+			modelview.translate(-camera.pos.x(), -camera.pos.y(), -camera.altitude);
+		QMatrix4x4 transformMatrix = (projection*modelview).inverted();
+
+		// cursor position in viewport coordinates
+		const double fragmentX = double(cursorPosition.x() - width()/2) / (width()/2);
+		const double fragmentY = double(height() - cursorPosition.y() - height()/2) / (height()/2);
+		float depth;
+		glReadPixels( cursorPosition.x(), height() - cursorPosition.y(), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth );
+
+		QVector4D input(fragmentX, fragmentY, 2*depth - 1, 1);
+		input = transformMatrix*input;
+
+		if (input.w() != 0.0) // valid pointed point
+		{
+			pointedPoint = QVector3D(input.x(),input.y(),input.z());
+			pointedPoint /= input.w();
+		}
+		else return;
+
+		// prepare to find which object is pointed
+		Point cursor2Dpoint(pointedPoint.x(),pointedPoint.y());
+		const double cursorRadius = 0.05f;
+		for (World::ObjectsIterator it = world->objects.begin(); it != world->objects.end(); ++it)
+		{
+			const Vector distOCtoOC = (*it)->pos - cursor2Dpoint;		// distance between object bounding circle center and pointed point
+			const double addedRay = (*it)->getRadius() + cursorRadius;	// sum of bounded circle radius
+			if (distOCtoOC.norm2() <= (addedRay*addedRay)) 			// cursor point colide bounding circle
+			{
+				if (!(*it)->getHull().empty())				// check pointer circle and bject hull
+				{
+					PhysicalObject::Hull hull = (*it)->getHull();
+					for (PhysicalObject::Hull::const_iterator it2 = hull.begin(); it2 != hull.end(); ++it2) // check all convex shape of hull
+					{
+						const Polygone shape = it2->getTransformedShape();
+						unsigned int inside = 0;
+
+						// standard test : if circularObject is inside a convex shape
+						for (unsigned int i=0; i<shape.size(); i++)
+						{
+							const size_t next=(i+1)%shape.size();
+							const Segment s(shape[i].x, shape[i].y, shape[next].x, shape[next].y);
+							const double d = s.dist(cursor2Dpoint);
+
+							if (d<0 && std::abs(d)>cursorRadius) // out of hull
+								break;
+							else inside++;
+						}
+						if (inside == shape.size()) // inside of hull
+						{
+							pointedObject = *it;
+							break;
+						}
+					}
+				}
+				else	// object circle collide cursor circle => test already done !
+					pointedObject = *it;
+			}
+		}
+	}
+	void ViewerWidget::displayMessages()
+	{
+		while (messageList.size() > 20)
+			messageList.pop_front();
 		
+		const QFontMetrics fontMetrics = QFontMetrics(QFont());
+		const int lineSpacing(fontMetrics.lineSpacing());
+		int maxLineWidth(0);
+		for (std::list<ViewerErrorMessage>::iterator it = messageList.begin(); it != messageList.end(); ++it)
+			maxLineWidth = std::max(maxLineWidth, fontMetrics.width(it->first));
+		
+		unsigned i = 0;
+		for (std::list<ViewerErrorMessage>::iterator it = messageList.begin(); it != messageList.end();i++)
+		{
+			glColor4d(0, 0, 0, clamp(it->second,0.,1.));
+			renderText(width() - maxLineWidth - 10, 5 + (i+1)*lineSpacing, it->first);
+
+			if (it->second)
+			{
+				it->second -= elapsedTime;
+				++it;
+			}
+			else
+				it = messageList.erase(it);
+		}
+	}
+
+	void ViewerWidget::paintGL()
+	{
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		const double znear = 0.5;
+		if (trackingView && selectedObject)
+			camera.updateTracking(selectedObject->angle, QVector3D(selectedObject->pos.x, selectedObject->pos.y, selectedObject->getHeight()), znear);
+		else
+			camera.update();
+
+		const double aspectRatio = double(width()) / double(height());
+		renderScene(-aspectRatio*0.5*znear, aspectRatio*0.5*znear, -0.5*znear, 0.5*znear, znear, 2000);
 		sceneCompletedHook();
-		
+		picking(-aspectRatio*0.5*znear, aspectRatio*0.5*znear, -0.5*znear, 0.5*znear, znear, 2000);
+		displayMessages();
+
 		if (doDumpFrames)
-			grabFrameBuffer().save(QString("enkiviewer-frame%1.png").arg((int)dumpFramesCounter++, (int)8, (int)10, QChar('0')));
+			grabFrameBuffer().save(QString("enkiviewer-frame%1.png").arg(dumpFramesCounter++, (int)8, (int)10, QChar('0')));
 	}
 	
 	void ViewerWidget::resizeGL(int width, int height)
@@ -778,68 +1065,158 @@ namespace Enki
 		glViewport(0, 0, width, height);
 	}
 	
-	void ViewerWidget::timerEvent(QTimerEvent * event)
+	void ViewerWidget::keyPressEvent(QKeyEvent* event)
 	{
-		world->step(double(timerPeriodMs)/1000., 3);
-		updateGL();
+		if (event->key() == Qt::Key_F1)
+			showHelp();
 	}
-	
+
 	void ViewerWidget::mousePressEvent(QMouseEvent *event)
 	{
+		// initialization
 		mouseGrabPos = event->pos();
-		/*if (event->button() == Qt::RightButton)
+
+		// change selected object
+		if (event->button() == Qt::LeftButton)
 		{
-			mouseGrabbed = true;
-			mouseGrabPos = event->pos();
-		}*/
+			if (selectedObject != pointedObject)
+				setTracking(false);
+			selectedObject = pointedObject;
+		}
+
+		// if selected object is a robot call the clicked interaction function
+		Robot* robot = dynamic_cast<Robot*>(pointedObject);
+		if (robot) robot->clickedInteraction(true, getButtonCode(event), pointedPoint.x(), pointedPoint.y(), pointedPoint.z());
 	}
 	
 	void ViewerWidget::mouseReleaseEvent(QMouseEvent * event)
 	{
-		/*if (event->button() == Qt::RightButton)
-			mouseGrabbed = false;*/
+		// enable physics calculation for selected object
+		if (selectedObject)
+			world->addObject(selectedObject);
+		movingObject = false;
+
+		// if selected object is a robot call the clicked interaction function
+		Robot* robot = dynamic_cast<Robot*>(pointedObject);
+		if (robot)
+			robot->clickedInteraction(false, getButtonCode(event), pointedPoint.x(), pointedPoint.y(), pointedPoint.z());
 	}
 	
 	void ViewerWidget::mouseMoveEvent(QMouseEvent *event)
 	{
-		if (event->modifiers() & Qt::ControlModifier)
+		// rotate selected object
+		if ((event->buttons() & Qt::LeftButton) && (event->buttons() & Qt::RightButton))
 		{
-			QPoint diff = event->pos() - mouseGrabPos;
-			if (event->buttons() & Qt::LeftButton)
+			if (isMovableByPicking(selectedObject))
 			{
-				if (event->modifiers() & Qt::ShiftModifier)
+				movingObject = true;
+				world->removeObject(selectedObject);
+
+				const QPoint diff = event->pos() - mouseGrabPos;
+				const double sensitivity = 10;
+				selectedObject->angle -= sensitivity * (double)diff.x() / (1+width());
+				mouseGrabPos = event->pos();
+			}
+		}
+
+		// move selected object if it's movable by picking
+		else if (event->buttons() & Qt::LeftButton)
+		{
+			if (isMovableByPicking(selectedObject) && (event->pos() - mouseGrabPos).manhattanLength() > 10 )
+			{
+				if (!trackingView)
 				{
-					camera.pos.rx() -= 0.5 * cos(-camera.yaw) * (double)diff.y() + 0.5 * sin(-camera.yaw) * (double)diff.x();
-					camera.pos.ry() -= 0.5 * sin(-camera.yaw) * -(double)diff.y() + 0.5 * cos(-camera.yaw) * (double)diff.x();
+					movingObject = true;
+					world->removeObject(selectedObject);
+
+					selectedObject->pos = Point(pointedPoint.x(),pointedPoint.y());
+					selectedObject->speed = Vector(0,0);
+					selectedObject->angSpeed = 0;
 				}
 				else
-				{
-					camera.yaw -= 0.01 * (double)diff.x();
-					camera.pitch = clamp(camera.pitch - 0.01 * (double)diff.y(), -M_PI / 2, M_PI / 2);
-				}
+					addErrorMessage(tr("object translation not avalaible in tracking mode"), 3.0);
 			}
-			else if (event->buttons() & Qt::RightButton)
+			else if ((event->pos() - mouseGrabPos).manhattanLength() > 10 )
 			{
-				if (event->modifiers() & Qt::ShiftModifier)
-				{
-					camera.altitude += -(double)diff.y();
-				}
-				else
-				{
-					// TODO: zoom
-				}
+				// TODO multiselection area feature
+				// cool but realy hard to implement with the actual picking system
 			}
-			
+		}
+
+		// rotate camera
+		else if (event->buttons() & Qt::RightButton)
+		{
+			const QPoint diff = event->pos() - mouseGrabPos;
+			const double sensitivity = 4;
+			camera.userYaw -= sensitivity * (double)diff.x() / (1+width());
+
+			const double delta = 0.01;
+			camera.pitch = clamp(camera.pitch - sensitivity * (double)diff.y() / (1+height()), -M_PI / 2 + delta, M_PI / 2 - delta);
+
 			mouseGrabPos = event->pos();
 		}
+
+		// translate camera
+		else if (event->buttons() & Qt::MidButton)
+		{
+			if (!trackingView)
+			{
+				const QPoint diff = event->pos() - mouseGrabPos;
+				const double sensibility = 20 + 2.*camera.altitude;
+				const double sizeFactor = 1 + (width() + height()) / 2;
+				camera.pos.rx() -= sensibility * (diff.x()*camera.left.x() + diff.y()*camera.up.x()) / sizeFactor;
+				camera.pos.ry() -= sensibility * (diff.x()*camera.left.y() + diff.y()*camera.up.y()) / sizeFactor;
+				camera.altitude -= sensibility * (diff.x()*camera.left.z() + diff.y()*camera.up.z()) / sizeFactor;
+				mouseGrabPos = event->pos();
+			}
+			else
+				addErrorMessage(tr("camera translation not avalaible in tracking mode"), 100);
+		}
+	}
+	
+	void ViewerWidget::mouseDoubleClickEvent(QMouseEvent *event)
+	{
+		setTracking(true);
 	}
 	
 	void ViewerWidget::wheelEvent(QWheelEvent * event)
 	{
-		/*if (event->modifiers() & Qt::ShiftModifier)
+		// zoom
+		if (trackingView)
 		{
-			altitude += (double)event->delta() / 100;
-		}*/
-		// TODO: zoom
+			camera.radius *= 1 - 0.0003*event->delta();
+			if (camera.radius < 1.0)
+				camera.radius = 1.0;
+		}
+
+		// translate camera
+		else
+		{
+			const double sensitivity = (1 + 0.1*camera.altitude) * 0.003;
+			camera.pos.rx() += sensitivity * event->delta()*camera.forward.x();
+			camera.pos.ry() += sensitivity * event->delta()*camera.forward.y();
+			camera.altitude += sensitivity * event->delta()*camera.forward.z();
+		}
+	}
+	
+	void ViewerWidget::timerEvent(QTimerEvent * event)
+ 	{
+		world->step(double(timerPeriodMs)/1000., 3);
+		updateGL();
+ 	}
+
+	//! return all button pressed packed in an unsigned int. Used before to send to a robot for a clicked interaction
+	unsigned int ViewerWidget::getButtonCode(QMouseEvent * event)
+	{
+		unsigned int buttonCode;
+		if (event->buttons() & Qt::LeftButton)
+			buttonCode |= PhysicalObject::LEFT_MOUSE_BUTTON;
+		if (event->buttons() & Qt::RightButton)
+			buttonCode |= PhysicalObject::RIGHT_MOUSE_BUTTON;
+		if (event->buttons() & Qt::MiddleButton)
+			buttonCode |= PhysicalObject::MIDDLE_MOUSE_BUTTON;
+		if (event->buttons() & Qt::MidButton)
+			buttonCode |= PhysicalObject::MIDDLE_MOUSE_BUTTON;
+		return buttonCode;
 	}
 }
