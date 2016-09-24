@@ -35,6 +35,7 @@
 #include <enki/PhysicalEngine.h>
 #include <enki/robots/e-puck/EPuck.h>
 #include <enki/robots/marxbot/Marxbot.h>
+#include <enki/robots/thymio2/Thymio2.h>
 #include <QApplication>
 #include <QtGui>
 #include <iostream>
@@ -68,6 +69,15 @@ public:
 		#define PROBLEM_GENERIC_TOY
 		#define PROBLEM_BALL_LINE
 		//#define PROBLEM_LONE_EPUCK
+		#define PROBLEM_CENTERED_THYMIO2
+		
+		#ifdef PROBLEM_CENTERED_THYMIO2
+		{
+			Thymio2 *thymio = new Thymio2;
+			thymio->pos = Point(0, 0);
+			world->addObject(thymio);
+		}
+		#endif // PROBLEM_CENTERED_THYMIO2
 		
 		#ifdef PROBLEM_GENERIC_TOY
 		{
