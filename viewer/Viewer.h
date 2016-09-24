@@ -63,8 +63,6 @@ namespace Enki
 		Q_OBJECT
 	
 	public:
-		const int timerPeriodMs;
-		
 		class ViewerUserData : public PhysicalObject::UserData
 		{
 		public:
@@ -161,7 +159,7 @@ namespace Enki
 
 		void setMovableByPicking(PhysicalObject* object, bool movable);
 
-		void timerEvent(QTimerEvent * event);
+		void timerEvent(double elapsedTime);
 		void keyPressEvent(QKeyEvent* event);
 
 	public slots:

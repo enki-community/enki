@@ -126,7 +126,6 @@ namespace Enki
 
 	ViewerWidget::ViewerWidget(World *world, QWidget *parent) :
 		QGLWidget(parent),
-		timerPeriodMs(30),
 		camera(CameraPose(
 			QPointF(world->w * 0.5, qMax(0., world->r)),
 			qMax(qMax(world->w, world->h), world->r*2) * 0.85,
@@ -784,8 +783,6 @@ namespace Enki
 		
 		// let subclass manage their static types
 		renderObjectsTypesHook();
-		
-		startTimer(timerPeriodMs);
 	}
 	
 	void ViewerWidget::renderScene(float left, float right, float bottom, float top, float zNear, float zFar)
@@ -983,9 +980,9 @@ namespace Enki
 		glViewport(0, 0, width, height);
 	}
 	
-	void ViewerWidget::timerEvent(QTimerEvent * event)
+	void ViewerWidget::timerEvent(double elapsedTime)
 	{
-		world->step(double(timerPeriodMs)/1000., 3);
+		world->step(elapsedTime, 3);
 		updateGL();
 	}
 	
