@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -38,6 +38,7 @@
 #include <enki/robots/e-puck/EPuck.h>
 #include "MarxbotModel.h"
 #include <enki/robots/marxbot/Marxbot.h>
+
 #ifdef Q_OS_WIN
 	#ifndef GL_BGRA
 		// Windows only ships with OpenGL 1.1, while GL_BGRA is defined in version 1.2
@@ -106,26 +107,55 @@ namespace Enki
 		yaw(yaw),
 		pitch(pitch)
 	{
-		
+		update(false);
 	}
 	
+	void ViewerWidget::CameraPose::update(bool trackballMode, QVector3D targetPosition, float zNear)
+	{
+		forward = QVector3D( cos(yaw)*cos(pitch), sin(yaw)*cos(pitch), sin(pitch) );
+		left = QVector3D::crossProduct(QVector3D(0,0,1), forward).normalized();
+		up = QVector3D::crossProduct(forward, left).normalized();
+
+		if(trackballMode)
+		{
+			pos.rx() = targetPosition.x() - radius*forward.x();
+			pos.ry() = targetPosition.y() - radius*forward.y();
+			altitude = targetPosition.z() + zNear*1.01 - radius*forward.z();
+		}
+	}
+
 	ViewerWidget::ViewerWidget(World *world, QWidget *parent) :
 		QGLWidget(parent),
 		timerPeriodMs(30),
-		world(world),
-		worldList(0),
-		mouseGrabbed(false),
 		camera(CameraPose(
 			QPointF(world->w * 0.5, qMax(0., world->r)),
 			qMax(qMax(world->w, world->h), world->r*2) * 0.85,
 			M_PI/2,
 			-(3*M_PI)/8
 		)),
-		wallsHeight(10),
 		doDumpFrames(false),
+		world(world),
+		worldList(0),
+		mouseGrabbed(false),
+		wallsHeight(10),
+		trackballView(false),
 		dumpFramesCounter(0)
 	{
 		initTexturesResources();
+		pointedObject = 0;
+		selectedObject = 0;
+
+		controlError1 = "object translation not avalaible in trackball mode";
+		controlError2 = "camera translation not avalaible in trackball mode";
+		controlHelp = "Control help :\n";
+		controlHelp.append("      keyboard F1 : show this help message\n");
+		controlHelp.append("      middle click + mouse move : translate camera\n");
+		controlHelp.append("      right click + mouse move : rotate camera\n");
+		controlHelp.append("      left click : select object under corsor or unselect object if no one is under cursor\n");
+		controlHelp.append("      left click + mouse move : select object and translate it\n");
+		controlHelp.append("      left click + right click + mouse move : select object and rotate it\n");
+		controlHelp.append("      mouse wheel : zoom (or translate camera)");
+		showHelp();
 	}
 	
 	ViewerWidget::~ViewerWidget()
@@ -150,6 +180,53 @@ namespace Enki
 		}
 	}
 	
+	void ViewerWidget::addManagedObjectsAlias(const std::type_info* key, const std::type_info* value)
+	{
+		managedObjectsAliases[key] = value;
+	}
+
+	World* ViewerWidget::getWorld()
+	{
+		return world;
+	}
+
+	QVector3D ViewerWidget::getPointedPoint()
+	{
+		return pointedPoint;
+	}
+
+	PhysicalObject* ViewerWidget::getPointedObject()
+	{
+		return pointedObject;
+	}
+
+	PhysicalObject* ViewerWidget::getSelectedObject()
+	{
+		return selectedObject;
+	}
+
+	bool ViewerWidget::isTrackballActivated()
+	{
+		return trackballView;
+	}
+
+	QString ViewerWidget::getHelpString()
+	{
+		return controlHelp;
+	}
+
+	bool ViewerWidget::isMovableByPicking(PhysicalObject* object)
+	{
+		std::map<PhysicalObject*, ExtendedAttributes>::iterator it = objectExtendedAttributesList.find(object);
+		if(it != objectExtendedAttributesList.end()) return it->second.movableByPicking;
+		else return false;
+	}
+
+	void ViewerWidget::setMovableByPicking(PhysicalObject* object, bool movable)
+	{
+		objectExtendedAttributesList[object].movableByPicking = movable;
+	}
+
 	void ViewerWidget::setCamera(QPointF pos, double altitude, double yaw, double pitch)
 	{
 		camera.pos = pos;
@@ -173,6 +250,25 @@ namespace Enki
 		doDumpFrames = doDump;
 	}
 	
+	void ViewerWidget::toogleTrackball()
+	{
+		trackballView = !trackballView;
+		camera.radius = 20;
+	}
+
+	void ViewerWidget::sendMessage(QString msg, unsigned int persistance)
+	{
+		messageList.push_back(viewerMessage(msg,persistance));
+	}
+
+	void ViewerWidget::showHelp()
+	{
+		QString str(controlHelp);
+		QStringList slist = str.split("\n");
+		for(int i=0; i<slist.size(); i++)
+			sendMessage(slist[i]);
+	}
+
 	void ViewerWidget::renderSegment(const Segment& segment, double height)
 	{
 		Vector v = segment.b - segment.a;
@@ -326,7 +422,7 @@ namespace Enki
 		glDepthMask( GL_FALSE );
 		glEnable(GL_POLYGON_OFFSET_FILL);
 		
-		// draw corner ground 
+		// draw corner ground
 		glNormal3d(0, 0, 1);
 		glBegin(GL_QUADS);
 		glTexCoord2f(0.01f, 0.01f);
@@ -692,15 +788,12 @@ namespace Enki
 		startTimer(timerPeriodMs);
 	}
 	
-	void ViewerWidget::paintGL()
+	void ViewerWidget::renderScene(float left, float right, float bottom, float top, float zNear, float zFar)
 	{
-		// clean screen
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		float aspectRatio = (float)width() / (float)height();
+		//float aspectRatio = (float)width() / (float)height();
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glFrustum(-1 * aspectRatio, 1 * aspectRatio, -1, 1, 2, 2000);
+		glFrustum(left, right, bottom, top, zNear, zFar);//(-aspectRatio, aspectRatio, -1, 1, 2, 2000);
 		
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
@@ -715,11 +808,10 @@ namespace Enki
 		float LightPosition[] = {world->w/2, world->h/2, 60, 1};
 		glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);
 		
-		// draw world and all objects
 		glCallList(worldList);
 		for (World::ObjectsIterator it = world->objects.begin(); it != world->objects.end(); ++it)
 		{
-			// if required, render this object
+			// if required, initialize this object (display list)
 			if (!(*it)->userData)
 			{
 				bool found = false;
@@ -750,25 +842,138 @@ namespace Enki
 					}
 				}
 				
-				
 				if (!found)
 					renderSimpleObject(*it);
 			}
 			
+			// draw object
 			glPushMatrix();
 			
 			glTranslated((*it)->pos.x, (*it)->pos.y, 0);
 			glRotated(rad2deg * (*it)->angle, 0, 0, 1);
 			
 			ViewerUserData* userData = polymorphic_downcast<ViewerUserData *>((*it)->userData);
+
 			userData->draw(*it);
 			displayObjectHook(*it);
 			
 			glPopMatrix();
 		}
-		
+	}
+
+	void ViewerWidget::picking(float left, float right, float bottom, float top, float zNear, float zFar)
+	{
+		pointedObject = 0;
+		QPoint cursorPosition = mapFromGlobal(QCursor::pos());
+
+		if (!rect().contains(cursorPosition,true)) // window don't contain cursor
+			return;
+
+		// prepare matricies for invertion
+		QMatrix4x4 projection;
+			projection.setToIdentity();
+			projection.frustum(left, right, bottom, top, zNear, zFar);
+		QMatrix4x4 modelview;
+			modelview.setToIdentity();
+			modelview.rotate(-90, 1, 0, 0);
+			modelview.rotate(rad2deg * -camera.pitch, 1, 0, 0);
+			modelview.rotate(90, 0, 0, 1);
+			modelview.rotate(rad2deg * -camera.yaw, 0, 0, 1);
+			modelview.translate(-camera.pos.x(), -camera.pos.y(), -camera.altitude);
+		QMatrix4x4 transformMatrix = (projection*modelview).inverted();
+
+		// cursor position in viewport coordinates
+		float fragmentX = (float)(cursorPosition.x() - width()/2)/(width()/2);
+		float fragmentY = (float)(height() - cursorPosition.y() - height()/2)/(height()/2);
+		float depth;
+		glReadPixels( cursorPosition.x(), height() - cursorPosition.y(), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth );
+
+		QVector4D input(fragmentX, fragmentY, 2*depth - 1, 1);
+		input = transformMatrix*input;
+
+		if (input.w() != 0.0) // valid pointed point
+		{
+			pointedPoint = QVector3D(input.x(),input.y(),input.z());
+			pointedPoint /= input.w();
+		}
+		else return;
+
+		// prepare to find which object is pointed
+		Point cursor2Dpoint(pointedPoint.x(),pointedPoint.y());
+		float cursorRadius = 0.05f;
+		for (World::ObjectsIterator it = world->objects.begin(); it != world->objects.end(); ++it)
+		{
+			const Vector distOCtoOC = (*it)->pos - cursor2Dpoint;		// distance between object bounding circle center and pointed point
+			const double addedRay = (*it)->getRadius() + cursorRadius;	// sum of bounded circle radius
+			if (distOCtoOC.norm2() <= (addedRay*addedRay)) 			// cursor point colide bounding circle
+			{
+				if(!(*it)->getHull().empty())				// check pointer circle and bject hull
+				{
+					PhysicalObject::Hull hull = (*it)->getHull();
+					for (PhysicalObject::Hull::const_iterator it2 = hull.begin(); it2 != hull.end(); ++it2) // check all convex shape of hull
+					{
+						const Polygone shape = it2->getTransformedShape();
+						unsigned int inside = 0;
+
+						// standard test : if circularObject is inside a convex shape
+						for (unsigned int i=0; i<shape.size(); i++)
+						{
+							const size_t next=(i+1)%shape.size();
+							const Segment s(shape[i].x, shape[i].y, shape[next].x, shape[next].y);
+							const double d = s.dist(cursor2Dpoint);
+
+							if(d<0 && std::abs(d)>cursorRadius) // out of hull
+								break;
+							else inside++;
+						}
+						if(inside == shape.size()) // inside of hull
+						{
+							pointedObject = *it;
+							break;
+						}
+					}
+				}
+				else	// object circle collide cursor circle => test already done !
+					pointedObject = *it;
+			}
+		}
+	}
+	void ViewerWidget::displayMessages()
+	{
+		while(messageList.size() > 20)
+			messageList.pop_front();
+
+		unsigned int origin = clamp((int)(height() - (messageList.size()-1)*15)-5, 0, height()-5);
+		unsigned int i = 0;
+		for(std::list<viewerMessage>::iterator it = messageList.begin(); it != messageList.end();i++)
+		{
+			glColor4d(0,0,0,clamp(it->second/30.,0.,1.));
+			renderText(5,origin + i*15,it->first);
+
+			if(it->second)
+			{
+				it->second--;
+				++it;
+			}
+			else it = messageList.erase(it);
+		}
+	}
+
+	void ViewerWidget::paintGL()
+	{
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		float znear = 0.5;
+		if(trackballView && selectedObject)
+			camera.update(true, QVector3D(selectedObject->pos.x,selectedObject->pos.y,selectedObject->getHeight()), znear);
+		else camera.update(false);
+
+		float aspectRatio = (float)width() / (float)height();
+		renderScene(-aspectRatio*0.5*znear, aspectRatio*0.5*znear, -0.5*znear, 0.5*znear, znear, 2000);
 		sceneCompletedHook();
-		
+		picking(-aspectRatio*0.5*znear, aspectRatio*0.5*znear, -0.5*znear, 0.5*znear, znear, 2000);
+		displayMessages();
+
 		if (doDumpFrames)
 			grabFrameBuffer().save(QString("enkiviewer-frame%1.png").arg((int)dumpFramesCounter++, (int)8, (int)10, QChar('0')));
 	}
@@ -784,62 +989,141 @@ namespace Enki
 		updateGL();
 	}
 	
+	void ViewerWidget::keyPressEvent(QKeyEvent* event)
+	{
+		if (event->key() == Qt::Key_F1)
+			showHelp();
+	}
+
 	void ViewerWidget::mousePressEvent(QMouseEvent *event)
 	{
+		// initialization
 		mouseGrabPos = event->pos();
-		/*if (event->button() == Qt::RightButton)
+
+		// change selected object
+		if (event->buttons() & Qt::LeftButton)
 		{
-			mouseGrabbed = true;
-			mouseGrabPos = event->pos();
-		}*/
+			if(selectedObject != pointedObject) trackballView = false;
+			selectedObject = pointedObject;
+		}
+
+		// code button identification for robot
+		int buttonCode = 0;
+		if(event->buttons() & Qt::LeftButton) buttonCode = 1;
+		else if(event->buttons() & Qt::RightButton) buttonCode = 2;
+		else if(event->buttons() & Qt::MiddleButton) buttonCode = 3;
+		else if(event->buttons() & Qt::MidButton) buttonCode = 3;
+
+		// if selected object is a robot call the clicked interaction function
+		Robot* robot = dynamic_cast<Robot*>(pointedObject);
+		if(robot) robot->clickedInteraction(true,buttonCode,pointedPoint.x(),pointedPoint.y(),pointedPoint.z());
 	}
 	
 	void ViewerWidget::mouseReleaseEvent(QMouseEvent * event)
 	{
-		/*if (event->button() == Qt::RightButton)
-			mouseGrabbed = false;*/
+		// enable physics calculation for selected object
+		world->SkipPhysicsObjectsList.erase(selectedObject);
+
+		// code button identification for robot
+		int buttonCode = 0;
+		if(event->buttons() & Qt::LeftButton) buttonCode = 1;
+		else if(event->buttons() & Qt::RightButton) buttonCode = 2;
+		else if(event->buttons() & Qt::MiddleButton) buttonCode = 3;
+		else if(event->buttons() & Qt::MidButton) buttonCode = 3;
+
+		// if selected object is a robot call the clicked interaction function
+		Robot* robot = dynamic_cast<Robot*>(pointedObject);
+		if(robot) robot->clickedInteraction(false,buttonCode,pointedPoint.x(),pointedPoint.y(),pointedPoint.z());
 	}
 	
 	void ViewerWidget::mouseMoveEvent(QMouseEvent *event)
 	{
-		if (event->modifiers() & Qt::ControlModifier)
+		// rotate selected object
+		if ((event->buttons() & Qt::LeftButton) && (event->buttons() & Qt::RightButton))
+		{
+			if (isMovableByPicking(selectedObject))
+			{
+				QPoint diff = event->pos() - mouseGrabPos;
+				selectedObject->angle -= 0.01 * (double)diff.x();
+				mouseGrabPos = event->pos();
+			}
+		}
+
+		// move selected object if it's movable by picking
+		else if (event->buttons() & Qt::LeftButton)
+		{
+			if (isMovableByPicking(selectedObject) && (event->pos() - mouseGrabPos).manhattanLength() > 10 )
+			{
+				if(!trackballView)
+				{
+					world->SkipPhysicsObjectsList.insert(selectedObject);
+
+					selectedObject->pos = Point(pointedPoint.x(),pointedPoint.y());
+					selectedObject->speed = Vector(0,0);
+					selectedObject->angSpeed = 0;
+				}
+				else
+				{
+					if(!messageList.empty() && messageList.back().first == controlError1)
+						messageList.back().second = 100;
+					else sendMessage(controlError1, 100);
+				}
+			}
+			else if((event->pos() - mouseGrabPos).manhattanLength() > 10 )
+			{
+				// TODO multiselection area feature
+				// cool but realy hard to implement with the actual picking system
+			}
+		}
+
+		// rotate camera
+		else if (event->buttons() & Qt::RightButton)
 		{
 			QPoint diff = event->pos() - mouseGrabPos;
-			if (event->buttons() & Qt::LeftButton)
-			{
-				if (event->modifiers() & Qt::ShiftModifier)
-				{
-					camera.pos.rx() -= 0.5 * cos(-camera.yaw) * (double)diff.y() + 0.5 * sin(-camera.yaw) * (double)diff.x();
-					camera.pos.ry() -= 0.5 * sin(-camera.yaw) * -(double)diff.y() + 0.5 * cos(-camera.yaw) * (double)diff.x();
-				}
-				else
-				{
-					camera.yaw -= 0.01 * (double)diff.x();
-					camera.pitch = clamp(camera.pitch - 0.01 * (double)diff.y(), -M_PI / 2, M_PI / 2);
-				}
-			}
-			else if (event->buttons() & Qt::RightButton)
-			{
-				if (event->modifiers() & Qt::ShiftModifier)
-				{
-					camera.altitude += -(double)diff.y();
-				}
-				else
-				{
-					// TODO: zoom
-				}
-			}
-			
+			camera.yaw -= 0.01 * (double)diff.x();
+
+			double delta = 0.01;
+			camera.pitch = clamp(camera.pitch - 0.01 * (double)diff.y(), -M_PI / 2 + delta, M_PI / 2 - delta);
+
 			mouseGrabPos = event->pos();
+		}
+
+		// translate camera
+		else if (event->buttons() & Qt::MidButton)
+		{
+			if(!trackballView)
+			{
+				QPoint diff = event->pos() - mouseGrabPos;
+				double sensibility = 0.03;
+				camera.pos.rx() += sensibility * (diff.x()*camera.left.x() + diff.y()*camera.up.x());
+				camera.pos.ry() += sensibility * (diff.x()*camera.left.y() + diff.y()*camera.up.y());
+				camera.altitude += sensibility * (diff.x()*camera.left.z() + diff.y()*camera.up.z());
+				mouseGrabPos = event->pos();
+			}
+			else
+			{
+				if(!messageList.empty() && messageList.back().first == controlError2)
+					messageList.back().second = 100;
+				else sendMessage(controlError2, 100);
+			}
 		}
 	}
 	
 	void ViewerWidget::wheelEvent(QWheelEvent * event)
 	{
-		/*if (event->modifiers() & Qt::ShiftModifier)
+		// zoom
+		if(trackballView)
 		{
-			altitude += (double)event->delta() / 100;
-		}*/
-		// TODO: zoom
+			camera.radius *= 1 + 0.0003*event->delta();
+			if(camera.radius < 1.0) camera.radius = 1.0;
+		}
+
+		// translate camera
+		else
+		{
+			camera.pos.rx() += 0.003*event->delta()*camera.forward.x();
+			camera.pos.ry() += 0.003*event->delta()*camera.forward.y();
+			camera.altitude += 0.003*event->delta()*camera.forward.z();
+		}
 	}
 }
