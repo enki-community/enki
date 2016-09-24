@@ -40,7 +40,7 @@
 #include <iostream>
 
 #ifdef USE_SDL
-#include <SDL/SDL.h>
+#include <SDL.h>
 #endif
 
 /*!	\file Studio.cpp
