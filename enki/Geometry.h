@@ -36,6 +36,7 @@
 
 #ifdef WIN32
 #define _USE_MATH_DEFINES
+#include <math.h>
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
