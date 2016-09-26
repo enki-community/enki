@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -39,6 +39,8 @@
 #include <QPoint>
 #include <QPointF>
 #include <QMap>
+#include <QVector3D>
+
 #include <enki/Geometry.h>
 #include <enki/PhysicalEngine.h>
 
@@ -61,8 +63,6 @@ namespace Enki
 		Q_OBJECT
 	
 	public:
-		const int timerPeriodMs;
-		
 		class ViewerUserData : public PhysicalObject::UserData
 		{
 		public:
@@ -84,17 +84,29 @@ namespace Enki
 		};
 		
 		// Camera pose
-		struct CameraPose
+		class CameraPose
 		{
-			QPointF pos; //!< (x,y) position of the camera
-			double altitude; //!< altitude (z) of the camera
-			double yaw; //!< yaw angle, mathematical orientation
-			double pitch; //!< pitch angle, negative looking down, positive looking up
-			
+		public:
+			QPointF pos; 		//!< (x,y) position of the camera
+			double altitude;	//!< altitude (z) of the camera
+			double yaw; 		//!< yaw angle, mathematical orientation
+			double pitch; 		//!< pitch angle, negative looking down, positive looking up
+			double radius;		//!< radius distance used in trackball mode to compute camera to tracked object distance
+
+			// the camera base coordinate system
+			QVector3D forward;
+			QVector3D left;
+			QVector3D up;
+
+			// constructor
 			CameraPose(QPointF pos, double altitude, double yaw, double pitch);
+
+			// update camera base coordinate system and camera position for trackball mode
+			void update(bool trackballMode, QVector3D targetPosition = QVector3D(), float zNear = 2.f);
 		};
 		
 		CameraPose camera; //!< current camera pose
+		bool doDumpFrames;
 		
 	protected:
 		World *world;
@@ -111,23 +123,54 @@ namespace Enki
 		typedef QMapIterator<const std::type_info*, const std::type_info*> ManagedObjectsAliasesMapIterator;
 		ManagedObjectsAliasesMap managedObjectsAliases;
 		
+		typedef std::pair<QString, unsigned int> viewerMessage;
+		std::list<viewerMessage> messageList;
+		QString controlError1, controlError2, controlHelp;
+
+		struct ExtendedAttributes {
+			bool movableByPicking;
+
+			ExtendedAttributes():movableByPicking(false){};
+		};
+		std::map<PhysicalObject*, ExtendedAttributes> objectExtendedAttributesList;
+
 		bool mouseGrabbed;
 		QPoint mouseGrabPos;
 		double wallsHeight;
-		
-		bool doDumpFrames;
+		bool trackballView;
 		int dumpFramesCounter;
 	
+		PhysicalObject *pointedObject, *selectedObject;
+		QVector3D pointedPoint;
+
 	public:
 		ViewerWidget(World *world, QWidget *parent = 0);
 		~ViewerWidget();
 	
+		void addManagedObjectsAlias(const std::type_info* key, const std::type_info* value);
+
+		World* getWorld();
+		QVector3D getPointedPoint();
+		PhysicalObject* getPointedObject();
+		PhysicalObject* getSelectedObject();
+		bool isTrackballActivated();
+		QString getHelpString();
+		bool isMovableByPicking(PhysicalObject* object);
+
+		void setMovableByPicking(PhysicalObject* object, bool movable);
+
+		void timerEvent(double elapsedTime);
+		void keyPressEvent(QKeyEvent* event);
+
 	public slots:
 		void setCamera(QPointF pos, double altitude, double yaw, double pitch);
 		void setCamera(double x, double y, double altitude, double yaw, double pitch);
 		void restartDumpFrames();
 		void setDumpFrames(bool doDump);
-		
+		void toogleTrackball();
+		void sendMessage(QString msg, unsigned int persistance = 120);
+		void showHelp();
+
 	protected:
 		void renderInterSegmentShadow(const Vector& a, const Vector& b, const Vector& c, double height);
 		void renderSegmentShadow(const Segment& segment, double height);
@@ -140,12 +183,14 @@ namespace Enki
 		virtual void renderObjectHook(PhysicalObject *object);
 		virtual void displayObjectHook(PhysicalObject *object);
 		virtual void sceneCompletedHook();
-		
+
 		void initializeGL();
 		void paintGL();
 		void resizeGL(int width, int height);
-		
-		void timerEvent(QTimerEvent * event);
+		void renderScene(float left, float right, float bottom, float top, float zNear, float zFar);
+		void picking(float left, float right, float bottom, float top, float zNear, float zFar);
+		void displayMessages();
+
 		void mousePressEvent(QMouseEvent *event);
 		void mouseReleaseEvent(QMouseEvent * event);
 		void mouseMoveEvent(QMouseEvent *event);
