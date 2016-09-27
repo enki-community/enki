@@ -4,9 +4,6 @@ if (CMAKE_HOST_UNIX)
 	add_definitions("-fPIC")
 endif (CMAKE_HOST_UNIX)
 
-if (MSVC)
-	add_definitions(-DWIN32)
-endif (MSVC)
 
 add_library(enki
 	Geometry.cpp

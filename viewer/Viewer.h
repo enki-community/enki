@@ -86,9 +86,8 @@ namespace Enki
 		};
 		
 		// Camera pose
-		class CameraPose
+		struct CameraPose
 		{
-		public:
 			QPointF pos; 		//!< (x,y) position of the camera
 			double altitude;	//!< altitude (z) of the camera
 			double yaw; 		//!< yaw angle, mathematical orientation
@@ -127,9 +126,12 @@ namespace Enki
 		
 		typedef std::pair<QString, unsigned int> viewerMessage;
 		std::list<viewerMessage> messageList;
-		QString controlError1, controlError2, controlHelp;
+		QString controlError1;	// dislpayed if user try to move an object in trackball mode : action forbiden to prevent glitchies
+		QString controlError2;	// dislpayed if user try to move camera in trackball mode
+		QString controlHelp;	// dislpayed if user press F1
 
-		struct ExtendedAttributes {
+		struct ExtendedAttributes
+		{
 			bool movableByPicking;
 
 			ExtendedAttributes():movableByPicking(false){};
@@ -139,6 +141,7 @@ namespace Enki
 		bool mouseGrabbed;
 		QPoint mouseGrabPos;
 		double wallsHeight;
+		//! to know if camera is in trackball mode
 		bool trackballView;
 		int dumpFramesCounter;
 	

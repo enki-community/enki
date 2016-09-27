@@ -116,7 +116,7 @@ namespace Enki
 		left = QVector3D::crossProduct(QVector3D(0,0,1), forward).normalized();
 		up = QVector3D::crossProduct(forward, left).normalized();
 
-		if(trackballMode)
+		if (trackballMode)
 		{
 			pos.rx() = targetPosition.x() - radius*forward.x();
 			pos.ry() = targetPosition.y() - radius*forward.y();
@@ -218,7 +218,7 @@ namespace Enki
 	bool ViewerWidget::isMovableByPicking(PhysicalObject* object)
 	{
 		std::map<PhysicalObject*, ExtendedAttributes>::iterator it = objectExtendedAttributesList.find(object);
-		if(it != objectExtendedAttributesList.end()) return it->second.movableByPicking;
+		if (it != objectExtendedAttributesList.end()) return it->second.movableByPicking;
 		else return false;
 	}
 
@@ -907,7 +907,7 @@ namespace Enki
 			const double addedRay = (*it)->getRadius() + cursorRadius;	// sum of bounded circle radius
 			if (distOCtoOC.norm2() <= (addedRay*addedRay)) 			// cursor point colide bounding circle
 			{
-				if(!(*it)->getHull().empty())				// check pointer circle and bject hull
+				if (!(*it)->getHull().empty())				// check pointer circle and bject hull
 				{
 					PhysicalObject::Hull hull = (*it)->getHull();
 					for (PhysicalObject::Hull::const_iterator it2 = hull.begin(); it2 != hull.end(); ++it2) // check all convex shape of hull
@@ -922,11 +922,11 @@ namespace Enki
 							const Segment s(shape[i].x, shape[i].y, shape[next].x, shape[next].y);
 							const double d = s.dist(cursor2Dpoint);
 
-							if(d<0 && std::abs(d)>cursorRadius) // out of hull
+							if (d<0 && std::abs(d)>cursorRadius) // out of hull
 								break;
 							else inside++;
 						}
-						if(inside == shape.size()) // inside of hull
+						if (inside == shape.size()) // inside of hull
 						{
 							pointedObject = *it;
 							break;
@@ -950,7 +950,7 @@ namespace Enki
 			glColor4d(0,0,0,clamp(it->second/30.,0.,1.));
 			renderText(5,origin + i*15,it->first);
 
-			if(it->second)
+			if (it->second)
 			{
 				it->second--;
 				++it;
@@ -964,7 +964,7 @@ namespace Enki
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		float znear = 0.5;
-		if(trackballView && selectedObject)
+		if (trackballView && selectedObject)
 			camera.update(true, QVector3D(selectedObject->pos.x,selectedObject->pos.y,selectedObject->getHeight()), znear);
 		else camera.update(false);
 
@@ -1003,37 +1003,37 @@ namespace Enki
 		// change selected object
 		if (event->buttons() & Qt::LeftButton)
 		{
-			if(selectedObject != pointedObject) trackballView = false;
+			if (selectedObject != pointedObject) trackballView = false;
 			selectedObject = pointedObject;
 		}
 
 		// code button identification for robot
-		int buttonCode = 0;
-		if(event->buttons() & Qt::LeftButton) buttonCode = 1;
-		else if(event->buttons() & Qt::RightButton) buttonCode = 2;
-		else if(event->buttons() & Qt::MiddleButton) buttonCode = 3;
-		else if(event->buttons() & Qt::MidButton) buttonCode = 3;
+		unsigned int buttonCode;
+		if (event->buttons() & Qt::LeftButton) buttonCode |= Robot::LEFT;
+		if (event->buttons() & Qt::RightButton) buttonCode |= Robot::RIGHT;
+		if (event->buttons() & Qt::MiddleButton) buttonCode |= Robot::MIDDLE;
+		if (event->buttons() & Qt::MidButton) buttonCode |= Robot::MIDDLE;
 
 		// if selected object is a robot call the clicked interaction function
 		Robot* robot = dynamic_cast<Robot*>(pointedObject);
-		if(robot) robot->clickedInteraction(true,buttonCode,pointedPoint.x(),pointedPoint.y(),pointedPoint.z());
+		if (robot) robot->clickedInteraction(true,buttonCode,pointedPoint.x(),pointedPoint.y(),pointedPoint.z());
 	}
 	
 	void ViewerWidget::mouseReleaseEvent(QMouseEvent * event)
 	{
 		// enable physics calculation for selected object
-		world->SkipPhysicsObjectsList.erase(selectedObject);
+		world->SkipPhysicsObjectsContainer.erase(selectedObject);
 
 		// code button identification for robot
-		int buttonCode = 0;
-		if(event->buttons() & Qt::LeftButton) buttonCode = 1;
-		else if(event->buttons() & Qt::RightButton) buttonCode = 2;
-		else if(event->buttons() & Qt::MiddleButton) buttonCode = 3;
-		else if(event->buttons() & Qt::MidButton) buttonCode = 3;
+		unsigned int buttonCode;
+		if (event->buttons() & Qt::LeftButton) buttonCode |= Robot::LEFT;
+		if (event->buttons() & Qt::RightButton) buttonCode |= Robot::RIGHT;
+		if (event->buttons() & Qt::MiddleButton) buttonCode |= Robot::MIDDLE;
+		if (event->buttons() & Qt::MidButton) buttonCode |= Robot::MIDDLE;
 
 		// if selected object is a robot call the clicked interaction function
 		Robot* robot = dynamic_cast<Robot*>(pointedObject);
-		if(robot) robot->clickedInteraction(false,buttonCode,pointedPoint.x(),pointedPoint.y(),pointedPoint.z());
+		if (robot) robot->clickedInteraction(false,buttonCode,pointedPoint.x(),pointedPoint.y(),pointedPoint.z());
 	}
 	
 	void ViewerWidget::mouseMoveEvent(QMouseEvent *event)
@@ -1054,9 +1054,9 @@ namespace Enki
 		{
 			if (isMovableByPicking(selectedObject) && (event->pos() - mouseGrabPos).manhattanLength() > 10 )
 			{
-				if(!trackballView)
+				if (!trackballView)
 				{
-					world->SkipPhysicsObjectsList.insert(selectedObject);
+					world->SkipPhysicsObjectsContainer.insert(selectedObject);
 
 					selectedObject->pos = Point(pointedPoint.x(),pointedPoint.y());
 					selectedObject->speed = Vector(0,0);
@@ -1064,12 +1064,12 @@ namespace Enki
 				}
 				else
 				{
-					if(!messageList.empty() && messageList.back().first == controlError1)
+					if (!messageList.empty() && messageList.back().first == controlError1)
 						messageList.back().second = 100;
 					else sendMessage(controlError1, 100);
 				}
 			}
-			else if((event->pos() - mouseGrabPos).manhattanLength() > 10 )
+			else if ((event->pos() - mouseGrabPos).manhattanLength() > 10 )
 			{
 				// TODO multiselection area feature
 				// cool but realy hard to implement with the actual picking system
@@ -1091,7 +1091,7 @@ namespace Enki
 		// translate camera
 		else if (event->buttons() & Qt::MidButton)
 		{
-			if(!trackballView)
+			if (!trackballView)
 			{
 				QPoint diff = event->pos() - mouseGrabPos;
 				double sensibility = 0.03;
@@ -1102,7 +1102,7 @@ namespace Enki
 			}
 			else
 			{
-				if(!messageList.empty() && messageList.back().first == controlError2)
+				if (!messageList.empty() && messageList.back().first == controlError2)
 					messageList.back().second = 100;
 				else sendMessage(controlError2, 100);
 			}
@@ -1112,10 +1112,10 @@ namespace Enki
 	void ViewerWidget::wheelEvent(QWheelEvent * event)
 	{
 		// zoom
-		if(trackballView)
+		if (trackballView)
 		{
 			camera.radius *= 1 + 0.0003*event->delta();
-			if(camera.radius < 1.0) camera.radius = 1.0;
+			if (camera.radius < 1.0) camera.radius = 1.0;
 		}
 
 		// translate camera

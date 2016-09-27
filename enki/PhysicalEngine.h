@@ -312,6 +312,15 @@ namespace Enki
 		void setCustomHull(const Hull& hull, double mass);
 		//! Set the overall color of this object, if hull is empty or if it does not contain any texture
 		void setColor(const Color &color);
+
+		enum ButtonCode
+		{
+			LEFT = 1<<0,
+			RIGHT = 1<<1,
+			MIDDLE = 1<<3
+		};
+		//! called for robot if a click is performed on it
+		virtual void clickedInteraction(bool pressed,unsigned int buttonCode, double pointX, double pointY, double pointZ){};
 		
 	private:		// setup methods
 		
@@ -396,8 +405,6 @@ namespace Enki
 		virtual void doGlobalInteractions(double dt, World* w);
 		//! Sort local interactions. Called by addLocalInteraction ; can be called by subclasses in case of interaction radius change.
 		void sortLocalInteractions(void);
-
-		virtual void clickedInteraction(bool pressed, int buttonCode, double pointX, double pointY, double pointZ){};
 	};
 
 	//! The world is the container of all objects and robots.
@@ -453,7 +460,8 @@ namespace Enki
 		
 		//! All the objects in the world
 		Objects objects;
-		Objects SkipPhysicsObjectsList;
+		//! A list to defined object for which the physics will be skipped
+		Objects SkipPhysicsObjectsContainer;
 		//! Base for the Bluetooth connections between robots
 		BluetoothBase* bluetoothBase;
 
