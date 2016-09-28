@@ -793,8 +793,6 @@ namespace Enki
 		
 		// let subclass manage their static types
 		renderObjectsTypesHook();
-		
-		startTimer(timerPeriodMs);
 	}
 	
 	void ViewerWidget::renderScene(float left, float right, float bottom, float top, float zNear, float zFar)
@@ -1005,12 +1003,6 @@ namespace Enki
 	void ViewerWidget::resizeGL(int width, int height)
 	{
 		glViewport(0, 0, width, height);
-	}
-	
-	void ViewerWidget::timerEvent(QTimerEvent * event)
-	{
-		world->step(double(timerPeriodMs)/1000., 3);
-		updateGL();
 	}
 	
 	void ViewerWidget::keyPressEvent(QKeyEvent* event)

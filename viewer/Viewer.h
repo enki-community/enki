@@ -48,7 +48,6 @@
 	\brief Definition of the Qt-based viewer widget
 */
 
-class QTimerEvent;
 class QMouseEvent;
 class QWheelEvent;
 class QWidget;
@@ -172,7 +171,6 @@ namespace Enki
 		void setMovableByPicking(PhysicalObject* object, bool movable);
 		void removeExtendedAttributes(PhysicalObject* object);
 
-		void timerEvent(QTimerEvent * event);
 		void keyPressEvent(QKeyEvent* event);
 
 	public slots:

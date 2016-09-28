@@ -185,6 +185,8 @@ public:
 		#endif // USE_SDL
 		camera.altitude = 150;
 		camera.pos = QPointF(0,-60);
+
+		startTimer(timerPeriodMs);
 	}
 	
 	void addDefaultsRobots(World *world)
@@ -280,7 +282,9 @@ public:
 				delete o;
 			}
 		}
-		ViewerWidget::timerEvent(event);
+		
+		world->step(double(timerPeriodMs)/1000., 3);
+		updateGL();
 	}
 	
 	virtual void keyPressEvent ( QKeyEvent * event )
