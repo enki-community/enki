@@ -147,6 +147,7 @@ namespace Enki
 	
 		PhysicalObject *pointedObject, *selectedObject;
 		QVector3D pointedPoint;
+		bool movingObject;
 
 	public:
 		ViewerWidget(World *world, QWidget *parent = 0);

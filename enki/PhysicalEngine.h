@@ -457,8 +457,6 @@ namespace Enki
 		
 		//! All the objects in the world
 		Objects objects;
-		//! A list to defined object for which the physics will be skipped
-		Objects skipPhysicsObjectsContainer;
 		//! Base for the Bluetooth connections between robots
 		BluetoothBase* bluetoothBase;
 

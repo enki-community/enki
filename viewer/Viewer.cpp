@@ -144,6 +144,7 @@ namespace Enki
 		initTexturesResources();
 		pointedObject = 0;
 		selectedObject = 0;
+		movingObject = false;
 
 		controlError1 = "object translation not avalaible in trackball mode";
 		controlError2 = "camera translation not avalaible in trackball mode";
@@ -867,6 +868,21 @@ namespace Enki
 			
 			glPopMatrix();
 		}
+
+		if (movingObject)
+		{
+			glPushMatrix();
+			
+			glTranslated(selectedObject->pos.x, selectedObject->pos.y, 0);
+			glRotated(rad2deg * selectedObject->angle, 0, 0, 1);
+			
+			ViewerUserData* userData = polymorphic_downcast<ViewerUserData *>(selectedObject->userData);
+
+			userData->draw(selectedObject);
+			displayObjectHook(selectedObject);
+			
+			glPopMatrix();
+		}
 	}
 
 	void ViewerWidget::picking(float left, float right, float bottom, float top, float zNear, float zFar)
@@ -1023,7 +1039,8 @@ namespace Enki
 	void ViewerWidget::mouseReleaseEvent(QMouseEvent * event)
 	{
 		// enable physics calculation for selected object
-		world->skipPhysicsObjectsContainer.erase(selectedObject);
+		if(selectedObject) world->addObject(selectedObject);
+		movingObject = false;
 
 		// if selected object is a robot call the clicked interaction function
 		Robot* robot = dynamic_cast<Robot*>(pointedObject);
@@ -1037,6 +1054,9 @@ namespace Enki
 		{
 			if (isMovableByPicking(selectedObject))
 			{
+				movingObject = true;
+				world->removeObject(selectedObject);
+
 				QPoint diff = event->pos() - mouseGrabPos;
 				selectedObject->angle -= 0.01 * (double)diff.x();
 				mouseGrabPos = event->pos();
@@ -1050,7 +1070,8 @@ namespace Enki
 			{
 				if (!trackballView)
 				{
-					world->skipPhysicsObjectsContainer.insert(selectedObject);
+					movingObject = true;
+					world->removeObject(selectedObject);
 
 					selectedObject->pos = Point(pointedPoint.x(),pointedPoint.y());
 					selectedObject->speed = Vector(0,0);
