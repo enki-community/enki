@@ -4,7 +4,6 @@ if (CMAKE_HOST_UNIX)
 	add_definitions("-fPIC")
 endif (CMAKE_HOST_UNIX)
 
-
 add_library(enki
 	Geometry.cpp
 	Types.cpp

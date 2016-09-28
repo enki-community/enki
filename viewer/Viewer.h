@@ -124,8 +124,8 @@ namespace Enki
 		typedef QMapIterator<const std::type_info*, const std::type_info*> ManagedObjectsAliasesMapIterator;
 		ManagedObjectsAliasesMap managedObjectsAliases;
 		
-		typedef std::pair<QString, unsigned int> viewerMessage;
-		std::list<viewerMessage> messageList;
+		typedef std::pair<QString, unsigned int> ViewerErrorMessage;
+		std::list<ViewerErrorMessage> messageList;
 		QString controlError1;	// dislpayed if user try to move an object in trackball mode : action forbiden to prevent glitchies
 		QString controlError2;	// dislpayed if user try to move camera in trackball mode
 		QString controlHelp;	// dislpayed if user press F1
@@ -155,14 +155,21 @@ namespace Enki
 		void addManagedObjectsAlias(const std::type_info* key, const std::type_info* value);
 
 		World* getWorld();
-		QVector3D getPointedPoint();
+		QVector3D getPointedPoint() const;
 		PhysicalObject* getPointedObject();
 		PhysicalObject* getSelectedObject();
-		bool isTrackballActivated();
-		QString getHelpString();
-		bool isMovableByPicking(PhysicalObject* object);
+		bool isTrackballActivated() const;
+		QString getHelpString() const;
+		bool isMovableByPicking(PhysicalObject* object) const;
 
+		/*!
+			\brief Specify if an object is movable by picking.
+			By default all object are not movable, so it's prefered to only specify object wich are mouvable by picking.
+			This function add an extended attribute to an object using an association table, so it's to the user responsibility to
+			delete the extended parameter if object is remove to the world, using the "removeExtendedAttributes" function
+		*/
 		void setMovableByPicking(PhysicalObject* object, bool movable);
+		void removeExtendedAttributes(PhysicalObject* object);
 
 		void timerEvent(QTimerEvent * event);
 		void keyPressEvent(QKeyEvent* event);
@@ -173,7 +180,7 @@ namespace Enki
 		void restartDumpFrames();
 		void setDumpFrames(bool doDump);
 		void toogleTrackball();
-		void sendMessage(QString msg, unsigned int persistance = 120);
+		void addErrorMessage(const QString& msg, unsigned int persistance = 120);
 		void showHelp();
 
 	protected:
@@ -200,6 +207,9 @@ namespace Enki
 		void mouseReleaseEvent(QMouseEvent * event);
 		void mouseMoveEvent(QMouseEvent *event);
 		void wheelEvent(QWheelEvent * event);
+
+		//! return all button pressed packed in an unsigned int. Used before to send to a robot for a clicked interaction
+		unsigned int getButtonCode(QMouseEvent * event);
 	};
 }
 

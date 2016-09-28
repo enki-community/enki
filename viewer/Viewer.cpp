@@ -190,7 +190,7 @@ namespace Enki
 		return world;
 	}
 
-	QVector3D ViewerWidget::getPointedPoint()
+	QVector3D ViewerWidget::getPointedPoint() const
 	{
 		return pointedPoint;
 	}
@@ -205,19 +205,19 @@ namespace Enki
 		return selectedObject;
 	}
 
-	bool ViewerWidget::isTrackballActivated()
+	bool ViewerWidget::isTrackballActivated() const
 	{
 		return trackballView;
 	}
 
-	QString ViewerWidget::getHelpString()
+	QString ViewerWidget::getHelpString() const
 	{
 		return controlHelp;
 	}
 
-	bool ViewerWidget::isMovableByPicking(PhysicalObject* object)
+	bool ViewerWidget::isMovableByPicking(PhysicalObject* object) const
 	{
-		std::map<PhysicalObject*, ExtendedAttributes>::iterator it = objectExtendedAttributesList.find(object);
+		std::map<PhysicalObject*, ExtendedAttributes>::const_iterator it = objectExtendedAttributesList.find(object);
 		if (it != objectExtendedAttributesList.end()) return it->second.movableByPicking;
 		else return false;
 	}
@@ -256,17 +256,25 @@ namespace Enki
 		camera.radius = 20;
 	}
 
-	void ViewerWidget::sendMessage(QString msg, unsigned int persistance)
+	void ViewerWidget::addErrorMessage(const QString& msg, unsigned int persistance)
 	{
-		messageList.push_back(viewerMessage(msg,persistance));
+		for (std::list<ViewerErrorMessage>::iterator it = messageList.begin(); it!=messageList.end(); it++)
+		{
+			if (it->first == msg)
+			{
+				it->second = persistance;
+				return;
+			}
+		}
+		messageList.push_back(ViewerErrorMessage(msg,persistance));
 	}
 
 	void ViewerWidget::showHelp()
 	{
 		QString str(controlHelp);
 		QStringList slist = str.split("\n");
-		for(int i=0; i<slist.size(); i++)
-			sendMessage(slist[i]);
+		for (int i=0; i<slist.size(); i++)
+			addErrorMessage(slist[i]);
 	}
 
 	void ViewerWidget::renderSegment(const Segment& segment, double height)
@@ -940,12 +948,12 @@ namespace Enki
 	}
 	void ViewerWidget::displayMessages()
 	{
-		while(messageList.size() > 20)
+		while (messageList.size() > 20)
 			messageList.pop_front();
 
 		unsigned int origin = clamp((int)(height() - (messageList.size()-1)*15)-5, 0, height()-5);
 		unsigned int i = 0;
-		for(std::list<viewerMessage>::iterator it = messageList.begin(); it != messageList.end();i++)
+		for (std::list<ViewerErrorMessage>::iterator it = messageList.begin(); it != messageList.end();i++)
 		{
 			glColor4d(0,0,0,clamp(it->second/30.,0.,1.));
 			renderText(5,origin + i*15,it->first);
@@ -1007,33 +1015,19 @@ namespace Enki
 			selectedObject = pointedObject;
 		}
 
-		// code button identification for robot
-		unsigned int buttonCode;
-		if (event->buttons() & Qt::LeftButton) buttonCode |= Robot::LEFT;
-		if (event->buttons() & Qt::RightButton) buttonCode |= Robot::RIGHT;
-		if (event->buttons() & Qt::MiddleButton) buttonCode |= Robot::MIDDLE;
-		if (event->buttons() & Qt::MidButton) buttonCode |= Robot::MIDDLE;
-
 		// if selected object is a robot call the clicked interaction function
 		Robot* robot = dynamic_cast<Robot*>(pointedObject);
-		if (robot) robot->clickedInteraction(true,buttonCode,pointedPoint.x(),pointedPoint.y(),pointedPoint.z());
+		if (robot) robot->clickedInteraction(true,getButtonCode(event),pointedPoint.x(),pointedPoint.y(),pointedPoint.z());
 	}
 	
 	void ViewerWidget::mouseReleaseEvent(QMouseEvent * event)
 	{
 		// enable physics calculation for selected object
-		world->SkipPhysicsObjectsContainer.erase(selectedObject);
-
-		// code button identification for robot
-		unsigned int buttonCode;
-		if (event->buttons() & Qt::LeftButton) buttonCode |= Robot::LEFT;
-		if (event->buttons() & Qt::RightButton) buttonCode |= Robot::RIGHT;
-		if (event->buttons() & Qt::MiddleButton) buttonCode |= Robot::MIDDLE;
-		if (event->buttons() & Qt::MidButton) buttonCode |= Robot::MIDDLE;
+		world->skipPhysicsObjectsContainer.erase(selectedObject);
 
 		// if selected object is a robot call the clicked interaction function
 		Robot* robot = dynamic_cast<Robot*>(pointedObject);
-		if (robot) robot->clickedInteraction(false,buttonCode,pointedPoint.x(),pointedPoint.y(),pointedPoint.z());
+		if (robot) robot->clickedInteraction(false,getButtonCode(event),pointedPoint.x(),pointedPoint.y(),pointedPoint.z());
 	}
 	
 	void ViewerWidget::mouseMoveEvent(QMouseEvent *event)
@@ -1056,18 +1050,13 @@ namespace Enki
 			{
 				if (!trackballView)
 				{
-					world->SkipPhysicsObjectsContainer.insert(selectedObject);
+					world->skipPhysicsObjectsContainer.insert(selectedObject);
 
 					selectedObject->pos = Point(pointedPoint.x(),pointedPoint.y());
 					selectedObject->speed = Vector(0,0);
 					selectedObject->angSpeed = 0;
 				}
-				else
-				{
-					if (!messageList.empty() && messageList.back().first == controlError1)
-						messageList.back().second = 100;
-					else sendMessage(controlError1, 100);
-				}
+				else addErrorMessage(controlError1, 100);
 			}
 			else if ((event->pos() - mouseGrabPos).manhattanLength() > 10 )
 			{
@@ -1100,12 +1089,7 @@ namespace Enki
 				camera.altitude += sensibility * (diff.x()*camera.left.z() + diff.y()*camera.up.z());
 				mouseGrabPos = event->pos();
 			}
-			else
-			{
-				if (!messageList.empty() && messageList.back().first == controlError2)
-					messageList.back().second = 100;
-				else sendMessage(controlError2, 100);
-			}
+			else addErrorMessage(controlError2, 100);
 		}
 	}
 	
@@ -1125,5 +1109,15 @@ namespace Enki
 			camera.pos.ry() += 0.003*event->delta()*camera.forward.y();
 			camera.altitude += 0.003*event->delta()*camera.forward.z();
 		}
+	}
+
+	unsigned int ViewerWidget::getButtonCode(QMouseEvent * event)
+	{
+		unsigned int buttonCode;
+		if (event->buttons() & Qt::LeftButton) buttonCode |= PhysicalObject::LEFT_MOUSE_BUTTON;
+		if (event->buttons() & Qt::RightButton) buttonCode |= PhysicalObject::RIGHT_MOUSE_BUTTON;
+		if (event->buttons() & Qt::MiddleButton) buttonCode |= PhysicalObject::MIDDLE_MOUSE_BUTTON;
+		if (event->buttons() & Qt::MidButton) buttonCode |= PhysicalObject::MIDDLE_MOUSE_BUTTON;
+		return buttonCode;
 	}
 }

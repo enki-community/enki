@@ -225,7 +225,7 @@ namespace Enki
 	
 	const double PhysicalObject::g = 9.81;
 	
-	PhysicalObject::PhysicalObject() :
+	PhysicalObject::PhysicalObject(void) :
 		userData(NULL),
 		// default physical parameters
 		collisionElasticity(0.9),
@@ -1146,7 +1146,7 @@ namespace Enki
 			// init physics interactions
 			for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 			{
-				if (SkipPhysicsObjectsContainer.find(*i) == SkipPhysicsObjectsContainer.end())
+				if (skipPhysicsObjectsContainer.find(*i) == skipPhysicsObjectsContainer.end())
 					(*i)->initPhysicsInteractions(overSampledDt);
 			}
 			
@@ -1155,13 +1155,13 @@ namespace Enki
 			iCounter = 0;
 			for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 			{
-				if (SkipPhysicsObjectsContainer.find(*i) != SkipPhysicsObjectsContainer.end())
+				if (skipPhysicsObjectsContainer.find(*i) != skipPhysicsObjectsContainer.end())
 					continue;
 
 				jCounter = 0;
 				for (ObjectsIterator j = objects.begin(); j != objects.end(); ++j)
 				{
-					if (SkipPhysicsObjectsContainer.find(*j) != SkipPhysicsObjectsContainer.end())
+					if (skipPhysicsObjectsContainer.find(*j) != skipPhysicsObjectsContainer.end())
 						continue;
 
 					if (iCounter < jCounter)
@@ -1176,7 +1176,7 @@ namespace Enki
 			// collide objects with walls and physics step
 			for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 			{
-				if (SkipPhysicsObjectsContainer.find(*i) != SkipPhysicsObjectsContainer.end())
+				if (skipPhysicsObjectsContainer.find(*i) != skipPhysicsObjectsContainer.end())
 					continue;
 
 				switch (wallsType)
@@ -1192,7 +1192,7 @@ namespace Enki
 		// init non-physics interactions
 		for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 		{
-			if (SkipPhysicsObjectsContainer.find(*i) != SkipPhysicsObjectsContainer.end())
+			if (skipPhysicsObjectsContainer.find(*i) != skipPhysicsObjectsContainer.end())
 				continue;
 
 			(*i)->initLocalInteractions(dt, this);
@@ -1202,12 +1202,12 @@ namespace Enki
 		// interact objects together
 		for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 		{
-			if (SkipPhysicsObjectsContainer.find(*i) != SkipPhysicsObjectsContainer.end())
+			if (skipPhysicsObjectsContainer.find(*i) != skipPhysicsObjectsContainer.end())
 				continue;
 
 			for (ObjectsIterator j = objects.begin(); j != objects.end(); ++j)
 			{
-				if (SkipPhysicsObjectsContainer.find(*j) != SkipPhysicsObjectsContainer.end())
+				if (skipPhysicsObjectsContainer.find(*j) != skipPhysicsObjectsContainer.end())
 					continue;
 
 				if ((*i) != (*j))
@@ -1220,7 +1220,7 @@ namespace Enki
 		// interact objects with walls and control step
 		for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 		{
-			if (SkipPhysicsObjectsContainer.find(*i) != SkipPhysicsObjectsContainer.end())
+			if (skipPhysicsObjectsContainer.find(*i) != skipPhysicsObjectsContainer.end())
 				continue;
 
 			PhysicalObject* o = *i;

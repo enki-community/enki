@@ -315,12 +315,12 @@ namespace Enki
 
 		enum ButtonCode
 		{
-			LEFT = 1<<0,
-			RIGHT = 1<<1,
-			MIDDLE = 1<<3
+			LEFT_MOUSE_BUTTON = 1<<0,
+			RIGHT_MOUSE_BUTTON = 1<<1,
+			MIDDLE_MOUSE_BUTTON = 1<<3
 		};
 		//! called for robot if a click is performed on it
-		virtual void clickedInteraction(bool pressed,unsigned int buttonCode, double pointX, double pointY, double pointZ){};
+		virtual void clickedInteraction(bool pressed, unsigned int buttonCode, double pointX, double pointY, double pointZ){};
 		
 	private:		// setup methods
 		
@@ -385,9 +385,6 @@ namespace Enki
 		std::vector<GlobalInteraction *> globalInteractions;
 		
 	public:
-		//! Constructor
-		Robot() : PhysicalObject() {};
-
 		//! Add a new local interaction, re-sort interaction vector from long ranged to short ranged.
 		void addLocalInteraction(LocalInteraction *li);
 		//! Add a global interaction, just add it at the end of the vector.
@@ -461,7 +458,7 @@ namespace Enki
 		//! All the objects in the world
 		Objects objects;
 		//! A list to defined object for which the physics will be skipped
-		Objects SkipPhysicsObjectsContainer;
+		Objects skipPhysicsObjectsContainer;
 		//! Base for the Bluetooth connections between robots
 		BluetoothBase* bluetoothBase;
 
