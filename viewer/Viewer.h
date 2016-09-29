@@ -171,8 +171,6 @@ namespace Enki
 		void setMovableByPicking(PhysicalObject* object, bool movable);
 		void removeExtendedAttributes(PhysicalObject* object);
 
-		void keyPressEvent(QKeyEvent* event);
-
 	public slots:
 		void setCamera(QPointF pos, double altitude, double yaw, double pitch);
 		void setCamera(double x, double y, double altitude, double yaw, double pitch);
@@ -181,6 +179,8 @@ namespace Enki
 		void toogleTrackball();
 		void addErrorMessage(const QString& msg, unsigned int persistance = 120);
 		void showHelp();
+
+		void keyPressEvent(QKeyEvent* event);
 
 	protected:
 		void renderInterSegmentShadow(const Vector& a, const Vector& b, const Vector& c, double height);
