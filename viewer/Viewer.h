@@ -181,8 +181,6 @@ namespace Enki
 		void addErrorMessage(const QString& msg, double persistance = 4.0);
 		void showHelp();
 
-		void keyPressEvent(QKeyEvent* event);
-
 	protected:
 		void renderInterSegmentShadow(const Vector& a, const Vector& b, const Vector& c, double height);
 		void renderSegmentShadow(const Segment& segment, double height);
@@ -207,6 +205,7 @@ namespace Enki
 		void mouseReleaseEvent(QMouseEvent * event);
 		void mouseMoveEvent(QMouseEvent *event);
 		void wheelEvent(QWheelEvent * event);
+		virtual void keyPressEvent(QKeyEvent* event);
 
 		//! return all button pressed packed in an unsigned int. Used before to send to a robot for a clicked interaction
 		unsigned int getButtonCode(QMouseEvent * event);
