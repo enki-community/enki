@@ -145,6 +145,7 @@ namespace Enki
 		pointedObject = 0;
 		selectedObject = 0;
 		movingObject = false;
+		elapsedTime = double(30)/1000.; // average second between two frame, can be updated each frame to better precision
 
 		controlError1 = "object translation not avalaible in trackball mode";
 		controlError2 = "camera translation not avalaible in trackball mode";
@@ -257,7 +258,7 @@ namespace Enki
 		camera.radius = 20;
 	}
 
-	void ViewerWidget::addErrorMessage(const QString& msg, unsigned int persistance)
+	void ViewerWidget::addErrorMessage(const QString& msg, double persistance)
 	{
 		for (std::list<ViewerErrorMessage>::iterator it = messageList.begin(); it!=messageList.end(); it++)
 		{
@@ -969,12 +970,12 @@ namespace Enki
 		unsigned int i = 0;
 		for (std::list<ViewerErrorMessage>::iterator it = messageList.begin(); it != messageList.end();i++)
 		{
-			glColor4d(0,0,0,clamp(it->second/30.,0.,1.));
+			glColor4d(0,0,0,clamp(it->second,0.,1.));
 			renderText(5,origin + i*15,it->first);
 
 			if (it->second)
 			{
-				it->second--;
+				it->second -= elapsedTime;
 				++it;
 			}
 			else it = messageList.erase(it);
@@ -1069,7 +1070,7 @@ namespace Enki
 					selectedObject->speed = Vector(0,0);
 					selectedObject->angSpeed = 0;
 				}
-				else addErrorMessage(controlError1, 100);
+				else addErrorMessage(controlError1, 3.0);
 			}
 			else if ((event->pos() - mouseGrabPos).manhattanLength() > 10 )
 			{

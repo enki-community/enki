@@ -283,7 +283,8 @@ public:
 			}
 		}
 		
-		world->step(double(timerPeriodMs)/1000., 3);
+		elapsedTime = double(timerPeriodMs)/1000.;
+		world->step(elapsedTime, 3);
 		updateGL();
 	}
 	

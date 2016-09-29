@@ -107,6 +107,7 @@ namespace Enki
 		
 		CameraPose camera; //!< current camera pose
 		bool doDumpFrames;
+		double elapsedTime;
 		
 	protected:
 		World *world;
@@ -123,7 +124,7 @@ namespace Enki
 		typedef QMapIterator<const std::type_info*, const std::type_info*> ManagedObjectsAliasesMapIterator;
 		ManagedObjectsAliasesMap managedObjectsAliases;
 		
-		typedef std::pair<QString, unsigned int> ViewerErrorMessage;
+		typedef std::pair<QString, double> ViewerErrorMessage;
 		std::list<ViewerErrorMessage> messageList;
 		QString controlError1;	// dislpayed if user try to move an object in trackball mode : action forbiden to prevent glitchies
 		QString controlError2;	// dislpayed if user try to move camera in trackball mode
@@ -177,7 +178,7 @@ namespace Enki
 		void restartDumpFrames();
 		void setDumpFrames(bool doDump);
 		void toogleTrackball();
-		void addErrorMessage(const QString& msg, unsigned int persistance = 120);
+		void addErrorMessage(const QString& msg, double persistance = 4.0);
 		void showHelp();
 
 		void keyPressEvent(QKeyEvent* event);
