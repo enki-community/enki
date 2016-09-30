@@ -126,9 +126,6 @@ namespace Enki
 		
 		typedef std::pair<QString, double> ViewerErrorMessage;
 		std::list<ViewerErrorMessage> messageList;
-		QString controlError1;	// dislpayed if user try to move an object in trackball mode : action forbiden to prevent glitchies
-		QString controlError2;	// dislpayed if user try to move camera in trackball mode
-		QString controlHelp;	// dislpayed if user press F1
 
 		struct ExtendedAttributes
 		{
@@ -160,7 +157,6 @@ namespace Enki
 		PhysicalObject* getPointedObject();
 		PhysicalObject* getSelectedObject();
 		bool isTrackballActivated() const;
-		QString getHelpString() const;
 		bool isMovableByPicking(PhysicalObject* object) const;
 
 		/*!

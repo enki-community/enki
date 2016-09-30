@@ -146,17 +146,6 @@ namespace Enki
 		selectedObject = 0;
 		movingObject = false;
 		elapsedTime = double(30)/1000.; // average second between two frame, can be updated each frame to better precision
-
-		controlError1 = tr("object translation not avalaible in trackball mode");
-		controlError2 = tr("camera translation not avalaible in trackball mode");
-		controlHelp = tr("Control help :\n");
-		controlHelp.append(tr("      keyboard F1 : show this help message\n"));
-		controlHelp.append(tr("      middle click + mouse move : translate camera\n"));
-		controlHelp.append(tr("      right click + mouse move : rotate camera\n"));
-		controlHelp.append(tr("      left click : select object under corsor or unselect object if no one is under cursor\n"));
-		controlHelp.append(tr("      left click + mouse move : select object and translate it\n"));
-		controlHelp.append(tr("      left click + right click + mouse move : select object and rotate it\n"));
-		controlHelp.append(tr("      mouse wheel : zoom (or translate camera)"));
 		showHelp();
 	}
 	
@@ -210,11 +199,6 @@ namespace Enki
 	bool ViewerWidget::isTrackballActivated() const
 	{
 		return trackballView;
-	}
-
-	QString ViewerWidget::getHelpString() const
-	{
-		return controlHelp;
 	}
 
 	bool ViewerWidget::isMovableByPicking(PhysicalObject* object) const
@@ -273,10 +257,14 @@ namespace Enki
 
 	void ViewerWidget::showHelp()
 	{
-		QString str(controlHelp);
-		QStringList slist = str.split("\n");
-		for (int i=0; i<slist.size(); i++)
-			addErrorMessage(slist[i]);
+		addErrorMessage(tr("Control help :"));
+		addErrorMessage(tr("      keyboard F1 : show this help message"));
+		addErrorMessage(tr("      middle click + mouse move : translate camera"));
+		addErrorMessage(tr("      right click + mouse move : rotate camera"));
+		addErrorMessage(tr("      left click : select object under corsor or unselect object if no one is under cursor"));
+		addErrorMessage(tr("      left click + mouse move : select object and translate it"));
+		addErrorMessage(tr("      left click + right click + mouse move : select object and rotate it"));
+		addErrorMessage(tr("      mouse wheel : zoom (or translate camera)"));
 	}
 
 	void ViewerWidget::renderSegment(const Segment& segment, double height)
@@ -1070,7 +1058,7 @@ namespace Enki
 					selectedObject->speed = Vector(0,0);
 					selectedObject->angSpeed = 0;
 				}
-				else addErrorMessage(controlError1, 3.0);
+				else addErrorMessage(tr("object translation not avalaible in trackball mode"), 3.0);
 			}
 			else if ((event->pos() - mouseGrabPos).manhattanLength() > 10 )
 			{
@@ -1103,7 +1091,7 @@ namespace Enki
 				camera.altitude += sensibility * (diff.x()*camera.left.z() + diff.y()*camera.up.z());
 				mouseGrabPos = event->pos();
 			}
-			else addErrorMessage(controlError2, 100);
+			else addErrorMessage(tr("camera translation not avalaible in trackball mode"), 100);
 		}
 	}
 	
