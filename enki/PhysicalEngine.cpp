@@ -1144,7 +1144,7 @@ namespace Enki
 		for (unsigned po = 0; po < physicsOversampling; po++)
 		{
 			// init physics interactions
-			for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i) 
+			for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 				(*i)->initPhysicsInteractions(overSampledDt);
 			
 			// collide objects together
