@@ -147,16 +147,16 @@ namespace Enki
 		movingObject = false;
 		elapsedTime = double(30)/1000.; // average second between two frame, can be updated each frame to better precision
 
-		controlError1 = "object translation not avalaible in trackball mode";
-		controlError2 = "camera translation not avalaible in trackball mode";
-		controlHelp = "Control help :\n";
-		controlHelp.append("      keyboard F1 : show this help message\n");
-		controlHelp.append("      middle click + mouse move : translate camera\n");
-		controlHelp.append("      right click + mouse move : rotate camera\n");
-		controlHelp.append("      left click : select object under corsor or unselect object if no one is under cursor\n");
-		controlHelp.append("      left click + mouse move : select object and translate it\n");
-		controlHelp.append("      left click + right click + mouse move : select object and rotate it\n");
-		controlHelp.append("      mouse wheel : zoom (or translate camera)");
+		controlError1 = tr("object translation not avalaible in trackball mode");
+		controlError2 = tr("camera translation not avalaible in trackball mode");
+		controlHelp = tr("Control help :\n");
+		controlHelp.append(tr("      keyboard F1 : show this help message\n"));
+		controlHelp.append(tr("      middle click + mouse move : translate camera\n"));
+		controlHelp.append(tr("      right click + mouse move : rotate camera\n"));
+		controlHelp.append(tr("      left click : select object under corsor or unselect object if no one is under cursor\n"));
+		controlHelp.append(tr("      left click + mouse move : select object and translate it\n"));
+		controlHelp.append(tr("      left click + right click + mouse move : select object and rotate it\n"));
+		controlHelp.append(tr("      mouse wheel : zoom (or translate camera)"));
 		showHelp();
 	}
 	
