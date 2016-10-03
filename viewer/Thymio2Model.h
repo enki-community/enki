@@ -7,8 +7,6 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    E-puck 3D model is Copyright (C) 2008 Basilio Noris
-
     This program is free software; the authors of any publication
     arising from research using this software are asked to add the
     following reference:
@@ -33,24 +31,26 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef __ENKI_VIEWER_OBJECTS_H
-#define __ENKI_VIEWER_OBJECTS_H
+#ifndef __ENKI_VIEWER_THYMIO2_MODEL_H
+#define __ENKI_VIEWER_THYMIO2_MODEL_H
 
-#include <QtOpenGL>
+#include "Viewer.h"
+#include <enki/robots/thymio2/Thymio2.h>
 
 namespace Enki
 {
-	GLint GenEPuckBody();
-	GLint GenEPuckRest();
-	GLint GenEPuckRing();
-	GLint GenEPuckWheelLeft();
-	GLint GenEPuckWheelRight();
+	class Thymio2Model : public ViewerWidget::CustomRobotModel
+	{
+	public:
+		Thymio2Model(ViewerWidget* viewer);
+		virtual void cleanup(ViewerWidget* viewer);
+		virtual void draw(PhysicalObject* object) const;
 
-	GLint GenMarxbotBase();
-	GLint GenMarxbotWheel();
+		QImage bodyDiffusionMap0,bodyDiffusionMap1,bodyDiffusionMap2,bodyTexture;
 
-	GLint GenThymio2Body();
-	GLint GenThymio2Wheel();
-}
+	protected:
+		ViewerWidget* viewer;
+	};
+} // namespace Enki
 
-#endif
+#endif // __ENKI_VIEWER_THYMIO2_MODEL_H
