@@ -281,7 +281,7 @@ namespace Enki
 		double r;
 		//! The height of circular object or, if hull is not empty, the maximum height
 		double height;
-		//! The overall color of this object, if hull is empyt or if it does not contain any texture
+		//! The overall color of this object, if hull is empty or if it does not contain any texture
 		Color color;
 		
 	public:			// methods
