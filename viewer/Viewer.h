@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -39,6 +39,8 @@
 #include <QPoint>
 #include <QPointF>
 #include <QMap>
+#include <QVector3D>
+
 #include <enki/Geometry.h>
 #include <enki/PhysicalEngine.h>
 
@@ -46,7 +48,6 @@
 	\brief Definition of the Qt-based viewer widget
 */
 
-class QTimerEvent;
 class QMouseEvent;
 class QWheelEvent;
 class QWidget;
@@ -86,15 +87,27 @@ namespace Enki
 		// Camera pose
 		struct CameraPose
 		{
-			QPointF pos; //!< (x,y) position of the camera
-			double altitude; //!< altitude (z) of the camera
-			double yaw; //!< yaw angle, mathematical orientation
-			double pitch; //!< pitch angle, negative looking down, positive looking up
-			
+			QPointF pos; 		//!< (x,y) position of the camera
+			double altitude;	//!< altitude (z) of the camera
+			double yaw; 		//!< yaw angle, mathematical orientation
+			double pitch; 		//!< pitch angle, negative looking down, positive looking up
+			double radius;		//!< radius distance used in trackball mode to compute camera to tracked object distance
+
+			// the camera base coordinate system
+			QVector3D forward;
+			QVector3D left;
+			QVector3D up;
+
+			// constructor
 			CameraPose(QPointF pos, double altitude, double yaw, double pitch);
+
+			// update camera base coordinate system and camera position for trackball mode
+			void update(bool trackballMode, QVector3D targetPosition = QVector3D(), float zNear = 2.f);
 		};
 		
 		CameraPose camera; //!< current camera pose
+		bool doDumpFrames;
+		double elapsedTime;
 		
 	protected:
 		World *world;
@@ -111,23 +124,59 @@ namespace Enki
 		typedef QMapIterator<const std::type_info*, const std::type_info*> ManagedObjectsAliasesMapIterator;
 		ManagedObjectsAliasesMap managedObjectsAliases;
 		
+		typedef std::pair<QString, double> ViewerErrorMessage;
+		std::list<ViewerErrorMessage> messageList;
+
+		struct ExtendedAttributes
+		{
+			bool movableByPicking;
+
+			ExtendedAttributes():movableByPicking(false){};
+		};
+		std::map<PhysicalObject*, ExtendedAttributes> objectExtendedAttributesList;
+
 		bool mouseGrabbed;
 		QPoint mouseGrabPos;
 		double wallsHeight;
-		
-		bool doDumpFrames;
+		//! to know if camera is in trackball mode
+		bool trackballView;
 		int dumpFramesCounter;
 	
+		PhysicalObject *pointedObject, *selectedObject;
+		QVector3D pointedPoint;
+		bool movingObject;
+
 	public:
 		ViewerWidget(World *world, QWidget *parent = 0);
 		~ViewerWidget();
 	
+		void addManagedObjectsAlias(const std::type_info* key, const std::type_info* value);
+
+		World* getWorld();
+		QVector3D getPointedPoint() const;
+		PhysicalObject* getPointedObject();
+		PhysicalObject* getSelectedObject();
+		bool isTrackballActivated() const;
+		bool isMovableByPicking(PhysicalObject* object) const;
+
+		/*!
+			\brief Specify if an object is movable by picking.
+			By default all object are not movable, so it's prefered to only specify object wich are mouvable by picking.
+			This function add an extended attribute to an object using an association table, so it's to the user responsibility to
+			delete the extended parameter if object is remove to the world, using the "removeExtendedAttributes" function
+		*/
+		void setMovableByPicking(PhysicalObject* object, bool movable);
+		void removeExtendedAttributes(PhysicalObject* object);
+
 	public slots:
 		void setCamera(QPointF pos, double altitude, double yaw, double pitch);
 		void setCamera(double x, double y, double altitude, double yaw, double pitch);
 		void restartDumpFrames();
 		void setDumpFrames(bool doDump);
-		
+		void toogleTrackball();
+		void addErrorMessage(const QString& msg, double persistance = 4.0);
+		void showHelp();
+
 	protected:
 		void renderInterSegmentShadow(const Vector& a, const Vector& b, const Vector& c, double height);
 		void renderSegmentShadow(const Segment& segment, double height);
@@ -140,16 +189,22 @@ namespace Enki
 		virtual void renderObjectHook(PhysicalObject *object);
 		virtual void displayObjectHook(PhysicalObject *object);
 		virtual void sceneCompletedHook();
-		
+
 		void initializeGL();
 		void paintGL();
 		void resizeGL(int width, int height);
-		
-		void timerEvent(QTimerEvent * event);
+		void renderScene(float left, float right, float bottom, float top, float zNear, float zFar);
+		void picking(float left, float right, float bottom, float top, float zNear, float zFar);
+		void displayMessages();
+
 		void mousePressEvent(QMouseEvent *event);
 		void mouseReleaseEvent(QMouseEvent * event);
 		void mouseMoveEvent(QMouseEvent *event);
 		void wheelEvent(QWheelEvent * event);
+		virtual void keyPressEvent(QKeyEvent* event);
+
+		//! return all button pressed packed in an unsigned int. Used before to send to a robot for a clicked interaction
+		unsigned int getButtonCode(QMouseEvent * event);
 	};
 }
 

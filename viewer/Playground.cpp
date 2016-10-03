@@ -40,7 +40,7 @@
 #include <iostream>
 
 #ifdef USE_SDL
-#include <SDL/SDL.h>
+#include <SDL.h>
 #endif
 
 /*!	\file Studio.cpp
@@ -185,6 +185,8 @@ public:
 		#endif // USE_SDL
 		camera.altitude = 150;
 		camera.pos = QPointF(0,-60);
+
+		startTimer(timerPeriodMs);
 	}
 	
 	void addDefaultsRobots(World *world)
@@ -280,7 +282,10 @@ public:
 				delete o;
 			}
 		}
-		ViewerWidget::timerEvent(event);
+		
+		elapsedTime = double(timerPeriodMs)/1000.;
+		world->step(elapsedTime, 3);
+		updateGL();
 	}
 	
 	virtual void keyPressEvent ( QKeyEvent * event )
@@ -298,10 +303,7 @@ public:
 	
 	virtual void sceneCompletedHook()
 	{
-		glColor3d(0,0,0);
-		renderText(10, height()-50, tr("rotate camera by moving mouse while pressing ctrl+left mouse button"));
-		renderText(10, height()-30, tr("move camera on x/y by moving mouse while pressing ctrl+shift+left mouse button"));
-		renderText(10, height()-10, tr("move camera on z by moving mouse while pressing ctrl+shift+right mouse button"));
+		
 	}
 };
 
