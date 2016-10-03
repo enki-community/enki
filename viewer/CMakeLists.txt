@@ -3,6 +3,11 @@ find_package(SDL)
 if (SDL_FOUND)
 	include_directories(${SDL_INCLUDE_DIR})
 	set(EXTRA_LIBS ${SDL_LIBRARY} ${EXTRA_LIBS})
+	if (APPLE)
+		execute_process(COMMAND "sdl2-config" "--static-libs" OUTPUT_VARIABLE SDL2_EXTRAS)
+		string(STRIP ${SDL2_EXTRAS} SDL2_EXTRAS)
+		set(EXTRA_LIBS ${SDL2_EXTRAS} ${EXTRA_LIBS})
+	endif (APPLE)
 	add_definitions("-DUSE_SDL")
 	message(STATUS "SDL found")
 endif (SDL_FOUND)
@@ -29,7 +34,10 @@ if (QT4_FOUND AND OPENGL_FOUND)
 		objects/EPuckWheelRight.cpp
 		MarxbotModel.cpp
 		objects/MarxbotBase.cpp
-		objects/MarxbotWheel.cpp)
+		objects/MarxbotWheel.cpp
+		Thymio2Model.cpp
+		objects/Thymio2Body.cpp
+		objects/Thymio2Wheel.cpp)
 	set(viewer_test_SRCS Playground.cpp)
 	
 	qt4_automoc(${viewer_lib_SRCS})

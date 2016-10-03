@@ -39,6 +39,8 @@
 #include <QPoint>
 #include <QPointF>
 #include <QMap>
+#include <QVector3D>
+
 #include <enki/Geometry.h>
 #include <enki/PhysicalEngine.h>
 
@@ -61,8 +63,6 @@ namespace Enki
 		Q_OBJECT
 	
 	public:
-		const int timerPeriodMs;
-		
 		class ViewerUserData : public PhysicalObject::UserData
 		{
 		public:
@@ -95,9 +95,11 @@ namespace Enki
 		};
 		
 		CameraPose camera; //!< current camera pose
+		bool doDumpFrames;
 		
 	protected:
 		World *world;
+		std::map<PhysicalObject*,PhysicalObjectSave> initialStateWorld;
 		
 		GLuint worldList;
 		GLuint worldTexture;
@@ -115,18 +117,31 @@ namespace Enki
 		QPoint mouseGrabPos;
 		double wallsHeight;
 		
-		bool doDumpFrames;
 		int dumpFramesCounter;
+
+		PhysicalObject *pointedObject, *selectedObject;
+		QVector3D pointedPoint;
 	
 	public:
 		ViewerWidget(World *world, QWidget *parent = 0);
 		~ViewerWidget();
+
+		void addManagedObjectsAlias(const std::type_info* key, const std::type_info* value);
+
+		World* getWorld();
+		QVector3D getPointedPoint();
+		PhysicalObject* getPointedObject();
+		PhysicalObject* getSelectedObject();
+
+		void timerEvent(double elapsedTime);
 	
 	public slots:
 		void setCamera(QPointF pos, double altitude, double yaw, double pitch);
 		void setCamera(double x, double y, double altitude, double yaw, double pitch);
 		void restartDumpFrames();
 		void setDumpFrames(bool doDump);
+		virtual void resetScene();
+		virtual void saveWorld();
 		
 	protected:
 		void renderInterSegmentShadow(const Vector& a, const Vector& b, const Vector& c, double height);
@@ -144,8 +159,9 @@ namespace Enki
 		void initializeGL();
 		void paintGL();
 		void resizeGL(int width, int height);
+		void renderScene();
+		void picking(float left, float right, float bottom, float top, float zNear, float zFar);
 		
-		void timerEvent(QTimerEvent * event);
 		void mousePressEvent(QMouseEvent *event);
 		void mouseReleaseEvent(QMouseEvent * event);
 		void mouseMoveEvent(QMouseEvent *event);

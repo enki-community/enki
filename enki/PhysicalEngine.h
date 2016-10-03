@@ -176,6 +176,8 @@ namespace Enki
 		Point pos;
 		//! The orientation of the object in the world, standard trigonometric orientation.
 		double angle;
+		//! if the object can be mouved by picking feature
+		bool mouvableByPicking;
 		
 		// space coordinates derivatives
 		
@@ -287,7 +289,7 @@ namespace Enki
 	public:			// methods
 		
 		//! Constructor
-		PhysicalObject();
+		PhysicalObject(bool mouvable = false);
 		//! Destructor
 		virtual ~PhysicalObject();
 		
@@ -365,6 +367,15 @@ namespace Enki
 		void collideWithObject(PhysicalObject &that, const Point &cp, const Vector &dist);
 	};
 
+	struct PhysicalObjectSave
+	{
+		Point pos;
+		double angle;
+
+		PhysicalObjectSave() : pos(0,0), angle(0) {};
+		PhysicalObjectSave(const Point& p,const double& a) : pos(p), angle(a) {};
+	};
+
 	//! A robot is a PhysicalObject that has additional interactions and a controller.
 	/*! \ingroup core */
 	class Robot: public PhysicalObject
@@ -376,6 +387,9 @@ namespace Enki
 		std::vector<GlobalInteraction *> globalInteractions;
 		
 	public:
+		//! Constructor
+		Robot() : PhysicalObject(true) {};
+
 		//! Add a new local interaction, re-sort interaction vector from long ranged to short ranged.
 		void addLocalInteraction(LocalInteraction *li);
 		//! Add a global interaction, just add it at the end of the vector.
@@ -393,6 +407,8 @@ namespace Enki
 		virtual void doGlobalInteractions(double dt, World* w);
 		//! Sort local interactions. Called by addLocalInteraction ; can be called by subclasses in case of interaction radius change.
 		void sortLocalInteractions(void);
+
+		virtual void clickedInteraction(bool pressed, int buttonCode, double pointX, double pointY, double pointZ){};
 	};
 
 	//! The world is the container of all objects and robots.
