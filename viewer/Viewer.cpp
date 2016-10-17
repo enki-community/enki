@@ -595,7 +595,7 @@ namespace Enki
 			case World::WALLS_CIRCULAR:
 			{
 				const double r(world->r);
-				const int segmentCount = (int)((r*2.*M_PI) / 10.);
+				const int segmentCount = std::max(24, int((r*2.*M_PI) / 10.));
 				for (int i = 0; i < segmentCount; ++i)
 				{
 					const double angStart(((double)i * 2. * M_PI) / (double)segmentCount);
