@@ -6,7 +6,6 @@
     Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
-
     This program is free software; the authors of any publication
     arising from research using this software are asked to add the
     following reference:
@@ -15,17 +14,14 @@
     Stephane Magnenat <stephane at magnenat dot net>,
     Markus Waibel <markus dot waibel at epfl dot ch>
     Laboratory of Intelligent Systems, EPFL, Lausanne.
-
     You can redistribute this program and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
     (at your option) any later version.
-
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -40,6 +36,7 @@
 #include <enki/robots/marxbot/Marxbot.h>
 #include "Thymio2Model.h"
 #include <enki/robots/thymio2/Thymio2.h>
+
 #ifdef Q_OS_WIN
 	#ifndef GL_BGRA
 		// Windows only ships with OpenGL 1.1, while GL_BGRA is defined in version 1.2
@@ -596,7 +593,7 @@ namespace Enki
 			case World::WALLS_CIRCULAR:
 			{
 				const double r(world->r);
-				const int segmentCount = (int)((r*2.*M_PI) / 10.);
+				const int segmentCount = std::max(24, int((r*2.*M_PI) / 10.));
 				for (int i = 0; i < segmentCount; ++i)
 				{
 					const double angStart(((double)i * 2. * M_PI) / (double)segmentCount);
