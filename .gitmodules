@@ -1,0 +1,3 @@
+[submodule "thirdparties/SimpleSignal"]
+	path = thirdparties/SimpleSignal
+	url = https://github.com/enki-community/SimpleSignal.git
