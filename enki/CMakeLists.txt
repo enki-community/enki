@@ -7,6 +7,8 @@ endif (CMAKE_HOST_UNIX)
 add_library(enki
 	Geometry.cpp
 	Types.cpp
+	Entity.cpp
+	System.cpp
 	PhysicalEngine.cpp
 	BluetoothBase.cpp
 	interactions/IRSensor.cpp
@@ -24,10 +26,10 @@ add_library(enki
 	robots/thymio2/Thymio2.cpp
 )
 
-set_target_properties(enki PROPERTIES VERSION ${LIB_VERSION_STRING} 
+set_target_properties(enki PROPERTIES VERSION ${LIB_VERSION_STRING}
                                         SOVERSION ${LIB_VERSION_MAJOR})
 
-install(DIRECTORY . 
+install(DIRECTORY .
 	DESTINATION include/enki/
 	FILES_MATCHING PATTERN "*.h"
 )
