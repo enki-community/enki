@@ -76,7 +76,7 @@ namespace Enki
 		ComponentSetRef<ComponentType> components;
 		ComponentSetRef<TargetComponentType> targetComponents;
 
-		LocalPhase(World* world, System *system):
+		LocalPhase(World* world, SystemType *system):
     		system(system),
     		components(world->getComponentsByType<ComponentType>()),
     		targetComponents(world->getComponentsByType<TargetComponentType>())

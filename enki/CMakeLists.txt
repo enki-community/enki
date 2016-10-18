@@ -9,6 +9,7 @@ add_library(enki
 	Types.cpp
 	Entity.cpp
 	System.cpp
+	RigidBodyPhysics.cpp
 	PhysicalEngine.cpp
 	BluetoothBase.cpp
 	interactions/IRSensor.cpp

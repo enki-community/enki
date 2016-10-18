@@ -38,9 +38,78 @@
 
 namespace Enki
 {
+    class RigidBodyPhysics;
+
+    struct RigidBody: GlobalComponent<RigidBodyPhysics>
+    {
+        void initPhysics(double dt, RigidBodyPhysics* system) {}
+        void finalizePhysics(double dt, RigidBodyPhysics* system) {}
+    };
+
+    struct Collider: LocalComponent<RigidBodyPhysics, Collider>
+    {
+    };
+
+    struct ConvexCylinderCollider: Collider
+    {
+    };
+
+    struct ConvexPolygonCollider: Collider
+    {
+    };
+
+    struct HollowCylinderCollider: Collider
+    {
+    };
+
+    // Note: this should be generalized for polygon
+    struct HollowRectangleCollider: Collider
+    {
+    };
+    // struct HollowPolygonCollider: Collider
+
     struct RigidBodyPhysics: System
     {
+        /**
+            This phase updates the rigid bodies:
+            - apply forces
+            - update pose from speed
+            - store pose before collision
+            - init temporary pose
+        */
+        typedef GlobalPhase<RigidBodyPhysics, RigidBody> InitPhaseBase;
+        struct InitPhase: InitPhaseBase
+        {
+            using InitPhaseBase::InitPhaseBase;
+            virtual void step(double dt);
+        };
 
+        typedef LocalPhase<RigidBodyPhysics, Collider, Collider> CollisionPhaseBase;
+        /**
+            This phase performs object to object collisions using the collider components:
+            - update shapes of rigid colliders
+            - detect collisions
+            - perform rigid body physics
+            - update temporary pose in Rigid bodies
+        */
+        struct CollisionPhase: CollisionPhaseBase
+        {
+            using CollisionPhaseBase::CollisionPhaseBase;
+        };
+
+        typedef GlobalPhase<RigidBodyPhysics, RigidBody> FinalizePhaseBase;
+        /**
+            This phase finalizes the physics
+            - compute deinterlace distance
+            - update pose from temporary pose
+        */
+        struct FinalizePhase: FinalizePhaseBase
+        {
+            using FinalizePhaseBase::FinalizePhaseBase;
+            virtual void step(double dt);
+        };
+
+        RigidBodyPhysics(World* world);
     };
 } // namespace Enki
 
