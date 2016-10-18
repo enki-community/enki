@@ -36,6 +36,7 @@
 
 #include <set>
 #include <memory>
+#include "../thirdparties/SimpleSignal/SimpleSignal.h"
 #include "Geometry.h"
 
 namespace Enki
@@ -109,6 +110,12 @@ namespace Enki
             // FIXME: use specific exception
         }
 
+        // signals
+
+        //! Relative pose has been changed
+        Simple::Signal<void (const Point&, double)> onPoseChanged;
+        //! Absolute pose has been changed
+        Simple::Signal<void (const Point&, double)> onAbsPoseChanged;
 
     protected:
         void updateAbsolutePose();

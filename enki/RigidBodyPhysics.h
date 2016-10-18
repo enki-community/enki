@@ -35,6 +35,8 @@
 #define __ENKI_RIGID_BODY_PHYSICS_H
 
 #include "System.h"
+#include "Types.h"
+#include "Colliders.h"
 
 namespace Enki
 {
@@ -42,31 +44,50 @@ namespace Enki
 
     struct RigidBody: GlobalComponent<RigidBodyPhysics>
     {
-        void initPhysics(double dt, RigidBodyPhysics* system) {}
-        void finalizePhysics(double dt, RigidBodyPhysics* system) {}
+        // physical constant
+		static const double g;
+
+        //! Elasticity of collisions of this object. If 0, soft collision, 100% energy dissipation; if 1, elastic collision, 0% energy dissipation. Actual elasticity is the product of the elasticity of the two colliding objects. Walls are fully elastics
+	    double collisionElasticity;
+	    //! The dry friction coefficient mu.
+	    double dryFrictionCoefficient;
+	    //! The viscous friction coefficient. Premultiplied by mass. A value of k applies a force of -k * speed * mass
+	    double viscousFrictionCoefficient;
+	    //! The viscous friction moment coefficient. Premultiplied by momentOfInertia. A value of k applies a force of -k * speed * momentOfInertia
+	    double viscousMomentFrictionCoefficient;
+
+        // space coordinates derivatives
+
+	    //! The speed of the object.
+	    Vector speed;
+	    //! The rotation speed of the object, standard trigonometric orientation.
+	    double angSpeed;
+
+        //! How much this object was forcely moved because of penetration
+		double accumulatedInterlacedDistance;
+
+    protected:
+        // mass and inertia tensor
+
+        //! The mass of the object. If below zero, the object can't move (infinite mass).
+        double mass;
+        ///! The moment of inertia tensor
+        double momentOfInertia;
+
+        //! position before collision, used to compute accumulatedInterlacedDistance
+		Point posBeforeCollision;
+
+    public:
+        inline double getMass() const { return mass; }
+		inline double getMomentOfInertia() const { return momentOfInertia; }
+		inline double getAccumulatedInterlacedDistance() const { return accumulatedInterlacedDistance; }
+
+        //! Initialize the collision logic
+        void initPhysics(double dt, RigidBodyPhysics* system);
+        //! All collisions are finished, deinterlace the object.
+        void finalizePhysics(double dt, RigidBodyPhysics* system);
     };
 
-    struct Collider: LocalComponent<RigidBodyPhysics, Collider>
-    {
-    };
-
-    struct ConvexCylinderCollider: Collider
-    {
-    };
-
-    struct ConvexPolygonCollider: Collider
-    {
-    };
-
-    struct HollowCylinderCollider: Collider
-    {
-    };
-
-    // Note: this should be generalized for polygon
-    struct HollowRectangleCollider: Collider
-    {
-    };
-    // struct HollowPolygonCollider: Collider
 
     struct RigidBodyPhysics: System
     {
@@ -81,6 +102,7 @@ namespace Enki
         struct InitPhase: InitPhaseBase
         {
             using InitPhaseBase::InitPhaseBase;
+
             virtual void step(double dt);
         };
 
@@ -106,6 +128,7 @@ namespace Enki
         struct FinalizePhase: FinalizePhaseBase
         {
             using FinalizePhaseBase::FinalizePhaseBase;
+
             virtual void step(double dt);
         };
 

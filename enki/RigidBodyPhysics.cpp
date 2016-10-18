@@ -36,6 +36,22 @@
 
 namespace Enki
 {
+    void RigidBody::initPhysics(double dt, RigidBodyPhysics* system)
+    {
+        // FIXME: implement
+        //applyForces(dt);
+
+        owner->setPose(owner->getPos() + speed * dt, owner->getYaw() + angSpeed * dt);
+
+        posBeforeCollision  = owner->getPos();
+    }
+
+    void RigidBody::finalizePhysics(double dt, RigidBodyPhysics* system)
+    {
+        // TODO: work on temporary pose instead of owner->getPos()
+        accumulatedInterlacedDistance += (posBeforeCollision - owner->getPos()).norm();
+    }
+
     void RigidBodyPhysics::InitPhase::step(double dt)
     {
         for (auto rigidBody: components)

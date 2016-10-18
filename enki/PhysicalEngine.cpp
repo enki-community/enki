@@ -341,6 +341,7 @@ namespace Enki
 							momentOfInertia += ix * ix + iy * iy;
 							numericalArea++;
 						}
+						// FIXME: correct that, this is wrong some areas are added twice
 			
 			momentOfInertia *= mass / numericalArea;
 			

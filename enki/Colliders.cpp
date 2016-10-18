@@ -31,71 +31,44 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef __ENKI_COMPONENT_H
-#define __ENKI_COMPONENT_H
+#include "Colliders.h"
 
 namespace Enki
 {
-    struct Entity;
-
-    struct Component
+    void Collider::init(double dt, RigidBodyPhysics* system)
     {
-        Entity* owner;
+    }
 
-        Component(Entity* owner):
-            owner(owner)
-        {}
-
-        virtual ~Component() = default;
-    };
-
-    template<typename SystemType>
-    struct GlobalComponent: Component
+    void Collider::step(double dt, RigidBodyPhysics* system, Collider* that)
     {
-        virtual void step(double dt, SystemType* system) {}
-    };
 
-    class TimerSystem;
-    struct TimerComponent: GlobalComponent<TimerSystem>
+    }
+
+    void Collider::finalize(double dt, RigidBodyPhysics* system)
     {
-    };
 
-    template<typename SystemType, typename TargetComponent>
-    struct LocalComponent: Component
-    {
-        using Component::Component;
-        
-        //! The radius of effect of this component
-		double r;
+    }
 
-        virtual void init(double dt, SystemType* system) {}
-        virtual void step(double dt, SystemType* system, TargetComponent* that) {}
-        virtual void finalize(double dt, SystemType* system) {}
-    };
-
-    template<typename ComponentType>
-	class ComponentSetRef
+    void HullCollider::Part::computeTransformedShape(const Matrix22& rot, const Point& trans)
 	{
-	public:
-		std::set<Component*>& components;
+		assert(!shape.empty());
+		assert(transformedShape.size() == shape.size());
+		for (size_t i = 0; i < shape.size(); ++i)
+			transformedShape[i] = rot * (shape)[i] + trans;
+		transformedCentroid = rot * centroid + trans;
+	}
 
-		typedef std::set<Component*> InternalSet;
-        typedef InternalSet::iterator InternalIterator;
-		struct Iterator: InternalIterator
-		{
-            Iterator(const InternalIterator& it):
-                InternalIterator(it)
-            {}
+    HullCollider::HullCollider(Entity* owner):
+        Collider(owner)
+    {
+        owner->onAbsPoseChanged.connect(Simple::slot(this, &HullCollider::computeTransformedShape));
+    }
 
-			ComponentType* operator * ()
-            {
-                return dynamic_cast<ComponentType*>(InternalIterator::operator *());
-            }
-		};
+    void HullCollider::computeTransformedShape(const Point& absPos, double absYaw)
+    {
+        Matrix22 absRotMat(absYaw);
+        for (Hull::iterator it = hull.begin(); it != hull.end(); ++it)
+            it->computeTransformedShape(absRotMat, absPos);
+    }
 
-		Iterator begin() { return Iterator(components.begin()); }
-		Iterator end() { return Iterator(components.end()); }
-	};
-}
-
-#endif // __ENKI_COMPONENT_H
+} // namespace Enki

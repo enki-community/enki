@@ -120,8 +120,18 @@ namespace Enki
 		//! Return the cross from (other x this) a (virtual, as we are in 2D) perpendicular vector (on axis z) of given norm. 
 		Vector crossFromZVector(double l) const { return Vector(-y * l, x * l); }
 		
-		//! Comparison operator
+		//! Comparison operator ==
+		bool operator ==(const Vector& that) const { return (this->x == that.x) && (this->y == that.y); }
+		//! Comparison operator !=
+		bool operator !=(const Vector& that) const { return !(*this == that); }
+		//! Comparison operator <
 		bool operator <(const Vector& that) const { if (this->x == that.x) return (this->y < that.y); else return (this->x < that.x); }
+		//! Comparison operator <=
+		bool operator <=(const Vector& that) const { return (*this < that) || (*this == that); }
+		//! Comparison operator >
+		bool operator >(const Vector& that) const { return !(that <= *this); }
+		//! Comparison operator >=
+		bool operator >=(const Vector& that) const { return !(that < *this); }
 	};
 	
 	//! Print a vector to a stream

@@ -40,9 +40,14 @@ namespace Enki
 
     void Entity::setPose(const Point& pos, double yaw)
     {
-        this->pos = pos;
-        this->yaw = yaw;
-        updateAbsolutePose();
+        if ((pos != this->pos) || (yaw != this->yaw))
+        {
+            this->pos = pos;
+            this->yaw = normalizeAngle(yaw);
+            updateAbsolutePose();
+            onPoseChanged.emit(pos, yaw);
+            onAbsPoseChanged.emit(absPos, absYaw); 
+        }
     }
 
     void Entity::updateAbsolutePose()
@@ -60,7 +65,7 @@ namespace Enki
             absPos = pos;
             absYaw = yaw;
         }
-        
+
         // propagate absolute pose to children
         for (auto& child: children)
             child.updateAbsolutePose();
