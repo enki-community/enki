@@ -41,8 +41,47 @@
 namespace Enki
 {
     class RigidBodyPhysics;
+    class GroundAttachedBody;
+    
+    struct KinematicBody: GlobalComponent<RigidBodyPhysics>
+    {
+        // space coordinates derivatives
 
-    struct RigidBody: GlobalComponent<RigidBodyPhysics>
+        //! The speed of the object.
+        Vector speed;
+        //! The rotation speed of the object, standard trigonometric orientation.
+        double angSpeed;
+        
+        //! Initialize the collision logic
+        virtual void initPhysics(double dt, RigidBodyPhysics* system);
+        //! All collisions are finished, deinterlace the object.
+        virtual void finalizePhysics(double dt, RigidBodyPhysics* system);
+    
+    protected:
+        friend class Collider;
+        virtual void collideWithStaticObject(const Vector &n, const Point &cp) = 0;
+        virtual void collideWithGroundAttachedBody(GroundAttachedBody* that, const Point &cp, const Vector &dist) = 0;
+        virtual void collideWithRigidBody(RigidBody* that, const Point &cp, const Vector &dist) = 0;
+    };
+    
+    struct MassiveBody: KinematicBody
+    {
+    protected:
+        // mass
+        
+        //! The mass of the object, must be positive
+        double mass;
+        
+    public:
+        inline double getMass() const { return mass; }
+    };
+    
+    struct GroundAttachedBody: MassiveBody
+    {
+        
+    };
+
+    struct RigidBody: MassiveBody
     {
         // physical constant
 		static const double g;
@@ -56,36 +95,36 @@ namespace Enki
 	    //! The viscous friction moment coefficient. Premultiplied by momentOfInertia. A value of k applies a force of -k * speed * momentOfInertia
 	    double viscousMomentFrictionCoefficient;
 
-        // space coordinates derivatives
-
-	    //! The speed of the object.
-	    Vector speed;
-	    //! The rotation speed of the object, standard trigonometric orientation.
-	    double angSpeed;
-
         //! How much this object was forcely moved because of penetration
 		double accumulatedInterlacedDistance;
 
     protected:
-        // mass and inertia tensor
+        // inertia tensor
 
-        //! The mass of the object. If below zero, the object can't move (infinite mass).
-        double mass;
-        ///! The moment of inertia tensor
-        double momentOfInertia;
+        //! Whether the moment of inertia was computed, if not, do it at next time step
+        bool isMomentOfInertiaComputed = false;
+        
+        //! The moment of inertia tensor
+        double momentOfInertia = 1.0;
 
         //! position before collision, used to compute accumulatedInterlacedDistance
 		Point posBeforeCollision;
 
     public:
-        inline double getMass() const { return mass; }
-		inline double getMomentOfInertia() const { return momentOfInertia; }
+        // getters
+        inline double getMomentOfInertia() const { return momentOfInertia; }
 		inline double getAccumulatedInterlacedDistance() const { return accumulatedInterlacedDistance; }
 
         //! Initialize the collision logic
-        void initPhysics(double dt, RigidBodyPhysics* system);
+        virtual void initPhysics(double dt, RigidBodyPhysics* system);
         //! All collisions are finished, deinterlace the object.
-        void finalizePhysics(double dt, RigidBodyPhysics* system);
+        virtual void finalizePhysics(double dt, RigidBodyPhysics* system);
+    
+    protected:
+        //! Apply friction forces to reduce speed
+		void applyForces(double dt);
+        //! Compute the moment of inertia using colliders
+        void computeMomentOfInertia();
     };
 
 
@@ -98,7 +137,7 @@ namespace Enki
             - store pose before collision
             - init temporary pose
         */
-        typedef GlobalPhase<RigidBodyPhysics, RigidBody> InitPhaseBase;
+        typedef GlobalPhase<RigidBodyPhysics, KinematicBody> InitPhaseBase;
         struct InitPhase: InitPhaseBase
         {
             using InitPhaseBase::InitPhaseBase;
@@ -119,7 +158,7 @@ namespace Enki
             using CollisionPhaseBase::CollisionPhaseBase;
         };
 
-        typedef GlobalPhase<RigidBodyPhysics, RigidBody> FinalizePhaseBase;
+        typedef GlobalPhase<RigidBodyPhysics, KinematicBody> FinalizePhaseBase;
         /**
             This phase finalizes the physics
             - compute deinterlace distance

@@ -39,14 +39,25 @@
 
 namespace Enki
 {
+    struct Entity;
+    struct GroundAttachedBody;
+    struct RigidBody;
+    struct CylinderCollider;
+    struct HullCollider;
+    
     struct Collider: LocalComponent<RigidBodyPhysics, Collider>
     {
     protected:
         //! The maximum height of the attached entity
-		double maximumHeight;
-        // FIXME; read only
+		double maximumHeight = 0;
         //! The overall color of the attached entity
 		Color color;
+        //! Whether we know if we have an attached body
+        bool isBodyKnown = false;
+        //! A pointer to the RigidBody in this Entity, if any
+        RigidBody* rigidBody = nullptr;
+        //! A pointer to the GroundAttachedBody in this Entity, if any
+        GroundAttachedBody* groundAttachedBody = nullptr;
 
     public:
         Collider(Entity* owner):
@@ -57,15 +68,29 @@ namespace Enki
         inline const Color& getColor() const { return color; }
 
         Simple::Signal<void (const Color&)> onColorChanged;
-        Simple::Signal<void (void)> onShapeChanged;
-
+        
         virtual void init(double dt, RigidBodyPhysics* system);
-        virtual void step(double dt, RigidBodyPhysics* system, Collider* that);
-        virtual void finalize(double dt, RigidBodyPhysics* system);
+        
+    protected:
+        friend class RigidBody;
+        friend class CylinderCollider;
+        virtual void setupCenterOfMass() = 0;
+        virtual double computeMomentOfInertia() = 0;
+        
+        void collideWithObject(Collider &that, const Point &cp, const Vector &dist);
     };
 
     struct CylinderCollider: Collider
     {
+        virtual void step(double dt, RigidBodyPhysics* system, Collider* that, unsigned thisIndex, unsigned thatIndex);
+        
+    protected:
+        virtual void setupCenterOfMass();
+        virtual double computeMomentOfInertia();
+        
+        void collideWithShape(HullCollider* that, const Polygone &shape);
+        void collideWithHull(HullCollider* that);
+        void collideWithCylinder(CylinderCollider* that);
     };
 
     struct HullCollider: Collider
@@ -146,7 +171,9 @@ namespace Enki
 		Hull hull;
 
     public:
-        HullCollider(Entity* owner);
+        HullCollider(Entity* owner, const Hull& hull);
+        
+        inline const Hull& getHull() const { return hull; }
 
         //! Make the object rectangular of size l1 x l2 with a given mass
 		void setRectangular(double l1, double l2, double height, double mass);
@@ -155,6 +182,8 @@ namespace Enki
 
     protected:
         void computeTransformedShape(const Point& absPos, double absYaw);
+        virtual void setupCenterOfMass();
+        virtual double computeMomentOfInertia();
     };
 
     struct HollowCylinderCollider: Collider

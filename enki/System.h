@@ -89,9 +89,20 @@ namespace Enki
     			component->init(dt, system);
     		// step to all other objects
     		// TODO: early out through kd-tree
-    		for (auto component: components)
+            unsigned iCounter = 0;
+    		for (auto sourceComponent: components)
+            {
+                unsigned jCounter = 0;
     			for (auto targetComponent: targetComponents)
-    				component->step(dt, system, targetComponent);
+                {
+                    const Vector distCtoC = sourceComponent->getPos() - targetComponent->getPos();
+            		const double addedRadius = sourceComponent->r + targetComponent->r;
+            		if (distCtoC.norm2() <= (addedRadius*addedRadius))
+            			sourceComponent->step(dt, system, targetComponent, iCounter, jCounter);
+                    ++jCounter;
+                }
+                ++iCounter;
+            }
     		// finalize
     		for (auto component: components)
     			component->finalize(dt, system);

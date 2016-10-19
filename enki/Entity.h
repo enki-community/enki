@@ -50,6 +50,12 @@ namespace Enki
         typedef std::vector<std::unique_ptr<Component>> Components;
         //! A vector of owned children entities
         typedef std::vector<Entity> Entities;
+        typedef std::domain_error StdDomainError;
+        //! A component of a given type was requested but this type is not present in this entity
+        struct ComponentNotFound: StdDomainError
+        {
+            using StdDomainError::StdDomainError;
+        };
 
     protected:
         //! The parent entity, nullptr if top-level
@@ -94,20 +100,29 @@ namespace Enki
         void addComponent(Component* component);
         //! Get the list of components
         const Components& getComponents() const;
-        //! Get the first component of a given type
+        //! Get a pointer to the first component of a given type
         template<typename ComponentType>
-        ComponentType& getComponent() const
+        ComponentType* getComponentPtr() const
         {
             // iterate through components, return if dynamic cast succeeds
             for (auto& componentPtr: components)
             {
-                ComponentType componentRawPtr(dynamic_cast<ComponentType>(componentPtr.get()));
+                ComponentType* componentRawPtr(dynamic_cast<ComponentType*>(componentPtr.get()));
                 if (componentRawPtr)
                     return componentRawPtr;
             }
+            return nullptr;
+        }
+        //! Get the first component of a given type
+        template<typename ComponentType>
+        ComponentType& getComponent() const
+        {
+            // get pointer to component
+            ComponentType *componentPtr(getComponentPtr<ComponentType>());
+            if (componentPtr)
+                return *componentPtr;
             // none found, runtime error
-            throw std::runtime_error(std::string("Component of type ") + typeid(ComponentType).name() + "not found");
-            // FIXME: use specific exception
+            throw ComponentNotFound(std::string("Component of type ") + typeid(ComponentType).name() + " not found");
         }
 
         // signals

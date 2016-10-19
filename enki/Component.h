@@ -42,11 +42,17 @@ namespace Enki
     {
         Entity* owner;
 
-        Component(Entity* owner):
-            owner(owner)
-        {}
-
+        Component(Entity* owner): owner(owner) {}
         virtual ~Component() = default;
+            
+        Point getPos() const { return owner->getPos(); }
+        double getYaw() const { return owner->getYaw(); }
+        Matrix22 getYawMatrix() const { return owner->getYawMatrix(); }
+        
+        template<typename ComponentType>
+        ComponentType* getSiblingComponentPtr() const { return owner->getComponentPtr<ComponentType>(); }
+        template<typename ComponentType>
+        ComponentType& getSiblingComponent() const { return owner->getComponent<ComponentType>(); }
     };
 
     template<typename SystemType>
@@ -69,7 +75,7 @@ namespace Enki
 		double r;
 
         virtual void init(double dt, SystemType* system) {}
-        virtual void step(double dt, SystemType* system, TargetComponent* that) {}
+        virtual void step(double dt, SystemType* system, TargetComponent* that, unsigned thisIndex, unsigned thatIndex) {}
         virtual void finalize(double dt, SystemType* system) {}
     };
 

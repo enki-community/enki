@@ -31,26 +31,87 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#include <iostream>
 #include <cassert>
 #include "RigidBodyPhysics.h"
 
 namespace Enki
 {
+    using namespace std;
+    
+    //
+    
+    void KinematicBody::initPhysics(double dt, RigidBodyPhysics* system)
+    {
+        owner->setPose(getPos() + speed * dt, getYaw() + angSpeed * dt);
+    }
+
+    void KinematicBody::finalizePhysics(double dt, RigidBodyPhysics* system)
+    {
+        // do nothing for purely kinematic bodies
+    }
+    
     void RigidBody::initPhysics(double dt, RigidBodyPhysics* system)
     {
-        // FIXME: implement
-        //applyForces(dt);
-
-        owner->setPose(owner->getPos() + speed * dt, owner->getYaw() + angSpeed * dt);
-
-        posBeforeCollision  = owner->getPos();
+        if (!isMomentOfInertiaComputed)
+            computeMomentOfInertia();
+        applyForces(dt);
+        MassiveBody::initPhysics(dt, system);
+        posBeforeCollision  = getPos();
     }
 
     void RigidBody::finalizePhysics(double dt, RigidBodyPhysics* system)
     {
-        // TODO: work on temporary pose instead of owner->getPos()
-        accumulatedInterlacedDistance += (posBeforeCollision - owner->getPos()).norm();
+        MassiveBody::finalizePhysics(dt, system);
+        
+        // TODO: work on temporary pose instead of getPos()
+        accumulatedInterlacedDistance += (posBeforeCollision - getPos()).norm();
     }
+    
+    void RigidBody::applyForces(double dt)
+	{
+		Vector acc = 0.;
+		double angAcc = 0.;
+		
+		// dry friction, set speed to zero if bigger
+		const Vector dryFriction = - speed.unitary() * g * dryFrictionCoefficient;
+		if ((dryFriction * dt).norm2() > speed.norm2())
+			speed = 0.;
+		else
+			acc += dryFriction;
+		
+		// dry rotation friction, set angSpeed to zero if bigger
+		const double dryAngFriction = copysign(g * dryFrictionCoefficient, -angSpeed);
+		if ((fabs(dryAngFriction) * dt) > fabs(angSpeed))
+			angSpeed = 0.;
+		else
+			angAcc += dryAngFriction;
+		
+		// viscous friction
+		acc += - speed * viscousFrictionCoefficient;
+		angAcc += - angSpeed * viscousMomentFrictionCoefficient;
+		
+		// el cheapos integration
+		speed += acc * dt;
+		angSpeed += angAcc * dt;
+	}
+    
+    void RigidBody::computeMomentOfInertia()
+    {
+        try
+        {
+            Collider& collider(getSiblingComponent<Collider>());
+            collider.setupCenterOfMass();
+            momentOfInertia = mass * collider.computeMomentOfInertia();
+        }
+        catch (Entity::ComponentNotFound& e)
+        {
+            cerr << "The entity owning this RigidBody has no collider!" << endl;
+        }
+        isMomentOfInertiaComputed = true;
+    }
+
+    //
 
     void RigidBodyPhysics::InitPhase::step(double dt)
     {
