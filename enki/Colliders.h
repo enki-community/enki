@@ -77,7 +77,7 @@ namespace Enki
         virtual void setupCenterOfMass() = 0;
         virtual double computeMomentOfInertia() = 0;
         
-        void collideWithObject(Collider &that, const Point &cp, const Vector &dist);
+        void collideWithObject(const Collider &that, const Point &cp, const Vector &dist) const;
     };
 
     struct CylinderCollider: Collider
@@ -88,9 +88,9 @@ namespace Enki
         virtual void setupCenterOfMass();
         virtual double computeMomentOfInertia();
         
-        void collideWithShape(HullCollider* that, const Polygone &shape);
-        void collideWithHull(HullCollider* that);
-        void collideWithCylinder(CylinderCollider* that);
+        void collideWithShape(const HullCollider& that, const Polygone &shape) const;
+        void collideWithHull(const HullCollider& that) const;
+        void collideWithCylinder(const CylinderCollider& that) const;
     };
 
     struct HullCollider: Collider

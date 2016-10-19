@@ -46,7 +46,7 @@ namespace Enki
         }
     }
     
-    void Collider::collideWithObject(Collider &that, const Point &cp, const Vector &dist)
+    void Collider::collideWithObject(const Collider &that, const Point &cp, const Vector &dist) const
     {
         // dispatch collision physics of different types
         if (rigidBody)
@@ -85,17 +85,17 @@ namespace Enki
         if (thisIndex >= thatIndex)
             return;
             
-        HullCollider* thatHullCollider(dynamic_cast<HullCollider*>(that));
+        const HullCollider* thatHullCollider(dynamic_cast<const HullCollider*>(that));
         if (thatHullCollider)
         {
-            collideWithHull(thatHullCollider);
+            collideWithHull(*thatHullCollider);
             return;
         }
         
-        CylinderCollider* thatCylinderCollider(dynamic_cast<CylinderCollider*>(that));
+        const CylinderCollider* thatCylinderCollider(dynamic_cast<const CylinderCollider*>(that));
         if (thatCylinderCollider)
         {
-            collideWithCylinder(thatCylinderCollider);
+            collideWithCylinder(*thatCylinderCollider);
             return;
         }
         
@@ -112,7 +112,7 @@ namespace Enki
         return 0.5 * r * r;
     }
     
-    void CylinderCollider::collideWithShape(HullCollider* that, const Polygone &shape)
+    void CylinderCollider::collideWithShape(const HullCollider& that, const Polygone &shape) const
     {
         const Vector pos(getPos());
         // test if circularObject is inside a shape
@@ -135,7 +135,7 @@ namespace Enki
 					// if there is a segment which is inside this, and the projection of the center lies within this segment, this projection is the nearest point. So we return. This is a consequence of having convexe polygones.
 					const Vector dist = u*-(r+d);
 					const Point collisionPoint = pos - u*(d);
-					collideWithObject(*that, collisionPoint, dist);
+					collideWithObject(that, collisionPoint, dist);
 					return;
 				}
 			}
@@ -166,27 +166,27 @@ namespace Enki
 			const double pointInsideDist = sqrt(pointInsideD2);
 			const Vector dist = (centerToPointInside / pointInsideDist) * (r - pointInsideDist);
 			const Point collisionPoint = pointInside + dist;
-			that->collideWithObject(*this, collisionPoint, dist);
+			that.collideWithObject(*this, collisionPoint, dist);
 		}
     }
     
-    void CylinderCollider::collideWithHull(HullCollider* that)
+    void CylinderCollider::collideWithHull(const HullCollider& that) const
     {
         // collide this circle on that hull, iterate over parts
-        for (auto part: that->getHull())
+        for (auto part: that.getHull())
             collideWithShape(that, part.getTransformedShape());
     }
     
-    void CylinderCollider::collideWithCylinder(CylinderCollider* that)
+    void CylinderCollider::collideWithCylinder(const CylinderCollider& that) const
     {
         // collide this and that cylinders together
-        const Vector distOCtoOC = this->getPos() - that->getPos();
+        const Vector distOCtoOC = this->getPos() - that.getPos();
         const Vector ud = distOCtoOC.unitary();
         const double dLength = distOCtoOC.norm();
-        const double addedRadius = this->r + that->r;
+        const double addedRadius = this->r + that.r;
         const Vector dist = ud * (addedRadius - dLength);
-        const Vector collisionPoint = that->getPos() + ud * that->r;
-        collideWithObject(*that, collisionPoint, dist);
+        const Vector collisionPoint = that.getPos() + ud * that.r;
+        collideWithObject(that, collisionPoint, dist);
     }
 
     void HullCollider::Part::computeTransformedShape(const Matrix22& rot, const Point& trans)
