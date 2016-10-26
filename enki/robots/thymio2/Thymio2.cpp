@@ -86,10 +86,92 @@ namespace Enki
 		Enki::PhysicalObject::Hull hull(Enki::PhysicalObject::Part(thymio2Shape, height));
 		setCustomHull(hull, 200);
 		setColor(Color(0.98, 0.98, 0.98));
+
+		textureID = 0;
+		ledTexture = NULL;
+		ledTextureNeedUpdate = true;
+		for (unsigned int i=0; i<LED_COUNT; i++)
+		{
+			switch(i)
+			{
+				case TOP:     	   ledColor[i] = pack(0,0,0,0); break;
+				case BOTTOM_LEFT:  ledColor[i] = pack(0,0,0,0); break;
+				case BOTTOM_RIGHT: ledColor[i] = pack(0,0,0,0); break;
+
+				case BUTTON_UP: case BUTTON_DOWN: case BUTTON_LEFT: case BUTTON_RIGHT:
+					ledColor[i] = pack(255,0,0,0); break;
+
+				case RING_0: case RING_1: case RING_2: case RING_3:
+				case RING_4: case RING_5: case RING_6: case RING_7:
+					ledColor[i] = pack(255,128,0,0); break;
+
+				case IR_FRONT_0: case IR_FRONT_1: case IR_FRONT_2: 
+				case IR_FRONT_3: case IR_FRONT_4: case IR_FRONT_5: 
+				case IR_BACK_0:  case IR_BACK_1: 
+					ledColor[i] = pack(255,0,0,0); break;
+
+				case LEFT_BLUE: case RIGHT_BLUE:
+					ledColor[i] = pack(0,255,255,0); break;
+				case LEFT_RED:  case RIGHT_RED: 
+					ledColor[i] = pack(255,0,0,0); break;
+
+				default: break;
+			}
+		}
 	}
 	
 	Thymio2::~Thymio2()
 	{
+		delete[] ledTexture;
+	}
+
+	void Thymio2::setLedIntensity(LED_INDEX ledIndex, float intensity)
+	{
+		setLedIntensity(ledIndex,(unsigned char)(255*intensity));
+	}
+
+	void Thymio2::setLedIntensity(LED_INDEX ledIndex, unsigned char intensity)
+	{
+		if(ledIndex<0 || ledIndex>=LED_COUNT) return;
+		uint32_t c = (intensity<<24);
+		if(c == (ledColor[ledIndex]&0xFF000000)) return;
+		ledColor[ledIndex] = (ledColor[ledIndex] & 0x00FFFFFF)|c;
+		ledTextureNeedUpdate = true;
+	}
+
+	void Thymio2::setLedColor(LED_INDEX ledIndex, Color color)
+	{
+		setLedColor(ledIndex,(unsigned char)(255*color.r()),(unsigned char)(255*color.g()),(unsigned char)(255*color.b()),(unsigned char)(255*color.a()));
+	}
+
+	void Thymio2::setLedColor(LED_INDEX ledIndex, unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+	{
+		if (ledIndex<0 || ledIndex>=LED_COUNT) return;
+		uint32_t c;
+		switch (ledIndex)
+		{
+			case TOP: case BOTTOM_LEFT: case BOTTOM_RIGHT:
+				c = pack(r,g,b,a);
+				if(c == ledColor[ledIndex]) return;
+				ledColor[ledIndex] = c;
+				ledTextureNeedUpdate = true;
+				break;
+			default:
+				setLedIntensity(ledIndex,a);
+				break;
+		}
+	}
+
+	unsigned int Thymio2::getColorInt(LED_INDEX ledIndex)
+	{
+		if (ledIndex<0 || ledIndex>=LED_COUNT) return 0;
+		else return ledColor[ledIndex];
+	}
+
+	inline uint32_t Thymio2::pack(unsigned char r,unsigned char g,unsigned char b,unsigned char a) const
+	{
+		// pack color into #AARRGGBB format (aka unsigned int);
+		return ((a<<24)|(r<<16)|(g<<8)|(b<<0));
 	}
 }
 

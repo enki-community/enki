@@ -46,10 +46,33 @@ namespace Enki
 		virtual void cleanup(ViewerWidget* viewer);
 		virtual void draw(PhysicalObject* object) const;
 
+		unsigned int textureDimension;
 		QImage bodyDiffusionMap0,bodyDiffusionMap1,bodyDiffusionMap2,bodyTexture;
 
 	protected:
+		template<typename T> class vec2{
+		public:
+			vec2(T a,T b):x(a),y(b){};
+			T x;
+			T y;
+
+			template<typename T2> vec2 operator* (T2 f) { return vec2<T>(x*f,y*f); }
+			vec2 operator+ (vec2 v) { return vec2(x+v.x,y+v.y); }
+			template<typename T2> operator vec2<T2>() { return vec2<T2>(T2(x),T2(y)); }
+		};
+		typedef vec2<int> vec2i;
+		typedef vec2<float> vec2f;
+
+		std::vector<vec2i> ledCenter[Thymio2::LED_COUNT];
+		std::vector<vec2i> ledSize[Thymio2::LED_COUNT];
+
 		ViewerWidget* viewer;
+
+		uint32_t pack(unsigned char r,unsigned char g,unsigned char b,unsigned char a = 255) const;
+		uint32_t pack(Color c) const;
+		Color unpack(uint32_t colorInt) const;
+		unsigned int updateLedTexture(Thymio2* thymio) const;
+		void drawRect(uint32_t* target, uint32_t* base, vec2i center, vec2i size, uint32_t color, uint32_t* diffTex) const;
 	};
 } // namespace Enki
 

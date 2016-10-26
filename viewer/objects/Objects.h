@@ -48,6 +48,9 @@ namespace Enki
 	
 	GLint GenMarxbotBase();
 	GLint GenMarxbotWheel();
+
+	GLint GenThymio2Body();
+	GLint GenThymio2Wheel();
 }
 
 #endif
