@@ -70,38 +70,38 @@ public:
 		{
 			Thymio2 *thymio = new Thymio2;
 			thymio->pos = Point(0, 0);
-			thymio->setLedColor(Thymio2::TOP,255,255,0,255);
-			thymio->setLedColor(Thymio2::BOTTOM_LEFT,255,0,0,255);
-			thymio->setLedColor(Thymio2::BOTTOM_RIGHT,0,0,255,255);
+			thymio->setLedColor(Thymio2::TOP,Color(1.0,0.0,0.0,1.0));
+			thymio->setLedColor(Thymio2::BOTTOM_LEFT,Color(0.0,1.0,0.0,1.0));
+			thymio->setLedColor(Thymio2::BOTTOM_RIGHT,Color(0.0,0.0,1.0,1.0));
 
-			thymio->setLedIntensity(Thymio2::BUTTON_UP,(unsigned char)255);
-			thymio->setLedIntensity(Thymio2::BUTTON_DOWN,(unsigned char)255);
-			thymio->setLedIntensity(Thymio2::BUTTON_LEFT,(unsigned char)255);
-			thymio->setLedIntensity(Thymio2::BUTTON_RIGHT,(unsigned char)255);
+			thymio->setLedIntensity(Thymio2::BUTTON_UP,1.0);
+			thymio->setLedIntensity(Thymio2::BUTTON_DOWN,1.0);
+			thymio->setLedIntensity(Thymio2::BUTTON_LEFT,1.0);
+			thymio->setLedIntensity(Thymio2::BUTTON_RIGHT,1.0);
 
-			thymio->setLedIntensity(Thymio2::RING_0,(unsigned char)255);
-			thymio->setLedIntensity(Thymio2::RING_1,(unsigned char)255);
-			thymio->setLedIntensity(Thymio2::RING_2,(unsigned char)255);
-			thymio->setLedIntensity(Thymio2::RING_3,(unsigned char)255);
-			thymio->setLedIntensity(Thymio2::RING_4,(unsigned char)255);
-			thymio->setLedIntensity(Thymio2::RING_5,(unsigned char)255);
-			thymio->setLedIntensity(Thymio2::RING_6,(unsigned char)255);
-			thymio->setLedIntensity(Thymio2::RING_7,(unsigned char)255);
+			thymio->setLedIntensity(Thymio2::RING_0,1.0);
+			thymio->setLedIntensity(Thymio2::RING_1,1.0);
+			thymio->setLedIntensity(Thymio2::RING_2,1.0);
+			thymio->setLedIntensity(Thymio2::RING_3,1.0);
+			thymio->setLedIntensity(Thymio2::RING_4,1.0);
+			thymio->setLedIntensity(Thymio2::RING_5,1.0);
+			thymio->setLedIntensity(Thymio2::RING_6,1.0);
+			thymio->setLedIntensity(Thymio2::RING_7,1.0);
 
-			thymio->setLedIntensity(Thymio2::IR_FRONT_0,(unsigned char)255);
-			thymio->setLedIntensity(Thymio2::IR_FRONT_1,(unsigned char)255);
-			thymio->setLedIntensity(Thymio2::IR_FRONT_2,(unsigned char)255);
-			thymio->setLedIntensity(Thymio2::IR_FRONT_3,(unsigned char)255);
-			thymio->setLedIntensity(Thymio2::IR_FRONT_4,(unsigned char)255);
-			thymio->setLedIntensity(Thymio2::IR_FRONT_5,(unsigned char)255);
+			thymio->setLedIntensity(Thymio2::IR_FRONT_0,1.0);
+			thymio->setLedIntensity(Thymio2::IR_FRONT_1,1.0);
+			thymio->setLedIntensity(Thymio2::IR_FRONT_2,1.0);
+			thymio->setLedIntensity(Thymio2::IR_FRONT_3,1.0);
+			thymio->setLedIntensity(Thymio2::IR_FRONT_4,1.0);
+			thymio->setLedIntensity(Thymio2::IR_FRONT_5,1.0);
 
-			thymio->setLedIntensity(Thymio2::IR_BACK_0,(unsigned char)255);
-			thymio->setLedIntensity(Thymio2::IR_BACK_1,(unsigned char)255);
+			thymio->setLedIntensity(Thymio2::IR_BACK_0,1.0);
+			thymio->setLedIntensity(Thymio2::IR_BACK_1,1.0);
 
-			thymio->setLedIntensity(Thymio2::LEFT_RED,(unsigned char)255);
-			thymio->setLedIntensity(Thymio2::LEFT_BLUE,(unsigned char)255);
-			thymio->setLedIntensity(Thymio2::RIGHT_BLUE,(unsigned char)255);
-			thymio->setLedIntensity(Thymio2::RIGHT_RED,(unsigned char)255);
+			thymio->setLedIntensity(Thymio2::LEFT_RED,1.0);
+			thymio->setLedIntensity(Thymio2::LEFT_BLUE,1.0);
+			thymio->setLedIntensity(Thymio2::RIGHT_BLUE,1.0);
+			thymio->setLedIntensity(Thymio2::RIGHT_RED,1.0);
 			world->addObject(thymio);
 		}
 		#endif // PROBLEM_CENTERED_THYMIO2

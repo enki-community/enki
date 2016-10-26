@@ -99,16 +99,12 @@ namespace Enki
 		//! Destructor
 		~Thymio2();
 
-		void setLedIntensity(LED_INDEX ledIndex, float intensity = 1.f);
-		void setLedIntensity(LED_INDEX ledIndex, unsigned char intensity = 255);
+		void setLedIntensity(LED_INDEX ledIndex, double intensity = 1.f);
 		void setLedColor(LED_INDEX ledIndex, Color color = Color(1.,1.,1.,1.));
-		void setLedColor(LED_INDEX ledIndex, unsigned char r = 255, unsigned char g = 255, unsigned char b = 255, unsigned char a = 255);
-		uint32_t getColorInt(LED_INDEX ledIndex);
+		Color getColorLed(LED_INDEX ledIndex);
 
 	protected:
-		uint32_t ledColor[LED_COUNT];
-
-		inline uint32_t pack(unsigned char r,unsigned char g,unsigned char b,unsigned char a) const;
+		Color ledColor[LED_COUNT];
 	};
 }
 

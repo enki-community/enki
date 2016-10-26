@@ -56,7 +56,16 @@ namespace Enki
 		const unsigned a((color>>24)&0xff);
 		return Color(double(r)/255., double(g)/255., double(b)/255., double(a)/255.);
 	}
-	
+
+	uint32_t Color::toARGB(Color color)
+	{
+		const uint8_t r = (255*color.r());
+		const uint8_t g = (255*color.g());
+		const uint8_t b = (255*color.b());
+		const uint8_t a = (255*color.a());
+		return ((a<<24)|(r<<16)|(g<<8)|(b<<0));
+	}
+
 	const Color Color::black(0, 0, 0);
 	const Color Color::white(1, 1, 1);
 	const Color Color::gray(0.5, 0.5, 0.5);
