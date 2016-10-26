@@ -68,89 +68,12 @@ namespace Enki
 		GroundSensor groundSensor0;
 		//! The ground sensor 1 (right)
 		GroundSensor groundSensor1;
-
-		static unsigned int textureDimension;
-		unsigned int textureID;
-		unsigned int* ledTexture;
-		bool ledTextureNeedUpdate;
-
-		enum LED_INDEX
-		{
-			TOP = 0,
-			BOTTOM_LEFT,
-			BOTTOM_RIGHT,
-
-			BUTTON_UP,
-			BUTTON_DOWN,
-			BUTTON_LEFT,
-			BUTTON_RIGHT,
-
-			RING_0,
-			RING_1,
-			RING_2,
-			RING_3,
-			RING_4,
-			RING_5,
-			RING_6,
-			RING_7,
-
-			IR_FRONT_0,
-			IR_FRONT_1,
-			IR_FRONT_2,
-			IR_FRONT_3,
-			IR_FRONT_4,
-			IR_FRONT_5,
-
-			IR_BACK_0,
-			IR_BACK_1,
-
-			LEFT_RED,
-			LEFT_BLUE,
-			RIGHT_BLUE,
-			RIGHT_RED,
-
-			LED_COUNT
-		};
 		
 	public:
 		//! Create a Thymio II
 		Thymio2();
 		//! Destructor
 		~Thymio2();
-
-		bool updateLedTexture(uint32_t* base = 0, uint32_t* diffusionMap0 = 0, uint32_t* diffusionMap1 = 0, uint32_t* diffusionMap2 = 0);
-		void setLedIntensity(LED_INDEX ledIndex, float intensity = 1.f);
-		void setLedIntensity(LED_INDEX ledIndex, unsigned char intensity = 255);
-		void setLedColor(LED_INDEX ledIndex, Color color = Color(1.,1.,1.,1.));
-		void setLedColor(LED_INDEX ledIndex, unsigned char r = 255, unsigned char g = 255, unsigned char b = 255, unsigned char a = 255);
-		uint32_t getColorInt(LED_INDEX ledIndex);
-		Color getColor(LED_INDEX ledIndex);
-
-
-	protected:
-		template<typename T> class vec2{
-		public:
-			vec2(T a,T b):x(a),y(b){};
-			T x;
-			T y;
-
-			template<typename T2> vec2 operator* (T2 f) { return vec2<T>(x*f,y*f); }
-			vec2 operator+ (vec2 v) { return vec2(x+v.x,y+v.y); }
-			template<typename T2> operator vec2<T2>() { return vec2<T2>(T2(x),T2(y)); }
-		};
-		typedef vec2<int> vec2i;
-		typedef vec2<float> vec2f;
-		
-
-		uint32_t ledColor[LED_COUNT];
-		std::vector<vec2i> ledCenter[LED_COUNT];
-		std::vector<vec2i> ledSize[LED_COUNT];
-
-		uint32_t pack(unsigned char r,unsigned char g,unsigned char b,unsigned char a = 255);
-		uint32_t pack(Color c);
-		Color unpack(uint32_t colorInt);
-
-		void drawRect(uint32_t* base,vec2i center,vec2i size,uint32_t color,uint32_t* diffusionMap = 0);
 	};
 }
 
