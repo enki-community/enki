@@ -129,7 +129,7 @@ namespace Enki
 	{
 		if (ledIndex<0 || ledIndex>=LED_COUNT)
 			return;
-		intensity = std::max(1., std::min(0., intensity));
+		intensity = std::max(0., std::min(1., intensity));
 		if (intensity != ledColor[ledIndex].a())
 		{
 			ledColor[ledIndex].setA(intensity);
