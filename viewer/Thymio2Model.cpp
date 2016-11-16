@@ -219,10 +219,12 @@ namespace Enki
 		glPopMatrix();
 		glDisable(GL_POLYGON_OFFSET_FILL);
 		glDepthMask( GL_TRUE );
-		glDisable(GL_BLEND);
 
 		// end
 		glDisable(GL_LIGHTING);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDisable(GL_BLEND);
+		glDisable(GL_TEXTURE_2D);
 	}
 
 	unsigned Thymio2Model::updateLedTexture(Thymio2* thymio) const
