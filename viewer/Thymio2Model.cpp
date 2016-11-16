@@ -71,7 +71,7 @@ namespace Enki
 			{
 				case Thymio2::TOP:     	    ledCenter[i].push_back(Vector(0.5f,0.5f));       ledSize[i].push_back(Vector(1.f,1.f)); break;
 				case Thymio2::BOTTOM_LEFT:  ledCenter[i].push_back(Vector(0.6074f,0.1841f)); ledSize[i].push_back(Vector(0.1133f,0.2939f));
-							    ledCenter[i].push_back(Vector(0.7309f,0.7837f)); ledSize[i].push_back(Vector(0.1885f,0.1396f)); break;
+											ledCenter[i].push_back(Vector(0.7309f,0.7837f)); ledSize[i].push_back(Vector(0.1885f,0.1396f)); break;
 				case Thymio2::BOTTOM_RIGHT: ledCenter[i].push_back(Vector(0.6636f,0.4297f)); ledSize[i].push_back(Vector(0.2236f,0.1875f)); break;
 
 				case Thymio2::BUTTON_UP:    ledCenter[i].push_back((buttonCenter + Vector(-0.038f,0))); ledSize[i].push_back(Vector(0.035f,0.045f)); break;
@@ -232,27 +232,20 @@ namespace Enki
 		if (!thymio->ledTexture)
 		{
 			thymio->ledTexture = new uint32_t[textureDimension*textureDimension];
-			for (unsigned i=0; i<textureDimension; i++)
-				for (unsigned j=0; j<textureDimension; j++)
-					thymio->ledTexture[i*textureDimension+j] = 0xFFFFFFFF;
+			std::fill(&thymio->ledTexture[0], &thymio->ledTexture[textureDimension*textureDimension], 0xFFFFFFFF);
 		}
-
+		
 		uint32_t* tex = thymio->ledTexture;
 		uint32_t* bodyTex   = (uint32_t*)bodyTexture.bits();
 		uint32_t* bodyDiff0 = (uint32_t*)bodyDiffusionMap0.bits();
 		uint32_t* bodyDiff1 = (uint32_t*)bodyDiffusionMap1.bits();
 		uint32_t* bodyDiff2 = (uint32_t*)bodyDiffusionMap2.bits();
-
-		for (unsigned i=0; i<textureDimension; i++)
-			for (unsigned j=0; j<textureDimension; j++)
-			{
-				if (bodyTex)
-					tex[i+textureDimension*j] = bodyTex[i+textureDimension*j];
-				else
-					tex[i+textureDimension*j] = 0xFFFFFFFF;
-			}
-
-		// color led area
+		
+		// fill with body texture
+		assert(bodyTex);
+		std::copy(&bodyTex[0], &bodyTex[textureDimension*textureDimension], &tex[0]);
+		
+		// color led areas
 		for (unsigned i=0; i<Thymio2::LED_COUNT; i++)
 		{
 			for (unsigned j=0;j<ledCenter[i].size();j++)
@@ -272,43 +265,65 @@ namespace Enki
 				}
 			}
 		}
-
-		return viewer->bindTexture(QImage((uint8_t*)(thymio->ledTexture), textureDimension, textureDimension, QImage::Format_ARGB32), GL_TEXTURE_2D);
+		
+		const unsigned texId(viewer->bindTexture(QImage((uint8_t*)(thymio->ledTexture), textureDimension, textureDimension, QImage::Format_ARGB32), GL_TEXTURE_2D));
+		
+		return texId;
 	}
+	
+	// generated with this Python code:
+	// str(', ').join(map(lambda x: str(int(x*255)), pow(np.arange(0., 1.001, 1./255.), 0.30)))
+	static const uint32_t pow_030_table[256] = { 0, 48, 59, 67, 73, 78, 82, 86, 90, 93, 96, 99, 101, 104, 106, 108, 111, 113, 115, 117, 118, 120, 122, 123, 125, 127, 128, 130, 131, 132, 134, 135, 136, 138, 139, 140, 141, 142, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 160, 161, 162, 163, 164, 165, 166, 166, 167, 168, 169, 169, 170, 171, 172, 173, 173, 174, 175, 175, 176, 177, 178, 178, 179, 180, 180, 181, 182, 182, 183, 184, 184, 185, 185, 186, 187, 187, 188, 189, 189, 190, 190, 191, 191, 192, 193, 193, 194, 194, 195, 195, 196, 197, 197, 198, 198, 199, 199, 200, 200, 201, 201, 202, 202, 203, 203, 204, 204, 205, 205, 206, 206, 207, 207, 208, 208, 209, 209, 210, 210, 211, 211, 212, 212, 213, 213, 213, 214, 214, 215, 215, 216, 216, 217, 217, 217, 218, 218, 219, 219, 220, 220, 220, 221, 221, 222, 222, 222, 223, 223, 224, 224, 224, 225, 225, 226, 226, 226, 227, 227, 228, 228, 228, 229, 229, 230, 230, 230, 231, 231, 231, 232, 232, 233, 233, 233, 234, 234, 234, 235, 235, 236, 236, 236, 237, 237, 237, 238, 238, 238, 239, 239, 239, 240, 240, 240, 241, 241, 241, 242, 242, 242, 243, 243, 243, 244, 244, 244, 245, 245, 245, 246, 246, 246, 247, 247, 247, 248, 248, 248, 249, 249, 249, 250, 250, 250, 251, 251, 251, 251, 252, 252, 252, 253, 253, 253, 254, 254, 254, 255 };
+	static const uint32_t pow_035_table[256] = { 0, 36, 46, 53, 59, 64, 68, 72, 75, 79, 82, 84, 87, 89, 92, 94, 96, 98, 100, 102, 104, 106, 108, 109, 111, 113, 114, 116, 117, 119, 120, 121, 123, 124, 125, 127, 128, 129, 130, 132, 133, 134, 135, 136, 137, 138, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 150, 151, 152, 153, 154, 155, 156, 157, 158, 158, 159, 160, 161, 162, 163, 163, 164, 165, 166, 166, 167, 168, 169, 169, 170, 171, 172, 172, 173, 174, 175, 175, 176, 177, 177, 178, 179, 179, 180, 181, 181, 182, 183, 183, 184, 185, 185, 186, 186, 187, 188, 188, 189, 189, 190, 191, 191, 192, 192, 193, 194, 194, 195, 195, 196, 197, 197, 198, 198, 199, 199, 200, 200, 201, 201, 202, 203, 203, 204, 204, 205, 205, 206, 206, 207, 207, 208, 208, 209, 209, 210, 210, 211, 211, 212, 212, 213, 213, 214, 214, 215, 215, 216, 216, 217, 217, 218, 218, 218, 219, 219, 220, 220, 221, 221, 222, 222, 223, 223, 223, 224, 224, 225, 225, 226, 226, 227, 227, 227, 228, 228, 229, 229, 230, 230, 230, 231, 231, 232, 232, 232, 233, 233, 234, 234, 235, 235, 235, 236, 236, 237, 237, 237, 238, 238, 239, 239, 239, 240, 240, 240, 241, 241, 242, 242, 242, 243, 243, 244, 244, 244, 245, 245, 245, 246, 246, 247, 247, 247, 248, 248, 248, 249, 249, 250, 250, 250, 251, 251, 251, 252, 252, 252, 253, 253, 253, 254, 254, 255 };
+	static const uint32_t pow_040_table[256] = { 0, 27, 36, 43, 48, 52, 56, 60, 63, 66, 69, 72, 75, 77, 79, 82, 84, 86, 88, 90, 92, 93, 95, 97, 99, 100, 102, 103, 105, 106, 108, 109, 111, 112, 113, 115, 116, 117, 119, 120, 121, 122, 123, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 136, 137, 138, 139, 140, 141, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 152, 153, 154, 155, 156, 157, 157, 158, 159, 160, 161, 161, 162, 163, 164, 165, 165, 166, 167, 168, 168, 169, 170, 171, 171, 172, 173, 173, 174, 175, 176, 176, 177, 178, 178, 179, 180, 180, 181, 182, 182, 183, 184, 184, 185, 186, 186, 187, 187, 188, 189, 189, 190, 191, 191, 192, 192, 193, 194, 194, 195, 195, 196, 197, 197, 198, 198, 199, 200, 200, 201, 201, 202, 202, 203, 204, 204, 205, 205, 206, 206, 207, 207, 208, 208, 209, 210, 210, 211, 211, 212, 212, 213, 213, 214, 214, 215, 215, 216, 216, 217, 217, 218, 218, 219, 219, 220, 220, 221, 221, 222, 222, 223, 223, 224, 224, 225, 225, 226, 226, 227, 227, 228, 228, 229, 229, 229, 230, 230, 231, 231, 232, 232, 233, 233, 234, 234, 235, 235, 235, 236, 236, 237, 237, 238, 238, 239, 239, 239, 240, 240, 241, 241, 242, 242, 242, 243, 243, 244, 244, 245, 245, 245, 246, 246, 247, 247, 248, 248, 248, 249, 249, 250, 250, 250, 251, 251, 252, 252, 252, 253, 253, 254, 254, 255 };
 
-	void Thymio2Model::drawRect(uint32_t* target, uint32_t* base, Vector center, Vector size, Color color, uint32_t* diffTex) const
+	void Thymio2Model::drawRect(uint32_t* target, uint32_t* base, const Vector& center, const Vector& size, const Color& color, uint32_t* diffTex) const
 	{
-		for (int i = center.x*textureDimension - size.x*textureDimension/2; i < center.x*textureDimension + size.x*textureDimension/2; i++)
-			for (int j = center.y*textureDimension - size.y*textureDimension/2; j < center.y*textureDimension + size.y*textureDimension/2; j++)
+		assert(diffText);
+		
+		const uint32_t colorA(color.a() * 255);
+		const uint32_t colorR(color.r() * 255);
+		const uint32_t colorG(color.g() * 255);
+		const uint32_t colorB(color.b() * 255);
+		
+		for (int j = center.y*textureDimension - size.y*textureDimension/2; j < center.y*textureDimension + size.y*textureDimension/2; j++)
+			for (int i = center.x*textureDimension - size.x*textureDimension/2; i < center.x*textureDimension + size.x*textureDimension/2; i++)
 			{
 				if (i<0 || j<0 || i>=textureDimension || j>=textureDimension)
 					continue;
-
-				// get destination color (previous color)
-				Color destination = Color::fromARGB(target[i+textureDimension*j]);
 				
-				// compute source color (color to add)
-				Color source = color;
-				if (diffTex)
-				{
-					const Color diff = Color::fromARGB(diffTex[i+textureDimension*j]);
-					// gamma correction because LEDs have non-linear transfer functions
-					const double r(pow(color.r()*diff.r(), 0.35));
-					const double g(pow(color.g()*diff.g(), 0.3));
-					const double b(pow(color.b()*diff.b(), 0.4));
-					source = Color(r, g, b, color.a()*diff.a());
-				}
-				else
-				{
-					double x = ((double)i-center.x*textureDimension)/(size.x*textureDimension/2.);
-					double y = ((double)j-center.y*textureDimension)/(size.y*textureDimension/2.);
-					source.setA(source.a()*std::max(std::min(1. - std::sqrt(x*x+y*y), 1.), 0.));
-				}
+				// index
+				const size_t index(i+textureDimension*j);
+
+				// expand destination (prev color) into its components
+				uint32_t& destination(target[index]);
+				const uint32_t destA((destination>>24) & 0xff);
+				const uint32_t destR((destination>>16) & 0xff);
+				const uint32_t destG((destination>>8)  & 0xff);
+				const uint32_t destB((destination>>0)  & 0xff);
+				
+				// expand diffuse into its components
+				const uint32_t diffuse(diffTex[index]);
+				const uint32_t diffA((diffuse>>24) & 0xff);
+				const uint32_t diffR((diffuse>>16) & 0xff);
+				const uint32_t diffG((diffuse>>8)  & 0xff);
+				const uint32_t diffB((diffuse>>0)  & 0xff);
+				
+				// compute source color
+				// gamma correction because LEDs have non-linear transfer functions
+				const uint32_t sourceA((colorA * diffA) >> 8);
+				const uint32_t sourceR(pow_035_table[(colorR * diffR) >> 8]);
+				const uint32_t sourceG(pow_030_table[(colorG * diffG) >> 8]);
+				const uint32_t sourceB(pow_040_table[(colorB * diffB) >> 8]);
+				const uint32_t oneMSrcA(255-sourceA);
 				
 				// blend color
-				Color c = destination*(1. - source.a()) + source*source.a();
-				c.setA(1.0);
-				target[i+textureDimension*j] = Color::toARGB(c);
+				destination = 
+					(((destR * oneMSrcA + sourceR * sourceA) >> 8) << 16 ) |
+					(((destG * oneMSrcA + sourceG * sourceA) >> 8) << 8  ) |
+					(((destB * oneMSrcA + sourceB * sourceA) >> 8) << 0  ) |
+					0xff000000
+				;
 			}
 	}
 

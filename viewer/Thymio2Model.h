@@ -56,7 +56,7 @@ namespace Enki
 		ViewerWidget* viewer;
 
 		unsigned updateLedTexture(Thymio2* thymio) const;
-		void drawRect(uint32_t* target, uint32_t* base, Vector center, Vector size, Color color, uint32_t* diffTex) const;
+		void drawRect(uint32_t* target, uint32_t* base, const Vector& center, const Vector& size, const Color& color, uint32_t* diffTex) const;
 	};
 } // namespace Enki
 
