@@ -279,7 +279,7 @@ namespace Enki
 
 	void Thymio2Model::drawRect(uint32_t* target, uint32_t* base, const Vector& center, const Vector& size, const Color& color, uint32_t* diffTex) const
 	{
-		assert(diffText);
+		assert(diffTex);
 		
 		const uint32_t colorA(color.a() * 255);
 		const uint32_t colorR(color.r() * 255);

@@ -1137,7 +1137,7 @@ namespace Enki
 					selectedObject->angSpeed = 0;
 				}
 				else
-					addErrorMessage(tr("object translation not avalaible in tracking mode"), 3.0);
+					addErrorMessage(tr("object translation not available in tracking mode"), 3.0);
 			}
 			else if ((event->pos() - mouseGrabPos).manhattanLength() > 10 )
 			{
