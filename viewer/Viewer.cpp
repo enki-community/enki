@@ -160,6 +160,13 @@ namespace Enki
 		pos.ry() = targetPosition.y() - radius*forward.y();
 		altitude = targetPosition.z() + zNear*1.01 - radius*forward.z();
 	}
+	
+	ViewerWidget::InfoMessage::InfoMessage(const QString& message, double persistance, const QColor& color, const QUrl& link):
+		message(message),
+		persistance(persistance),
+		color(color),
+		link(link)
+	{}
 
 	ViewerWidget::ViewerWidget(World *world, QWidget *parent) :
 		QGLWidget(parent),
@@ -173,6 +180,9 @@ namespace Enki
 		doDumpFrames(false),
 		world(world),
 		worldList(0),
+		messageListWidth(0),
+		messageListHeight(0),
+		fontMetrics(QFont()),
 		mouseGrabbed(false),
 		wallsHeight(10),
 		trackingView(false),
@@ -307,30 +317,34 @@ namespace Enki
 		setTracking(!trackingView);
 	}
 
-	void ViewerWidget::addErrorMessage(const QString& msg, double persistance)
+	void ViewerWidget::addInfoMessage(const QString& message, double persistance, const QColor& color, const QUrl& link)
 	{
-		for (std::list<ViewerErrorMessage>::iterator it = messageList.begin(); it!=messageList.end(); it++)
+		// add or update message in the list
+		for (MessageList::iterator it = messageList.begin(); it!=messageList.end(); it++)
 		{
-			if (it->first == msg)
+			if (it->message == message)
 			{
-				it->second = persistance;
+				it->persistance = persistance;
 				return;
 			}
 		}
-		messageList.push_back(ViewerErrorMessage(msg,persistance));
+		messageList.push_back(InfoMessage(message, persistance, color, link));
+		
+		// compute the size of the list
+		computeInfoMessageAreaSize();
 	}
 
 	void ViewerWidget::showHelp()
 	{
-		addErrorMessage(tr("Control help :"));
-		addErrorMessage(tr("      keyboard F1 : show this help message"));
-		addErrorMessage(tr("      middle click + mouse move : translate camera"));
-		addErrorMessage(tr("      right click + mouse move : rotate camera"));
-		addErrorMessage(tr("      left click : select object under cursor, if any, otherwise unselect"));
-		addErrorMessage(tr("      left click + mouse move : select object and translate it"));
-		addErrorMessage(tr("      left click + right click + mouse move : select object and rotate it"));
-		addErrorMessage(tr("      left double-click : visually track pointed object"));
-		addErrorMessage(tr("      mouse wheel : zoom (or translate camera)"));
+		addInfoMessage(tr("Available controls:"));
+		addInfoMessage(tr("keyboard F1 : show this help message"));
+		addInfoMessage(tr("middle click + mouse move : translate camera"));
+		addInfoMessage(tr("right click + mouse move : rotate camera"));
+		addInfoMessage(tr("left click : select object under cursor, if any, otherwise unselect"));
+		addInfoMessage(tr("left click + mouse move : select object and translate it"));
+		addInfoMessage(tr("left click + right click + mouse move : select object and rotate it"));
+		addInfoMessage(tr("left double-click : visually track pointed object"));
+		addInfoMessage(tr("mouse wheel : zoom (or translate camera)"));
 	}
 
 	void ViewerWidget::renderSegment(const Segment& segment, double height)
@@ -829,6 +843,8 @@ namespace Enki
 		glHint (GL_FOG_HINT, GL_NICEST);
 		glEnable (GL_FOG);*/
 		
+		helpWidget = bindTexture(QPixmap(QString(":/widgets/help.png")), GL_TEXTURE_2D, GL_RGBA);
+		
 		worldTexture = bindTexture(QPixmap(QString(":/textures/world.png")), GL_TEXTURE_2D, GL_LUMINANCE8);
 		wallTexture = bindTexture(QPixmap(QString(":/textures/wall.png")), GL_TEXTURE_2D, GL_LUMINANCE8);
 		if (world->hasGroundTexture())
@@ -1016,28 +1032,93 @@ namespace Enki
 			}
 		}
 	}
+	
+	void ViewerWidget::glVertex2Screen(int x, int y)
+	{
+		glVertex2f(-1. + (x * 2.) / width(), 1. - (y * 2.) / height());
+	}
+	
+	void ViewerWidget::displayWidgets()
+	{
+		glEnable(GL_BLEND);
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, helpWidget);
+		glColor4d(1,1,1,1);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glBegin(GL_QUADS);
+			const int margin(24);
+			const int size(48);
+			glTexCoord2f(0.f, 0.f); glVertex2Screen(width() - margin - size, margin + size);
+			glTexCoord2f(1.f, 0.f); glVertex2Screen(width() - margin, margin + size);
+			glTexCoord2f(1.f, 1.f); glVertex2Screen(width() - margin, margin);
+			glTexCoord2f(0.f, 1.f); glVertex2Screen(width() - margin - size, margin);
+		glEnd();
+		glDisable(GL_TEXTURE_2D);
+		glDisable(GL_BLEND);
+	}
+	
 	void ViewerWidget::displayMessages()
 	{
+		// bound message list
 		while (messageList.size() > 20)
 			messageList.pop_front();
 		
-		const QFontMetrics fontMetrics = QFontMetrics(QFont());
-		const int lineSpacing(fontMetrics.lineSpacing());
+		// if none, return
+		if (messageList.empty())
+			return;
 		
+		// fill background
+		glEnable(GL_BLEND);
+		glColor4d(1,1,1,0.8);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glBegin(GL_QUADS);
+			glVertex2Screen(0, messageListHeight);
+			glVertex2Screen(messageListWidth, messageListHeight);
+			glVertex2Screen(messageListWidth, 0);
+			glVertex2Screen(0, 0);
+		glEnd();
+		glDisable(GL_BLEND);
+		
+		// draw messages
+		const int lineSpacing(fontMetrics.lineSpacing());
 		unsigned i = 0;
-		for (std::list<ViewerErrorMessage>::iterator it = messageList.begin(); it != messageList.end();i++)
+		const size_t messageListSize(messageList.size());
+		for (MessageList::iterator it = messageList.begin(); it != messageList.end(); i++)
 		{
-			glColor4d(0, 0, 0, clamp(it->second,0.,1.));
-			renderText(10, 5 + (i+1)*lineSpacing, it->first);
+			QColor color(it->color);
+			color.setAlphaF(clamp(it->persistance, 0., 1.));
+			qglColor(color);
+			
+			renderText(10, 5 + (i+1)*lineSpacing, it->message);
 
-			if (it->second)
+			if (it->persistance >= 0)
 			{
-				it->second -= elapsedTime;
+				it->persistance -= elapsedTime;
 				++it;
 			}
 			else
 				it = messageList.erase(it);
 		}
+		if (messageList.size() != messageListSize)
+			computeInfoMessageAreaSize();
+	}
+	
+	void ViewerWidget::computeInfoMessageAreaSize()
+	{
+		messageListWidth = 0;
+		for (MessageList::iterator it = messageList.begin(); it != messageList.end(); ++it)
+			messageListWidth = std::max(messageListWidth, fontMetrics.width(it->message));
+		const int lineSpacing(fontMetrics.lineSpacing());
+		messageListWidth += 20; 
+		messageListHeight = messageList.size() * lineSpacing;
+		if (messageListHeight)
+			messageListHeight += 20;
 	}
 
 	void ViewerWidget::paintGL()
@@ -1053,8 +1134,11 @@ namespace Enki
 		const double aspectRatio = double(width()) / double(height());
 		renderScene(-aspectRatio*0.5*znear, aspectRatio*0.5*znear, -0.5*znear, 0.5*znear, znear, 2000);
 		sceneCompletedHook();
+		
 		picking(-aspectRatio*0.5*znear, aspectRatio*0.5*znear, -0.5*znear, 0.5*znear, znear, 2000);
+		
 		displayMessages();
+		displayWidgets();
 
 		if (doDumpFrames)
 			grabFrameBuffer().save(QString("enkiviewer-frame%1.png").arg(dumpFramesCounter++, (int)8, (int)10, QChar('0')));
@@ -1079,9 +1163,31 @@ namespace Enki
 		// change selected object
 		if (event->button() == Qt::LeftButton)
 		{
-			if (selectedObject != pointedObject)
-				setTracking(false);
-			selectedObject = pointedObject;
+			if (event->x() > width() - 72 &&
+				event->x() < width() - 24 &&
+				event->y() > 24 &&
+				event->y() < 72)
+			{
+				showHelp();
+			}
+			else if (!messageList.empty() && event->x() < messageListWidth && event->y() < messageListHeight)
+			{
+				const int messageIndex((event->y() - 5) / fontMetrics.lineSpacing());
+				if (messageIndex >= 0 && messageIndex < messageList.size())
+				{
+					MessageList::iterator it(messageList.begin());
+					std::advance(it, messageIndex);
+					const QUrl link(it->link);
+					if (!link.isEmpty())
+						QDesktopServices::openUrl(link);
+				}
+			}
+			else
+			{
+				if (selectedObject != pointedObject)
+					setTracking(false);
+				selectedObject = pointedObject;
+			}
 		}
 
 		// if selected object is a robot call the clicked interaction function
@@ -1134,7 +1240,7 @@ namespace Enki
 					selectedObject->angSpeed = 0;
 				}
 				else
-					addErrorMessage(tr("object translation not available in tracking mode"), 3.0);
+					addInfoMessage(tr("object translation not available in tracking mode"), 3.0, Qt::darkYellow);
 			}
 			else if ((event->pos() - mouseGrabPos).manhattanLength() > 10 )
 			{
@@ -1170,7 +1276,7 @@ namespace Enki
 				mouseGrabPos = event->pos();
 			}
 			else
-				addErrorMessage(tr("camera translation not avalaible in tracking mode"), 100);
+				addInfoMessage(tr("camera translation not available in tracking mode"), 3.0, Qt::darkYellow);
 		}
 	}
 	
