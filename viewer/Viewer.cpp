@@ -1023,15 +1023,12 @@ namespace Enki
 		
 		const QFontMetrics fontMetrics = QFontMetrics(QFont());
 		const int lineSpacing(fontMetrics.lineSpacing());
-		int maxLineWidth(0);
-		for (std::list<ViewerErrorMessage>::iterator it = messageList.begin(); it != messageList.end(); ++it)
-			maxLineWidth = std::max(maxLineWidth, fontMetrics.width(it->first));
 		
 		unsigned i = 0;
 		for (std::list<ViewerErrorMessage>::iterator it = messageList.begin(); it != messageList.end();i++)
 		{
 			glColor4d(0, 0, 0, clamp(it->second,0.,1.));
-			renderText(width() - maxLineWidth - 10, 5 + (i+1)*lineSpacing, it->first);
+			renderText(10, 5 + (i+1)*lineSpacing, it->first);
 
 			if (it->second)
 			{
