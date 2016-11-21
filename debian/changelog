@@ -1,3 +1,9 @@
+libenki (2.0~git.20161121) xenial; urgency=medium
+
+  * Several bug fixes
+
+ -- Stéphane Magnenat <stephane@nospam.magnenat.net>  Mon, 21 Nov 2016 09:11:43 +0100
+
 libenki (2.0~git.20161103) xenial; urgency=medium
 
   * Added object selection, movement and interaction; added realistic textures for Thymio 2.
