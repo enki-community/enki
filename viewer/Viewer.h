@@ -40,6 +40,7 @@
 #include <QPointF>
 #include <QMap>
 #include <QVector3D>
+#include <QUrl>
 
 #include <enki/Geometry.h>
 #include <enki/PhysicalEngine.h>
@@ -128,6 +129,7 @@ namespace Enki
 	protected:
 		World *world;
 		
+		GLuint helpWidget;
 		GLuint worldList;
 		GLuint worldTexture;
 		GLuint wallTexture;
@@ -140,8 +142,20 @@ namespace Enki
 		typedef QMapIterator<const std::type_info*, const std::type_info*> ManagedObjectsAliasesMapIterator;
 		ManagedObjectsAliasesMap managedObjectsAliases;
 		
-		typedef std::pair<QString, double> ViewerErrorMessage;
-		std::list<ViewerErrorMessage> messageList;
+		struct InfoMessage
+		{
+			QString message;
+			double persistance;
+			QColor color;
+			QUrl link;
+			
+			InfoMessage(const QString& message, double persistance, const QColor& color, const QUrl& link);
+		};
+		typedef std::list<InfoMessage> MessageList;
+		MessageList messageList;
+		int messageListWidth;
+		int messageListHeight;
+		const QFontMetrics fontMetrics;
 
 		struct ExtendedAttributes
 		{
@@ -186,7 +200,7 @@ namespace Enki
 		void setDumpFrames(bool doDump);
 		void setTracking(bool doTrack);
 		void toggleTracking();
-		void addErrorMessage(const QString& msg, double persistance = 5.0);
+		void addInfoMessage(const QString& message, double persistance = 5.0, const QColor& color = Qt::black, const QUrl& link = QUrl());
 		void showHelp();
 
 	protected:
@@ -213,7 +227,10 @@ namespace Enki
 		// scene rendering and picking
 		virtual void renderScene(double left, double right, double bottom, double top, double zNear, double zFar);
 		void picking(double left, double right, double bottom, double top, double zNear, double zFar);
+		void glVertex2Screen(int x, int y);
 		void displayMessages();
+		void computeInfoMessageAreaSize();
+		void displayWidgets();
 
 		// Qt events handling
 		virtual void keyPressEvent(QKeyEvent* event);
