@@ -63,7 +63,7 @@ namespace Enki
 
 	public :
 		//! Constructor
-		LocalInteraction() {}
+		LocalInteraction():r(0) {}
 		//! Constructor
 		LocalInteraction(double range, Robot* owner) : r(range), owner(owner) {}
 		//! Destructor
