@@ -1,4 +1,4 @@
-/*! \page CodingConventions Coding Convetions
+/*! \page CodingConventions Coding Conventions
 
 The purprose of this page is to describe the Enki coding conventions. They exist to ensure readable and high-quality code, so please follow them. If you read Enki's code, you'll perhaps notice some parts that do not follow those conventions. Should this happen, feel free to clean the code and submit patch with a compliant version.
 
