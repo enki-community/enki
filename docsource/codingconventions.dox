@@ -46,29 +46,4 @@ class Toto {
 }; // wrong
 \endcode
 
-\section Emacs
-
-If you use Emacs as your editor, you can make it apply these rules to Enki files by putting the following in the .emacs file in your home directory:
-\code
-(defconst enki-c-style
- '((c-basic-offset      . 4)
-   (c-offsets-alist            . ((substatement-open . 0)
-                                   (inline-open . 0)
-                                   ))
-   )
- "Enki programming style")
-
-;; Customizations for all modes in CC Mode.
-(defun enki-c-mode-common-hook ()
- (c-add-style "enki" enki-c-style)
- )
-
-(add-hook 'c-mode-common-hook 'enki-c-mode-common-hook)
-\endcode
-
-And adding the following to the top line of each of your source files:
-\code 
-// emacs settings information: -*- mode: c++; tab-width: 4; c-file-style: "enki"; -*-
-\endcode
-
 */
