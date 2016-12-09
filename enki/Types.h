@@ -67,9 +67,9 @@ namespace Enki
 		}
 		
 		//! access component i
-		const double& operator[](size_t i) const { assert((i >= 0) && (i < 4)); return components[i]; }
+		const double& operator[](size_t i) const { assert(i < 4); return components[i]; }
 		//! access component i
-		double& operator[](size_t i) { assert((i >= 0) && (i < 4)); return components[i]; }
+		double& operator[](size_t i) { assert(i < 4); return components[i]; }
 		
 		// operations with scalar
 		//! Add d to each component
