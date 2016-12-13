@@ -455,6 +455,9 @@ namespace Enki
 		typedef std::set<PhysicalObject *> Objects;
 		typedef Objects::iterator ObjectsIterator;
 		
+		//! Whether the world should delete the objects upon destruction, true by default
+		bool takeObjectOwnership;
+		
 		//! All the objects in the world
 		Objects objects;
 		//! Base for the Bluetooth connections between robots
@@ -503,9 +506,6 @@ namespace Enki
 		void initBluetoothBase();
 		//! Return the address of the Bluetooth base
 		BluetoothBase* getBluetoothBase();
-		
-		//! Choose whether the world should take ownership of PhysicalObjects added, and delete them. Default is true.
-		static void takeObjectOwnership(bool doTake);
 	
 	protected:
 		//! Can implement world specific control. By default do nothing

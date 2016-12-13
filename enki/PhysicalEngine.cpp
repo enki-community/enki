@@ -700,8 +700,6 @@ namespace Enki
 		}
 	}
 	
-	static bool worldTakeObjectOwnership = true;
-	
 	World::GroundTexture::GroundTexture():
 		width(0),
 		height(0)
@@ -720,6 +718,7 @@ namespace Enki
 		r(0),
 		color(color),
 		groundTexture(groundTexture),
+		takeObjectOwnership(true),
 		bluetoothBase(NULL)
 	{
 	}
@@ -731,6 +730,7 @@ namespace Enki
 		r(r),
 		color(color),
 		groundTexture(groundTexture),
+		takeObjectOwnership(true),
 		bluetoothBase(NULL)
 	{
 	}
@@ -741,13 +741,14 @@ namespace Enki
 		h(0),
 		r(0),
 		color(Color::gray),
+		takeObjectOwnership(true),
 		bluetoothBase(NULL)
 	{
 	}
 
 	World::~World()
 	{
-		if (worldTakeObjectOwnership)
+		if (takeObjectOwnership)
 			for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 				delete (*i);
 		
@@ -1258,11 +1259,6 @@ namespace Enki
 			bluetoothBase = new BluetoothBase();
 	
 		return bluetoothBase;
-	}
-	
-	void World::takeObjectOwnership(bool doTake)
-	{
-		worldTakeObjectOwnership = doTake;
 	}
 }
 
