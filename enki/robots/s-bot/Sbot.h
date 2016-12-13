@@ -53,6 +53,7 @@ namespace Enki
 	class SbotGlobalSound : public GlobalInteraction
 	{
 	protected:
+		// FIXME: ugly and not re-entrant, will be removed by ECS refactor
 		//! The world frequencies state, mask of all frequencies
 		static unsigned worldFrequenciesState;
 		
@@ -67,6 +68,7 @@ namespace Enki
 		virtual void init() { worldFrequenciesState = 0; }
 		//! Emit our frequencies to the world
 		virtual void step(double dt, World *w) { worldFrequenciesState |= frequenciesState; }
+		// FIXME: ugly and not re-entrant, will be removed by ECS refactor
 		//! Return state of the frequencies in the world
 		static unsigned getWorldFrequenciesState(void);
 	};
