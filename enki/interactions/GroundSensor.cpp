@@ -41,8 +41,10 @@ namespace Enki
 {
 	using namespace std;
 	
-	GroundSensor::GroundSensor(Robot *owner, Vector pos, double mFactor, double aFactor, double spatialSd, double noiseSd):
+	GroundSensor::GroundSensor(Robot *owner, Vector pos, double cFactor, double sFactor, double mFactor, double aFactor, double spatialSd, double noiseSd):
 		pos(pos),
+		cFactor(cFactor),
+		sFactor(sFactor),
 		mFactor(mFactor),
 		aFactor(aFactor),
 		noiseSd(noiseSd)
@@ -72,6 +74,11 @@ namespace Enki
 		}
 	}
 	
+	static double _sigm(double x, double s)
+	{
+		return 1. / (1. + exp(-x * s));
+	}
+	
 	void GroundSensor::init(double dt, World* w)
 	{
 		// compute absolute position
@@ -92,6 +99,6 @@ namespace Enki
 		}
 		
 		// changing value to response space and adding Gaussian noise before returning value
-		finalValue = gaussianRand(v * mFactor + aFactor, noiseSd);
+		finalValue = gaussianRand(_sigm(v - cFactor, sFactor) * mFactor + aFactor, noiseSd);
 	}
 }

@@ -53,8 +53,8 @@ namespace Enki
 		infraredSensor4(this, Vector(6.2, -4.85),  3.4, -0.69813, 14, 4505, 0.03, 73, 2.87),
 		infraredSensor5(this, Vector(-2.95, 2.95), 3.4, -M_PI,    14, 4505, 0.03, 73, 2.87),
 		infraredSensor6(this, Vector(-2.95, -2.95),3.4, -M_PI,    14, 4505, 0.03, 73, 2.87),
-		groundSensor0(this, Vector(7.2, 1.2),  806.93, 45, 0.3, 10),
-		groundSensor1(this, Vector(7.2, -1.2), 806.93, 45, 0.3, 10)
+		groundSensor0(this, Vector(7.2, 1.15),  0.44, 9, 884, 60, 0.4, 10),
+		groundSensor1(this, Vector(7.2, -1.15), 0.44, 9, 884, 60, 0.4, 10)
 	{
 		// add interactions
 		addLocalInteraction(&infraredSensor0);

@@ -50,7 +50,13 @@ namespace Enki
 	It does 9x9 measurements, using a Gaussian model with a given spatialSd standard deviation,
 	and a noiseSd Gaussian measurement error.
 	
-	The final value is multiplied by mFactor, summed to aFactor, and then noiseSd is applied.
+	The resulted value v is transformed into a noiseless value finalNoiseless:
+	
+		finalNoiseless = sigm(v - cFactor, sFactor) * mFactor + aFactor
+	
+	where sigm(x, s) = 1 / (1 + e^(-x * s))
+	
+	Which is then transformed into a noise finalValue by applying Gaussian noise with noiseSd standard deviation.
 	 
 	*/
 	class GroundSensor : public LocalInteraction
@@ -60,9 +66,13 @@ namespace Enki
 		Vector absPos;
 		//! Relative position on the robot
 		const Vector pos;
-		//! Multiplicative factor to compute finalValue
+		//! Center of the sigmoid
+		const double cFactor;
+		//! Multiplication factor for the argument of the sigmoid
+		const double sFactor;
+		//! Multiplicative factor applied after the sigmoid to compute finalValue
 		const double mFactor;
-		//! Additive factor to compute finalValue
+		//! Additive factor applied after the sigmoid to compute finalValue
 		const double aFactor;
 		
 		//! Standard deviation of Gaussian noise in the response space
@@ -79,12 +89,14 @@ namespace Enki
 		/*!
 		\param owner robot which embeds this sensor
 		\param pos relative position (x,y) on the robot
+		\param cFactor center of the sigmoid
+		\param sFactor multiplication factor for the argument of the sigmoid
 		\param mFactor multiplicative factor to compute finalValue
 		\param aFactor additive factor to compute finalValue
 		\param spatialSd standard deviation of the reading beam on the sensor on the ground
 		\param noiseSd standard deviation of Gaussian noise in the response space
 		*/
-		GroundSensor(Robot *owner, Vector pos, double mFactor, double aFactor, double spatialSd = 0.4, double noiseSd = 0.);
+		GroundSensor(Robot *owner, Vector pos, double cFactor, double sFactor, double mFactor, double aFactor, double spatialSd = 0.4, double noiseSd = 0.);
 		//! Compute absolute position
 		void init(double dt, World* w);
 		
