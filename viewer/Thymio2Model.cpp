@@ -136,15 +136,17 @@ namespace Enki
 		glColor3d(1, 1, 1);
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, thymio->textureID);
+		
 		glPushMatrix();
-		glTranslatef(0.3,0,0);
+		glTranslatef(2.5,0,0);
 		glCallList(lists[0]);
+		glPopMatrix();
 
 		// wheels
 		glBindTexture(GL_TEXTURE_2D, textures[1]);
 
 		glPushMatrix();
-		glTranslatef(-2.5,0,wheelRadius);
+		glTranslatef(0,0,wheelRadius);
 		glRotated(180.f, 0, 0, 1);
 			glPushMatrix();
 			glTranslatef(0,4,0);
@@ -168,8 +170,6 @@ namespace Enki
 		
 		// bottom shadow
 		glPushMatrix();
-		// FIXME: this is a hack because the CM is changed in the simulator, should not be
-		glTranslatef(-2.5,0,0);
 		// disable writing of z-buffer
 		glDepthMask( GL_FALSE );
 		glEnable(GL_POLYGON_OFFSET_FILL);
@@ -216,7 +216,6 @@ namespace Enki
 				glTexCoord2f(0.01f,0.01f); glVertex3f(-5, 2,0);
 			glEnd();
 		}
-		glPopMatrix();
 		glDisable(GL_POLYGON_OFFSET_FILL);
 		glDepthMask( GL_TRUE );
 

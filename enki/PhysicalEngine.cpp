@@ -399,9 +399,19 @@ namespace Enki
 		}
 		cm /= area;
 		
-		// shift all shapes to the CM
-		pos += Matrix22(angle) * cm;
-		hull.applyTransformation(Matrix22::identity(), -cm, &r);
+		// FIXME: this shift is really ugly. We can only do it for non-robots
+		// because otherwise the local interactions are missplaced.
+		Robot* robot(dynamic_cast<Robot*>(this));
+		if (!robot)
+		{
+			pos += Matrix22(angle) * cm;
+			hull.applyTransformation(Matrix22::identity(), -cm, &r);
+		}
+		else
+		{
+			// we need to compute radius
+			hull.applyTransformation(Matrix22::identity(), Vector(), &r);
+		}
 	}
 	
 	void PhysicalObject::computeTransformedShape()
