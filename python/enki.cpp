@@ -195,15 +195,35 @@ static World::GroundTexture loadTexture(const std::string& fileName)
 	#endif
 }
 
-struct WorldWithTexturedGround: public World
+struct WorldWithoutObjectsOwnership: public World
+{
+	WorldWithoutObjectsOwnership(double width, double height, const Color& wallsColor = Color::gray, const GroundTexture& groundTexture = GroundTexture()):
+		World(width, height, wallsColor, groundTexture)
+	{
+		takeObjectOwnership = false;
+	}
+	
+	WorldWithoutObjectsOwnership(double r, const Color& wallsColor = Color::gray, const GroundTexture& groundTexture = GroundTexture()):
+		World(r, wallsColor, groundTexture)
+	{
+		takeObjectOwnership = false;
+	}
+	
+	WorldWithoutObjectsOwnership()
+	{
+		takeObjectOwnership = false;
+	}
+};
+
+struct WorldWithTexturedGround: public WorldWithoutObjectsOwnership
 {
 	WorldWithTexturedGround(double width, double height, const std::string& ppmFileName, const Color& wallsColor = Color::gray):
-		World(width, height, wallsColor, loadTexture(ppmFileName))
+		WorldWithoutObjectsOwnership(width, height, wallsColor, loadTexture(ppmFileName))
 	{
 	}
 	
 	WorldWithTexturedGround(double r, const std::string& ppmFileName, const Color& wallsColor = Color::gray):
-		World(r, wallsColor, loadTexture(ppmFileName))
+		WorldWithoutObjectsOwnership(r, wallsColor, loadTexture(ppmFileName))
 	{
 	}
 };
@@ -395,9 +415,6 @@ BOOST_PYTHON_MODULE(pyenki)
 	to_python_converter<Vector, Vector_to_python_tuple>();
 	Vector_from_python();
 	
-	// setup Enki
-	World::takeObjectOwnership(false);
-	
 	// TODO: complete doc
 	
 	// Color and texture
@@ -454,7 +471,7 @@ BOOST_PYTHON_MODULE(pyenki)
 	
 	// Physical objects
 	
-	class_<PhysicalObject>("PhysicalObject")
+	class_<PhysicalObject>("PhysicalObject", no_init)
 		.def_readonly("radius", &PhysicalObject::getRadius)
 		.def_readonly("height", &PhysicalObject::getHeight)
 		.def_readonly("isCylindric", &PhysicalObject::isCylindric)
@@ -483,7 +500,7 @@ BOOST_PYTHON_MODULE(pyenki)
 	
 	// Robots
 	
-	class_<Robot, bases<PhysicalObject> >("PhysicalObject")
+	class_<Robot, bases<PhysicalObject> >("PhysicalObject", no_init)
 	;
 	
 	class_<DifferentialWheeled, bases<Robot> >("DifferentialWheeled", no_init)
@@ -512,7 +529,10 @@ BOOST_PYTHON_MODULE(pyenki)
 	
 	// World
 	
-	class_<World>("World",
+	class_<World>("WorldBase", no_init)
+	;
+	
+	class_<WorldWithoutObjectsOwnership, bases<World> >("World",
 		"The world is the container of all objects and robots.\n"
 		"It is either a rectangular arena with walls at all sides, a circular area with walls, or an infinite surface."
 		,
