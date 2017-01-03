@@ -23,3 +23,7 @@ else()
 	endif()
 endif()
 install(FILES "${PROJECT_BINARY_DIR}/enkiConfig.cmake" DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+
+# testing
+enable_testing()
+add_subdirectory(tests)
