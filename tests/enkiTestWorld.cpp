@@ -17,7 +17,6 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define CATCH_CONFIG_MAIN  // Tells Catch to provide a main()
 #include "catch.hpp"
 
 #include <enki/PhysicalEngine.h>

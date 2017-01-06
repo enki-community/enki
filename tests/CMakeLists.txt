@@ -7,18 +7,23 @@ link_directories(
 	${enki_BINARY_DIR}
 )
 
+# Contain Catch testing framework main function.  Using CATCH_CONFIG_MAIN macro
+# only this library reduce compilation time.
+add_library(catch STATIC
+	catch.cpp
+	catch.hpp
+)
+
 # BDD test example.
 add_executable(enkiTestBDD
         enkiTestBDD.cpp
 )
-target_link_libraries(enkiTestBDD
-	enki
-)
+target_link_libraries(enkiTestBDD enki catch)
 
 add_test(enki-test enkiTestBDD "An Enki world may contain a robot")
 
 # Test the World class.
 add_executable(enkiTestWorld enkiTestWorld.cpp)
-target_link_libraries(enkiTestWorld enki)
+target_link_libraries(enkiTestWorld enki catch)
 
 add_test(enki_test_empty_world enkiTestWorld "An empty Enki world")
