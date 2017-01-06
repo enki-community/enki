@@ -7,6 +7,7 @@ link_directories(
 	${enki_BINARY_DIR}
 )
 
+# BDD test example.
 add_executable(enkiTestBDD
         enkiTestBDD.cpp
 )
@@ -14,5 +15,10 @@ target_link_libraries(enkiTestBDD
 	enki
 )
 
-# the following tests should succeed
-add_test(enki-test enkiTestBDD)
+add_test(enki-test enkiTestBDD "An Enki world may contain a robot")
+
+# Test the World class.
+add_executable(enkiTestWorld enkiTestWorld.cpp)
+target_link_libraries(enkiTestWorld enki)
+
+add_test(enki_test_empty_world enkiTestWorld "An empty Enki world")
