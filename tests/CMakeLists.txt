@@ -32,3 +32,8 @@ add_test(enki_test_EPuck enkiTestWorld "EPuck")
 add_test(enki_test_Marxbot enkiTestWorld "Marxbot")
 add_test(enki_test_Khepera enkiTestWorld "Khepera")
 add_test(enki_test_Sbot enkiTestWorld "S-Bot")
+
+add_executable(randomWorld randomWorld.cpp Randomizer.cpp)
+target_link_libraries(randomWorld catch enki)
+
+add_test(random_world randomWorld)

@@ -7,6 +7,8 @@ set(LIB_VERSION_MINOR 0)
 set(LIB_VERSION_PATCH 0)
 set(LIB_VERSION_STRING ${LIB_VERSION_MAJOR}.${LIB_VERSION_MINOR}.${LIB_VERSION_PATCH})
 
+set(CMAKE_CXX_STANDARD 11)
+
 # Load settings for external projects that provide a CMake config file.
 find_package(dashel REQUIRED)
 include_directories(${dashel_INCLUDE_DIRS})
