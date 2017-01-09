@@ -27,3 +27,8 @@ add_executable(enkiTestWorld enkiTestWorld.cpp)
 target_link_libraries(enkiTestWorld enki catch)
 
 add_test(enki_test_empty_world enkiTestWorld "An empty Enki world")
+add_test(enki_test_thymio enkiTestWorld "Thymio2")
+add_test(enki_test_EPuck enkiTestWorld "EPuck")
+add_test(enki_test_Marxbot enkiTestWorld "Marxbot")
+add_test(enki_test_Khepera enkiTestWorld "Khepera")
+add_test(enki_test_Sbot enkiTestWorld "S-Bot")
