@@ -130,6 +130,7 @@ namespace Enki
 		World *world;
 		
 		GLuint helpWidget;
+		GLuint selectionTexture;
 		GLuint worldList;
 		GLuint worldTexture;
 		GLuint wallTexture;
@@ -240,6 +241,7 @@ namespace Enki
 		virtual void mouseDoubleClickEvent(QMouseEvent *event);
 		virtual void wheelEvent(QWheelEvent * event);
 		virtual void timerEvent(QTimerEvent * event);
+		
 		
 		// helper methods
 		unsigned int getButtonCode(QMouseEvent * event);

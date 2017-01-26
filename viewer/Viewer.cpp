@@ -203,6 +203,8 @@ namespace Enki
 		world->disconnectExternalObjectsUserData();
 		if (isValid())
 		{
+			deleteTexture(helpWidget);
+			deleteTexture(selectionTexture);
 			glDeleteLists(worldList, 1);
 			deleteTexture (worldTexture);
 			deleteTexture (wallTexture);
@@ -252,13 +254,13 @@ namespace Enki
 
 	bool ViewerWidget::isMovableByPicking(PhysicalObject* object) const
 	{
+		if (!object)
+			return 0;
 		std::map<PhysicalObject*, ExtendedAttributes>::const_iterator it = objectExtendedAttributesList.find(object);
 		if (it != objectExtendedAttributesList.end())
 			return it->second.movableByPicking;
-		else if (object)
-			return object->getMass() >= 0;
 		else
-			return false;
+			return object->getMass() >= 0;
 	}
 
 	/*!
@@ -336,15 +338,13 @@ namespace Enki
 
 	void ViewerWidget::showHelp()
 	{
-		addInfoMessage(tr("Available controls:"));
-		addInfoMessage(tr("keyboard F1 : show this help message"));
-		addInfoMessage(tr("middle click + mouse move : translate camera"));
-		addInfoMessage(tr("right click + mouse move : rotate camera"));
-		addInfoMessage(tr("left click : select object under cursor, if any, otherwise unselect"));
-		addInfoMessage(tr("left click + mouse move : select object and translate it"));
-		addInfoMessage(tr("left click + right click + mouse move : select object and rotate it"));
-		addInfoMessage(tr("left double-click : visually track pointed object"));
-		addInfoMessage(tr("mouse wheel : zoom (or translate camera)"));
+		addInfoMessage(trUtf8("Available controls:"));
+		addInfoMessage(trUtf8("• F1 key: show this help message"));
+		addInfoMessage(trUtf8("• left click on object: select object"));
+		addInfoMessage(trUtf8("• left click outside object: de-select object"));
+		addInfoMessage(trUtf8("• left drag: if object selected, move it, otherwise move camera"));
+		addInfoMessage(trUtf8("• right drag: if object selected, rotate it, otherwise rotate camera"));
+		addInfoMessage(trUtf8("• mouse wheel/left drag + shift: zoom camera"));
 	}
 
 	void ViewerWidget::renderSegment(const Segment& segment, double height)
@@ -845,6 +845,7 @@ namespace Enki
 		
 		helpWidget = bindTexture(QPixmap(QString(":/widgets/help.png")), GL_TEXTURE_2D, GL_RGBA);
 		
+		selectionTexture = bindTexture(QPixmap(QString(":/textures/selection.png")), GL_TEXTURE_2D, GL_RGBA);
 		worldTexture = bindTexture(QPixmap(QString(":/textures/world.png")), GL_TEXTURE_2D, GL_LUMINANCE8);
 		wallTexture = bindTexture(QPixmap(QString(":/textures/wall.png")), GL_TEXTURE_2D, GL_LUMINANCE8);
 		if (world->hasGroundTexture())
@@ -939,17 +940,37 @@ namespace Enki
 			glPopMatrix();
 		}
 
-		if (movingObject)
+		// if an object is selected
+		if (selectedObject)
 		{
 			glPushMatrix();
 			
 			glTranslated(selectedObject->pos.x, selectedObject->pos.y, 0);
 			glRotated(rad2deg * selectedObject->angle, 0, 0, 1);
 			
-			ViewerUserData* userData = polymorphic_downcast<ViewerUserData *>(selectedObject->userData);
-
-			userData->draw(selectedObject);
-			displayObjectHook(selectedObject);
+			// if it is being move, draw the object as it has not been drawn before
+			if (movingObject)
+			{
+				ViewerUserData* userData = polymorphic_downcast<ViewerUserData *>(selectedObject->userData);
+				userData->draw(selectedObject);
+				displayObjectHook(selectedObject);
+			}
+			
+			// draw the selection circle
+			glEnable(GL_BLEND);
+			glEnable(GL_TEXTURE_2D);
+			glDisable(GL_LIGHTING);
+			glBindTexture(GL_TEXTURE_2D, selectionTexture);
+			glColor4d(1,1,1,1);
+			glBegin(GL_QUADS);
+				const double r(selectedObject->getRadius() * 1.5);
+				glTexCoord2f(0.f, 0.f); glVertex3d(-r, -r, 0.01);
+				glTexCoord2f(1.f, 0.f); glVertex3d(r, -r, 0.01);
+				glTexCoord2f(1.f, 1.f); glVertex3d(r, r, 0.01);
+				glTexCoord2f(0.f, 1.f); glVertex3d(-r, r, 0.01);
+			glEnd();
+			glDisable(GL_TEXTURE_2D);
+			glDisable(GL_BLEND);
 			
 			glPopMatrix();
 		}
@@ -1086,7 +1107,7 @@ namespace Enki
 		glDisable(GL_BLEND);
 		
 		// draw messages
-		const int lineSpacing(fontMetrics.lineSpacing());
+		const int lineSpacing(fontMetrics.lineSpacing()+3);
 		unsigned i = 0;
 		const size_t messageListSize(messageList.size());
 		for (MessageList::iterator it = messageList.begin(); it != messageList.end(); i++)
@@ -1095,6 +1116,7 @@ namespace Enki
 			color.setAlphaF(clamp(it->persistance, 0., 1.));
 			qglColor(color);
 			
+			qDebug() << it->message;
 			renderText(10, 5 + (i+1)*lineSpacing, it->message);
 
 			if (it->persistance >= 0)
@@ -1114,7 +1136,7 @@ namespace Enki
 		messageListWidth = 0;
 		for (MessageList::iterator it = messageList.begin(); it != messageList.end(); ++it)
 			messageListWidth = std::max(messageListWidth, fontMetrics.width(it->message));
-		const int lineSpacing(fontMetrics.lineSpacing());
+		const int lineSpacing(fontMetrics.lineSpacing()+3);
 		messageListWidth += 20; 
 		messageListHeight = messageList.size() * lineSpacing;
 		if (messageListHeight)
@@ -1186,23 +1208,29 @@ namespace Enki
 			{
 				if (selectedObject != pointedObject)
 					setTracking(false);
-				selectedObject = pointedObject;
+				if (isMovableByPicking(pointedObject))
+					selectedObject = pointedObject;
+				else
+					selectedObject = 0;
 			}
 		}
 
-		// if selected object is a robot call the clicked interaction function
+		// if pointed object is a robot call the clicked interaction function
 		Robot* robot = dynamic_cast<Robot*>(pointedObject);
-		if (robot) robot->clickedInteraction(true, getButtonCode(event), pointedPoint.x(), pointedPoint.y(), pointedPoint.z());
+		if (robot)
+			robot->clickedInteraction(true, getButtonCode(event), pointedPoint.x(), pointedPoint.y(), pointedPoint.z());
 	}
 	
 	void ViewerWidget::mouseReleaseEvent(QMouseEvent * event)
 	{
 		// enable physics calculation for selected object
 		if (selectedObject)
+		{
 			world->addObject(selectedObject);
-		movingObject = false;
+			movingObject = false;
+		}
 
-		// if selected object is a robot call the clicked interaction function
+		// if pointed object is a robot call the clicked interaction function
 		Robot* robot = dynamic_cast<Robot*>(pointedObject);
 		if (robot)
 			robot->clickedInteraction(false, getButtonCode(event), pointedPoint.x(), pointedPoint.y(), pointedPoint.z());
@@ -1210,73 +1238,76 @@ namespace Enki
 	
 	void ViewerWidget::mouseMoveEvent(QMouseEvent *event)
 	{
-		// rotate selected object
-		if ((event->buttons() & Qt::LeftButton) && (event->buttons() & Qt::RightButton))
+		if (!trackingView && selectedObject)
 		{
-			if (isMovableByPicking(selectedObject))
+			// object movements
+			
+			// rotate
+			if (event->buttons() & Qt::RightButton)
 			{
+				if (!movingObject)
+					world->removeObject(selectedObject);
 				movingObject = true;
-				world->removeObject(selectedObject);
 
 				const QPoint diff = event->pos() - mouseGrabPos;
 				const double sensitivity = 10;
 				selectedObject->angle -= sensitivity * (double)diff.x() / (1+width());
 				mouseGrabPos = event->pos();
 			}
-		}
-
-		// move selected object if it's movable by picking
-		else if (event->buttons() & Qt::LeftButton)
-		{
-			if (isMovableByPicking(selectedObject) && (event->pos() - mouseGrabPos).manhattanLength() > 10 )
+			
+			// translate
+			else if (event->buttons() & Qt::LeftButton)
 			{
-				if (!trackingView)
+				if ((event->pos() - mouseGrabPos).manhattanLength() > 10)
 				{
+					if (!movingObject)
+						world->removeObject(selectedObject);
 					movingObject = true;
-					world->removeObject(selectedObject);
 
 					selectedObject->pos = Point(pointedPoint.x(),pointedPoint.y());
 					selectedObject->speed = Vector(0,0);
 					selectedObject->angSpeed = 0;
 				}
-				else
-					addInfoMessage(tr("object translation not available in tracking mode"), 3.0, Qt::darkYellow);
-			}
-			else if ((event->pos() - mouseGrabPos).manhattanLength() > 10 )
-			{
-				// TODO multiselection area feature
-				// cool but realy hard to implement with the actual picking system
 			}
 		}
-
-		// rotate camera
-		else if (event->buttons() & Qt::RightButton)
+		else
 		{
-			const QPoint diff = event->pos() - mouseGrabPos;
-			const double sensitivity = 4;
-			camera.userYaw -= sensitivity * (double)diff.x() / (1+width());
-
-			const double delta = 0.01;
-			camera.pitch = clamp(camera.pitch - sensitivity * (double)diff.y() / (1+height()), -M_PI / 2 + delta, M_PI / 2 - delta);
-
-			mouseGrabPos = event->pos();
-		}
-
-		// translate camera
-		else if (event->buttons() & Qt::MidButton)
-		{
-			if (!trackingView)
+			// camera movements
+			
+			// translate
+			if ((event->buttons() & Qt::LeftButton) && (!trackingView || (event->modifiers() & Qt::ShiftModifier)))
 			{
 				const QPoint diff = event->pos() - mouseGrabPos;
-				const double sensibility = 20 + 2.*camera.altitude;
-				const double sizeFactor = 1 + (width() + height()) / 2;
-				camera.pos.rx() -= sensibility * (diff.x()*camera.left.x() + diff.y()*camera.up.x()) / sizeFactor;
-				camera.pos.ry() -= sensibility * (diff.x()*camera.left.y() + diff.y()*camera.up.y()) / sizeFactor;
-				camera.altitude -= sensibility * (diff.x()*camera.left.z() + diff.y()*camera.up.z()) / sizeFactor;
+				if (event->modifiers() & Qt::ShiftModifier)
+				{
+					const double sensitivity = -(1 + 0.1*camera.altitude) * 0.1;
+					camera.pos.rx() += sensitivity * diff.y()*camera.forward.x();
+					camera.pos.ry() += sensitivity * diff.y()*camera.forward.y();
+					camera.altitude += sensitivity * diff.y()*camera.forward.z();
+				}
+				else
+				{
+					const double sensibility = 20 + 2.*camera.altitude;
+					const double sizeFactor = 1 + (width() + height()) / 2;
+					camera.pos.rx() -= sensibility * (diff.x()*camera.left.x() + diff.y()*camera.up.x()) / sizeFactor;
+					camera.pos.ry() -= sensibility * (diff.x()*camera.left.y() + diff.y()*camera.up.y()) / sizeFactor;
+					camera.altitude -= sensibility * (diff.x()*camera.left.z() + diff.y()*camera.up.z()) / sizeFactor;
+				}
 				mouseGrabPos = event->pos();
 			}
-			else
-				addInfoMessage(tr("camera translation not available in tracking mode"), 3.0, Qt::darkYellow);
+			
+			// rotate
+			else if (event->buttons() & Qt::RightButton)
+			{
+				const QPoint diff = event->pos() - mouseGrabPos;
+				const double sensitivity = 4;
+				camera.userYaw -= sensitivity * (double)diff.x() / (1+width());
+
+				const double delta = 0.01;
+				camera.pitch = clamp(camera.pitch - sensitivity * (double)diff.y() / (1+height()), -M_PI / 2 + delta, M_PI / 2 - delta);
+
+				mouseGrabPos = event->pos();
+			}
 		}
 	}
 	
