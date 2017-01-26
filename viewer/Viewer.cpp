@@ -103,6 +103,7 @@ namespace Enki
 		deletedWithObject = false;
 	}
 	
+	//! Create a camera at 0
 	ViewerWidget::CameraPose::CameraPose():
 		altitude(0),
 		yaw(0),
@@ -110,6 +111,16 @@ namespace Enki
 	{
 	}
 	
+	//! Create a camera centered on a given world
+	ViewerWidget::CameraPose::CameraPose(const World *world):
+		pos(QPointF(world->w * 0.5, -qMax(0., world->r * 0.9))),
+		altitude(qMax(qMax(world->w, world->h), world->r*2) * 0.9),
+		yaw(M_PI/2),
+		pitch(-(3*M_PI)/8)
+	{
+	}
+	
+	//! Create a camera at a given pos
 	ViewerWidget::CameraPose::CameraPose(const QPointF& pos, double altitude, double yaw, double pitch):
 		pos(pos),
 		altitude(altitude),
@@ -122,6 +133,15 @@ namespace Enki
 		userYaw(0),
 		radius(20)
 	{
+		update();
+	}
+	
+	ViewerWidget::UpdatableCameraPose::UpdatableCameraPose(const World *world):
+		CameraPose(world),
+		userYaw(M_PI/2),
+		radius(20)
+	{
+		update();
 	}
 	
 	ViewerWidget::UpdatableCameraPose::UpdatableCameraPose(const QPointF& pos, double altitude, double yaw, double pitch):
@@ -171,12 +191,7 @@ namespace Enki
 	ViewerWidget::ViewerWidget(World *world, QWidget *parent) :
 		QGLWidget(parent),
 		timerPeriodMs(30),
-		camera(
-			QPointF(world->w * 0.5, qMax(0., world->r)),
-			qMax(qMax(world->w, world->h), world->r*2) * 0.85,
-			M_PI/2,
-			-(3*M_PI)/8
-		),
+		camera(world),
 		doDumpFrames(false),
 		world(world),
 		worldList(0),
@@ -204,6 +219,7 @@ namespace Enki
 		if (isValid())
 		{
 			deleteTexture(helpWidget);
+			deleteTexture(centerWidget);
 			deleteTexture(selectionTexture);
 			glDeleteLists(worldList, 1);
 			deleteTexture (worldTexture);
@@ -844,6 +860,7 @@ namespace Enki
 		glEnable (GL_FOG);*/
 		
 		helpWidget = bindTexture(QPixmap(QString(":/widgets/help.png")), GL_TEXTURE_2D, GL_RGBA);
+		centerWidget = bindTexture(QPixmap(QString(":/widgets/center.png")), GL_TEXTURE_2D, GL_RGBA);
 		
 		selectionTexture = bindTexture(QPixmap(QString(":/textures/selection.png")), GL_TEXTURE_2D, GL_RGBA);
 		worldTexture = bindTexture(QPixmap(QString(":/textures/world.png")), GL_TEXTURE_2D, GL_LUMINANCE8);
@@ -1063,20 +1080,37 @@ namespace Enki
 	{
 		glEnable(GL_BLEND);
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, helpWidget);
-		glColor4d(1,1,1,1);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
+		
+		glColor4d(1,1,1,1);
+		const int margin(24);
+		const int size(48);
+		
+		glBindTexture(GL_TEXTURE_2D, helpWidget);
 		glBegin(GL_QUADS);
-			const int margin(24);
-			const int size(48);
-			glTexCoord2f(0.f, 0.f); glVertex2Screen(width() - margin - size, margin + size);
-			glTexCoord2f(1.f, 0.f); glVertex2Screen(width() - margin, margin + size);
-			glTexCoord2f(1.f, 1.f); glVertex2Screen(width() - margin, margin);
-			glTexCoord2f(0.f, 1.f); glVertex2Screen(width() - margin - size, margin);
+		{
+			const int yPos(0);
+			glTexCoord2f(0.f, 0.f); glVertex2Screen(width() - margin - size, margin + size + yPos);
+			glTexCoord2f(1.f, 0.f); glVertex2Screen(width() - margin, margin + size + yPos);
+			glTexCoord2f(1.f, 1.f); glVertex2Screen(width() - margin, margin + yPos);
+			glTexCoord2f(0.f, 1.f); glVertex2Screen(width() - margin - size, margin + yPos);
+		}
 		glEnd();
+		
+		glBindTexture(GL_TEXTURE_2D, centerWidget);
+		glBegin(GL_QUADS);
+		{
+			const int yPos(48+12);
+			glTexCoord2f(0.f, 0.f); glVertex2Screen(width() - margin - size, margin + size + yPos);
+			glTexCoord2f(1.f, 0.f); glVertex2Screen(width() - margin, margin + size + yPos);
+			glTexCoord2f(1.f, 1.f); glVertex2Screen(width() - margin, margin + yPos);
+			glTexCoord2f(0.f, 1.f); glVertex2Screen(width() - margin - size, margin + yPos);
+		}
+		glEnd();
+		
 		glDisable(GL_TEXTURE_2D);
 		glDisable(GL_BLEND);
 	}
@@ -1184,12 +1218,12 @@ namespace Enki
 		// change selected object
 		if (event->button() == Qt::LeftButton)
 		{
-			if (event->x() > width() - 72 &&
-				event->x() < width() - 24 &&
-				event->y() > 24 &&
-				event->y() < 72)
+			if (event->x() > width() - 72 && event->x() < width() - 24)
 			{
-				showHelp();
+				if (event->y() > 24 && event->y() < 72)
+					showHelp();
+				else if (event->y() > 24+48+12 && event->y() < 72+48+12)
+					camera = UpdatableCameraPose(world);
 			}
 			else if (!messageList.empty() && event->x() < messageListWidth && event->y() < messageListHeight)
 			{
