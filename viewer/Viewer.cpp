@@ -1292,6 +1292,7 @@ namespace Enki
 					camera.pos.ry() -= sensibility * (diff.x()*camera.left.y() + diff.y()*camera.up.y()) / sizeFactor;
 					camera.altitude -= sensibility * (diff.x()*camera.left.z() + diff.y()*camera.up.z()) / sizeFactor;
 				}
+				camera.altitude = std::max(camera.altitude, 0.);
 				mouseGrabPos = event->pos();
 			}
 			
@@ -1332,6 +1333,7 @@ namespace Enki
 			camera.pos.rx() += sensitivity * event->delta()*camera.forward.x();
 			camera.pos.ry() += sensitivity * event->delta()*camera.forward.y();
 			camera.altitude += sensitivity * event->delta()*camera.forward.z();
+			camera.altitude = std::max(camera.altitude, 0.);
 		}
 	}
 	
