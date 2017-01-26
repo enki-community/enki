@@ -964,10 +964,10 @@ namespace Enki
 			glColor4d(1,1,1,1);
 			glBegin(GL_QUADS);
 				const double r(selectedObject->getRadius() * 1.5);
-				glTexCoord2f(0.f, 0.f); glVertex3d(-r, -r, 0.01);
-				glTexCoord2f(1.f, 0.f); glVertex3d(r, -r, 0.01);
-				glTexCoord2f(1.f, 1.f); glVertex3d(r, r, 0.01);
-				glTexCoord2f(0.f, 1.f); glVertex3d(-r, r, 0.01);
+				glTexCoord2f(0.f, 0.f); glVertex3d(-r, -r, 0.1);
+				glTexCoord2f(1.f, 0.f); glVertex3d(r, -r, 0.1);
+				glTexCoord2f(1.f, 1.f); glVertex3d(r, r, 0.1);
+				glTexCoord2f(0.f, 1.f); glVertex3d(-r, r, 0.1);
 			glEnd();
 			glDisable(GL_TEXTURE_2D);
 			glDisable(GL_BLEND);
