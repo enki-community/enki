@@ -1116,7 +1116,6 @@ namespace Enki
 			color.setAlphaF(clamp(it->persistance, 0., 1.));
 			qglColor(color);
 			
-			qDebug() << it->message;
 			renderText(10, 5 + (i+1)*lineSpacing, it->message);
 
 			if (it->persistance >= 0)
