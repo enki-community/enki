@@ -6,6 +6,11 @@ set(LIB_VERSION_MAJOR 2) # Must be bumped for incompatible ABI changes
 set(LIB_VERSION_MINOR 0)
 set(LIB_VERSION_PATCH 0)
 set(LIB_VERSION_STRING ${LIB_VERSION_MAJOR}.${LIB_VERSION_MINOR}.${LIB_VERSION_PATCH})
+
+# Load settings for external projects that provide a CMake config file.
+find_package(dashel REQUIRED)
+include_directories(${dashel_INCLUDE_DIRS})
+
 add_subdirectory(enki)
 add_subdirectory(examples)
 add_subdirectory(viewer)
