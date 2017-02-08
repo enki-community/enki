@@ -71,25 +71,25 @@ namespace Enki
 	Robot* randomRobot(World* world)
 	{
 		int type = (ONLY_THYMIOS)
-			? THYMIO2
+			? THYMIO2_
 			: randomNumber(1, NUMBER_OF_ROBOTS_TYPES);
 
 		Robot* r;
 		switch (type)
 		{
-			case THYMIO2:
+			case THYMIO2_:
 				r = randomThymio(world);
 				break;
-			case EPUCK:
+			case EPUCK_:
 				r = randomEPuck(world);
 				break;
-			case SBOT:
+			case SBOT_:
 				r = randomSbot(world);
 				break;
-			case MARXBOT:
+			case MARXBOT_:
 				r = randomMarxbot(world);
 				break;
-			case KHEPERA:
+			case KHEPERA_:
 				r = randomKhepera(world);
 				break;
 		}
@@ -190,11 +190,29 @@ namespace Enki
 		return NULL;
 	}
 
+	void addObjects(World* world)
+	{
+		int objectsNumber = randomNumber(1, MAX_DYNAMIC_OBJECTS);
+		for (int i = 0; i < objectsNumber; i++)
+		{
+			PhysicalObject* o = randomObject(world);
+			world->addObject(o);
+		}
+	}
+
+	void addRobots(World* world)
+	{
+		// Random number of thymios between 1 and MAX_ROBOTS
+		int robotNumber = randomNumber(1, MAX_ROBOTS);
+		for (int i = 0 ; i < robotNumber ; i++)
+		{
+			Robot* r = randomRobot(world);
+			world->addObject(r);
+		}
+	}
+
 	World* randomWorld()
 	{
-		// Giving 2 arguments automatically create a SQUARED WORLD
-		// World::World(int width, int height) -> WallsType = WALLS_SQUARE
-		// World::World(int r) -> WallsType = WALLS_CIRCULAR
 		World* world;
 		int circularWorld = randomNumber(0,1);
 		if (circularWorld)
@@ -207,22 +225,6 @@ namespace Enki
 			int height = randomNumber(MIN_HEIGHT, MAX_HEIGHT);
 			int width = randomNumber(MIN_WIDTH, MAX_WIDTH);
 			world = new World(width, height);
-		}
-
-		// Random number of thymios between 1 and MAX_ROBOTS
-		int robotNumber = randomNumber(1, MAX_ROBOTS);
-		for (int i = 0 ; i < robotNumber ; i++)
-		{
-			Robot* r = randomRobot(world);
-			world->addObject(r);
-		}
-
-		// Random number of objects between 1 and MAX_DYNAMIC_OBJECTS
-		int objectsNumber = randomNumber(1, MAX_DYNAMIC_OBJECTS);
-		for (int i = 0; i < objectsNumber; i++)
-		{
-			PhysicalObject* o = randomObject(world);
-			world->addObject(o);
 		}
 
 		return world;
