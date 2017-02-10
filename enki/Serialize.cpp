@@ -35,10 +35,10 @@ namespace Enki
 	void deserializeUdpate(World* world, string strUpdate)
 	{
 		size_t found = strUpdate.find_first_of(OBJECT_SEPARATOR);
-		World* t = deserialize(strUpdate);
+		World* remoteWorld = deserialize(strUpdate);
 
 		vector<Thymio2*> th;
-		for (auto& object : world->objects)
+		for (auto& object : remoteWorld->objects)
 		{
 			th.push_back(dynamic_cast<Thymio2*>(object));
 		}
