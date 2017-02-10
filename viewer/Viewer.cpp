@@ -884,7 +884,7 @@ namespace Enki
 		
 		glTranslated(-camera.pos.x(), -camera.pos.y(), -camera.altitude);
 		
-		float LightPosition[] = {world->w/2, world->h/2, 60, 1};
+		float LightPosition[] = {static_cast<float>(world->w/2), static_cast<float>(world->h/2), 60, 1};
 		glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);
 		
 		glCallList(worldList);
