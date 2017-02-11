@@ -171,7 +171,7 @@ namespace Enki
 			world->addObject(deserializeThymio(strObjects.substr(pos1 + 1, pos2).c_str()));
 			break;
 		case PHYSICAL_OBJECT:
-			world->addObject(deserializeThymio(strObjects.substr(pos1 + 1, pos2).c_str()));
+			world->addObject(deserializePhysObj(strObjects.substr(pos1 + 1, pos2).c_str()));
 			break;
 		default:
 			cerr << " ===  Error Deserialize - objects not defined ! === " << endl;
