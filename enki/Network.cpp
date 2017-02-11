@@ -27,11 +27,11 @@ namespace Enki
 	using namespace std;
 	using namespace Dashel;
 
-	const string PORT = "8765";
+	const unsigned short int PORT = 8765;
 
 	Server::Server(World* w)
 	{
-		connect("tcpin:port=" + PORT);
+		connect("tcpin:port=" + to_string(PORT));
 		m_world = w;
 	}
 
@@ -77,7 +77,7 @@ namespace Enki
 		init(true),
 		inputStream(0)
 	{
-		string remoteTarget = "tcp:" + ip + ";port=" + PORT;
+		string remoteTarget = "tcp:" + ip + ";port=" + to_string(PORT);
 		inputStream = connect("stdin:");
 		remoteStream = connect(remoteTarget);
 		sendString(remoteStream, "I want to connect!\n");
