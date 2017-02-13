@@ -61,6 +61,7 @@ int main(int argc, char* argv[])
 		{
 			Client *client = new Client(argv[1]);
 			thread threadClient([client]() { client->run(); });
+			threadClient.detach();
 
 			sleep(1); // Wait client thread initialization
 
@@ -116,6 +117,7 @@ int main(int argc, char* argv[])
 
 			Server* server = new Server(world);
 			thread threadServer([server]() { server->run(); });
+			threadServer.detach();
 
 			ViewerServer* viewer = new ViewerServer(world, server);
 			viewer->show();
