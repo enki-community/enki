@@ -46,3 +46,8 @@ add_test(deserialize serialization "Deserialization")
 
 add_executable(serializationBenchmarks serializationBenchmarks.cpp Randomizer.cpp)
 target_link_libraries(serializationBenchmarks enki)
+
+add_executable(network network.cpp)
+target_link_libraries(network enki ${dashel_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} catch)
+
+add_test(network_basic network "A basic connection")

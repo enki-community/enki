@@ -25,6 +25,8 @@ endif ()
 find_package(dashel REQUIRED)
 include_directories(${dashel_INCLUDE_DIRS})
 
+find_package(Threads)
+
 add_subdirectory(enki)
 add_subdirectory(examples)
 add_subdirectory(viewer)

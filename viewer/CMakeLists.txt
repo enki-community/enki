@@ -15,7 +15,6 @@ endif (SDL_FOUND)
 set(QT_USE_QTOPENGL TRUE)
 find_package(Qt4)
 find_package(OpenGL)
-find_package(Threads)
 
 if (QT4_FOUND AND OPENGL_FOUND)
 	include(${QT_USE_FILE})
