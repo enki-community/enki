@@ -49,16 +49,6 @@ public:
 	}
 };
 
-static void threadClient(Client* c)
-{
-	c->run();
-}
-
-static void threadServer(Server* s)
-{
-	s->run();
-}
-
 int main(int argc, char* argv[])
 {
 	// Init QT
@@ -70,8 +60,7 @@ int main(int argc, char* argv[])
 		if (argc > 1) // client
 		{
 			Client *client = new Client(argv[1]);
-
-			thread thread_client(threadClient, client);
+			thread threadClient([client]() { client->run(); });
 
 			sleep(1); // Wait client thread initialization
 
@@ -126,8 +115,7 @@ int main(int argc, char* argv[])
 			world->addObject(thymio);
 
 			Server* server = new Server(world);
-
-			thread thread_server(threadServer, server);
+			thread threadServer([server]() { server->run(); });
 
 			ViewerServer* viewer = new ViewerServer(world, server);
 			viewer->show();
