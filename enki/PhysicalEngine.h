@@ -385,6 +385,9 @@ namespace Enki
 		std::vector<GlobalInteraction *> globalInteractions;
 		
 	public:
+		//! Constructor
+		Robot() : PhysicalObject() {};
+
 		//! Add a new local interaction, re-sort interaction vector from long ranged to short ranged.
 		void addLocalInteraction(LocalInteraction *li);
 		//! Add a global interaction, just add it at the end of the vector.
@@ -402,6 +405,8 @@ namespace Enki
 		virtual void doGlobalInteractions(double dt, World* w);
 		//! Sort local interactions. Called by addLocalInteraction ; can be called by subclasses in case of interaction radius change.
 		void sortLocalInteractions(void);
+
+		virtual void clickedInteraction(bool pressed, int buttonCode, double pointX, double pointY, double pointZ){};
 	};
 
 	//! The world is the container of all objects and robots.
@@ -460,6 +465,7 @@ namespace Enki
 		
 		//! All the objects in the world
 		Objects objects;
+		Objects SkipPhysicsObjectsList;
 		//! Base for the Bluetooth connections between robots
 		BluetoothBase* bluetoothBase;
 
