@@ -35,6 +35,7 @@ pipeline {
 							unstash 'source'
 							CMake([sourceDir: pwd()+'/enki', label: 'macos'])
 							stash includes: 'dist/**', name: 'dist-macos'
+							stash includes: 'build/**', name: 'build-macos'
 						}
 					},
 					"windows" : {
@@ -42,6 +43,7 @@ pipeline {
 							unstash 'source'
 							CMake([sourceDir: pwd()+'/enki', label: 'windows'])
 							stash includes: 'dist/**', name: 'dist-windows'
+							stash includes: 'build/**', name: 'build-windows'
 						}
 					}
 				)
@@ -49,12 +51,32 @@ pipeline {
 		}
 		stage('Test') {
 			steps {
-				node('debian') {
-					unstash 'build-debian'
-					dir('build/debian') {
-						sh 'LANG=C ctest'
+				parallel (
+					"debian" : {
+						node('debian') {
+							unstash 'build-debian'
+							dir('build/debian') {
+								sh 'LANG=C ctest'
+							}
+						}
+					},
+					"macos" : {
+						node('macos') {
+							unstash 'build-macos'
+							dir('build/macos') {
+								sh 'LANG=C ctest'
+							}
+						}
+					},
+					"windows" : {
+						node('windows') {
+							unstash 'build-windows'
+							dir('build/windows') {
+								sh 'LANG=C ctest'
+							}
+						}
 					}
-				}
+				)
 			}
 		}
 		stage('Package') {
