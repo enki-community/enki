@@ -47,3 +47,6 @@ add_executable(network network.cpp)
 target_link_libraries(network enki ${dashel_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} catch)
 
 add_test(network_basic network "A basic connection")
+
+add_executable(testRandom testRandom.cpp Randomizer2.cpp WorldGenerator.cpp)
+target_link_libraries(testRandom enki)
