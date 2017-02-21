@@ -35,18 +35,18 @@ namespace Enki
 		m_world = w;
 	}
 
-	void Server::sendAll()
+	void Server::sendAll() const
 	{
 		string init = serialize(m_world);
 		init += "\n";
 
-		for (StreamsSet::iterator it = dataStreams.begin(); it != dataStreams.end(); ++it)
+		for (auto& dataStream : dataStreams)
 		{
-			sendString((*it), init);
+			sendString(dataStream, init);
 		}
 	}
 
-	void Server::initWorld(Stream* stream)
+	void Server::initWorld(Stream* stream) const
 	{
 		string init = serialize(m_world);
 		init += "\n";
@@ -73,7 +73,7 @@ namespace Enki
 		dataStreams.erase(stream);
 	}
 
-	Client::Client(string ip) :
+	Client::Client(const string& ip) :
 		init(true),
 		inputStream(0)
 	{
@@ -124,7 +124,7 @@ namespace Enki
 		stop();
 	}
 
-	World* Client::getWorld()
+	World* Client::getWorld() const
 	{
 		return m_world;
 	}

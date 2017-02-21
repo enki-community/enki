@@ -70,13 +70,13 @@ namespace Enki
 		Server(World* w);
 
 		//! brief Send information about the world to all users connected.
-		void sendAll();
+		void sendAll() const;
 
 		/*!
 			\brief Return the number of connections.
 			\return number of connections
 		*/
-		inline int getConnectionNumbers()
+		inline int getConnectionNumbers() const
 		{
 			return dataStreams.size();
 		}
@@ -86,7 +86,7 @@ namespace Enki
 			\brief Send all the information about the world m_world to last connected client.
 			\param stream this is where we write the data
 		*/
-		void initWorld(Dashel::Stream* stream);
+		void initWorld(Dashel::Stream* stream) const;
 
 		// Override Dashel::Hub
 		void connectionCreated(Dashel::Stream *stream);
@@ -101,8 +101,8 @@ namespace Enki
 
 	public:
 		//! Constructor
-		Client(std::string ip);
-		World* getWorld();
+		Client(const std::string& ip);
+		World* getWorld() const;
 
 	protected:
 		Dashel::Stream* inputStream;
