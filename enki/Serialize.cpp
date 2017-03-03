@@ -47,9 +47,12 @@ namespace Enki
 		for (auto& object : world->objects)
 		{
 			Thymio2* thymio = dynamic_cast<Thymio2*>(object);
-			thymio->pos = th.at(i)->pos;
-			thymio->angle = th.at(i)->angle;
-			i++;
+			if (i < th.size())
+			{
+				thymio->pos = th.at(i)->pos;
+				thymio->angle = th.at(i)->angle;
+				i++;
+			}
 		}
 	}
 
