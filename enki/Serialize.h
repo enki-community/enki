@@ -1,6 +1,7 @@
 /*
   Enki - a fast 2D robot simulator
   Copyright © 2017 Jimmy Gouraud <jimmy.gouraud@etu.u-bordeaux.fr>
+  Copyright © 2017 Mathieu Lirzin <mathieu.lirzin@etu.u-bordeaux.fr>
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -44,9 +45,9 @@ namespace Enki
 	//! Return the string serialization of world
 	std::string serialize(World *world);
 	//! Return a World with its objects with the string serialization.
-	World* deserialize(std::string strSerialization);
+	World* deserialize(const std::string& strSerialization);
 	//! Update the world with the string serialization.
-	void deserializeUdpate(World * world, std::string strUpdate);
+	void deserializeUdpate(World * world, const std::string& strUpdate);
 
 	//! Serialize the world and add the string serialization to the oss
 	void serializeWorld(World *world, std::ostringstream* oss);
@@ -62,20 +63,20 @@ namespace Enki
 	void serializePoint(const Point &pos, std::ostringstream* oss);
 
 	//! Return a World without objects with the string serialization.
-	World* deserializeWorld(std::string strWorld);
+	World* deserializeWorld(const std::string& strWorld);
 	//! Complete the world with objects with the string serialization.
-	void deserializeObjects (World* world, std::string strObjects);
+	void deserializeObjects (World* world, const std::string& strObjects);
 	//! Return a Thymio with the string serialization.
-	Thymio2* deserializeThymio(std::string strThymio);
+	Thymio2* deserializeThymio(const std::string& strThymio);
 	//! Return a PhysicalObject with the string serialization.
-	PhysicalObject* deserializePhysObj(std::string strPo);
+	PhysicalObject* deserializePhysObj(const std::string& strPo);
 	//! Return a Color with the string serialization.
-	Color deserializeColor(std::string strColor);
+	Color deserializeColor(const std::string& strColor);
 	//! Return a Point with the string serialization.
-	Point deserializePoint(std::string strPoint);
+	Point deserializePoint(const std::string& strPoint);
 
 	//! Return the value (double)
-	double getValue(size_t pos1, size_t pos2, std::string strValue);
+	double getValue(size_t pos1, size_t pos2, const std::string& strValue);
 }
 
 #endif // SERIALIZE_H

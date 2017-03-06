@@ -1,6 +1,7 @@
 /*
   Enki - a fast 2D robot simulator
   Copyright © 2017 Jimmy Gouraud <jimmy.gouraud@etu.u-bordeaux.fr>
+  Copyright © 2017 Mathieu Lirzin <mathieu.lirzin@etu.u-bordeaux.fr>
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,7 +33,7 @@ namespace Enki
 		return oss->str();
 	}
 
-	void deserializeUdpate(World* world, string strUpdate)
+	void deserializeUdpate(World* world, const string& strUpdate)
 	{
 		size_t found = strUpdate.find_first_of(OBJECT_SEPARATOR);
 		World* remoteWorld = deserialize(strUpdate);
@@ -56,7 +57,7 @@ namespace Enki
 		}
 	}
 
-	World* deserialize(string strSerialize)
+	World* deserialize(const string& strSerialize)
 	{
 		size_t pos = strSerialize.find_first_of(OBJECT_SEPARATOR);
 		World* world = deserializeWorld(strSerialize.substr(0, pos));
@@ -152,12 +153,12 @@ namespace Enki
 			 << pos.y << TYPE_SEPARATOR;
 	}
 
-	double getValue(size_t pos1, size_t pos2, string strValue)
+	double getValue(size_t pos1, size_t pos2, const string& strValue)
 	{
 		return stod(strValue.substr(pos1, pos2 - pos1));
 	}
 
-	void deserializeObjects (World* world, string strObjects)
+	void deserializeObjects (World* world, const string& strObjects)
 	{
 		size_t pos1 = strObjects.find_first_of(TYPE_SEPARATOR);
 		if (pos1 == string::npos)
@@ -184,7 +185,7 @@ namespace Enki
 		deserializeObjects(world, strObjects.substr(pos2 + 1, strObjects.size()).c_str());
 	}
 
-	World* deserializeWorld(string strWorld)
+	World* deserializeWorld(const string& strWorld)
 	{
 		size_t pos1 = 0;
 		size_t pos2 = strWorld.find_first_of(TYPE_SEPARATOR);
@@ -226,7 +227,7 @@ namespace Enki
 		}
 	}
 
-	Thymio2* deserializeThymio(string strThymio)
+	Thymio2* deserializeThymio(const string& strThymio)
 	{
 		Thymio2* thymio = new Thymio2();
 
@@ -254,12 +255,12 @@ namespace Enki
 		return thymio;
 	}
 
-	PhysicalObject* deserializePhysObj(string strPo)
+	PhysicalObject* deserializePhysObj(const string& strPo)
 	{
 		return new PhysicalObject();
 	}
 
-	Color deserializeColor(string strColor)
+	Color deserializeColor(const string& strColor)
 	{
 		size_t pos1 = 0;
 		size_t pos2 = strColor.find_first_of(TYPE_SEPARATOR);
@@ -280,7 +281,7 @@ namespace Enki
 		return Color(r, g, b, a);
 	}
 
-	Point deserializePoint(string strPoint)
+	Point deserializePoint(const string& strPoint)
 	{
 		size_t pos1 = 0;
 		size_t pos2 = strPoint.find_first_of(TYPE_SEPARATOR);
