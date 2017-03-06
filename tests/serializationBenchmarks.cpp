@@ -1,6 +1,7 @@
 /*
   Enki - a fast 2D robot simulator
   Copyright © 2017 Nicolas Palard <nicolas.palard@etu.u-bordeaux.fr>
+  Copyright © 2017 Mathieu Lirzin <mathieu.lirzin@etu.u-bordeaux.fr>
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -156,19 +157,19 @@ double globalSerialization(void* w)
 double thymioSerialization(void* t)
 {
 	Thymio2* thymio = (Thymio2*) t;
-	ostringstream* output = new ostringstream();
+	ostringstream output;
 	serializeThymio(thymio, output);
 
-	return output->str().size();
+	return output.str().size();
 }
 
 double colorSerialization(void* c)
 {
 	Color* color = (Color*) c;
-	ostringstream* output = new ostringstream();
+	ostringstream output;
 	serializeColor(*color, output);
 
-	return output->str().size();
+	return output.str().size();
 }
 
 // Measure the executing time of FUNC function pointer called
@@ -199,11 +200,11 @@ double globalDeserialization(void* w)
 
 double thymioDeserialization(void* t)
 {
-	ostringstream* output = new ostringstream();
+	ostringstream output;
 	serializeThymio((Thymio2*) t, output);
 
 	timepoint start = chrono::system_clock::now();
-	deserializeThymio(output->str());
+	deserializeThymio(output.str());
 	timepoint end = chrono::system_clock::now();
 
 	return msTime(start, end);
@@ -211,11 +212,11 @@ double thymioDeserialization(void* t)
 
 double colorDeserialization(void* c)
 {
-	ostringstream* output = new ostringstream();
-	serializeColor(*((Color*)c) , output);
+	ostringstream output;
+	serializeColor(*((Color*)c), output);
 
 	timepoint start = chrono::system_clock::now();
-	deserializeColor(output->str());
+	deserializeColor(output.str());
 	timepoint end = chrono::system_clock::now();
 
 	return msTime(start, end);

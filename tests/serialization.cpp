@@ -1,6 +1,7 @@
 /*
   Enki - a fast 2D robot simulator
   Copyright © 2017 Nicolas Palard <nicolas.palard@etu.u-bordeaux.fr>
+  Copyright © 2017 Mathieu Lirzin <mathieu.lirzin@etu.u-bordeaux.fr>
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -153,13 +154,13 @@ TEST_CASE( "Serialization", "[Serialization Reproducibility]" ) {
 		{
 			World* w = randomWorld();
 
-			ostringstream* outputStream = new ostringstream();
+			ostringstream outputStream;
 			serializeWorld(w, outputStream);
 
-			ostringstream* outputStream2 = new ostringstream();
+			ostringstream outputStream2;
 			serializeWorld(w, outputStream2);
 
-			REQUIRE( outputStream->str() == outputStream2->str() );
+			REQUIRE( outputStream.str() == outputStream2.str() );
 		}
 	}
 
@@ -169,13 +170,13 @@ TEST_CASE( "Serialization", "[Serialization Reproducibility]" ) {
 			World* w = randomWorld();
 			Thymio2* t = randomThymio(w);
 
-			ostringstream* outputStream = new ostringstream();
+			ostringstream outputStream;
 			serializeThymio(t, outputStream);
 
-			ostringstream* outputStream2 = new ostringstream();
+			ostringstream outputStream2;
 			serializeThymio(t, outputStream2);
 
-			REQUIRE( outputStream->str() == outputStream2->str() );
+			REQUIRE( outputStream.str() == outputStream2.str() );
 		}
 	}
 
@@ -184,13 +185,13 @@ TEST_CASE( "Serialization", "[Serialization Reproducibility]" ) {
 		{
 			Color c = randomColor();
 
-			ostringstream* outputStream = new ostringstream();
+			ostringstream outputStream;
 			serializeColor(c, outputStream);
 
-			ostringstream* outputStream2 = new ostringstream();
+			ostringstream outputStream2;
 			serializeColor(c, outputStream2);
 
-			REQUIRE( outputStream->str() == outputStream2->str() );
+			REQUIRE( outputStream.str() == outputStream2.str() );
 		}
 	}
 
@@ -215,13 +216,13 @@ TEST_CASE( "Deserialization", "[Deserialization Reproducibility]") {
 		{
 			World* w = randomWorld();
 
-			ostringstream* outputStream = new ostringstream();
+			ostringstream outputStream;
 			serializeWorld(w, outputStream);
 
-			World* w1 = deserializeWorld(outputStream->str());
+			World* w1 = deserializeWorld(outputStream.str());
 			REQUIRE( equalsWorld(w, w1) );
 
-			World* w2 = deserializeWorld(outputStream->str());
+			World* w2 = deserializeWorld(outputStream.str());
 			// this assume that w == w2
 			REQUIRE( equalsWorld(w1, w2) );
 		}
@@ -233,13 +234,13 @@ TEST_CASE( "Deserialization", "[Deserialization Reproducibility]") {
 			World* w = randomWorld();
 			Thymio2* t = randomThymio(w);
 
-			ostringstream* outputStream = new ostringstream();
+			ostringstream outputStream;
 			serializeThymio(t, outputStream);
 
-			Thymio2* t1 = deserializeThymio(outputStream->str());
+			Thymio2* t1 = deserializeThymio(outputStream.str());
 			REQUIRE( equalsThymio(t, t1) );
 
-			Thymio2* t2 = deserializeThymio(outputStream->str());
+			Thymio2* t2 = deserializeThymio(outputStream.str());
 			REQUIRE( equalsThymio(t1, t2) );
 		}
 	}
@@ -249,13 +250,13 @@ TEST_CASE( "Deserialization", "[Deserialization Reproducibility]") {
 		{
 			Color c = randomColor();
 
-			ostringstream* outputStream = new ostringstream();
+			ostringstream outputStream;
 			serializeColor(c, outputStream);
 
-			Color c1 = deserializeColor(outputStream->str());
+			Color c1 = deserializeColor(outputStream.str());
 			REQUIRE( equalsColor(c, c1) );
 
-			Color c2 = deserializeColor(outputStream->str());
+			Color c2 = deserializeColor(outputStream.str());
 			REQUIRE( equalsColor(c1, c2) );
 		}
 	}

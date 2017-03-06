@@ -25,12 +25,12 @@ namespace Enki
 
 	string serialize(World* world)
 	{
-		ostringstream* oss = new ostringstream();
+		ostringstream oss;
 
 		serializeWorld(world, oss);
 		serializeObjects(world, oss);
 
-		return oss->str();
+		return oss.str();
 	}
 
 	void deserializeUdpate(World* world, const string& strUpdate)
@@ -67,19 +67,19 @@ namespace Enki
 		return world;
 	}
 
-	void serializeObjects(World* world, ostringstream* oss)
+	void serializeObjects(World* world, ostream& os)
 	{
 		for (auto& object : world->objects)
 		{
 			if (Thymio2* thymio = dynamic_cast<Thymio2*>(object))
 			{
-				*oss << THYMIO2 << TYPE_SEPARATOR;
-				serializeThymio(thymio, oss);
+				os << THYMIO2 << TYPE_SEPARATOR;
+				serializeThymio(thymio, os);
 			}
 			else if (PhysicalObject* po = dynamic_cast<PhysicalObject*>(object))
 			{
-				*oss << PHYSICAL_OBJECT << OBJECT_SEPARATOR;
-				serializePhysObj(po, oss);
+				os << PHYSICAL_OBJECT << OBJECT_SEPARATOR;
+				serializePhysObj(po, os);
 			}
 			else
 			{
@@ -88,69 +88,69 @@ namespace Enki
 		}
 	}
 
-	void serializeWorld(World* world, ostringstream* oss)
+	void serializeWorld(World* world, ostream& os)
 	{
-		*oss << world->wallsType << TYPE_SEPARATOR;
+		os << world->wallsType << TYPE_SEPARATOR;
 
 		switch (world->wallsType)
 		{
 		case World::WALLS_SQUARE:
-			*oss << world->w << TYPE_SEPARATOR
-				 << world->h << TYPE_SEPARATOR;
+			os << world->w << TYPE_SEPARATOR
+			   << world->h << TYPE_SEPARATOR;
 			break;
 		case World::WALLS_CIRCULAR:
-			*oss << world->r << TYPE_SEPARATOR;
+			os << world->r << TYPE_SEPARATOR;
 			break;
 		default:
 			break;
 		}
 
-		serializeColor(world->color, oss);
+		serializeColor(world->color, os);
 
 		World::GroundTexture texture = world->groundTexture;
-		*oss << texture.width << TYPE_SEPARATOR
-			 << texture.height << TYPE_SEPARATOR;
+		os << texture.width << TYPE_SEPARATOR
+		   << texture.height << TYPE_SEPARATOR;
 		for (int i = 0; i < texture.data.size(); i++)
 		{
-			*oss << texture.data[i] << TYPE_SEPARATOR;
+			os << texture.data[i] << TYPE_SEPARATOR;
 		}
-		*oss << OBJECT_SEPARATOR;
+		os << OBJECT_SEPARATOR;
 	}
 
-	void serializeThymio(Thymio2* thymio, ostringstream* oss)
+	void serializeThymio(Thymio2* thymio, ostream& os)
 	{
-		serializePoint(thymio->pos, oss);
-		*oss << thymio->angle << TYPE_SEPARATOR;
+		serializePoint(thymio->pos, os);
+		os << thymio->angle << TYPE_SEPARATOR;
 
 		for (int i = 0; i < Thymio2::LED_COUNT; i++)
 		{
-			serializeColor(thymio->getColorLed((Thymio2::LedIndex)i), oss);
+			serializeColor(thymio->getColorLed((Thymio2::LedIndex)i), os);
 		}
-		*oss << OBJECT_SEPARATOR;
+		os << OBJECT_SEPARATOR;
 	}
 
-	void serializePhysObj(PhysicalObject* po, ostringstream* oss)
+	void serializePhysObj(PhysicalObject* po, ostream& os)
 	{
-		serializePoint(po->pos, oss);
-		*oss << po->angle << TYPE_SEPARATOR;
+		serializePoint(po->pos, os);
+		os << po->angle << TYPE_SEPARATOR;
 		//<< serialize_hull(po->getHull()) // TODO Hull hull
-		serializeColor(po->getColor(), oss);
-		*oss << OBJECT_SEPARATOR;
+		serializeColor(po->getColor(), os);
+		os << OBJECT_SEPARATOR;
 	}
 
-	void serializeColor(const Color &color, ostringstream* oss)
+	void serializeColor(const Color &color, ostream& os)
 	{
-		*oss << color.r() << TYPE_SEPARATOR
-			 << color.g() << TYPE_SEPARATOR
-			 << color.b() << TYPE_SEPARATOR
-			 << color.a() << TYPE_SEPARATOR
-			 << MEMBER_SEPARATOR;
+		os << color.r() << TYPE_SEPARATOR
+		   << color.g() << TYPE_SEPARATOR
+		   << color.b() << TYPE_SEPARATOR
+		   << color.a() << TYPE_SEPARATOR
+		   << MEMBER_SEPARATOR;
 	}
 
-	void serializePoint(const Point &pos, ostringstream* oss)
+	void serializePoint(const Point &pos, ostream& os)
 	{
-		*oss << pos.x << TYPE_SEPARATOR
-			 << pos.y << TYPE_SEPARATOR;
+		os << pos.x << TYPE_SEPARATOR
+		   << pos.y << TYPE_SEPARATOR;
 	}
 
 	double getValue(size_t pos1, size_t pos2, const string& strValue)

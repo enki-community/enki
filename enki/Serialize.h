@@ -49,18 +49,18 @@ namespace Enki
 	//! Update the world with the string serialization.
 	void deserializeUdpate(World * world, const std::string& strUpdate);
 
-	//! Serialize the world and add the string serialization to the oss
-	void serializeWorld(World *world, std::ostringstream* oss);
-	//! Serialize objects of the world and add the string serialization to the oss
-	void serializeObjects(World *world, std::ostringstream* oss);
-	//! Serialize the Thymio and add the string serialization to the oss
-	void serializeThymio(Thymio2 *thymio, std::ostringstream* oss);
-	//! Serialize the PhysicalObject and add the string serialization to the oss
-	void serializePhysObj(PhysicalObject* po, std::ostringstream* oss);
-	//! Serialize the Color and add the string serialization to the oss
-	void serializeColor(const Color &color, std::ostringstream* oss);
-	//! Serialize the Point and add the string serialization to the oss
-	void serializePoint(const Point &pos, std::ostringstream* oss);
+	//! Serialize the world and add the string serialization to the os
+	void serializeWorld(World *world, std::ostream& os);
+	//! Serialize objects of the world and add the string serialization to the os
+	void serializeObjects(World *world, std::ostream& os);
+	//! Serialize the Thymio and add the string serialization to the os
+	void serializeThymio(Thymio2 *thymio, std::ostream& os);
+	//! Serialize the PhysicalObject and add the string serialization to the os
+	void serializePhysObj(PhysicalObject* po, std::ostream& os);
+	//! Serialize the Color and add the string serialization to the os
+	void serializeColor(const Color &color, std::ostream& os);
+	//! Serialize the Point and add the string serialization to the os
+	void serializePoint(const Point &pos, std::ostream& os);
 
 	//! Return a World without objects with the string serialization.
 	World* deserializeWorld(const std::string& strWorld);
