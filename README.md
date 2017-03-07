@@ -18,14 +18,17 @@ To compile Enki and programs who depend on it, you need:
 * a working and fairly recent c++ compiler
 * CMake
 * A build environment compatible with CMake.
+* [Dashel](https://github.com/aseba-community/dashel)
 
 ### Compilation under Unix
 
-Those short instructions assume that you want to use "make" to build Enki.
-If you want to use another build environment, such as Microsoft Visual Studio, please refer to [cmake documentation](https://cmake.org/documentation/).
-Once you have downloaded and extracted the source distribution, you can create the Makefiles by running:
+Those short instructions assume that you want to use "make" to build Enki.  If
+you want to use another build environment, such as Microsoft Visual Studio,
+please refer to [cmake documentation](https://cmake.org/documentation/).  Once
+you have downloaded and extracted the source distribution and build Dashel in
+`@DASHEL_BUILD_DIR@`, you can create the Makefiles by running:
 
-	cmake .
+	cmake . -Ddashel_DIR=@DASHEL_BUILD_DIR@
 
 and then build Enki by running:
 
