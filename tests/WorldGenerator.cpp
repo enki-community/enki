@@ -8,13 +8,13 @@ namespace Enki
 		this->randomizer = new Randomizer();
 	}
 
-	WorldGenerator::WorldGenerator(int width, int height)
+	WorldGenerator::WorldGenerator(const int width, const int height)
 	{
 		World* w = new World(width, height);
 		this->randomizer = new Randomizer(w);
 	}
 
-	WorldGenerator::WorldGenerator(int radius)
+	WorldGenerator::WorldGenerator(const int radius)
 	{
 		World* w = new World(radius);
 		this->randomizer = new Randomizer(w);
@@ -25,36 +25,54 @@ namespace Enki
 		delete randomizer;
 	}
 
-	bool WorldGenerator::addRobot(Robot* r)
+	bool WorldGenerator::add(PhysicalObject* o)
 	{
 		World* w = this->randomizer->getWorld();
 		int size = w->objects.size();
-		w->addObject(r);
+		w->addObject(o);
 		return size != w->objects.size();
 	}
 
-	int WorldGenerator::addRobots(int number)
+	bool WorldGenerator::add(int type, int number)
 	{
 		int cpt(0);
 		number = number ? number : this->randomizer->generateInt(30);
 		for(int i = 0 ; i < number ; ++i)
 		{
-			Robot* r = this->randomizer->generateRobot();
-			if(WorldGenerator::addRobot(r))
+			PhysicalObject* o;
+			/*
+			type can have up to 3 values :
+				0 : Add only robots
+				1 : Add only objects
+			*/
+			if (type == 0)
+			{
+				o = this->randomizer->generateRobot();
+			}
+			else if (type == 1)
+			{
+				o = this->randomizer->generatePhysicalObject();
+			}
+			else
+			{
+				o = this->randomizer->generateObject();
+			}
+
+			if(WorldGenerator::add(o))
 				cpt++;
 		}
-		return cpt;
+		return cpt == number - 1;
 	}
 
-	int WorldGenerator::addRobots(std::vector<Robot*> vec)
+	bool WorldGenerator::add(std::vector<PhysicalObject*> vec)
 	{
 		int cpt(0);
-		for(auto robot : vec)
+		for(auto object : vec)
 		{
-			if(WorldGenerator::addRobot(robot))
+			if(WorldGenerator::add(object))
 				cpt++;
 		}
-		return cpt;
+		return cpt == vec.size() - 1;
 	}
 
 	World* WorldGenerator::getWorld()

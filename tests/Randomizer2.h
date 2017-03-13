@@ -38,6 +38,7 @@ namespace Enki
 		World* randomizeWorld();
 
 		PhysicalObject* generateObject();
+		PhysicalObject* generatePhysicalObject();
 		Robot* generateRobot();
 		Thymio2* generateThymio();
 		EPuck* generateEPuck();

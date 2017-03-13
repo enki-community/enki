@@ -18,7 +18,7 @@
 
 #include "catch.hpp"
 
-#include "Randomizer.h"
+#include "WorldGenerator.h"
 #include <enki/PhysicalEngine.h>
 
 /*!	\file randomWorld.cpp
@@ -35,21 +35,78 @@ using namespace Enki;
 const int ITERATION_NUMBER = 100000;
 
 TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
-	SECTION( "A random number" ) {
+	SECTION( "A random Int" )
+	{
+		Randomizer* randomizer = new Randomizer();
+		int previousInt = -1;
+		int trueRandom = 1;
 		for (int i = 0; i < ITERATION_NUMBER; i++)
 		{
-			int a = randomNumber(0, i);
-			REQUIRE( (a >= 0 && a <= i) );
+			int number = randomizer->generateInt(i);
+			REQUIRE( (number >= 0 && number <= i) );
+			if (number == previousInt)
+				trueRandom++;
+			previousInt = number;
+		}
+		REQUIRE(trueRandom != ITERATION_NUMBER);
+
+	}
+
+	SECTION( "A simple dice roll test" )
+	{
+		Randomizer* randomizer = new Randomizer();
+		int dice[6] = {0, 0, 0, 0, 0, 0};
+		for (int i = 0; i < ITERATION_NUMBER; i++)
+		{
+			int number = randomizer->generateInt(6);
+			dice[number] += 1;
+		}
+		for (int i = 0 ; i < 6 ; i++)
+		{
+			float proba = (dice[i] / (float)ITERATION_NUMBER) * 100;
+			std::cerr << "Proba of " << i+1 << ": " << proba << "%" << std::endl;
+			REQUIRE( (proba >= 10 && proba <= 20) );
 		}
 	}
 
 	SECTION( "A random color" ) {
-		Color c = randomColor();
-		REQUIRE( (c.r() >= 0 && c.r() <= 1) );
-		REQUIRE( (c.g() >= 0 && c.g() <= 1) );
-		REQUIRE( (c.b() >= 0 && c.b() <= 1) );
+		Randomizer* randomizer = new Randomizer();
+		for (int i = 0 ; i < ITERATION_NUMBER ; i++)
+		{
+			Color c = randomizer->generateColor();
+			REQUIRE( (c.r() >= 0 && c.r() <= 1) );
+			REQUIRE( (c.g() >= 0 && c.g() <= 1) );
+			REQUIRE( (c.b() >= 0 && c.b() <= 1) );
+		}
 	}
 
+	// This means that the Point should be within the world area
+	// If you want to see if it correctly generate random numbers
+	// You should check the first SECTION.
+	SECTION( " A random point" ) {
+		Randomizer* randomizer = new Randomizer();
+		World* w = randomizer->getWorld();
+		for (int i = 0 ; i < ITERATION_NUMBER ; i++)
+		{
+			Point p = randomizer->generatePoint();
+			if (w->wallsType == World::WALLS_CIRCULAR)
+			{
+				REQUIRE( ((p.x * p.y) + (p.x * p.y) <= w->r * w->r) );
+			}
+			else
+			{
+				REQUIRE( (p.x <= w->w && p.y < w->h) );
+			}
+		}
+	}
+
+	SECTION( " A random Robot" ) {
+		Randomizer* randomizer = new Randomizer();
+		World* w = randomizer->getWorld();
+		randomizer->generateRobot();
+	}
+}
+/*
 	SECTION( "A random Thymio" ) {
 		World* w = new World();
 		Thymio2* thymio = randomThymio(w);
@@ -109,3 +166,4 @@ TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 		}
 	}
 }
+*/

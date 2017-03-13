@@ -4,11 +4,13 @@ using namespace Enki;
 
 Randomizer::Randomizer(World* world)
 {
+	srand(time(NULL));
 	this->world = world;
 }
 
 Randomizer::Randomizer()
 {
+	srand(time(NULL));
 	this->world = randomizeWorld();
 }
 
@@ -29,17 +31,30 @@ World* Randomizer::randomizeWorld()
 	{
 		int width = generateInt(MAX_WIDTH - MIN_WIDTH) + MIN_WIDTH;
 		int height = generateInt(MAX_HEIGHT - MIN_HEIGHT) + MIN_HEIGHT;
-		std::cerr << "WxH : " << width << "x" << height << std::endl;
+		//std::cerr << "WxH : " << width << "x" << height << std::endl;
 		return new World(width, height);
 	}
 	else
 	{
 		int radius = generateInt(MAX_RADIUS - MIN_RADIUS) + MIN_RADIUS;
-		std::cerr << "R : " << radius << std::endl;
+		//std::cerr << "R : " << radius << std::endl;
 		return new World(radius);
 	}
 }
 PhysicalObject* Randomizer::generateObject()
+{
+	bool which = boolRand();
+	if(which)
+	{
+		return generateRobot();
+	}
+	else
+	{
+		return generatePhysicalObject();
+	}
+}
+
+PhysicalObject* Randomizer::generatePhysicalObject()
 {
 	PhysicalObject* object = new PhysicalObject();
 	object->pos = generatePoint();
@@ -167,7 +182,6 @@ Point Randomizer::generatePoint()
 			in = (posx * posx) + (posy * posy) <= this->world->r * this->world->r ? true : false;
 		}
 	}
-	std::cerr << "XxY : " << posx << "x" << posy << std::endl;
 	return Point(posx, posy);
 }
 
@@ -181,10 +195,14 @@ Color Randomizer::generateColor()
 
 float Randomizer::generateFloat(const float &range)
 {
+	// Not working
 	return UniformRand(0, range)();
 }
 
 unsigned Randomizer::generateInt(const unsigned &range)
 {
-	return intRand(range);
+	// Not working
+	if(range == 0)
+		return 0;
+	return rand() % range;
 }

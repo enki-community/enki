@@ -2,7 +2,6 @@
 #define __WORLD_GENERATOR_H
 
 #include <enki/PhysicalEngine.h>
-#include <enki/robots/thymio2/Thymio2.h>
 #include "Randomizer2.h"
 #include <iostream>
 
@@ -15,13 +14,13 @@ namespace Enki
 		Randomizer* randomizer;
 	public:
 		WorldGenerator();
-		WorldGenerator(int width, int height);
-		WorldGenerator(int radius);
+		WorldGenerator(const int width, const int height);
+		WorldGenerator(const int radius);
 		~WorldGenerator();
 
-		bool addRobot(Robot* r); // Can be used to add Thymio, EPuck etc
-		int addRobots(int number = 0);
-		int addRobots(std::vector<Robot*> vec);
+		bool add(PhysicalObject* o); // Can be used to add PhysicalObjects such as Robots & Objects
+		bool add(std::vector<PhysicalObject*> vec);
+		bool add(int type, int number = 0); // Add depending on the type
 
 		World* getWorld();
 		void resetWorld();
