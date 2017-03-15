@@ -68,6 +68,7 @@ namespace Enki
 	public:
 		//! Constructor
 		Server(World* w);
+		Server(World* w, const int port);
 
 		//! brief Send information about the world to all users connected.
 		void sendAll() const;
@@ -76,9 +77,14 @@ namespace Enki
 			\brief Return the number of connections.
 			\return number of connections
 		*/
-		inline int getConnectionNumbers() const
+		inline const int getConnectionNumber() const
 		{
 			return dataStreams.size();
+		}
+
+		inline const int getPort() const
+		{
+			return _port;
 		}
 
 	protected:
@@ -91,6 +97,9 @@ namespace Enki
 		// Override Dashel::Hub
 		void connectionCreated(Dashel::Stream *stream);
 		void connectionClosed(Dashel::Stream *stream, bool abnormal);
+
+	private:
+		int _port;
 	};
 
 	class Client: public Dashel::Hub
@@ -101,7 +110,7 @@ namespace Enki
 
 	public:
 		//! Constructor
-		Client(const std::string& ip);
+		Client(const std::string& ip, const int port);
 		World* getWorld() const;
 
 	protected:

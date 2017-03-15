@@ -35,7 +35,7 @@ bool check(Server * s, int connectionNumber)
 	sleep(1);
 	clock_t t = clock();
 	clock_t tmp;
-	while((tmp = ( clock() - t)) < TIME_OUT && s->getConnectionNumbers() != connectionNumber )
+	while((tmp = ( clock() - t)) < TIME_OUT && s->getConnectionNumber() != connectionNumber )
 	{
 		usleep(1000);
 	}
@@ -58,7 +58,7 @@ SCENARIO( "Connection Deconnection", "[Enki::Network]" )
 		WHEN( "1 client" )
 		{
 			Client* client = NULL;
-			REQUIRE_NOTHROW( client = new Client("127.0.0.1") );
+			REQUIRE_NOTHROW( client = new Client("127.0.0.1", server->getPort()) );
 			REQUIRE( check(server, 1) );
 
 			delete client;
@@ -73,12 +73,12 @@ SCENARIO( "Connection Deconnection", "[Enki::Network]" )
 			int nb = 0;
 			Client* client;
 
-			REQUIRE_NOTHROW( client = new Client("127.0.0.1") );
+			REQUIRE_NOTHROW( client = new Client("127.0.0.1", server->getPort()) );
 			nb++;
 
 			REQUIRE( check(server, nb) );
 			Client* client1;
-			REQUIRE_NOTHROW( client1 = new Client("127.0.0.1") );
+			REQUIRE_NOTHROW( client1 = new Client("127.0.0.1", server->getPort()) );
 			nb++;
 			REQUIRE( check(server, nb) );
 
@@ -87,7 +87,7 @@ SCENARIO( "Connection Deconnection", "[Enki::Network]" )
 
 			REQUIRE( check(server, nb) );
 
-			REQUIRE_NOTHROW( client = new Client("127.0.0.1") );
+			REQUIRE_NOTHROW( client = new Client("127.0.0.1", server->getPort()) );
 			nb++;
 
 			REQUIRE( check(server, nb) );
@@ -114,7 +114,7 @@ SCENARIO( "Connection Deconnection", "[Enki::Network]" )
 			for (int i = 0; i < 10; i++)
 			{
 				Client* cl;
-				REQUIRE_NOTHROW( cl = new Client("127.0.0.1") );
+				REQUIRE_NOTHROW( cl = new Client("127.0.0.1", server->getPort()) );
 				nbClient++;
 				REQUIRE( check(server, nbClient) );
 				tabClient.push_back(cl);
@@ -149,7 +149,7 @@ SCENARIO( "Receive Data", "[Enki::Network]" )
 		WHEN( "1 client" )
 		{
 			Client* client;
-			REQUIRE_NOTHROW( client = new Client("127.0.0.1") );
+			REQUIRE_NOTHROW( client = new Client("127.0.0.1", server->getPort()) );
 
 			thread threadClient ([=]() { client->run(); });
 

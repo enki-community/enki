@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
 	{
 		if (argc > 1) // client
 		{
-			Client *client = new Client(argv[1]);
+			Client *client = new Client(argv[1], atoi(argv[2]));
 			thread threadClient([client]() { client->run(); });
 			threadClient.detach();
 

@@ -27,11 +27,28 @@ namespace Enki
 	using namespace std;
 	using namespace Dashel;
 
-	const unsigned short int PORT = 8765;
-
-	Server::Server(World* w)
+	Server::Server(World* w) : _port(8765)
 	{
-		connect("tcpin:port=" + to_string(PORT));
+		bool init = false;
+		while (!init)
+		{
+			try
+			{
+				connect("tcpin:port=" + to_string(_port));
+				init = true;
+			}
+			catch (DashelException const& e){
+				_port ++;
+			}
+		}
+		cout << "Port : " << _port << endl;
+		m_world = w;
+	}
+
+	Server::Server(World* w, const int port){
+		_port = port;
+		connect("tcpin:port=" + to_string(_port));
+		cout << "Port : " << _port << endl;
 		m_world = w;
 	}
 
@@ -73,11 +90,11 @@ namespace Enki
 		dataStreams.erase(stream);
 	}
 
-	Client::Client(const string& ip) :
+	Client::Client(const string& ip, const int port) :
 		init(true),
 		inputStream(0)
 	{
-		string remoteTarget = "tcp:" + ip + ";port=" + to_string(PORT);
+		string remoteTarget = "tcp:" + ip + ";port=" + to_string(port);
 		inputStream = connect("stdin:");
 		remoteStream = connect(remoteTarget);
 		sendString(remoteStream, "I want to connect!\n");
