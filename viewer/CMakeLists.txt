@@ -1,15 +1,10 @@
 # SDL
 find_package(SDL2)
 if (SDL2_FOUND)
-	include_directories(${SDL_INCLUDE_DIR})
-	set(EXTRA_LIBS ${SDL_LIBRARY} ${EXTRA_LIBS})
-	if (APPLE)
-		execute_process(COMMAND "sdl2-config" "--static-libs" OUTPUT_VARIABLE SDL2_EXTRAS)
-		string(STRIP ${SDL2_EXTRAS} SDL2_EXTRAS)
-		set(EXTRA_LIBS ${SDL2_EXTRAS} ${EXTRA_LIBS})
-	endif (APPLE)
-	add_definitions("-DUSE_SDL")
 	message(STATUS "SDL2 found, enabling joystick support")
+	include_directories(${SDL2_INCLUDE_DIR})
+	set(EXTRA_LIBS ${SDL2_LIBRARY} ${EXTRA_LIBS})
+	add_definitions("-DUSE_SDL")
 endif (SDL2_FOUND)
 
 set(QT_USE_QTOPENGL TRUE)
