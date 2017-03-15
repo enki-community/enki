@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 2.6)
 
 project(Enki)
+
+# additional CMake modules
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMakeModules)
+
 set(LIB_INSTALL_DIR lib CACHE FILEPATH "Where to install libraries")
 set(LIB_VERSION_MAJOR 2) # Must be bumped for incompatible ABI changes
 set(LIB_VERSION_MINOR 0)
