@@ -4,7 +4,7 @@
 // Requires CMake plugin from https://github.com/davidjsherman/aseba-jenkins.git in global library.
 
 pipeline {
-	agent label:'' // use any available Jenkins agent
+	agent any // use any available Jenkins agent
 	stages {
 		stage('Prepare') {
 			steps {
@@ -25,7 +25,7 @@ pipeline {
 									python -c "import sys; print 'lib/python'+str(sys.version_info[0])+'.'+str(sys.version_info[1])+'/dist-packages'"
 ''', returnStdout: true).trim()
 							}
-							CMake([sourceDir: '$workDir/enki', label: 'debian', getCmakeArgs: "-DPYTHON_CUSTOM_TARGET:PATH=${env.debian_python}"])
+							CMake([sourceDir: pwd()+'/enki', label: 'debian', getCmakeArgs: "-DPYTHON_CUSTOM_TARGET:PATH=${env.debian_python}"])
 							stash includes: 'dist/**', name: 'dist-debian'
 							stash includes: 'build/**', name: 'build-debian'
 						}
@@ -33,14 +33,14 @@ pipeline {
 					"macos" : {
 						node('macos') {
 							unstash 'source'
-							CMake([sourceDir: '$workDir/enki', label: 'macos'])
+							CMake([sourceDir: pwd()+'/enki', label: 'macos'])
 							stash includes: 'dist/**', name: 'dist-macos'
 						}
 					},
 					"windows" : {
 						node('windows') {
 							unstash 'source'
-							CMake([sourceDir: '$workDir/enki', label: 'windows'])
+							CMake([sourceDir: pwd()+'/enki', label: 'windows'])
 							stash includes: 'dist/**', name: 'dist-windows'
 						}
 					}
