@@ -95,6 +95,7 @@ namespace Enki
 			
 			// constructors
 			CameraPose();
+			CameraPose(const World *world);
 			CameraPose(const QPointF& pos, double altitude, double yaw, double pitch);
 		};
 	
@@ -112,6 +113,7 @@ namespace Enki
 
 			// constructors
 			UpdatableCameraPose();
+			UpdatableCameraPose(const World *world);
 			UpdatableCameraPose(const QPointF& pos, double altitude, double yaw, double pitch);
 			
 			// assignment to base class
@@ -130,6 +132,8 @@ namespace Enki
 		World *world;
 		
 		GLuint helpWidget;
+		GLuint centerWidget;
+		GLuint selectionTexture;
 		GLuint worldList;
 		GLuint worldTexture;
 		GLuint wallTexture;
@@ -240,6 +244,7 @@ namespace Enki
 		virtual void mouseDoubleClickEvent(QMouseEvent *event);
 		virtual void wheelEvent(QWheelEvent * event);
 		virtual void timerEvent(QTimerEvent * event);
+		
 		
 		// helper methods
 		unsigned int getButtonCode(QMouseEvent * event);

@@ -1,4 +1,4 @@
-include_directories (${enki_SOURCE_DIR})
+include_directories (${PROJECT_SOURCE_DIR})
 
 if (CMAKE_HOST_UNIX)
 	add_definitions("-fPIC")

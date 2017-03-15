@@ -12,6 +12,8 @@
 	<file>textures/thymio-bottomLed-diffusionMap.png</file>
 	<file>textures/thymio-ground-shadow.png</file>
 	<file>textures/thymio-wheel-texture.png</file>
+	<file>textures/selection.png</file>
 	<file>widgets/help.png</file>
+	<file>widgets/center.png</file>
 </qresource>
 </RCC>

@@ -226,8 +226,6 @@ public:
 		#else // USE_SDL
 		addDefaultsRobots(world);
 		#endif // USE_SDL
-		camera.altitude = 150;
-		camera.pos = QPointF(0,-60);
 	}
 	
 	void addDefaultsRobots(World *world)

@@ -45,9 +45,9 @@ if (QT4_FOUND AND OPENGL_FOUND)
 	
 	qt4_add_resources(viewer_lib_RCC_SRCS enki-viewer-textures.qrc)
 	
-	include_directories (${enki_SOURCE_DIR} ${OPENGL_INCLUDE_DIR} ${CMAKE_BINARY_DIR}/viewer)
+	include_directories (${PROJECT_SOURCE_DIR} ${OPENGL_INCLUDE_DIR} ${CMAKE_BINARY_DIR}/viewer)
 	
-	link_directories (${enki_BINARY_DIR})
+	link_directories (${PROJECT_BINARY_DIR})
 	
 	add_library (enkiviewer ${viewer_lib_SRCS} ${viewer_lib_RCC_SRCS})
 	set_target_properties(enkiviewer PROPERTIES VERSION ${LIB_VERSION_STRING} 

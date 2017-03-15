@@ -76,6 +76,7 @@ namespace Enki
 		const double wheelCirc = 2 * M_PI * wheelRadius;
 		const double radiosityScale = 1.01;
 		
+		glPushMatrix();
 		glTranslated(0, 0, wheelRadius);
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, textures[0]);
@@ -148,6 +149,7 @@ namespace Enki
 		glEnable(GL_LIGHTING);
 		
 		glDisable(GL_TEXTURE_2D);
+		glPopMatrix();
 	}
 	
 	void EPuckModel::drawSpecial(PhysicalObject* object, int param) const
