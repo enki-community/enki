@@ -1,11 +1,7 @@
 # Testing for Enki
 
-include_directories(
-	${enki_SOURCE_DIR}
-)
-link_directories(
-	${enki_BINARY_DIR}
-)
+include_directories(${PROJECT_SOURCE_DIR})
+link_directories(${PROJECT_BINARY_DIR})
 
 # Contain Catch testing framework main function.  Using CATCH_CONFIG_MAIN macro
 # only this library reduce compilation time.
