@@ -1,6 +1,7 @@
 /*
    Enki - a fast 2D robot simulator
    Copyright © 2017 Nicolas Palard <nicolas.palard@etu.u-bordeaux.fr>
+   Copyright © 2017 Mathieu Lirzin <mathieu.lirzin@etu.u-bordeaux.fr>
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -18,6 +19,7 @@
 
 #include "Randomizer.h"
 #include <random>
+#include <chrono>
 
 /*!	\file Randomizer.cpp
 	\brief Module 'random' which can be used for generating objects and worlds.
@@ -25,16 +27,26 @@
 
 namespace Enki
 {
+	// Generate a seed and log it to OS.  The Logging is made to be able to
+	// reproduce the tests using this module.
+	static int genSeed(std::ostream& os = std::cerr)
+	{
+		auto timepoint = std::chrono::system_clock::now();
+		int seed = timepoint.time_since_epoch().count();
+		os << "seed: " << seed << std::endl;
+		return seed;
+	}
+
 	int randomNumber(int min, int max)
 	{
-		// XXX: UniformRand from Random.h doesn't produce random values as expected.
-		// return UniformRand(min, max)();
+		// XXX: UniformRand from Random.h doesn't seem to really produce uniform
+		// random values.  Use a random generator from the STL instead.
 
-		// Use a random generator from the STL instead.
-		std::random_device rd; // random number
-		std::mt19937 eng(rd()); // seed
-		std::uniform_int_distribution<> distr(min, max); // range
-		return distr(eng);
+		// Since mt19937 engine takes a lot of space and time to generate avoid
+		// building it every time by making it static.
+		static std::mt19937 engine(genSeed());
+		std::uniform_int_distribution<> distr(min, max);
+		return distr(engine);
 	}
 
 	Color randomColor()
