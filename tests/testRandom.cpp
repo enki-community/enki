@@ -7,14 +7,12 @@ using namespace Enki;
 int main()
 {
 	WorldGenerator* gen = new WorldGenerator;
-	gen->add(-1);
+	gen->add(5);
 	World* w = gen->getWorld();
-	Randomizer rd(w);
-	Robot* r = rd.generateThymio();
-	std::cout << "World type " << w->wallsType << " & objects number " << w->objects.size() << std::endl;
+	std::cout << "World[" << w->wallsType << "]\n -WxHxR: " << w->w << "x" << w->h <<"x" << w->r <<"\n -OBJ NUM: " << w->objects.size() << std::endl << " -OBJ LIST:" << std::endl;
 	for(auto s : w->objects)
 		{
-			std::cerr << typeid(*s).name() << std::endl;
+			std::cout << "  *" << typeid(*s).name() << std::endl;
 		}
 
 }

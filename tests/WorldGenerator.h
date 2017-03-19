@@ -7,8 +7,12 @@
 
 namespace Enki
 {
+	// Those enumeration items end with a '_' so that they don't collide with
+	// the ones used in the serialization module.
 
-	class WorldGenerator{
+	class WorldGenerator
+	{
+
 	private:
 		World* world;
 		Randomizer* randomizer;
@@ -24,6 +28,8 @@ namespace Enki
 
 		World* getWorld();
 		void resetWorld();
+
+		Randomizer* getRandomizer();
 	};
 }
 #endif

@@ -36,28 +36,45 @@ namespace Enki
 	bool WorldGenerator::add(int type, int number)
 	{
 		int cpt(0);
-		number = number ? number : this->randomizer->generateInt(30);
-		for(int i = 0 ; i < number ; ++i)
+		number = number ? number : this->randomizer->generateInt(1, 30);
+		while(cpt < number)
 		{
 			PhysicalObject* o;
 			/*
-			type can have up to 3 values :
-				0 : Add only robots
-				1 : Add only objects
+			type can have up to 7 values :
+				0 -> 4 : Only robots (of a specified type) (enum)
+				5 : Physical Object
+				6 : Any kind of robots
+				7 : Anything (PO / R)
 			*/
-			if (type == 0)
-			{
-				o = this->randomizer->generateRobot();
+			switch (type) {
+				case Randomizer::THYMIO2_ :
+					o = this->randomizer->generateThymio();
+					break;
+				case Randomizer::EPUCK_ :
+					o = this->randomizer->generateEPuck();
+					break;
+				case Randomizer::SBOT_ :
+					o = this->randomizer->generateSbot();
+					break;
+				case Randomizer::MARXBOT_ :
+					o = this->randomizer->generateMarxbot();
+					break;
+				case Randomizer::KHEPERA_ :
+					o = this->randomizer->generateKhepera();
+					break;
+				case 5 :
+					o = this->randomizer->generatePhysicalObject();
+					break;
+				case 6 :
+					o = this->randomizer->generateRobot();
+					break;
+				case 7 :
+					o = this->randomizer->generateObject();
+					break;
+				default:
+					o = this->randomizer->generateObject();
 			}
-			else if (type == 1)
-			{
-				o = this->randomizer->generatePhysicalObject();
-			}
-			else
-			{
-				o = this->randomizer->generateObject();
-			}
-
 			if(WorldGenerator::add(o))
 				cpt++;
 		}
@@ -83,5 +100,10 @@ namespace Enki
 	void WorldGenerator::resetWorld()
 	{
 		this->randomizer->resetWorld();
+	}
+
+	Randomizer* WorldGenerator::getRandomizer()
+	{
+		return this->randomizer;
 	}
 }
