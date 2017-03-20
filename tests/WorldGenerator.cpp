@@ -8,13 +8,13 @@ namespace Enki
 		this->randomizer = new Randomizer();
 	}
 
-	WorldGenerator::WorldGenerator(const int width, const int height)
+	WorldGenerator::WorldGenerator(const int &width, const int &height)
 	{
 		World* w = new World(width, height);
 		this->randomizer = new Randomizer(w);
 	}
 
-	WorldGenerator::WorldGenerator(const int radius)
+	WorldGenerator::WorldGenerator(const int &radius)
 	{
 		World* w = new World(radius);
 		this->randomizer = new Randomizer(w);
@@ -33,11 +33,11 @@ namespace Enki
 		return size != w->objects.size();
 	}
 
-	bool WorldGenerator::add(int type, int number)
+	bool WorldGenerator::add(const int &type, const int &number)
 	{
 		int cpt(0);
-		number = number ? number : this->randomizer->generateInt(1, 30);
-		while(cpt < number)
+		int num = number ? number : this->randomizer->generateInt(1, 30);
+		while(cpt < num)
 		{
 			PhysicalObject* o;
 			/*
@@ -63,13 +63,13 @@ namespace Enki
 				case Randomizer::KHEPERA_ :
 					o = this->randomizer->generateKhepera();
 					break;
-				case 5 :
+				case PHYSICAL_OBJECTS_ :
 					o = this->randomizer->generatePhysicalObject();
 					break;
-				case 6 :
+				case ONLY_ROBOTS_ :
 					o = this->randomizer->generateRobot();
 					break;
-				case 7 :
+				case ANYTHING_ :
 					o = this->randomizer->generateObject();
 					break;
 				default:

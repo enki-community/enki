@@ -18,12 +18,17 @@ Randomizer::Randomizer()
 	std::cerr << "seed: " << this->seed << std::endl;
 }
 
+Randomizer::~Randomizer()
+{
+	delete this->world;
+}
+
 long long int Randomizer::getSeed()
 {
 	return this->seed;
 }
 
-void Randomizer::setSeed(long long int seed)
+void Randomizer::setSeed(const long long int &seed)
 {
 	this->seed = seed;
 	this->randomEngine.seed(this->seed);
@@ -37,6 +42,7 @@ World* Randomizer::getWorld()
 
 void Randomizer::resetWorld()
 {
+	delete this->world;
 	this->world = new World();
 }
 
@@ -47,19 +53,17 @@ World* Randomizer::randomizeWorld()
 	{
 		int width = generateInt(MIN_WIDTH, MAX_WIDTH);
 		int height = generateInt(MIN_HEIGHT, MAX_HEIGHT);
-		//std::cerr << "WxH : " << width << "x" << height << std::endl;
 		return new World(width, height);
 	}
 	else
 	{
 		int radius = generateInt(MIN_RADIUS, MAX_RADIUS);
-		//std::cerr << "R : " << radius << std::endl;
 		return new World(radius);
 	}
 }
 PhysicalObject* Randomizer::generateObject()
 {
-	bool which = boolRand();
+	int which = generateInt(0, 1);
 	if(which)
 	{
 		return generateRobot();
@@ -70,19 +74,23 @@ PhysicalObject* Randomizer::generateObject()
 	}
 }
 
-PhysicalObject* Randomizer::generatePhysicalObject(bool displayable, int hullSize)
+PhysicalObject* Randomizer::generatePhysicalObject(const int &hullSize)
 {
 	PhysicalObject* object = new PhysicalObject();
 	object->pos = generatePoint();
 	object->setColor(generateColor());
-	if (displayable)
+
+	int cylindric = generateInt(0, 1);
+
+	if(cylindric)
 	{
 		object->setCylindric(generateFloat(1.0, 5.0), generateFloat(1.0, 5.0), generateFloat(1.0, 5.0));
 	}
 	else
 	{
-		object->setCustomHull(generateHull(hullSize), -1);
+		object->setCustomHull(generateHull(hullSize), hullSize);
 	}
+
 	return object;
 }
 
@@ -182,14 +190,18 @@ Marxbot* Randomizer::generateMarxbot()
 	return marxbot;
 }
 
-PhysicalObject::Hull Randomizer::generateHull(int hullSize)
+PhysicalObject::Hull Randomizer::generateHull(const int &hullSize)
 {
 	PhysicalObject::Hull hull;
 
-	hullSize = hullSize == -1 ? generateInt(1, 30) : hullSize;
-	for(int i = 0 ; i < hullSize ; i++)
+	int size = hullSize <= 0 ? generateInt(1, 30) : hullSize;
+	for(int i = 0 ; i < size ; i++)
 	{
-		hull.push_back(generateComplexPart());
+		int complex = generateInt(0, 1);
+		if(complex)
+			hull.push_back(generateComplexPart());
+		else
+			hull.push_back(generateRectanglePart());
 	}
 	return hull;
 }
@@ -206,32 +218,34 @@ PhysicalObject::Part Randomizer::generateRectanglePart()
 	return PhysicalObject::Part(size1, size2, height);
 }
 
-Polygone Randomizer::generateConvexPolygone(int polygonSize)
+Polygone Randomizer::generateConvexPolygone(const int &polygoneSize)
 {
-	std::cerr << "[P START]" << std::endl;
-	polygonSize = polygonSize == -1 ? 3 : polygonSize;
+	int size = polygoneSize < 3 ? 3 : polygoneSize;
 
-	Polygone p;
 	int radius = generateInt(1, 50);
 	int center_x = 0;
 	int center_y = 0;
 
 	// This uses simple circle based trigonometry to compute a convex polygon.
 	std::vector<float> points;
-	for(int i = 0 ; i < polygonSize ; i++)
+	for(int i = 0 ; i < size ; i++)
 	{
 		points.push_back(generateFloat(0, 2*M_PI));
 	}
 
+	std::sort(points.begin(), points.end());
+
+	Polygone p;
+	
 	for(int i = 0 ; i < points.size() ; i++)
 	{
 		float posx = center_x + radius * cos(points.at(i));
 		float posy = center_y + radius * sin(points.at(i));
 		p << Point(posx, posy);
-		std::cerr << "X;Y: " << posx << ";" << posy << std::endl;
 	}
 
-	std::cerr << "[P END]" << std::endl;
+	points.clear();
+
 	return p;
 }
 

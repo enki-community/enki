@@ -7,7 +7,7 @@ using namespace Enki;
 int main()
 {
 	WorldGenerator* gen = new WorldGenerator;
-	gen->add(5);
+	gen->add(PHYSICAL_OBJECTS_, 10);
 	World* w = gen->getWorld();
 	std::cout << "World[" << w->wallsType << "]\n -WxHxR: " << w->w << "x" << w->h <<"x" << w->r <<"\n -OBJ NUM: " << w->objects.size() << std::endl << " -OBJ LIST:" << std::endl;
 	for(auto s : w->objects)
