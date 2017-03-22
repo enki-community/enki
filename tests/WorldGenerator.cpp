@@ -49,31 +49,31 @@ namespace Enki
 			*/
 			switch (type) {
 				case Randomizer::THYMIO2_ :
-					o = this->randomizer->generateThymio();
+					o = this->randomizer->randThymio();
 					break;
 				case Randomizer::EPUCK_ :
-					o = this->randomizer->generateEPuck();
+					o = this->randomizer->randEPuck();
 					break;
 				case Randomizer::SBOT_ :
-					o = this->randomizer->generateSbot();
+					o = this->randomizer->randSbot();
 					break;
 				case Randomizer::MARXBOT_ :
-					o = this->randomizer->generateMarxbot();
+					o = this->randomizer->randMarxbot();
 					break;
 				case Randomizer::KHEPERA_ :
-					o = this->randomizer->generateKhepera();
+					o = this->randomizer->randKhepera();
 					break;
 				case PHYSICAL_OBJECTS_ :
-					o = this->randomizer->generatePhysicalObject();
+					o = this->randomizer->randPhysicalObject();
 					break;
 				case ONLY_ROBOTS_ :
-					o = this->randomizer->generateRobot();
+					o = this->randomizer->randRobot();
 					break;
 				case ANYTHING_ :
-					o = this->randomizer->generateObject();
+					o = this->randomizer->randObject();
 					break;
 				default:
-					o = this->randomizer->generateObject();
+					o = this->randomizer->randObject();
 			}
 			if(WorldGenerator::add(o))
 				cpt++;

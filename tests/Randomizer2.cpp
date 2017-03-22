@@ -22,7 +22,7 @@ Randomizer::Randomizer(long long int seed)
 	*/
 	this->seed = seed == -1 ? std::chrono::system_clock::now().time_since_epoch().count() : seed;
 	this->randomEngine.seed(this->seed);
-	this->world = randomizeWorld();
+	this->world = randWorld();
 	std::cerr << "seed: " << this->seed << std::endl;
 }
 
@@ -54,7 +54,7 @@ void Randomizer::resetWorld()
 	this->world = new World();
 }
 
-World* Randomizer::randomizeWorld()
+World* Randomizer::randWorld()
 {
 	int wallsType = randInt(0, 2);
 	if(wallsType == World::WALLS_SQUARE || wallsType == World::WALLS_NONE)
@@ -69,24 +69,24 @@ World* Randomizer::randomizeWorld()
 		return new World(radius);
 	}
 }
-PhysicalObject* Randomizer::generateObject()
+PhysicalObject* Randomizer::randObject()
 {
 	int which = randBool();
 	if(which)
 	{
-		return generateRobot();
+		return randRobot();
 	}
 	else
 	{
-		return generatePhysicalObject();
+		return randPhysicalObject();
 	}
 }
 
-PhysicalObject* Randomizer::generatePhysicalObject(const int &hullSize)
+PhysicalObject* Randomizer::randPhysicalObject(const int &hullSize)
 {
 	PhysicalObject* object = new PhysicalObject();
-	object->pos = generatePoint();
-	object->setColor(generateColor());
+	object->pos = randPoint();
+	object->setColor(randColor());
 
 	int cylindric = randBool();
 
@@ -96,109 +96,109 @@ PhysicalObject* Randomizer::generatePhysicalObject(const int &hullSize)
 	}
 	else
 	{
-		object->setCustomHull(generateHull(hullSize), hullSize);
+		object->setCustomHull(randHull(hullSize), hullSize);
 	}
 
 	return object;
 }
 
-Robot* Randomizer::generateRobot()
+Robot* Randomizer::randRobot()
 {
 	Robot* r;
 	unsigned type = randInt(0, NUMBER_OF_ROBOTS_TYPES - 1);
 	switch (type)
 	{
 		case THYMIO2_:
-			r = generateThymio();
+			r = randThymio();
 			break;
 		case EPUCK_:
-			r = generateEPuck();
+			r = randEPuck();
 			break;
 		case SBOT_:
-			r = generateSbot();
+			r = randSbot();
 			break;
 		case MARXBOT_:
-			r = generateMarxbot();
+			r = randMarxbot();
 			break;
 		case KHEPERA_:
-			r = generateKhepera();
+			r = randKhepera();
 			break;
 	}
 	return r;
 }
 
-Thymio2* Randomizer::generateThymio()
+Thymio2* Randomizer::randThymio()
 {
 	Thymio2* thymio = new Thymio2();
 
-	thymio->setLedColor(Thymio2::TOP, generateColor());
-	thymio->setLedColor(Thymio2::BOTTOM_LEFT, generateColor());
-	thymio->setLedColor(Thymio2::BOTTOM_RIGHT, generateColor());
+	thymio->setLedColor(Thymio2::TOP, randColorFloat());
+	thymio->setLedColor(Thymio2::BOTTOM_LEFT, randColorFloat());
+	thymio->setLedColor(Thymio2::BOTTOM_RIGHT, randColorFloat());
 
-	thymio->setLedIntensity(Thymio2::BUTTON_UP, randColor());
-	thymio->setLedIntensity(Thymio2::BUTTON_DOWN, randColor());
-	thymio->setLedIntensity(Thymio2::BUTTON_LEFT, randColor());
-	thymio->setLedIntensity(Thymio2::BUTTON_RIGHT, randColor());
+	thymio->setLedIntensity(Thymio2::BUTTON_UP, randColorFloat());
+	thymio->setLedIntensity(Thymio2::BUTTON_DOWN, randColorFloat());
+	thymio->setLedIntensity(Thymio2::BUTTON_LEFT, randColorFloat());
+	thymio->setLedIntensity(Thymio2::BUTTON_RIGHT, randColorFloat());
 
-	thymio->setLedIntensity(Thymio2::RING_0, randColor());
-	thymio->setLedIntensity(Thymio2::RING_1, randColor());
-	thymio->setLedIntensity(Thymio2::RING_2, randColor());
-	thymio->setLedIntensity(Thymio2::RING_3, randColor());
-	thymio->setLedIntensity(Thymio2::RING_4, randColor());
-	thymio->setLedIntensity(Thymio2::RING_5, randColor());
-	thymio->setLedIntensity(Thymio2::RING_6, randColor());
-	thymio->setLedIntensity(Thymio2::RING_7, randColor());
+	thymio->setLedIntensity(Thymio2::RING_0, randColorFloat());
+	thymio->setLedIntensity(Thymio2::RING_1, randColorFloat());
+	thymio->setLedIntensity(Thymio2::RING_2, randColorFloat());
+	thymio->setLedIntensity(Thymio2::RING_3, randColorFloat());
+	thymio->setLedIntensity(Thymio2::RING_4, randColorFloat());
+	thymio->setLedIntensity(Thymio2::RING_5, randColorFloat());
+	thymio->setLedIntensity(Thymio2::RING_6, randColorFloat());
+	thymio->setLedIntensity(Thymio2::RING_7, randColorFloat());
 
-	thymio->setLedIntensity(Thymio2::IR_FRONT_0, randColor());
-	thymio->setLedIntensity(Thymio2::IR_FRONT_1, randColor());
-	thymio->setLedIntensity(Thymio2::IR_FRONT_2, randColor());
-	thymio->setLedIntensity(Thymio2::IR_FRONT_3, randColor());
-	thymio->setLedIntensity(Thymio2::IR_FRONT_4, randColor());
-	thymio->setLedIntensity(Thymio2::IR_FRONT_5, randColor());
+	thymio->setLedIntensity(Thymio2::IR_FRONT_0, randColorFloat());
+	thymio->setLedIntensity(Thymio2::IR_FRONT_1, randColorFloat());
+	thymio->setLedIntensity(Thymio2::IR_FRONT_2, randColorFloat());
+	thymio->setLedIntensity(Thymio2::IR_FRONT_3, randColorFloat());
+	thymio->setLedIntensity(Thymio2::IR_FRONT_4, randColorFloat());
+	thymio->setLedIntensity(Thymio2::IR_FRONT_5, randColorFloat());
 
-	thymio->setLedIntensity(Thymio2::IR_BACK_0, randColor());
-	thymio->setLedIntensity(Thymio2::IR_BACK_1, randColor());
+	thymio->setLedIntensity(Thymio2::IR_BACK_0, randColorFloat());
+	thymio->setLedIntensity(Thymio2::IR_BACK_1, randColorFloat());
 
-	thymio->setLedIntensity(Thymio2::LEFT_RED, randColor());
-	thymio->setLedIntensity(Thymio2::LEFT_BLUE, randColor());
-	thymio->setLedIntensity(Thymio2::RIGHT_BLUE, randColor());
-	thymio->setLedIntensity(Thymio2::RIGHT_RED, randColor());
+	thymio->setLedIntensity(Thymio2::LEFT_RED, randColorFloat());
+	thymio->setLedIntensity(Thymio2::LEFT_BLUE, randColorFloat());
+	thymio->setLedIntensity(Thymio2::RIGHT_BLUE, randColorFloat());
+	thymio->setLedIntensity(Thymio2::RIGHT_RED, randColorFloat());
 
-	thymio->pos = generatePoint();
+	thymio->pos = randPoint();
 	return thymio;
 }
 
-EPuck* Randomizer::generateEPuck()
+EPuck* Randomizer::randEPuck()
 {
 	EPuck* epuck = new EPuck();
-	epuck->pos = generatePoint();
+	epuck->pos = randPoint();
 	return epuck;
 }
 
-Khepera* Randomizer::generateKhepera()
+Khepera* Randomizer::randKhepera()
 {
 	Khepera* khepera = new Khepera();
-	khepera->pos = generatePoint();
+	khepera->pos = randPoint();
 	return khepera;
 }
 
-Sbot* Randomizer::generateSbot()
+Sbot* Randomizer::randSbot()
 {
 	Sbot* sbot = new Sbot();
-	sbot->pos = generatePoint();
-	sbot->setColor(generateColor());
+	sbot->pos = randPoint();
+	sbot->setColor(randColor());
 	return sbot;
 }
 
-Marxbot* Randomizer::generateMarxbot()
+Marxbot* Randomizer::randMarxbot()
 {
 	Marxbot* marxbot = new Marxbot();
-	marxbot->pos = generatePoint();
-	marxbot->setColor(generateColor());
+	marxbot->pos = randPoint();
+	marxbot->setColor(randColor());
 	return marxbot;
 }
 
-PhysicalObject::Hull Randomizer::generateHull(const int &hullSize)
+PhysicalObject::Hull Randomizer::randHull(const int &hullSize)
 {
 	PhysicalObject::Hull hull;
 
@@ -207,26 +207,26 @@ PhysicalObject::Hull Randomizer::generateHull(const int &hullSize)
 	{
 		int complex = randBool();
 		if(complex)
-			hull.push_back(generateComplexPart());
+			hull.push_back(randComplexPart());
 		else
-			hull.push_back(generateRectanglePart());
+			hull.push_back(randRectanglePart());
 	}
 	return hull;
 }
 
-PhysicalObject::Part Randomizer::generateComplexPart()
+PhysicalObject::Part Randomizer::randComplexPart()
 {
-	Polygone p = generateConvexPolygone(randInt(3, 30));
+	Polygone p = randConvexPolygone(randInt(3, 30));
 	return PhysicalObject::Part(p, randFloat(1.0, 5.0));
 }
 
-PhysicalObject::Part Randomizer::generateRectanglePart()
+PhysicalObject::Part Randomizer::randRectanglePart()
 {
 	float size1 = randFloat(1.0, 30.0), size2 = randFloat(1.0, 30.0), height = randFloat(1.0, 30.0);
 	return PhysicalObject::Part(size1, size2, height);
 }
 
-Polygone Randomizer::generateConvexPolygone(const int &polygoneSize)
+Polygone Randomizer::randConvexPolygone(const int &polygoneSize)
 {
 	int size = polygoneSize < 3 ? 3 : polygoneSize;
 
@@ -257,7 +257,7 @@ Polygone Randomizer::generateConvexPolygone(const int &polygoneSize)
 	return p;
 }
 
-Point Randomizer::generatePoint()
+Point Randomizer::randPoint()
 {
 	float posx, posy;
 	if(this->world->wallsType == World::WALLS_SQUARE)
@@ -278,11 +278,11 @@ Point Randomizer::generatePoint()
 	return Point(posx, posy);
 }
 
-Color Randomizer::generateColor()
+Color Randomizer::randColor()
 {
-	float r = randColor();
-	float g = randColor();
-	float b = randColor();
+	float r = randColorFloat();
+	float g = randColorFloat();
+	float b = randColorFloat();
 	return Color(r, g, b);
 }
 
@@ -296,7 +296,7 @@ int Randomizer::randInt(const int &min, const int &max)
 	return std::uniform_int_distribution<>(min, max)(this->randomEngine);
 }
 
-float Randomizer::randColor()
+float Randomizer::randColorFloat()
 {
 	return this->color_distr(this->randomEngine);
 }

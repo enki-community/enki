@@ -82,7 +82,7 @@ TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 	SECTION( "A random color" ) {
 		for (int i = 0 ; i < ITERATION_NUMBER ; i++)
 		{
-			Color c = globalRandomizer->generateColor();
+			Color c = globalRandomizer->randColor();
 			REQUIRE( (c.r() >= 0 && c.r() <= 1) );
 			REQUIRE( (c.g() >= 0 && c.g() <= 1) );
 			REQUIRE( (c.b() >= 0 && c.b() <= 1) );
@@ -90,13 +90,13 @@ TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 	}
 
 	// This means that the Point should be within the world area
-	// If you want to see if it correctly generates random numbers
+	// If you want to see if it correctly rands random numbers
 	// You should check the first SECTION.
 	SECTION ( "A random position in the world" ) {
 		World* w = globalRandomizer->getWorld();
 		for (int i = 0 ; i < ITERATION_NUMBER ; i++)
 		{
-			Point p =globalRandomizer->generatePoint();
+			Point p =globalRandomizer->randPoint();
 			if (w->wallsType == World::WALLS_CIRCULAR)
 			{
 				REQUIRE ( ((p.x * p.y) + (p.x * p.y) <= w->r * w->r) );
@@ -111,7 +111,7 @@ TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 	SECTION( "A random convex polygon" ) {
 		for(int i = 0 ; i < ITERATION_NUMBER ; i++)
 		{
-			Polygone p = globalRandomizer->generateConvexPolygone(i);
+			Polygone p = globalRandomizer->randConvexPolygone(i);
 			REQUIRE( p.size() >= 3 );
 		}
 
@@ -120,13 +120,13 @@ TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 	SECTION ( "A random part" ) {
 		for(int i = 0 ; i < ITERATION_NUMBER ; i++)
 		{
-			PhysicalObject::Part p = globalRandomizer->generateComplexPart();
+			PhysicalObject::Part p = globalRandomizer->randComplexPart();
 			REQUIRE( (p.getShape().size() >= 3) );
 			REQUIRE( (p.getHeight() >= 1.0 && p.getHeight() <= 5.0) );
 		}
 		for(int i = 0 ; i < ITERATION_NUMBER ; i++)
 		{
-			PhysicalObject::Part p = globalRandomizer->generateRectanglePart();
+			PhysicalObject::Part p = globalRandomizer->randRectanglePart();
 			REQUIRE( (p.getHeight() >= 1 && p.getHeight() <= 30) );
 			REQUIRE( (p.getArea() <= (30 * 30)) );
 		}
@@ -135,7 +135,7 @@ TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 	SECTION ( "A random Hull" ) {
 		for(int i = 0 ; i < ITERATION_NUMBER ; i++)
 		{
-			PhysicalObject::Hull hull = globalRandomizer->generateHull(i);
+			PhysicalObject::Hull hull = globalRandomizer->randHull(i);
 			if(i > 0)
 				REQUIRE( hull.size() == i);
 			else
@@ -147,7 +147,7 @@ TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 
 		for(int i = 0 ; i < ITERATION_NUMBER ; i++)
 		{
-			World* w = globalRandomizer->randomizeWorld();
+			World* w = globalRandomizer->randWorld();
 
 			if(w->wallsType == World::WALLS_SQUARE)
 			{
@@ -165,12 +165,12 @@ TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 	}
 
 	SECTION ( "A random Robot" ) {
-		globalRandomizer->randomizeWorld();
+		globalRandomizer->randWorld();
 		World* w =globalRandomizer->getWorld();
 
 		for(int i = 0 ; i < ITERATION_NUMBER ; i++)
 		{
-			Robot* robot = globalRandomizer->generateRobot();
+			Robot* robot = globalRandomizer->randRobot();
 			REQUIRE ( robot != NULL );
 
 			if(w->wallsType == World::WALLS_SQUARE)
@@ -187,12 +187,12 @@ TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 	}
 
 	SECTION( "A random physical object" ) {
-		globalRandomizer->randomizeWorld();
+		globalRandomizer->randWorld();
 		World* w =globalRandomizer->getWorld();
 
 		for(int i = 0 ; i < ITERATION_NUMBER ; i++)
 		{
-			PhysicalObject* obj = globalRandomizer->generatePhysicalObject(i);
+			PhysicalObject* obj = globalRandomizer->randPhysicalObject(i);
 			REQUIRE ( obj != NULL );
 
 			if(w->wallsType == World::WALLS_SQUARE)
