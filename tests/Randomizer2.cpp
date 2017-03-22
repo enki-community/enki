@@ -2,17 +2,25 @@
 
 using namespace Enki;
 
-Randomizer::Randomizer(World* world)
+Randomizer::Randomizer(World* world, long long int seed)
 {
-	this->seed = std::chrono::system_clock::now().time_since_epoch().count();
+
+	this->seed = seed == -1  ? std::chrono::system_clock::now().time_since_epoch().count() : seed;
 	this->randomEngine.seed(this->seed);
 	this->world = world;
 	std::cerr << "seed: " << this->seed << std::endl;
 }
 
-Randomizer::Randomizer()
+Randomizer::Randomizer(long long int seed)
 {
-	this->seed = std::chrono::system_clock::now().time_since_epoch().count();
+	/*
+	Since c++11 you can call something like "super" constructor.
+	Something like : Randomizer(randomizeWorld(), seed); would
+	be more convinient but this doesn't work as the seed needs to be set
+	before any call of randomizeWorld();
+	That's why there is a code duplication
+	*/
+	this->seed = seed == -1 ? std::chrono::system_clock::now().time_since_epoch().count() : seed;
 	this->randomEngine.seed(this->seed);
 	this->world = randomizeWorld();
 	std::cerr << "seed: " << this->seed << std::endl;
@@ -48,22 +56,22 @@ void Randomizer::resetWorld()
 
 World* Randomizer::randomizeWorld()
 {
-	int wallsType = generateInt(0, 1);
-	if(wallsType == World::WALLS_SQUARE)
+	int wallsType = randInt(0, 2);
+	if(wallsType == World::WALLS_SQUARE || wallsType == World::WALLS_NONE)
 	{
-		int width = generateInt(MIN_WIDTH, MAX_WIDTH);
-		int height = generateInt(MIN_HEIGHT, MAX_HEIGHT);
+		int width = randInt(MIN_WIDTH, MAX_WIDTH);
+		int height = randInt(MIN_HEIGHT, MAX_HEIGHT);
 		return new World(width, height);
 	}
-	else
+	else if(wallsType == World::WALLS_CIRCULAR)
 	{
-		int radius = generateInt(MIN_RADIUS, MAX_RADIUS);
+		int radius = randInt(MIN_RADIUS, MAX_RADIUS);
 		return new World(radius);
 	}
 }
 PhysicalObject* Randomizer::generateObject()
 {
-	int which = generateInt(0, 1);
+	int which = randBool();
 	if(which)
 	{
 		return generateRobot();
@@ -80,11 +88,11 @@ PhysicalObject* Randomizer::generatePhysicalObject(const int &hullSize)
 	object->pos = generatePoint();
 	object->setColor(generateColor());
 
-	int cylindric = generateInt(0, 1);
+	int cylindric = randBool();
 
 	if(cylindric)
 	{
-		object->setCylindric(generateFloat(1.0, 5.0), generateFloat(1.0, 5.0), generateFloat(1.0, 5.0));
+		object->setCylindric(randFloat(1.0, 5.0), randFloat(1.0, 5.0), randFloat(1.0, 5.0));
 	}
 	else
 	{
@@ -97,7 +105,7 @@ PhysicalObject* Randomizer::generatePhysicalObject(const int &hullSize)
 Robot* Randomizer::generateRobot()
 {
 	Robot* r;
-	unsigned type = generateInt(0, NUMBER_OF_ROBOTS_TYPES - 1);
+	unsigned type = randInt(0, NUMBER_OF_ROBOTS_TYPES - 1);
 	switch (type)
 	{
 		case THYMIO2_:
@@ -127,34 +135,34 @@ Thymio2* Randomizer::generateThymio()
 	thymio->setLedColor(Thymio2::BOTTOM_LEFT, generateColor());
 	thymio->setLedColor(Thymio2::BOTTOM_RIGHT, generateColor());
 
-	thymio->setLedIntensity(Thymio2::BUTTON_UP, generateFloat(0.0, 1.0));
-	thymio->setLedIntensity(Thymio2::BUTTON_DOWN, generateFloat(0.0, 1.0));
-	thymio->setLedIntensity(Thymio2::BUTTON_LEFT, generateFloat(0.0, 1.0));
-	thymio->setLedIntensity(Thymio2::BUTTON_RIGHT, generateFloat(0.0, 1.0));
+	thymio->setLedIntensity(Thymio2::BUTTON_UP, randColor());
+	thymio->setLedIntensity(Thymio2::BUTTON_DOWN, randColor());
+	thymio->setLedIntensity(Thymio2::BUTTON_LEFT, randColor());
+	thymio->setLedIntensity(Thymio2::BUTTON_RIGHT, randColor());
 
-	thymio->setLedIntensity(Thymio2::RING_0, generateFloat(0.0, 1.0));
-	thymio->setLedIntensity(Thymio2::RING_1, generateFloat(0.0, 1.0));
-	thymio->setLedIntensity(Thymio2::RING_2, generateFloat(0.0, 1.0));
-	thymio->setLedIntensity(Thymio2::RING_3, generateFloat(0.0, 1.0));
-	thymio->setLedIntensity(Thymio2::RING_4, generateFloat(0.0, 1.0));
-	thymio->setLedIntensity(Thymio2::RING_5, generateFloat(0.0, 1.0));
-	thymio->setLedIntensity(Thymio2::RING_6, generateFloat(0.0, 1.0));
-	thymio->setLedIntensity(Thymio2::RING_7, generateFloat(0.0, 1.0));
+	thymio->setLedIntensity(Thymio2::RING_0, randColor());
+	thymio->setLedIntensity(Thymio2::RING_1, randColor());
+	thymio->setLedIntensity(Thymio2::RING_2, randColor());
+	thymio->setLedIntensity(Thymio2::RING_3, randColor());
+	thymio->setLedIntensity(Thymio2::RING_4, randColor());
+	thymio->setLedIntensity(Thymio2::RING_5, randColor());
+	thymio->setLedIntensity(Thymio2::RING_6, randColor());
+	thymio->setLedIntensity(Thymio2::RING_7, randColor());
 
-	thymio->setLedIntensity(Thymio2::IR_FRONT_0, generateFloat(0.0, 1.0));
-	thymio->setLedIntensity(Thymio2::IR_FRONT_1, generateFloat(0.0, 1.0));
-	thymio->setLedIntensity(Thymio2::IR_FRONT_2, generateFloat(0.0, 1.0));
-	thymio->setLedIntensity(Thymio2::IR_FRONT_3, generateFloat(0.0, 1.0));
-	thymio->setLedIntensity(Thymio2::IR_FRONT_4, generateFloat(0.0, 1.0));
-	thymio->setLedIntensity(Thymio2::IR_FRONT_5, generateFloat(0.0, 1.0));
+	thymio->setLedIntensity(Thymio2::IR_FRONT_0, randColor());
+	thymio->setLedIntensity(Thymio2::IR_FRONT_1, randColor());
+	thymio->setLedIntensity(Thymio2::IR_FRONT_2, randColor());
+	thymio->setLedIntensity(Thymio2::IR_FRONT_3, randColor());
+	thymio->setLedIntensity(Thymio2::IR_FRONT_4, randColor());
+	thymio->setLedIntensity(Thymio2::IR_FRONT_5, randColor());
 
-	thymio->setLedIntensity(Thymio2::IR_BACK_0, generateFloat(0.0, 1.0));
-	thymio->setLedIntensity(Thymio2::IR_BACK_1, generateFloat(0.0, 1.0));
+	thymio->setLedIntensity(Thymio2::IR_BACK_0, randColor());
+	thymio->setLedIntensity(Thymio2::IR_BACK_1, randColor());
 
-	thymio->setLedIntensity(Thymio2::LEFT_RED, generateFloat(0.0, 1.0));
-	thymio->setLedIntensity(Thymio2::LEFT_BLUE, generateFloat(0.0, 1.0));
-	thymio->setLedIntensity(Thymio2::RIGHT_BLUE, generateFloat(0.0, 1.0));
-	thymio->setLedIntensity(Thymio2::RIGHT_RED, generateFloat(0.0, 1.0));
+	thymio->setLedIntensity(Thymio2::LEFT_RED, randColor());
+	thymio->setLedIntensity(Thymio2::LEFT_BLUE, randColor());
+	thymio->setLedIntensity(Thymio2::RIGHT_BLUE, randColor());
+	thymio->setLedIntensity(Thymio2::RIGHT_RED, randColor());
 
 	thymio->pos = generatePoint();
 	return thymio;
@@ -194,10 +202,10 @@ PhysicalObject::Hull Randomizer::generateHull(const int &hullSize)
 {
 	PhysicalObject::Hull hull;
 
-	int size = hullSize <= 0 ? generateInt(1, 30) : hullSize;
+	int size = hullSize <= 0 ? randInt(1, 30) : hullSize;
 	for(int i = 0 ; i < size ; i++)
 	{
-		int complex = generateInt(0, 1);
+		int complex = randBool();
 		if(complex)
 			hull.push_back(generateComplexPart());
 		else
@@ -208,13 +216,13 @@ PhysicalObject::Hull Randomizer::generateHull(const int &hullSize)
 
 PhysicalObject::Part Randomizer::generateComplexPart()
 {
-	Polygone p = generateConvexPolygone(generateInt(3, 30));
-	return PhysicalObject::Part(p, generateFloat(1.0, 5.0));
+	Polygone p = generateConvexPolygone(randInt(3, 30));
+	return PhysicalObject::Part(p, randFloat(1.0, 5.0));
 }
 
 PhysicalObject::Part Randomizer::generateRectanglePart()
 {
-	float size1 = generateFloat(1, 30), size2 = generateFloat(1, 30), height = generateFloat(1, 30);
+	float size1 = randFloat(1.0, 30.0), size2 = randFloat(1.0, 30.0), height = randFloat(1.0, 30.0);
 	return PhysicalObject::Part(size1, size2, height);
 }
 
@@ -222,7 +230,7 @@ Polygone Randomizer::generateConvexPolygone(const int &polygoneSize)
 {
 	int size = polygoneSize < 3 ? 3 : polygoneSize;
 
-	int radius = generateInt(1, 50);
+	int radius = randInt(1, 50);
 	int center_x = 0;
 	int center_y = 0;
 
@@ -230,13 +238,13 @@ Polygone Randomizer::generateConvexPolygone(const int &polygoneSize)
 	std::vector<float> points;
 	for(int i = 0 ; i < size ; i++)
 	{
-		points.push_back(generateFloat(0, 2*M_PI));
+		points.push_back(randFloat(0.0, 2*M_PI));
 	}
 
 	std::sort(points.begin(), points.end());
 
 	Polygone p;
-	
+
 	for(int i = 0 ; i < points.size() ; i++)
 	{
 		float posx = center_x + radius * cos(points.at(i));
@@ -254,16 +262,16 @@ Point Randomizer::generatePoint()
 	float posx, posy;
 	if(this->world->wallsType == World::WALLS_SQUARE)
 	{
-		posx = generateFloat(0, this->world->w);
-		posy = generateFloat(0, this->world->h);
+		posx = randFloat(0, this->world->w);
+		posy = randFloat(0, this->world->h);
 	}
 	else if(this->world->wallsType == World::WALLS_CIRCULAR)
 	{
 		bool in = 0;
 		while(!in)
 		{
-			posx = generateFloat(0, this->world->r);
-			posy = generateFloat(0, this->world->r);
+			posx = randFloat(0, this->world->r);
+			posy = randFloat(0, this->world->r);
 			in = (posx * posx) + (posy * posy) <= this->world->r * this->world->r ? true : false;
 		}
 	}
@@ -272,18 +280,28 @@ Point Randomizer::generatePoint()
 
 Color Randomizer::generateColor()
 {
-	float r = generateFloat(0.0, 1.0);
-	float g = generateFloat(0.0, 1.0);
-	float b = generateFloat(0.0, 1.0);
+	float r = randColor();
+	float g = randColor();
+	float b = randColor();
 	return Color(r, g, b);
 }
 
-float Randomizer::generateFloat(const float& min, const float &max)
+float Randomizer::randFloat(const float& min, const float &max)
 {
 	return std::uniform_real_distribution<>(min, max)(this->randomEngine);
 }
 
-int Randomizer::generateInt(const int &min, const int &max)
+int Randomizer::randInt(const int &min, const int &max)
 {
 	return std::uniform_int_distribution<>(min, max)(this->randomEngine);
+}
+
+float Randomizer::randColor()
+{
+	return this->color_distr(this->randomEngine);
+}
+
+int Randomizer::randBool()
+{
+	return this->bool_distr(this->randomEngine);
 }

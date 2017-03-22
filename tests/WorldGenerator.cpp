@@ -36,7 +36,7 @@ namespace Enki
 	bool WorldGenerator::add(const int &type, const int &number)
 	{
 		int cpt(0);
-		int num = number ? number : this->randomizer->generateInt(1, 30);
+		int num = number ? number : this->randomizer->randInt(1, 30);
 		while(cpt < num)
 		{
 			PhysicalObject* o;

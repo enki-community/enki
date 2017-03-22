@@ -45,7 +45,13 @@ namespace Enki
 		// We use Mersenne Twister 19937 engine because
 		// it's the most popular engine for
 		// PRNG (Pseudo random number generation)
+		// Mersenne Twister engine procude better output
+		// than the default engine but it is way slower
+		// /!\ This is not thread safe.
 		std::mt19937 randomEngine;
+
+		std::uniform_real_distribution<> color_distr = std::uniform_real_distribution<>(0, 1);
+		std::uniform_int_distribution<> bool_distr = std::uniform_int_distribution<>(0, 1);
 
 	public:
 		/*!
@@ -54,7 +60,7 @@ namespace Enki
 		   Objects.
 		   \param w a pre-constructed world in which it will generate objects.
 		*/
-		Randomizer(World* w);
+		Randomizer(World* w, long long int seed=-1);
 
 		/*!
 		   \brief Constructor of a Randomizer.
@@ -63,7 +69,7 @@ namespace Enki
 		   This constructor will generate a random world because no
 		   base world is specified.
 		*/
-		Randomizer();
+		Randomizer(long long int seed = -1);
 
 		~Randomizer();
 
@@ -179,15 +185,27 @@ namespace Enki
 		   \param max the max possible value.
 		   \return the generated float.
 		*/
-		float generateFloat(const float& min, const float &max);
+		float randFloat(const float& min, const float &max);
 
 		/*!
-		   \brief Generate a random min within a specified range.
+		   \brief Generate a random int within a specified range.
 		   \param min the min possible value.
 		   \param max the max possible value.
-		   \return the generated min.
+		   \return the generated int.
 		*/
-		int generateInt(const int &min, const int &max);
+		int randInt(const int &min, const int &max);
+
+		/*!
+			\brief Generate a random float between 0 and 1
+			\return the generated float.
+		*/
+		float randColor();
+
+		/*!
+			\brief Generate a random int between 0 and 1
+			\return the generated int.
+		*/
+		int randBool();
 	};
 }
 #endif
@@ -263,6 +281,7 @@ namespace Enki
 		PhysicalObject::Part generateComplexPart();
 		Polygone generateConvexPolygone(int polygonSize = -1);
 
+		float colorFloat();
 		float generateFloat(const float& min, const float &max);
 		int generateInt(const int &min, const int &max);
 	};

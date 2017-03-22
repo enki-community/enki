@@ -44,13 +44,13 @@ TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 		int trueRandom = 1;
 		for (int i = 0; i < ITERATION_NUMBER; i++)
 		{
-			int number = globalRandomizer->generateInt(0, i);
+			int number = globalRandomizer->randInt(0, i);
 			REQUIRE( (number >= 0 && number <= i) );
 			if (number == previousInt)
 				trueRandom++;
 			previousInt = number;
 		}
-		REQUIRE(trueRandom != ITERATION_NUMBER);
+		REQUIRE(trueRandom != ITERATION_NUMBER - 1);
 
 	}
 
@@ -59,7 +59,7 @@ TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 		int dice[6] = {0, 0, 0, 0, 0, 0};
 		for (int i = 0; i < 10000; i++)
 		{
-			int number = globalRandomizer->generateInt(1, 6);
+			int number = globalRandomizer->randInt(1, 6);
 			dice[number-1] += 1;
 		}
 		for (int i = 0 ; i < 6 ; i++)
@@ -74,7 +74,7 @@ TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 	SECTION( "Random float generation") {
 		for (int i = 0 ; i < ITERATION_NUMBER ; i++)
 		{
-			float number = globalRandomizer->generateFloat(0, 1);
+			float number = globalRandomizer->randFloat(0, 1);
 			REQUIRE ( (number >= 0 && number <= 1) );
 		}
 	}
