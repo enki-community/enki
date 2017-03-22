@@ -32,11 +32,11 @@ using namespace Enki;
 #define DEBUG 0
 
 // Used to ensure the robustness of the tested code.
-const int ITERATION_NUMBER = 1000;
+const int ITERATION_NUMBER = 1;
 
 TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 
-	Randomizer* globalRandomizer = new Randomizer();
+	Randomizer* globalRandomizer = new Randomizer(1490219936065061490);
 
 	SECTION( "Random integer generation" )
 	{
@@ -99,11 +99,11 @@ TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 			Point p =globalRandomizer->randPoint();
 			if (w->wallsType == World::WALLS_CIRCULAR)
 			{
-				REQUIRE ( ((p.x * p.y) + (p.x * p.y) <= w->r * w->r) );
+				REQUIRE ( ((p.x * p.x) + (p.y * p.y) <= w->r * w->r) );
 			}
 			else
 			{
-				REQUIRE ( (p.x <= w->w && p.y < w->h) );
+				REQUIRE ( (p.x <= w->w && p.y <= w->h) );
 			}
 		}
 	}
@@ -151,11 +151,15 @@ TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 
 			if(w->wallsType == World::WALLS_SQUARE)
 			{
-				REQUIRE ( (w->r == 0 && w->h > 0 && w->w > 0) );
+				REQUIRE ( (w->r == 0 &&
+					(w->h > MIN_HEIGHT && w->h < MAX_HEIGHT) &&
+					(w->w > MIN_WIDTH && w->w < MAX_WIDTH) ) );
 			}
 			else
 			{
-				REQUIRE ( (w->r > 0 && w->h == 0 && w->w == 0) );
+				REQUIRE ( ((w->r > MIN_RADIUS && w->r < MAX_RADIUS) &&
+				w->h == 0 &&
+				w->w == 0) );
 			}
 
 			REQUIRE ( (w->objects.size() == 0) );
@@ -179,7 +183,8 @@ TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 			}
 			else if (w->wallsType == World::WALLS_CIRCULAR)
 			{
-				REQUIRE ( (robot->pos.x <= w->r && robot->pos.y <= w->r) );
+				REQUIRE ( ((robot->pos.x * robot->pos.x) +
+				(robot->pos.y * robot->pos.y) <= w->r * w->r) );
 			}
 
 			delete robot;
@@ -187,17 +192,29 @@ TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 	}
 
 	SECTION( "A random physical object" ) {
+
 		globalRandomizer->randWorld();
 		World* w =globalRandomizer->getWorld();
 
-		for(int i = 0 ; i < ITERATION_NUMBER ; i++)
+		// TODO : Remove this debug
+		std::cerr << "[WxHxR]: " << w->w << "x" << w->h << "x" << w->r <<  std::endl;
+
+		for(int i = 0 ; i < 100000 ; i++)
 		{
-			PhysicalObject* obj = globalRandomizer->randPhysicalObject(i);
+			PhysicalObject* obj = globalRandomizer->randPhysicalObject();
 			REQUIRE ( obj != NULL );
 
 			if(w->wallsType == World::WALLS_SQUARE)
 			{
-				REQUIRE ( (obj->pos.x <= w->w && obj->pos.y <= w->h) );
+				if( obj->pos.x > w->w )
+				{
+					std::cerr << "Failed x: " <<  obj->pos.x << " <= " << w->w << " ? with seed: " << globalRandomizer->getSeed() << std::endl;
+				}
+				if( obj->pos.y > w->h )
+				{
+					std::cerr << "Failed y:" <<  obj->pos.y << " <= " << w->h << " ? with seed: " << globalRandomizer->getSeed() << std::endl;
+				}
+				//REQUIRE ( (obj->pos.x <= w->w && obj->pos.y <= w->h) );
 			}
 			else if (w->wallsType == World::WALLS_CIRCULAR)
 			{

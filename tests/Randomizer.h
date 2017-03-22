@@ -1,3 +1,21 @@
+/*
+   Enki - a fast 2D robot simulator
+   Copyright © 2017 Nicolas Palard <nicolas.palard@etu.u-bordeaux.fr>
+
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 2 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #ifndef __RANDOMIZER_H
 #define __RANDOMIZER_H
 
@@ -13,7 +31,7 @@
 
 /*!
 	\file Randomizer.h
-	\brief This file provides a way for random world generation and
+	\brief This file provides methods for random world generation and
 	random object generation.
 */
 
@@ -42,12 +60,16 @@ namespace Enki
 	private:
 		World* world;
 		long long int seed;
-		// We use Mersenne Twister 19937 engine because
-		// it's the most popular engine for
-		// PRNG (Pseudo random number generation)
-		// Mersenne Twister engine procude better output
-		// than the default engine but it is way slower
-		// /!\ This is not thread safe.
+
+		/* We use Mersenne Twister 19937 engine because
+		it's the most popular engine for
+		PRNG (Pseudo random number generation)
+		Mersenne Twister engine procude better output
+		than the default engine but it is way slower
+		Also the default_randome_engine behavior isn't fixed a it directly depends on the implementation of the libc++ which can change depending on the OS.
+
+		/!\ Careful: This is not thread safe.
+		*/
 		std::mt19937 randomEngine;
 
 		std::uniform_real_distribution<> color_distr = std::uniform_real_distribution<>(0.0, 1.0);
