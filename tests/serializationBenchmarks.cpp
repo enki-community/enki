@@ -19,7 +19,7 @@
 
 #include <enki/Serialize.h>
 #include <enki/robots/thymio2/Thymio2.h>
-#include "Randomizer.h"
+#include "WorldGenerator.h"
 #include <chrono>
 
 /*
@@ -224,15 +224,16 @@ double colorDeserialization(void* c)
 
 int main()
 {
-	World* w = randomWorld(); addRobots(w);
+	WorldGenerator gen; gen.add(Randomizer::THYMIO2_, 10);
+	World* w = gen.getWorld();
 	stats sWorld = serializeIt(globalSerialization, (void*)w, ITERATION_NUMBER);
 	dumpStats(sWorld, "global serialization");
 
-	Thymio2* t = new Thymio2();
+	Thymio2* t = gen.getRandomizer()->randThymio();
 	stats sThymio = serializeIt(thymioSerialization, (void*)t, ITERATION_NUMBER);
 	dumpStats(sThymio, "thymio serialization");
 
-	Color c = randomColor();
+	Color c = gen.getRandomizer()->randColor();
 	stats sColor = serializeIt(colorSerialization, (void*)&c, ITERATION_NUMBER);
 	dumpStats(sColor, "color serialization");
 

@@ -29,18 +29,18 @@ add_test(enki_test_Marxbot enkiTestWorld "Marxbot")
 add_test(enki_test_Khepera enkiTestWorld "Khepera")
 add_test(enki_test_Sbot enkiTestWorld "S-Bot")
 
-add_executable(randomWorld randomWorld.cpp WorldGenerator.cpp Randomizer2.cpp)
+add_executable(randomWorld randomWorld.cpp WorldGenerator.cpp Randomizer.cpp)
 target_link_libraries(randomWorld catch enki)
 
 add_test(random_world randomWorld)
 
-add_executable(serialization serialization.cpp Randomizer.cpp)
+add_executable(serialization serialization.cpp WorldGenerator.cpp Randomizer.cpp)
 target_link_libraries(serialization catch enki)
 
 add_test(serialize serialization "Serialization")
 add_test(deserialize serialization "Deserialization")
 
-add_executable(serializationBenchmarks serializationBenchmarks.cpp Randomizer.cpp)
+add_executable(serializationBenchmarks serializationBenchmarks.cpp Randomizer.cpp WorldGenerator.cpp)
 target_link_libraries(serializationBenchmarks enki)
 
 add_executable(network network.cpp)
@@ -48,5 +48,5 @@ target_link_libraries(network enki ${dashel_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT}
 
 add_test(network_basic network "A basic connection")
 
-add_executable(testRandom testRandom.cpp Randomizer2.cpp WorldGenerator.cpp)
+add_executable(testRandom testRandom.cpp Randomizer.cpp WorldGenerator.cpp)
 target_link_libraries(testRandom enki)

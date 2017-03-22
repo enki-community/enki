@@ -2,243 +2,312 @@
    Enki - a fast 2D robot simulator
    Copyright © 2017 Nicolas Palard <nicolas.palard@etu.u-bordeaux.fr>
    Copyright © 2017 Mathieu Lirzin <mathieu.lirzin@etu.u-bordeaux.fr>
-
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 2 of the License, or
-   (at your option) any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
+ 
 #include "Randomizer.h"
-#include <random>
-#include <chrono>
 
-/*!	\file Randomizer.cpp
-	\brief Module 'random' which can be used for generating objects and worlds.
-*/
+using namespace Enki;
 
-namespace Enki
+Randomizer::Randomizer(World* world, long long int seed)
 {
-	// Generate a seed and log it to OS.  The Logging is made to be able to
-	// reproduce the tests using this module.
-	static int genSeed(std::ostream& os = std::cerr)
+
+	this->seed = seed == -1  ? std::chrono::system_clock::now().time_since_epoch().count() : seed;
+	this->randomEngine.seed(this->seed);
+	this->world = world;
+	std::cerr << "seed: " << this->seed << std::endl;
+}
+
+Randomizer::Randomizer(long long int seed)
+{
+	/*
+	Since c++11 you can call something like "super" constructor.
+	Something like : Randomizer(randomizeWorld(), seed); would
+	be more convinient but this doesn't work as the seed needs to be set
+	before any call of randomizeWorld();
+	That's why there is a code duplication
+	*/
+	this->seed = seed == -1 ? std::chrono::system_clock::now().time_since_epoch().count() : seed;
+	this->randomEngine.seed(this->seed);
+	this->world = randWorld();
+	std::cerr << "seed: " << this->seed << std::endl;
+}
+
+Randomizer::~Randomizer()
+{
+	delete this->world;
+}
+
+long long int Randomizer::getSeed()
+{
+	return this->seed;
+}
+
+void Randomizer::setSeed(const long long int &seed)
+{
+	this->seed = seed;
+	this->randomEngine.seed(this->seed);
+	std::cerr << "set seed: " << this->seed << std::endl;
+}
+
+World* Randomizer::getWorld()
+{
+	return this->world;
+}
+
+void Randomizer::resetWorld()
+{
+	delete this->world;
+	this->world = new World();
+}
+
+World* Randomizer::randWorld()
+{
+	int wallsType = randInt(0, 2);
+	if(wallsType == World::WALLS_SQUARE || wallsType == World::WALLS_NONE)
 	{
-		auto timepoint = std::chrono::system_clock::now();
-		int seed = timepoint.time_since_epoch().count();
-		os << "seed: " << seed << std::endl;
-		return seed;
+		int width = randInt(MIN_WIDTH, MAX_WIDTH);
+		int height = randInt(MIN_HEIGHT, MAX_HEIGHT);
+		return new World(width, height);
+	}
+	else if(wallsType == World::WALLS_CIRCULAR)
+	{
+		int radius = randInt(MIN_RADIUS, MAX_RADIUS);
+		return new World(radius);
+	}
+}
+PhysicalObject* Randomizer::randObject()
+{
+	int which = randBool();
+	if(which)
+	{
+		return randRobot();
+	}
+	else
+	{
+		return randPhysicalObject();
+	}
+}
+
+PhysicalObject* Randomizer::randPhysicalObject(const int &hullSize)
+{
+	PhysicalObject* object = new PhysicalObject();
+	object->pos = randPoint();
+	object->setColor(randColor());
+
+	int cylindric = randBool();
+
+	if(cylindric)
+	{
+		object->setCylindric(randFloat(1.0, 5.0), randFloat(1.0, 5.0), randFloat(1.0, 5.0));
+	}
+	else
+	{
+		object->setCustomHull(randHull(hullSize), hullSize);
 	}
 
-	int randomNumber(int min, int max)
-	{
-		// XXX: UniformRand from Random.h doesn't seem to really produce uniform
-		// random values.  Use a random generator from the STL instead.
+	return object;
+}
 
-		// Since mt19937 engine takes a lot of space and time to generate avoid
-		// building it every time by making it static.
-		static std::mt19937 engine(genSeed());
-		std::uniform_int_distribution<> distr(min, max);
-		return distr(engine);
+Robot* Randomizer::randRobot()
+{
+	Robot* r;
+	unsigned type = randInt(0, NUMBER_OF_ROBOTS_TYPES - 1);
+	switch (type)
+	{
+		case THYMIO2_:
+			r = randThymio();
+			break;
+		case EPUCK_:
+			r = randEPuck();
+			break;
+		case SBOT_:
+			r = randSbot();
+			break;
+		case MARXBOT_:
+			r = randMarxbot();
+			break;
+		case KHEPERA_:
+			r = randKhepera();
+			break;
 	}
+	return r;
+}
 
-	Color randomColor()
+Thymio2* Randomizer::randThymio()
+{
+	Thymio2* thymio = new Thymio2();
+
+	thymio->setLedColor(Thymio2::TOP, randColorFloat());
+	thymio->setLedColor(Thymio2::BOTTOM_LEFT, randColorFloat());
+	thymio->setLedColor(Thymio2::BOTTOM_RIGHT, randColorFloat());
+
+	thymio->setLedIntensity(Thymio2::BUTTON_UP, randColorFloat());
+	thymio->setLedIntensity(Thymio2::BUTTON_DOWN, randColorFloat());
+	thymio->setLedIntensity(Thymio2::BUTTON_LEFT, randColorFloat());
+	thymio->setLedIntensity(Thymio2::BUTTON_RIGHT, randColorFloat());
+
+	thymio->setLedIntensity(Thymio2::RING_0, randColorFloat());
+	thymio->setLedIntensity(Thymio2::RING_1, randColorFloat());
+	thymio->setLedIntensity(Thymio2::RING_2, randColorFloat());
+	thymio->setLedIntensity(Thymio2::RING_3, randColorFloat());
+	thymio->setLedIntensity(Thymio2::RING_4, randColorFloat());
+	thymio->setLedIntensity(Thymio2::RING_5, randColorFloat());
+	thymio->setLedIntensity(Thymio2::RING_6, randColorFloat());
+	thymio->setLedIntensity(Thymio2::RING_7, randColorFloat());
+
+	thymio->setLedIntensity(Thymio2::IR_FRONT_0, randColorFloat());
+	thymio->setLedIntensity(Thymio2::IR_FRONT_1, randColorFloat());
+	thymio->setLedIntensity(Thymio2::IR_FRONT_2, randColorFloat());
+	thymio->setLedIntensity(Thymio2::IR_FRONT_3, randColorFloat());
+	thymio->setLedIntensity(Thymio2::IR_FRONT_4, randColorFloat());
+	thymio->setLedIntensity(Thymio2::IR_FRONT_5, randColorFloat());
+
+	thymio->setLedIntensity(Thymio2::IR_BACK_0, randColorFloat());
+	thymio->setLedIntensity(Thymio2::IR_BACK_1, randColorFloat());
+
+	thymio->setLedIntensity(Thymio2::LEFT_RED, randColorFloat());
+	thymio->setLedIntensity(Thymio2::LEFT_BLUE, randColorFloat());
+	thymio->setLedIntensity(Thymio2::RIGHT_BLUE, randColorFloat());
+	thymio->setLedIntensity(Thymio2::RIGHT_RED, randColorFloat());
+
+	thymio->pos = randPoint();
+	return thymio;
+}
+
+EPuck* Randomizer::randEPuck()
+{
+	EPuck* epuck = new EPuck();
+	epuck->pos = randPoint();
+	return epuck;
+}
+
+Khepera* Randomizer::randKhepera()
+{
+	Khepera* khepera = new Khepera();
+	khepera->pos = randPoint();
+	return khepera;
+}
+
+Sbot* Randomizer::randSbot()
+{
+	Sbot* sbot = new Sbot();
+	sbot->pos = randPoint();
+	sbot->setColor(randColor());
+	return sbot;
+}
+
+Marxbot* Randomizer::randMarxbot()
+{
+	Marxbot* marxbot = new Marxbot();
+	marxbot->pos = randPoint();
+	marxbot->setColor(randColor());
+	return marxbot;
+}
+
+PhysicalObject::Hull Randomizer::randHull(const int &hullSize)
+{
+	PhysicalObject::Hull hull;
+
+	int size = hullSize <= 0 ? randInt(1, 30) : hullSize;
+	for(int i = 0 ; i < size ; i++)
 	{
-		// Generate a random color
-		int r = randomNumber(0,255);
-		int g = randomNumber(0,255);
-		int b = randomNumber(0,255);
-		return Color((float)r/255.0, (float)g/255.0, (float)b/255.0);
-	}
-
-	PhysicalObject* randomObject(World* world)
-	{
-		// Generate a "random" PhysicalObject
-		const double amount = 9;
-		const double radius = randomNumber(3,9);
-		const double height = randomNumber(10, 20);
-
-		Polygone p;
-		for (double a = 0; a < 2*M_PI; a += 2*M_PI/amount)
-			p.push_back(Point(radius * cos(a), radius * sin(a)));
-
-		PhysicalObject* o = new PhysicalObject();
-		PhysicalObject::Hull hull(PhysicalObject::Part(p, height));
-		o->setCustomHull(hull, -1);
-		Color color = randomColor();
-		o->setColor(color);
-		int posx = randomNumber(0, world->w);
-		int posy = randomNumber(0, world->h);
-		o->pos = Point(posx, posy);
-		return o;
-	}
-
-	Robot* randomRobot(World* world)
-	{
-		int type = (ONLY_THYMIOS)
-			? THYMIO2_
-			: randomNumber(1, NUMBER_OF_ROBOTS_TYPES);
-
-		Robot* r;
-		switch (type)
-		{
-			case THYMIO2_:
-				r = randomThymio(world);
-				break;
-			case EPUCK_:
-				r = randomEPuck(world);
-				break;
-			case SBOT_:
-				r = randomSbot(world);
-				break;
-			case MARXBOT_:
-				r = randomMarxbot(world);
-				break;
-			case KHEPERA_:
-				r = randomKhepera(world);
-				break;
-		}
-		return r;
-	}
-
-	Thymio2* randomThymio(World* world)
-	{
-		// Generate a random Thymio2
-		Thymio2 *thymio = new Thymio2;
-		int posx, posy;
-		if (world->wallsType == Enki::World::WALLS_CIRCULAR)
-		{
-			int radius = world->r;
-			// XXX: This assumes that the world isn't centered in 0,0
-			int center = radius/2;
-			posx = randomNumber(0, radius);
-			posy = randomNumber(0, radius);
-			while ((posx - center) * (posx - center) +
-				   (posy - center) * (posy - center) > (radius * radius))
-			{
-				posx = randomNumber(0, radius);
-				posy = randomNumber(0, radius);
-			}
-		}
-		else if (world->wallsType == Enki::World::WALLS_SQUARE)
-		{
-			posx = randomNumber(0, world->w);
-			posy = randomNumber(0, world->h);
-		}
-		thymio->pos = Point(posx, posy);
-
-		thymio->setLedColor(Thymio2::TOP, randomColor());
-		thymio->setLedColor(Thymio2::BOTTOM_LEFT, randomColor());
-		thymio->setLedColor(Thymio2::BOTTOM_RIGHT, randomColor());
-
-		// Copy paste from Playground.cpp
-		thymio->setLedIntensity(Thymio2::BUTTON_UP,1.0);
-		thymio->setLedIntensity(Thymio2::BUTTON_DOWN,1.0);
-		thymio->setLedIntensity(Thymio2::BUTTON_LEFT,1.0);
-		thymio->setLedIntensity(Thymio2::BUTTON_RIGHT,1.0);
-
-		thymio->setLedIntensity(Thymio2::RING_0,1.0);
-		thymio->setLedIntensity(Thymio2::RING_1,1.0);
-		thymio->setLedIntensity(Thymio2::RING_2,1.0);
-		thymio->setLedIntensity(Thymio2::RING_3,1.0);
-		thymio->setLedIntensity(Thymio2::RING_4,1.0);
-		thymio->setLedIntensity(Thymio2::RING_5,1.0);
-		thymio->setLedIntensity(Thymio2::RING_6,1.0);
-		thymio->setLedIntensity(Thymio2::RING_7,1.0);
-
-		thymio->setLedIntensity(Thymio2::IR_FRONT_0,1.0);
-		thymio->setLedIntensity(Thymio2::IR_FRONT_1,1.0);
-		thymio->setLedIntensity(Thymio2::IR_FRONT_2,1.0);
-		thymio->setLedIntensity(Thymio2::IR_FRONT_3,1.0);
-		thymio->setLedIntensity(Thymio2::IR_FRONT_4,1.0);
-		thymio->setLedIntensity(Thymio2::IR_FRONT_5,1.0);
-
-		thymio->setLedIntensity(Thymio2::IR_BACK_0,1.0);
-		thymio->setLedIntensity(Thymio2::IR_BACK_1,1.0);
-
-		thymio->setLedIntensity(Thymio2::LEFT_RED,1.0);
-		thymio->setLedIntensity(Thymio2::LEFT_BLUE,1.0);
-		thymio->setLedIntensity(Thymio2::RIGHT_BLUE,1.0);
-		thymio->setLedIntensity(Thymio2::RIGHT_RED,1.0);
-
-		thymio->leftSpeed = randomNumber(1, 5);
-		thymio->rightSpeed = randomNumber(1, 5);
-
-		return thymio;
-	}
-
-	EPuck* randomEPuck(Enki::World* w)
-	{
-		std::cerr << "[EPUCK] Unimplemented method" << std::endl;
-		assert(false);
-		return NULL;
-	}
-
-	Sbot* randomSbot(Enki::World* w)
-	{
-		std::cerr << "[SBOT] Unimplemented method" << std::endl;
-		assert(false);
-		return NULL;
-	}
-
-	Marxbot* randomMarxbot(Enki::World* w)
-	{
-		std::cerr << "[MARXBOT] Unimplemented method" << std::endl;
-		assert(false);
-		return NULL;
-	}
-
-	Khepera* randomKhepera(Enki::World* w)
-	{
-		std::cerr << "[KHEPERA] Unimplemented method" << std::endl;
-		assert(false);
-		return NULL;
-	}
-
-	void addObjects(World* world)
-	{
-		int objectsNumber = randomNumber(1, MAX_DYNAMIC_OBJECTS);
-		for (int i = 0; i < objectsNumber; i++)
-		{
-			PhysicalObject* o = randomObject(world);
-			world->addObject(o);
-		}
-	}
-
-	void addRobots(World* world)
-	{
-		// Random number of thymios between 1 and MAX_ROBOTS
-		int robotNumber = randomNumber(1, MAX_ROBOTS);
-		for (int i = 0 ; i < robotNumber ; i++)
-		{
-			Robot* r = randomRobot(world);
-			world->addObject(r);
-		}
-	}
-
-	World* randomWorld()
-	{
-		World* world;
-		int circularWorld = randomNumber(0,1);
-		if (circularWorld)
-		{
-			int radius = randomNumber(MIN_RADIUS, MAX_RADIUS);
-			world = new World(radius);
-		}
+		int complex = randBool();
+		if(complex)
+			hull.push_back(randComplexPart());
 		else
-		{
-			int height = randomNumber(MIN_HEIGHT, MAX_HEIGHT);
-			int width = randomNumber(MIN_WIDTH, MAX_WIDTH);
-			world = new World(width, height);
-		}
-
-		return world;
+			hull.push_back(randRectanglePart());
 	}
+	return hull;
+}
+
+PhysicalObject::Part Randomizer::randComplexPart()
+{
+	Polygone p = randConvexPolygone(randInt(3, 30));
+	return PhysicalObject::Part(p, randFloat(1.0, 5.0));
+}
+
+PhysicalObject::Part Randomizer::randRectanglePart()
+{
+	float size1 = randFloat(1.0, 30.0), size2 = randFloat(1.0, 30.0), height = randFloat(1.0, 30.0);
+	return PhysicalObject::Part(size1, size2, height);
+}
+
+Polygone Randomizer::randConvexPolygone(const int &polygoneSize)
+{
+	int size = polygoneSize < 3 ? 3 : polygoneSize;
+
+	int radius = randInt(1, 50);
+	int center_x = 0;
+	int center_y = 0;
+
+	// This uses simple circle based trigonometry to compute a convex polygon.
+	std::vector<float> points;
+	for(int i = 0 ; i < size ; i++)
+	{
+		points.push_back(randFloat(0.0, 2*M_PI));
+	}
+
+	std::sort(points.begin(), points.end());
+
+	Polygone p;
+
+	for(int i = 0 ; i < points.size() ; i++)
+	{
+		float posx = center_x + radius * cos(points.at(i));
+		float posy = center_y + radius * sin(points.at(i));
+		p << Point(posx, posy);
+	}
+
+	points.clear();
+
+	return p;
+}
+
+Point Randomizer::randPoint()
+{
+	float posx, posy;
+	if(this->world->wallsType == World::WALLS_SQUARE)
+	{
+		posx = randFloat(0, this->world->w);
+		posy = randFloat(0, this->world->h);
+	}
+	else if(this->world->wallsType == World::WALLS_CIRCULAR)
+	{
+		bool in = 0;
+		while(!in)
+		{
+			posx = randFloat(0, this->world->r);
+			posy = randFloat(0, this->world->r);
+			in = (posx * posx) + (posy * posy) <= this->world->r * this->world->r ? true : false;
+		}
+	}
+	return Point(posx, posy);
+}
+
+Color Randomizer::randColor()
+{
+	float r = randColorFloat();
+	float g = randColorFloat();
+	float b = randColorFloat();
+	return Color(r, g, b);
+}
+
+float Randomizer::randFloat(const float& min, const float &max)
+{
+	return std::uniform_real_distribution<>(min, max)(this->randomEngine);
+}
+
+int Randomizer::randInt(const int &min, const int &max)
+{
+	return std::uniform_int_distribution<>(min, max)(this->randomEngine);
+}
+
+float Randomizer::randColorFloat()
+{
+	return this->color_distr(this->randomEngine);
+}
+
+int Randomizer::randBool()
+{
+	return this->bool_distr(this->randomEngine);
 }

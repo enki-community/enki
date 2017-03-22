@@ -22,9 +22,9 @@
 #include <enki/PhysicalEngine.h>
 #include <enki/robots/thymio2/Thymio2.h>
 #include <enki/Serialize.h>
-#include "Randomizer.h"
+#include "WorldGenerator.h"
 
-const double EPSILON = 0.0001;
+const double EPSILON = 0.001;
 const int ITERATION_NUMBER = 10;
 
 using namespace Enki;
@@ -56,7 +56,7 @@ static void printWorld(World* w)
 
 static bool equalsPoint(Point p1, Point p2)
 {
-	return (p1.x == p2.x && p1.y == p2.y);
+	return ( (fabs(p1.x - p2.x) <= EPSILON) && (fabs(p1.y - p2.y) <= EPSILON) );
 }
 
 static bool equalsColor(Color c1, Color c2)
@@ -75,6 +75,8 @@ static bool equalsThymio(Thymio2* t1, Thymio2* t2)
 	if (!equalsPoint(t1->pos, t2->pos))
 	{
 		cerr << "[T] Not same position" << endl;
+		cerr << "  [POS1]: " << t1->pos.x << "x" << t1->pos.y << endl;
+		cerr << "  [POS2]: " << t2->pos.x << "x" << t2->pos.y << endl;
 		return false;
 	}
 	for (int i = 0; i < Thymio2::LED_COUNT; i++)
@@ -149,10 +151,11 @@ static bool equalsWorld(World* w1, World* w2)
 }
 
 TEST_CASE( "Serialization", "[Serialization Reproducibility]" ) {
+	WorldGenerator gen;
 	SECTION( "[S] World" ) {
 		for (int i = 0; i < ITERATION_NUMBER; i++)
 		{
-			World* w = randomWorld();
+			World* w = gen.getWorld();
 
 			ostringstream outputStream;
 			serializeWorld(w, outputStream);
@@ -167,8 +170,8 @@ TEST_CASE( "Serialization", "[Serialization Reproducibility]" ) {
 	SECTION( "[S] Thymio2" ) {
 		for (int i = 0; i < ITERATION_NUMBER; i++)
 		{
-			World* w = randomWorld();
-			Thymio2* t = randomThymio(w);
+			// Creating a random Thymio
+			Thymio2* t = gen.getRandomizer()->randThymio();
 
 			ostringstream outputStream;
 			serializeThymio(t, outputStream);
@@ -183,7 +186,7 @@ TEST_CASE( "Serialization", "[Serialization Reproducibility]" ) {
 	SECTION( "[S] Color" ) {
 		for (int i = 0; i < ITERATION_NUMBER; i++)
 		{
-			Color c = randomColor();
+			Color c = gen.getRandomizer()->randColor();
 
 			ostringstream outputStream;
 			serializeColor(c, outputStream);
@@ -198,9 +201,20 @@ TEST_CASE( "Serialization", "[Serialization Reproducibility]" ) {
 	SECTION( "[S] World with one Thymio") {
 		for (int i = 0; i < ITERATION_NUMBER; i++)
 		{
-			World* w = randomWorld();
-			Thymio2* t = randomThymio(w);
-			w->addObject(t);
+			std::cout << "World with one Thymio" << std::endl;
+			// Since it's looping, we need to reset the world
+			gen.resetWorld();
+			// Adding 1 thymio2 to the current generated world
+			gen.add(Randomizer::THYMIO2_, 1);
+			World* w = gen.getWorld();
+
+			for(auto& obj : w->objects)
+			{
+				std::cerr << "OBJ: " << typeid(*obj).name() << std::endl;
+			}
+
+
+			REQUIRE( w->objects.size() == 1);
 
 			std::string outputString = serialize(w);
 			std::string outputString2 = serialize(w);
@@ -211,10 +225,11 @@ TEST_CASE( "Serialization", "[Serialization Reproducibility]" ) {
 }
 
 TEST_CASE( "Deserialization", "[Deserialization Reproducibility]") {
+	WorldGenerator gen;
 	SECTION( "[D] Empty World" ) {
 		for (int i = 0; i < ITERATION_NUMBER; i++)
 		{
-			World* w = randomWorld();
+			World* w = gen.getWorld();
 
 			ostringstream outputStream;
 			serializeWorld(w, outputStream);
@@ -231,8 +246,7 @@ TEST_CASE( "Deserialization", "[Deserialization Reproducibility]") {
 	SECTION( "[D] Thymio2" ) {
 		for (int i = 0; i < ITERATION_NUMBER; i++)
 		{
-			World* w = randomWorld();
-			Thymio2* t = randomThymio(w);
+			Thymio2* t = gen.getRandomizer()->randThymio();
 
 			ostringstream outputStream;
 			serializeThymio(t, outputStream);
@@ -248,7 +262,7 @@ TEST_CASE( "Deserialization", "[Deserialization Reproducibility]") {
 	SECTION( "[D] Color" ) {
 		for (int i = 0; i < ITERATION_NUMBER; i++)
 		{
-			Color c = randomColor();
+			Color c = gen.getRandomizer()->randColor();
 
 			ostringstream outputStream;
 			serializeColor(c, outputStream);
@@ -264,9 +278,8 @@ TEST_CASE( "Deserialization", "[Deserialization Reproducibility]") {
 	SECTION( "[D] World with one Thymio" ) {
 		for (int i = 0; i < ITERATION_NUMBER; i++)
 		{
-			World* w = randomWorld();
-			Thymio2* t = randomThymio(w);
-			w->addObject(t);
+			gen.add(Randomizer::THYMIO2_, 1);
+			World* w = gen.getWorld();
 
 			std::string outputString = serialize(w);
 			World* w1 = deserialize(outputString);

@@ -2,7 +2,7 @@
 #define __WORLD_GENERATOR_H
 
 #include <enki/PhysicalEngine.h>
-#include "Randomizer2.h"
+#include "Randomizer.h"
 #include <iostream>
 
 namespace Enki
