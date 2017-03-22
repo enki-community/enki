@@ -4,6 +4,8 @@
 # enki_LIBRARY - core library to link against
 # enki_VIEWER_LIBRARIES - viewer library to link against, if available
 
+include(FindPackageHandleStandardArgs)
+
 # core
 find_path(enki_INCLUDE_DIR enki/PhysicalEngine.h @PROJECT_SOURCE_DIR@ CMAKE_FIND_ROOT_PATH_BOTH)
 find_library(enki_LIBRARY enki @PROJECT_BINARY_DIR@/enki CMAKE_FIND_ROOT_PATH_BOTH)
