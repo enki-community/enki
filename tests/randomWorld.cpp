@@ -32,7 +32,7 @@ using namespace Enki;
 #define DEBUG 0
 
 // Used to ensure the robustness of the tested code.
-const int ITERATION_NUMBER = 1;
+const int ITERATION_NUMBER = 100;
 
 TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 
@@ -122,7 +122,7 @@ TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 		{
 			PhysicalObject::Part p = globalRandomizer->randComplexPart();
 			REQUIRE( (p.getShape().size() >= 3) );
-			REQUIRE( (p.getHeight() >= 1.0 && p.getHeight() <= 5.0) );
+			REQUIRE( p.getHeight() == 1 );
 		}
 		for(int i = 0 ; i < ITERATION_NUMBER ; i++)
 		{
@@ -131,6 +131,26 @@ TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 			REQUIRE( (p.getArea() <= (30 * 30)) );
 		}
 	}
+
+	SECTION ( "A random texture" ) {
+		for(int i = 0 ; i < ITERATION_NUMBER ; i++)
+		{
+			Texture t = globalRandomizer->randTexture();
+			REQUIRE ( (t.size() >= 1 && t.size() <= 5) );
+			Texture t1 = globalRandomizer->randTexture(i+1);
+			REQUIRE( (t1.size() == i+1) );
+		}
+
+		for(int i = 0 ; i < ITERATION_NUMBER ; i++)
+		{
+			Textures t = globalRandomizer->randTextures();
+			REQUIRE ( (t.size() >= 1 && t.size() <= 5) );
+			Textures t1 = globalRandomizer->randTextures(i+1);
+			REQUIRE( (t1.size() == i+1) );
+
+		}
+	}
+
 
 	SECTION ( "A random Hull" ) {
 		for(int i = 0 ; i < ITERATION_NUMBER ; i++)
@@ -152,12 +172,12 @@ TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 			if(w->wallsType == World::WALLS_SQUARE)
 			{
 				REQUIRE ( (w->r == 0 &&
-					(w->h > MIN_HEIGHT && w->h < MAX_HEIGHT) &&
-					(w->w > MIN_WIDTH && w->w < MAX_WIDTH) ) );
+					(w->h >= MIN_HEIGHT && w->h <= MAX_HEIGHT) &&
+					(w->w >= MIN_WIDTH && w->w <= MAX_WIDTH) ) );
 			}
 			else
 			{
-				REQUIRE ( ((w->r > MIN_RADIUS && w->r < MAX_RADIUS) &&
+				REQUIRE ( ((w->r >= MIN_RADIUS && w->r <= MAX_RADIUS) &&
 				w->h == 0 &&
 				w->w == 0) );
 			}
@@ -197,7 +217,7 @@ TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 		World* w =globalRandomizer->getWorld();
 
 		// TODO : Remove this debug
-		std::cerr << "[WxHxR]: " << w->w << "x" << w->h << "x" << w->r <<  std::endl;
+		//std::cerr << "[WxHxR]: " << w->w << "x" << w->h << "x" << w->r <<  std::endl;
 
 		for(int i = 0 ; i < 100000 ; i++)
 		{
@@ -206,6 +226,7 @@ TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 
 			if(w->wallsType == World::WALLS_SQUARE)
 			{
+				/*
 				if( obj->pos.x > w->w )
 				{
 					std::cerr << "Failed x: " <<  obj->pos.x << " <= " << w->w << " ? with seed: " << globalRandomizer->getSeed() << std::endl;
@@ -214,12 +235,14 @@ TEST_CASE( "UNIT Testing", "[Enki::RandomWorld.h]" ) {
 				{
 					std::cerr << "Failed y:" <<  obj->pos.y << " <= " << w->h << " ? with seed: " << globalRandomizer->getSeed() << std::endl;
 				}
-				//REQUIRE ( (obj->pos.x <= w->w && obj->pos.y <= w->h) );
+				*/
+				REQUIRE ( (obj->pos.x <= w->w && obj->pos.y <= w->h) );
 			}
 			else if (w->wallsType == World::WALLS_CIRCULAR)
 			{
 				REQUIRE ( (obj->pos.x <= w->r && obj->pos.y <= w->r) );
 			}
+
 			delete obj;
 		}
 	}

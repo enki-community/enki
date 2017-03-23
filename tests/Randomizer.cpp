@@ -1,7 +1,7 @@
 /*
    Enki - a fast 2D robot simulator
    Copyright © 2017 Nicolas Palard <nicolas.palard@etu.u-bordeaux.fr>
-   Copyright © 2017 Mathieu Lirzin <mathieu.lirzin@etu.u-bordeaux.fr> 
+   Copyright © 2017 Mathieu Lirzin <mathieu.lirzin@etu.u-bordeaux.fr>
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -76,18 +76,24 @@ void Randomizer::resetWorld()
 World* Randomizer::randWorld()
 {
 	int wallsType = randInt(0, 2);
+
+	Color color = randColor();
+	// Not working
+	//World::GroundTexture = randGroundTexture();
+
 	if(wallsType == World::WALLS_SQUARE || wallsType == World::WALLS_NONE)
 	{
 		int width = randInt(MIN_WIDTH, MAX_WIDTH);
 		int height = randInt(MIN_HEIGHT, MAX_HEIGHT);
-		return new World(width, height);
+		return new World(width, height, color);
 	}
 	else if(wallsType == World::WALLS_CIRCULAR)
 	{
 		int radius = randInt(MIN_RADIUS, MAX_RADIUS);
-		return new World(radius);
+		return new World(radius, color);
 	}
 }
+
 PhysicalObject* Randomizer::randObject()
 {
 	int which = randBool();
@@ -107,7 +113,8 @@ PhysicalObject* Randomizer::randPhysicalObject(const int &hullSize)
 	object->pos = randPoint();
 	object->setColor(randColor());
 
-	int cylindric = randBool();
+	// Disable customHull due to multiple bugs.
+	int cylindric = 1;//randBool();
 
 	if(cylindric)
 	{
@@ -115,6 +122,8 @@ PhysicalObject* Randomizer::randPhysicalObject(const int &hullSize)
 	}
 	else
 	{
+		// This generates a bug that moves the object out of the world
+		// when a complex part is computed with a big height.
 		object->setCustomHull(randHull(hullSize), hullSize);
 	}
 
@@ -236,7 +245,13 @@ PhysicalObject::Hull Randomizer::randHull(const int &hullSize)
 PhysicalObject::Part Randomizer::randComplexPart()
 {
 	Polygone p = randConvexPolygone(randInt(3, 30));
-	return PhysicalObject::Part(p, randFloat(1.0, 5.0));
+	bool textured = randBool();
+	if(textured)
+	{
+		Textures t = randTextures(p.size());
+		return PhysicalObject::Part(p, 1.0, t);
+	}
+	return PhysicalObject::Part(p, 1.0);
 }
 
 PhysicalObject::Part Randomizer::randRectanglePart()
@@ -303,6 +318,29 @@ Color Randomizer::randColor()
 	float g = randColorFloat();
 	float b = randColorFloat();
 	return Color(r, g, b);
+}
+
+Texture Randomizer::randTexture(const int &nbColor)
+{
+	int textureSize = nbColor <= 0 ? randInt(1, 5) : nbColor;
+	Texture t;
+	for(int i = 0 ; i < textureSize ; i++)
+	{
+		t.push_back(randColor());
+	}
+	return t;
+}
+
+Textures Randomizer::randTextures(const int &nbTexture)
+{
+	int texturesSize = nbTexture <= 0 ? randInt(1, 5) : nbTexture;
+	Textures t;
+	for(int i = 0 ; i < texturesSize ; i++)
+	{
+		t.push_back(randTexture());
+	}
+
+	return t;
 }
 
 float Randomizer::randFloat(const float& min, const float &max)

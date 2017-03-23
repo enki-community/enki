@@ -179,6 +179,12 @@ namespace Enki
 			(the number of Parts composing the hull).
 			\return the generated hull.
 		*/
+
+		Texture randTexture(const int &nbColor = -1);
+
+		Textures randTextures(const int &nbTexture = -1);
+
+
 		PhysicalObject::Hull randHull(const int &hullSize);
 
 		/*!
