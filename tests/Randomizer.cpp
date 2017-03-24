@@ -24,7 +24,9 @@ using namespace Enki;
 Randomizer::Randomizer(World* world, long long int seed)
 {
 
-	this->seed = seed == -1  ? std::chrono::system_clock::now().time_since_epoch().count() : seed;
+	this->seed = seed == -1 ?
+		std::chrono::system_clock::now().time_since_epoch().count() :
+		seed;
 	this->randomEngine.seed(this->seed);
 	this->world = world;
 	std::cerr << "seed: " << this->seed << std::endl;
@@ -39,7 +41,9 @@ Randomizer::Randomizer(long long int seed)
 	before any call of randomizeWorld();
 	That's why there is a code duplication
 	*/
-	this->seed = seed == -1 ? std::chrono::system_clock::now().time_since_epoch().count() : seed;
+	this->seed = seed == -1 ?
+		std::chrono::system_clock::now().time_since_epoch().count() :
+		seed;
 	this->randomEngine.seed(this->seed);
 	this->world = randWorld();
 	std::cerr << "seed: " << this->seed << std::endl;
@@ -75,19 +79,20 @@ void Randomizer::resetWorld()
 
 World* Randomizer::randWorld()
 {
-	int wallsType = randInt(0, 2);
+	int wallsType = randInt(0, 1);
 
 	Color color = randColor();
+
 	// Not working
 	//World::GroundTexture = randGroundTexture();
 
-	if(wallsType == World::WALLS_SQUARE || wallsType == World::WALLS_NONE)
+	if (wallsType == World::WALLS_SQUARE)
 	{
 		int width = randInt(MIN_WIDTH, MAX_WIDTH);
 		int height = randInt(MIN_HEIGHT, MAX_HEIGHT);
 		return new World(width, height, color);
 	}
-	else if(wallsType == World::WALLS_CIRCULAR)
+	else if (wallsType == World::WALLS_CIRCULAR)
 	{
 		int radius = randInt(MIN_RADIUS, MAX_RADIUS);
 		return new World(radius, color);
@@ -97,14 +102,9 @@ World* Randomizer::randWorld()
 PhysicalObject* Randomizer::randObject()
 {
 	int which = randBool();
-	if(which)
-	{
-		return randRobot();
-	}
-	else
-	{
-		return randPhysicalObject();
-	}
+	return which ?
+		randRobot() :
+		randPhysicalObject();
 }
 
 PhysicalObject* Randomizer::randPhysicalObject(const int &hullSize)
@@ -115,8 +115,7 @@ PhysicalObject* Randomizer::randPhysicalObject(const int &hullSize)
 
 	// Disable customHull due to multiple bugs.
 	int cylindric = 1;//randBool();
-
-	if(cylindric)
+	if (cylindric)
 	{
 		object->setCylindric(randFloat(1.0, 5.0), randFloat(1.0, 5.0), randFloat(1.0, 5.0));
 	}
@@ -124,16 +123,18 @@ PhysicalObject* Randomizer::randPhysicalObject(const int &hullSize)
 	{
 		// This generates a bug that moves the object out of the world
 		// when a complex part is computed with a big height.
-		object->setCustomHull(randHull(hullSize), hullSize);
+		object->setCustomHull(randHull(hullSize), randInt(1, 50));
 	}
 
 	return object;
 }
 
-Robot* Randomizer::randRobot()
+Robot* Randomizer::randRobot(int type)
 {
 	Robot* r;
-	unsigned type = randInt(0, NUMBER_OF_ROBOTS_TYPES - 1);
+	type = type == -1 ?
+		randInt(0, NUMBER_OF_ROBOTS_TYPES - 1) :
+		type;
 	switch (type)
 	{
 		case THYMIO2_:
@@ -152,6 +153,7 @@ Robot* Randomizer::randRobot()
 			r = randKhepera();
 			break;
 	}
+
 	return r;
 }
 
@@ -193,6 +195,7 @@ Thymio2* Randomizer::randThymio()
 	thymio->setLedIntensity(Thymio2::RIGHT_RED, randColorFloat());
 
 	thymio->pos = randPoint();
+
 	return thymio;
 }
 
@@ -200,6 +203,7 @@ EPuck* Randomizer::randEPuck()
 {
 	EPuck* epuck = new EPuck();
 	epuck->pos = randPoint();
+
 	return epuck;
 }
 
@@ -207,6 +211,7 @@ Khepera* Randomizer::randKhepera()
 {
 	Khepera* khepera = new Khepera();
 	khepera->pos = randPoint();
+
 	return khepera;
 }
 
@@ -215,6 +220,7 @@ Sbot* Randomizer::randSbot()
 	Sbot* sbot = new Sbot();
 	sbot->pos = randPoint();
 	sbot->setColor(randColor());
+
 	return sbot;
 }
 
@@ -223,22 +229,26 @@ Marxbot* Randomizer::randMarxbot()
 	Marxbot* marxbot = new Marxbot();
 	marxbot->pos = randPoint();
 	marxbot->setColor(randColor());
+
 	return marxbot;
 }
 
-PhysicalObject::Hull Randomizer::randHull(const int &hullSize)
+PhysicalObject::Hull Randomizer::randHull(int hullSize)
 {
 	PhysicalObject::Hull hull;
 
-	int size = hullSize <= 0 ? randInt(1, 30) : hullSize;
-	for(int i = 0 ; i < size ; i++)
+	hullSize = hullSize <= 0 ?
+		randInt(1, 30) :
+		hullSize;
+	for (int i = 0 ; i < hullSize ; i++)
 	{
 		int complex = randBool();
-		if(complex)
+		if (complex)
 			hull.push_back(randComplexPart());
 		else
 			hull.push_back(randRectanglePart());
 	}
+
 	return hull;
 }
 
@@ -246,12 +256,13 @@ PhysicalObject::Part Randomizer::randComplexPart()
 {
 	Polygone p = randConvexPolygone(randInt(3, 30));
 	bool textured = randBool();
-	if(textured)
+	if (textured)
 	{
 		Textures t = randTextures(p.size());
-		return PhysicalObject::Part(p, 1.0, t);
+		return PhysicalObject::Part(p, randFloat(1.0, 5.0), t);
 	}
-	return PhysicalObject::Part(p, 1.0);
+
+	return PhysicalObject::Part(p, randFloat(1.0, 5.0));
 }
 
 PhysicalObject::Part Randomizer::randRectanglePart()
@@ -260,17 +271,15 @@ PhysicalObject::Part Randomizer::randRectanglePart()
 	return PhysicalObject::Part(size1, size2, height);
 }
 
-Polygone Randomizer::randConvexPolygone(const int &polygoneSize)
+Polygone Randomizer::randConvexPolygone(int polygoneSize)
 {
-	int size = polygoneSize < 3 ? 3 : polygoneSize;
-
-	int radius = randInt(1, 50);
-	int center_x = 0;
-	int center_y = 0;
+	polygoneSize = polygoneSize < 3 ?
+		3 :
+		polygoneSize;
 
 	// This uses simple circle based trigonometry to compute a convex polygon.
 	std::vector<float> points;
-	for(int i = 0 ; i < size ; i++)
+	for (int i = 0 ; i < polygoneSize ; i++)
 	{
 		points.push_back(randFloat(0.0, 2*M_PI));
 	}
@@ -278,8 +287,9 @@ Polygone Randomizer::randConvexPolygone(const int &polygoneSize)
 	std::sort(points.begin(), points.end());
 
 	Polygone p;
-
-	for(int i = 0 ; i < points.size() ; i++)
+	int center_x = 0, center_y = 0;
+	int radius = randInt(1, 50);
+	for (int i = 0 ; i < points.size() ; i++)
 	{
 		float posx = center_x + radius * cos(points.at(i));
 		float posy = center_y + radius * sin(points.at(i));
@@ -287,28 +297,28 @@ Polygone Randomizer::randConvexPolygone(const int &polygoneSize)
 	}
 
 	points.clear();
-
 	return p;
 }
 
 Point Randomizer::randPoint()
 {
 	float posx, posy;
-	if(this->world->wallsType == World::WALLS_SQUARE)
+	if (this->world->wallsType == World::WALLS_SQUARE)
 	{
 		posx = randFloat(0, this->world->w);
 		posy = randFloat(0, this->world->h);
 	}
-	else if(this->world->wallsType == World::WALLS_CIRCULAR)
+	else if (this->world->wallsType == World::WALLS_CIRCULAR)
 	{
 		bool in = 0;
-		while(!in)
+		while (!in)
 		{
 			posx = randFloat(0, this->world->r);
 			posy = randFloat(0, this->world->r);
 			in = (posx * posx) + (posy * posy) <= this->world->r * this->world->r ? true : false;
 		}
 	}
+
 	return Point(posx, posy);
 }
 
@@ -317,25 +327,31 @@ Color Randomizer::randColor()
 	float r = randColorFloat();
 	float g = randColorFloat();
 	float b = randColorFloat();
+
 	return Color(r, g, b);
 }
 
-Texture Randomizer::randTexture(const int &nbColor)
+Texture Randomizer::randTexture(int nbColor)
 {
-	int textureSize = nbColor <= 0 ? randInt(1, 5) : nbColor;
+	nbColor = nbColor <= 0 ?
+		randInt(1, 5) :
+		nbColor;
 	Texture t;
-	for(int i = 0 ; i < textureSize ; i++)
+	for (int i = 0 ; i < nbColor ; i++)
 	{
 		t.push_back(randColor());
 	}
+
 	return t;
 }
 
-Textures Randomizer::randTextures(const int &nbTexture)
+Textures Randomizer::randTextures(int nbTexture)
 {
-	int texturesSize = nbTexture <= 0 ? randInt(1, 5) : nbTexture;
+	nbTexture = nbTexture <= 0 ?
+		randInt(1, 5) :
+		nbTexture;
 	Textures t;
-	for(int i = 0 ; i < texturesSize ; i++)
+	for (int i = 0 ; i < nbTexture ; i++)
 	{
 		t.push_back(randTexture());
 	}

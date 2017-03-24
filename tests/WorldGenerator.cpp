@@ -67,19 +67,11 @@ namespace Enki
 			*/
 			switch (type) {
 				case Randomizer::THYMIO2_ :
-					o = this->randomizer->randThymio();
-					break;
 				case Randomizer::EPUCK_ :
-					o = this->randomizer->randEPuck();
-					break;
 				case Randomizer::SBOT_ :
-					o = this->randomizer->randSbot();
-					break;
 				case Randomizer::MARXBOT_ :
-					o = this->randomizer->randMarxbot();
-					break;
 				case Randomizer::KHEPERA_ :
-					o = this->randomizer->randKhepera();
+					o = this->randomizer->randRobot(type);
 					break;
 				case PHYSICAL_OBJECTS_ :
 					o = this->randomizer->randPhysicalObject();
@@ -93,7 +85,7 @@ namespace Enki
 				default:
 					o = this->randomizer->randObject();
 			}
-			if(WorldGenerator::add(o))
+			if (WorldGenerator::add(o))
 				cpt++;
 		}
 		return cpt == number - 1;
@@ -102,9 +94,9 @@ namespace Enki
 	bool WorldGenerator::add(std::vector<PhysicalObject*> vec)
 	{
 		int cpt(0);
-		for(auto object : vec)
+		for (auto object : vec)
 		{
-			if(WorldGenerator::add(object))
+			if (WorldGenerator::add(object))
 				cpt++;
 		}
 		return cpt == vec.size() - 1;

@@ -150,7 +150,7 @@ namespace Enki
 			It can generate: Thymio2, SBot, Epuck, Marxbot, Khepera
 			\return the generated robot.
 		*/
-		Robot* randRobot();
+		Robot* randRobot(int type = -1);
 		Thymio2* randThymio();
 		EPuck* randEPuck();
 		Khepera* randKhepera();
@@ -173,19 +173,29 @@ namespace Enki
 		Color randColor();
 
 		/*!
+		   \brief This function generates a Texture which is a vector
+		   of Color.
+		   \param nbColor the number of color in the vector.
+		   \return the generated Texture.
+		*/
+		Texture randTexture(int nbColor = -1);
+
+		/*!
+		   \brief This function generates a Textures which is a vector
+		   of Texture.
+		   \param nbTexture the number of texture in the vector.
+		   \return the generated Textures.
+		*/
+		Textures randTextures(int nbTexture = -1);
+
+		/*!
 			\brief This function provide a way of generating random
 			complex and displayable hulls.
 			\param hullSize the size of the generated hull
 			(the number of Parts composing the hull).
 			\return the generated hull.
 		*/
-
-		Texture randTexture(const int &nbColor = -1);
-
-		Textures randTextures(const int &nbTexture = -1);
-
-
-		PhysicalObject::Hull randHull(const int &hullSize);
+		PhysicalObject::Hull randHull(int hullSize);
 
 		/*!
 			\brief This function generates a basic rectangle part.
@@ -205,7 +215,7 @@ namespace Enki
 			\param polygonSize the number of points defining the polygone.
 			\return the generated polygone.
 		*/
-		Polygone randConvexPolygone(const int &polygoneSize = 3);
+		Polygone randConvexPolygone(int polygoneSize = 3);
 
 		/*!
 			\brief Generate a random float within a specified range.
