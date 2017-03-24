@@ -10,6 +10,27 @@ set(LIB_VERSION_MAJOR 2) # Must be bumped for incompatible ABI changes
 set(LIB_VERSION_MINOR 0)
 set(LIB_VERSION_PATCH 0)
 set(LIB_VERSION_STRING ${LIB_VERSION_MAJOR}.${LIB_VERSION_MINOR}.${LIB_VERSION_PATCH})
+
+# enable C++11 support
+if (CMAKE_VERSION VERSION_LESS "3.1")
+        if (MSVC)
+                message(FATAL_ERROR, "CMake version 3.1 or later is required to compiler Aseba with Microsoft Visual C++")
+        endif ()
+        if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+                set (CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}")
+        else ()
+                set (CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+        endif ()
+else ()
+        set (CMAKE_CXX_STANDARD 11)
+endif ()
+
+# Load settings for external projects that provide a CMake config file.
+find_package(dashel REQUIRED)
+include_directories(${dashel_INCLUDE_DIRS})
+
+find_package(Threads)
+
 add_subdirectory(enki)
 add_subdirectory(examples)
 add_subdirectory(viewer)
@@ -52,3 +73,7 @@ else()
 	endif()
 endif()
 install(FILES "${PROJECT_BINARY_DIR}/enkiConfig.cmake" DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+
+# testing
+enable_testing()
+add_subdirectory(tests)

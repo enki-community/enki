@@ -53,6 +53,15 @@ if (QT4_FOUND AND OPENGL_FOUND)
 	
 	target_link_libraries(enkiplayground enkiviewer enki ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${EXTRA_LIBS})
 
+	add_executable(enkiplaygroundNetwork PlaygroundNetwork.cpp)
+	target_link_libraries(enkiplaygroundNetwork
+		enkiviewer
+		enki
+		${QT_LIBRARIES}
+		${OPENGL_LIBRARIES}
+		${dashel_LIBRARIES}
+		${CMAKE_THREAD_LIBS_INIT})
+
 	set(ENKI_VIEWER_HDR
 		Viewer.h
 	)

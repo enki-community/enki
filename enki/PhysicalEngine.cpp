@@ -234,7 +234,8 @@ namespace Enki
 		viscousMomentFrictionCoefficient(0.01),
 		angle(0),
 		angSpeed(0),
-		interlacedDistance(0)
+		interlacedDistance(0),
+		id(0)
 	{
 		setCylindric(1, 1, 1);
 	}
@@ -719,7 +720,8 @@ namespace Enki
 		color(color),
 		groundTexture(groundTexture),
 		takeObjectOwnership(true),
-		bluetoothBase(NULL)
+		bluetoothBase(NULL),
+		idNewObject(1)
 	{
 	}
 	
@@ -731,7 +733,8 @@ namespace Enki
 		color(color),
 		groundTexture(groundTexture),
 		takeObjectOwnership(true),
-		bluetoothBase(NULL)
+		bluetoothBase(NULL),
+		idNewObject(1)
 	{
 	}
 	
@@ -742,7 +745,8 @@ namespace Enki
 		r(0),
 		color(Color::gray),
 		takeObjectOwnership(true),
-		bluetoothBase(NULL)
+		bluetoothBase(NULL),
+		idNewObject(1)
 	{
 	}
 
@@ -1228,6 +1232,18 @@ namespace Enki
 	
 	void World::addObject(PhysicalObject *o)
 	{
+		if (o->getId() == 0)
+		{
+			o->id = idNewObject;
+			idNewObject++;
+		}
+		// This branch of the conditionnal is required when deserializing
+		// objects since we want to use the id of the corresponding objects on
+		// the server.
+		else if (idNewObject < o->getId())
+		{
+			idNewObject = o->getId() + 1;
+		}
 		objects.insert(o);
 	}
 
