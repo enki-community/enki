@@ -60,7 +60,7 @@ void testPolygonCircleIntersection()
 	square.push_back(Point(1, 9));
 	
 	// should intersect
-	for (double r = 1.01; r<30; r = r*r)
+	for (double r = 1.01*sqrt(2); r<30; r = r*r)
 	{
 		CHECK_INTERSECT(square.doIntersect(Point(0, 0), r, mtv, cp), true);
 		CHECK_INTERSECT(square.doIntersect(Point(5, 0), r, mtv, cp), true);
@@ -90,7 +90,7 @@ void testPolygonCircleIntersection()
 	rect.push_back(Point(1, 2));
 	
 	// should intersect
-	for (double r = 1.01; r<5; r += 0.01)
+	for (double r = 1.01*sqrt(2); r<5; r += 0.01)
 	{
 		CHECK_INTERSECT(rect.doIntersect(Point(0, 0), r, mtv, cp), true);
 		CHECK_INTERSECT(rect.doIntersect(Point(5, 0), r, mtv, cp), true);
