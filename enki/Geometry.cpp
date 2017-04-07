@@ -32,6 +32,8 @@
 */
 
 #include "Geometry.h"
+#include <cassert>
+#include <iostream>
 
 namespace Enki
 {
@@ -122,6 +124,78 @@ namespace Enki
 		mtvApplyToShape1 = minMtvApplyToShape1;
 		
 		// ... and return true
+		return true;
+	}
+	
+	bool Polygone::doIntersect(const Point& center, const double r, Vector& mtv, Point& collisionPoint) const
+	{
+		// Note: does not handle optimally the case of full overlapping
+		
+		// Using the Separate Axis Theorem, see for instance: http://www.dyn4j.org/2010/01/sat/
+		double minMTVDist(std::numeric_limits<double>::max());
+		Vector minMTV;
+		Vector minCollisionPoint;
+		
+		// test if circle is inside a shape
+		for (size_t i = 0; i < size(); ++i)
+		{
+			const Segment segment(getSegment(i));
+			const Vector normal(segment.getDirection().perp());
+			const Vector u(normal.unitary());
+			// positive distance for inside
+			double dist((center-segment.a)*u + r);
+			// if circle is outside, we found a separate axis
+			if (dist <= 0)
+				return false;
+			// no, we need to check whether the projection of center is on the segment
+			const Point proj(center + u*(r-dist));
+			const double prodA((proj - segment.a) * segment.getDirection());
+			const double prodB((proj - segment.b) * segment.getDirection());
+			// yes?
+			if (prodA >= 0 && prodB <= 0)
+			{
+				// is this distance smaller than previous ones?
+				if (dist < minMTVDist)
+				{
+					minMTVDist = dist;
+					minMTV = u * dist;
+					minCollisionPoint = proj + minMTV;
+				}
+			}
+		}
+		
+		// if found solution so far, return it
+		if (minMTVDist != std::numeric_limits<double>::max())
+		{
+			mtv = minMTV;
+			collisionPoint = minCollisionPoint;
+			return true;
+		}
+		
+		// at this point if there is a collision, we know that there is a vertex inside the circle
+		double minPointCenterDist2(std::numeric_limits<double>::max());
+		
+		// test if there is vertex of shape is inside the circle. If so, take the closest to the center.
+		for (size_t i = 0; i < size(); ++i)
+		{
+			const Vector centerToPoint((*this)[i] - center);
+			const double d2(centerToPoint.norm2());
+			if (d2 < minPointCenterDist2 && d2 <= r*r)
+			{
+				minPointCenterDist2 = d2;
+				minMTV = centerToPoint.unitary() * (r - sqrt(d2));
+				minCollisionPoint = center + centerToPoint + minMTV;
+			}
+		}
+		
+		// no vertex inside the circle, no collision
+		if (minPointCenterDist2 == std::numeric_limits<double>::max())
+			return false;
+		
+		// collision, return values
+		mtv = minMTV;
+		collisionPoint = minCollisionPoint;
+		
 		return true;
 	}
 	

@@ -370,8 +370,8 @@ namespace Enki
 		
 		//! Dynamics for collision with a static object at points cp with normal vector n
 		void collideWithStaticObject(const Vector &n, const Point &cp);
-		//! Dynamics for collision with that at point cp with a penetrated distance of dist.
-		void collideWithObject(PhysicalObject &that, const Point &cp, const Vector &dist);
+		//! Dynamics for collision with that at point cp (on that) with a penetrated distance of dist,
+		void collideWithObject(PhysicalObject &that, Point cp, const Vector &dist);
 	};
 
 	//! A robot is a PhysicalObject that has additional interactions and a controller.

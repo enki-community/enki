@@ -351,6 +351,15 @@ namespace Enki
 		
 		//! Operator to add point inline
 		Polygone& operator << (const Point& p) { push_back(p); return *this; }
+		
+		//! Return true and set collisiont arguments (passed by reference) if this interests circle (center, r), return false and do not change anything otherwise
+		/*!
+			\param center center of circle
+			\param r radius of circle
+			\param mtv minimum translation vector, how much to move this for de-penetration, set if intersection happens
+			\param collisionPoint collision point where this touches circle, set if intersection happens
+		*/
+		bool doIntersect(const Point& center, const double r, Vector& mtv, Point& collisionPoint) const;
 	};
 	
 	//! Print a polygone to a stream

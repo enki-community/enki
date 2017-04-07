@@ -551,7 +551,7 @@ namespace Enki
 		collisionEvent(0);
 	}
 
-	void PhysicalObject::collideWithObject(PhysicalObject &that, const Point &cp, const Vector &dist)
+	void PhysicalObject::collideWithObject(PhysicalObject &that, Point cp, const Vector &dist)
 	{
 		// handle infinite mass case
 		if (mass < 0)
@@ -564,9 +564,10 @@ namespace Enki
 			else
 			{
 				// if colliding with wall
-				const Vector n = dist.unitary() * -1;
-				that.collideWithStaticObject(n, cp);
+				// de-penetrate
 				that.pos -= dist;
+				// perform physics
+				that.collideWithStaticObject(-dist.unitary(), cp);
 				return;
 			}
 		}
@@ -575,55 +576,46 @@ namespace Enki
 			// if colliding with wall
 			if (that.mass < 0)
 			{
-				const Vector n = dist.unitary();
-				collideWithStaticObject(n, cp);
+				// de-penetrate
 				pos += dist;
+				// perform physics
+				collideWithStaticObject(dist.unitary(), cp);
 				return;
 			}
 		}
 		
-		if ((dist * speed > 0) || (dist * that.speed < 0))
-		{
-			//std::cerr << this << " Warning collideWithObject" << std::endl;
-		}
+		// calculate de-penetration vector to put that out of contact
+		const double massSum = mass + that.mass;
+		const Vector thisDisp = dist*that.mass/massSum;
+		const Vector thatDisp = -dist*mass/massSum;
+		pos += thisDisp;
+		that.pos += thatDisp;
+		cp += thatDisp; // we have to move cp as much as we move that because cp lie on that's boundary
 		
-		// only perform physics if we are in a physically-realistic collision situation,
-		// otherwise we experience a simulation artefact and we just deinterlace
-		//if ((dist * speed <= 0) && (dist * that.speed >= 0))
-		{
-			// point of this in inside object
-			// we use model from http://www.myphysicslab.com/collision.html
-			// this is object A, that is object B
-			const Vector n = dist.unitary();
-			
-			const Vector r_ap = (cp - pos);
-			const Vector r_bp = (cp - that.pos);
-			
-			const Vector v_ap = speed + r_ap.crossFromZVector(angSpeed);
-			const Vector v_bp = that.speed + r_bp.crossFromZVector(that.angSpeed);
-			const Vector v_ab = v_ap - v_bp;
-			
-			const double num = -(1 + collisionElasticity * that.collisionElasticity) * (v_ab * n);
-			const double denom = (1/mass) + (1/that.mass) + (r_ap.cross(n) * r_ap.cross(n)) / momentOfInertia + (r_bp.cross(n) * r_bp.cross(n)) / that.momentOfInertia;
-			const double j = num / denom;
-			
-			speed += (n * j) / mass;
-			that.speed -= (n * j) / that.mass;
-			angSpeed += r_ap.cross(n * j) / momentOfInertia;
-			that.angSpeed -= r_bp.cross(n * j) / that.momentOfInertia;
-		}
-		//else
-		//	std::cerr << "Non physics collideWithObject between " << this << " and " << &that << std::endl;
+		// Perform physics!
+		// we use model from http://www.myphysicslab.com/collision.html
+		// this is object A, that is object B
+		const Vector n = dist.unitary();
 		
-		// call the collision callback
+		const Vector r_ap = (cp - pos);
+		const Vector r_bp = (cp - that.pos);
+		
+		const Vector v_ap = speed + r_ap.crossFromZVector(angSpeed);
+		const Vector v_bp = that.speed + r_bp.crossFromZVector(that.angSpeed);
+		const Vector v_ab = v_ap - v_bp;
+		
+		const double num = -(1 + collisionElasticity * that.collisionElasticity) * (v_ab * n);
+		const double denom = (1/mass) + (1/that.mass) + (r_ap.cross(n) * r_ap.cross(n)) / momentOfInertia + (r_bp.cross(n) * r_bp.cross(n)) / that.momentOfInertia;
+		const double j = num / denom;
+		
+		speed += (n * j) / mass;
+		that.speed -= (n * j) / that.mass;
+		angSpeed += r_ap.cross(n * j) / momentOfInertia;
+		that.angSpeed -= r_bp.cross(n * j) / that.momentOfInertia;
+		
+		// call the collision callbacks
 		collisionEvent(&that);
 		that.collisionEvent(this);
-		
-		// FIXME: this is fully non physic
-		// calculate deinterlace vector to put that out of contact - mass ratios ensure physics
-		const double massSum = mass + that.mass;
-		pos += dist*that.mass/massSum;
-		that.pos -= dist*mass/massSum;
 	}
 
 	//! A functor then compares the radius of two local interactions
@@ -998,11 +990,12 @@ namespace Enki
 		if (distOCtoOC.norm2() > (addedRay*addedRay))
 			return;
 
-		Vector dist, trueDist;
+		// variables for finding parts of maximum penetration
 		PhysicalObject *o1, *o2;
 		o1 = o2 = NULL;
-		Point collisionPoint;
 		double maxNorm = 0;
+		Vector maxMtv;
+		Point collisionPoint;
 
 		// for each point of object 1, look if it is in object2
 		if (!object1->hull.empty())
@@ -1012,11 +1005,9 @@ namespace Enki
 				// iterate on all shapes of both objects
 				for (PhysicalObject::Hull::const_iterator it = object1->hull.begin(); it != object1->hull.end(); ++it)
 				{
-					const Point& shape1Centroid = it->getTransformedCentroid();
 					const Polygone& shape1 = it->getTransformedShape();
 					for (PhysicalObject::Hull::const_iterator jt = object2->hull.begin(); jt != object2->hull.end(); ++jt)
 					{
-						const Point& shape2Centroid = jt->getTransformedCentroid();
 						const Polygone& shape2 = jt->getTransformedShape();
 						
 						Vector mtv;
@@ -1028,7 +1019,7 @@ namespace Enki
 							if (mtvNorm > maxNorm)
 							{
 								maxNorm = mtvNorm;
-								trueDist = mtv;
+								maxMtv = mtv;
 								collisionPoint = cp;
 								if (applyToShape1)
 								{
@@ -1049,27 +1040,55 @@ namespace Enki
 			{
 				// collide circle 2 on shape 1
 				for (PhysicalObject::Hull::const_iterator it = object1->hull.begin(); it != object1->hull.end(); ++it)
-					collideCircleWithShape(object2, object1, it->getTransformedShape());
-				return;
+				{
+					Vector mtv;
+					Vector cp;
+					if (it->getTransformedShape().doIntersect(object2->pos, object2->r, mtv, cp))
+					{
+						const double mtvNorm(mtv.norm2());
+						if (mtvNorm > maxNorm)
+						{
+							maxNorm = mtvNorm;
+							maxMtv = mtv;
+							collisionPoint = cp;
+							o1 = object1;
+							o2 = object2;
+						}
+					}
+				}
 			}
 		}
 		else if (!object2->hull.empty())
 		{
 			// collide circle 1 on shape 2
 			for (PhysicalObject::Hull::const_iterator jt = object2->hull.begin(); jt != object2->hull.end(); ++jt)
-				collideCircleWithShape(object1, object2, jt->getTransformedShape());
-			return;
+			{
+				Vector mtv;
+				Vector cp;
+				if (jt->getTransformedShape().doIntersect(object1->pos, object1->r, mtv, cp))
+				{
+					const double mtvNorm(mtv.norm2());
+					if (mtvNorm > maxNorm)
+					{
+						maxNorm = mtvNorm;
+						maxMtv = mtv;
+						collisionPoint = cp;
+						o1 = object2;
+						o2 = object1;
+					}
+				}
+			}
 		}
 		else
 		{
 			// collide 2 circles
 			const Vector ud = distOCtoOC.unitary();
 			const double dLength = distOCtoOC.norm();
-			dist = ud * (addedRay-dLength);
+			maxNorm = addedRay-dLength;
+			maxMtv = ud * maxNorm;
 			collisionPoint = object2->pos + ud * object2->r;
-			
-			object1->collideWithObject(*object2, collisionPoint, dist);
-			return;
+			o1 = object1;
+			o2 = object2;
 		}
 
 		// if collision
@@ -1077,7 +1096,7 @@ namespace Enki
 		{
 			assert(o1);
 			assert(o2);
-			o1->collideWithObject(*o2, collisionPoint, trueDist);
+			o1->collideWithObject(*o2, collisionPoint, maxMtv);
 		}
 	}
 
