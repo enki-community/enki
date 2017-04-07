@@ -31,7 +31,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#include "Viewer.h"
+#include <viewer/Viewer.h>
 #include <enki/PhysicalEngine.h>
 #include <enki/robots/e-puck/EPuck.h>
 #include <enki/robots/marxbot/Marxbot.h>
@@ -129,7 +129,7 @@ public:
 			world->addObject(o);
 		}
 		
-		for (int i = 0; i < 20; i++)
+		for (int i = 0; i < 10; i++)
 		{
 			PhysicalObject* o = new PhysicalObject;
 			o->pos = Point(UniformRand(20, 100)(), UniformRand(20, 100)());
@@ -185,11 +185,15 @@ public:
 		addDefaultsRobots(world);
 		#endif // PROBLEM_LONE_EPUCK
 		
+		#define PROBLEM_MARXBOT
+		
+		#ifdef PROBLEM_MARXBOT
 		Marxbot *marxbot = new Marxbot;
 		marxbot->pos = Point(60, 50);
 		marxbot->leftSpeed = 8;
 		marxbot->rightSpeed = 2;
 		world->addObject(marxbot);
+		#endif // PROBLEM_MARXBOT
 		
 		#ifdef USE_SDL
 		if((SDL_Init(SDL_INIT_JOYSTICK)==-1))

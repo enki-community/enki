@@ -7,6 +7,12 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMakeModules)
 
 enable_testing()
 
+# check for Qt
+set(QT_USE_QTOPENGL TRUE)
+find_package(Qt4)
+find_package(OpenGL)
+
+# library version
 set(LIB_INSTALL_DIR lib CACHE FILEPATH "Where to install libraries")
 set(LIB_VERSION_MAJOR 2) # Must be bumped for incompatible ABI changes
 set(LIB_VERSION_MINOR 0)
