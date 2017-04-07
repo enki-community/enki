@@ -360,22 +360,21 @@ namespace Enki
 			\param collisionPoint collision point where this touches circle, set if intersection happens
 		*/
 		bool doIntersect(const Point& center, const double r, Vector& mtv, Point& collisionPoint) const;
+		
+		//! Return true and set collision arguments (passed by reference) if shape1 intersects shape2, return false and do not change anything otherwise
+		/*!
+			\param that second polygon
+			\param mtv minimum translation vector for de-penetration, how much to move this for de-penetration, set if intersection happens
+			\param collisionPoint collision point where this touches that, set if intersection happens
+		*/
+		bool doIntersect(const Polygone& that, Vector& mtv, Point& collisionPoint) const;
 	};
 	
 	//! Print a polygone to a stream
 	/*! \ingroup an */
 	std::ostream & operator << (std::ostream & outs, const Polygone &polygone);
 	
-	//! Return true and set collision arguments (passed by reference) if shape1 intersects shape2, return false and do not change anything otherwise
-	/*! \ingroup an */
-	/*!
-		\param shape1 first polygon
-		\param shape2 second polygon
-		\param mtv reference to the minimum translation vector for de-penetration, set if intersection happens
-		\param collisionPoint reference to the collision point, set if intersection happens
-		\param mtvApplyToShape1 reference to a flag stating whether mtv applies to shape1 (true), or shape2 (false), set if intersection happens
-	*/
-	bool doIntersect(const Polygone& shape1, const Polygone& shape2, Vector& mtv, Point& collisionPoint, bool& mtvApplyToShape1);
+	
 	
 	//! Normlize an angle to be between -PI and +PI.
 	/*! \ingroup an */

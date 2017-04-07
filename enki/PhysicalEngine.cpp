@@ -991,8 +991,7 @@ namespace Enki
 			return;
 
 		// variables for finding parts of maximum penetration
-		PhysicalObject *o1, *o2;
-		o1 = o2 = NULL;
+		PhysicalObject *o1 = NULL, *o2 = NULL;
 		double maxNorm = 0;
 		Vector maxMtv;
 		Point collisionPoint;
@@ -1009,11 +1008,8 @@ namespace Enki
 					for (PhysicalObject::Hull::const_iterator jt = object2->hull.begin(); jt != object2->hull.end(); ++jt)
 					{
 						const Polygone& shape2 = jt->getTransformedShape();
-						
-						Vector mtv;
-						Vector cp;
-						bool applyToShape1;
-						if (doIntersect(shape1, shape2, mtv, cp, applyToShape1))
+						Vector mtv, cp;
+						if (shape1.doIntersect(shape2, mtv, cp))
 						{
 							const double mtvNorm(mtv.norm2());
 							if (mtvNorm > maxNorm)
@@ -1021,16 +1017,8 @@ namespace Enki
 								maxNorm = mtvNorm;
 								maxMtv = mtv;
 								collisionPoint = cp;
-								if (applyToShape1)
-								{
-									o1 = object1;
-									o2 = object2;
-								}
-								else
-								{
-									o1 = object2;
-									o2 = object1;
-								}
+								o1 = object1;
+								o2 = object2;
 							}
 						}
 					}
@@ -1041,8 +1029,7 @@ namespace Enki
 				// collide circle 2 on shape 1
 				for (PhysicalObject::Hull::const_iterator it = object1->hull.begin(); it != object1->hull.end(); ++it)
 				{
-					Vector mtv;
-					Vector cp;
+					Vector mtv, cp;
 					if (it->getTransformedShape().doIntersect(object2->pos, object2->r, mtv, cp))
 					{
 						const double mtvNorm(mtv.norm2());
@@ -1063,8 +1050,7 @@ namespace Enki
 			// collide circle 1 on shape 2
 			for (PhysicalObject::Hull::const_iterator jt = object2->hull.begin(); jt != object2->hull.end(); ++jt)
 			{
-				Vector mtv;
-				Vector cp;
+				Vector mtv, cp;
 				if (jt->getTransformedShape().doIntersect(object1->pos, object1->r, mtv, cp))
 				{
 					const double mtvNorm(mtv.norm2());

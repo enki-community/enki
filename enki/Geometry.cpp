@@ -50,62 +50,60 @@ namespace Enki
 		return outs;
 	}
 	
-	bool doIntersect(const Polygone& shape1, const Polygone& shape2, Vector& mtv, Point& collisionPoint, bool& mtvApplyToShape1)
+	bool Polygone::doIntersect(const Polygone& that, Vector& mtv, Point& collisionPoint) const
 	{
 		// Note: does not handle optimally the case of full overlapping
 		
 		// Using the Separate Axis Theorem, see for instance: http://www.dyn4j.org/2010/01/sat/
 		double minMTVDist(std::numeric_limits<double>::max());
 		Vector minMTV;
-		Vector minInsidePoint;
-		bool minMtvApplyToShape1;
+		Vector minCollisionPoint;
 		
-		// do points of shape2 have overlap on shape1
-		for (size_t i = 0; i < shape1.size(); ++i)
+		// do points of that are inside this
+		for (size_t i = 0; i < this->size(); ++i)
 		{
-			const Segment segment(shape1.getSegment(i));
+			const Segment segment(this->getSegment(i));
 			double maxDist(0);
 			size_t maxJ(0);
-			for (size_t j = 0; j < shape2.size(); ++j)
+			for (size_t j = 0; j < that.size(); ++j)
 			{
 				// positive distance for inside
-				const double dist(segment.dist(shape2[j]));
+				const double dist(segment.dist(that[j]));
 				if (dist > maxDist)
 				{
 					maxDist = dist;
 					maxJ = j;
 				}
 			}
-			// if all points of shape2 are outside, we found a separate axis
+			// if all points of that are outside, we found a separate axis
 			if (maxDist == 0)
 				return false;
 			// if this side has a lower penetration than best so far, take as best
 			if (maxDist < minMTVDist)
 			{
 				minMTVDist = maxDist;
-				minMTV = -segment.getDirection().perp().unitary() * maxDist;
-				minInsidePoint = shape2[maxJ];
-				minMtvApplyToShape1 = false;
+				minMTV = segment.getDirection().perp().unitary() * maxDist;
+				minCollisionPoint = that[maxJ];
 			}
 		}
 		
-		// do points of shape1 have overlap on shape2
-		for (size_t i = 0; i < shape2.size(); ++i)
+		// do points of this are inside that
+		for (size_t i = 0; i < that.size(); ++i)
 		{
-			const Segment segment(shape2.getSegment(i));
+			const Segment segment(that.getSegment(i));
 			double maxDist(0);
 			size_t maxJ(0);
-			for (size_t j = 0; j < shape1.size(); ++j)
+			for (size_t j = 0; j < this->size(); ++j)
 			{
 				// positive distance for inside
-				const double dist(segment.dist(shape1[j]));
+				const double dist(segment.dist((*this)[j]));
 				if (dist > maxDist)
 				{
 					maxDist = dist;
 					maxJ = j;
 				}
 			}
-			// if all points of shape1 are outside, we found a separate axis
+			// if all points of this are outside, we found a separate axis
 			if (maxDist == 0)
 				return false;
 			// if this side has a lower penetration than best so far, take as best
@@ -113,15 +111,13 @@ namespace Enki
 			{
 				minMTVDist = maxDist;
 				minMTV = -segment.getDirection().perp().unitary() * maxDist;
-				minInsidePoint = shape1[maxJ];
-				minMtvApplyToShape1 = true;
+				minCollisionPoint = (*this)[maxJ] + minMTV;
 			}
 		}
 		
 		// there was no separate axis found, update collision variables...
 		mtv = minMTV;
-		collisionPoint = minInsidePoint + minMTV;
-		mtvApplyToShape1 = minMtvApplyToShape1;
+		collisionPoint = minCollisionPoint;
 		
 		// ... and return true
 		return true;
@@ -164,7 +160,7 @@ namespace Enki
 			}
 		}
 		
-		// if found solution so far, return it
+		// if found a solution so far, update collision variables and return it
 		if (minMTVDist != std::numeric_limits<double>::max())
 		{
 			mtv = minMTV;
@@ -192,10 +188,11 @@ namespace Enki
 		if (minPointCenterDist2 == std::numeric_limits<double>::max())
 			return false;
 		
-		// collision, return values
+		// collision, update collision variables...
 		mtv = minMTV;
 		collisionPoint = minCollisionPoint;
 		
+		// ... and return true
 		return true;
 	}
 	
