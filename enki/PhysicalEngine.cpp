@@ -510,12 +510,11 @@ namespace Enki
 
 	void PhysicalObject::initPhysicsInteractions(double dt)
 	{
-		computeTransformedShape();
-		
 		applyForces(dt);
 		
 		pos += speed * dt;
 		angle += angSpeed * dt;
+		computeTransformedShape();
 		
 		// store position after integration
 		posBeforeCollision  = pos;
@@ -566,6 +565,7 @@ namespace Enki
 				// if colliding with wall
 				// de-penetrate
 				that.pos -= dist;
+				that.computeTransformedShape();
 				// perform physics
 				that.collideWithStaticObject(-dist.unitary(), cp);
 				return;
@@ -578,6 +578,7 @@ namespace Enki
 			{
 				// de-penetrate
 				pos += dist;
+				computeTransformedShape();
 				// perform physics
 				collideWithStaticObject(dist.unitary(), cp);
 				return;
@@ -589,7 +590,9 @@ namespace Enki
 		const Vector thisDisp = dist*that.mass/massSum;
 		const Vector thatDisp = -dist*mass/massSum;
 		pos += thisDisp;
+		computeTransformedShape();
 		that.pos += thatDisp;
+		that.computeTransformedShape();
 		cp += thatDisp; // we have to move cp as much as we move that because cp lie on that's boundary
 		
 		// Perform physics!
@@ -895,6 +898,7 @@ namespace Enki
 				const Vector dirU = object->pos.unitary();
 				object->collideWithStaticObject(-dirU, dirU * r);
 				object->pos += dirU * distToWall;
+				object->computeTransformedShape();
 			}
 		}
 		else
@@ -922,6 +926,7 @@ namespace Enki
 					const Vector dirU = cp.unitary();
 					object->collideWithStaticObject(-dirU, dirU * r);
 					object->pos -= dirU * dist;
+					object->computeTransformedShape();
 				}
 			}
 			// TODO: verify this code
