@@ -932,60 +932,6 @@ namespace Enki
 			// TODO: verify this code
 		}
 	}
-	
-	void World::collideCircleWithShape(PhysicalObject *circularObject, PhysicalObject *shapedObject, const Polygone &shape)
-	{
-		// test if circularObject is inside a shape
-		for (unsigned i=0; i<shape.size(); i++)
-		{
-			const Segment s(shape.getSegment(i));
-			const Vector nn(s.getDirection().perp());
-			const Vector u = nn.unitary();
-			const double d = (circularObject->pos-s.a)*u;
-			// if we are inside the circularObject
-			if ((d<0) && (-d<circularObject->r))
-			{
-				const Point proj = circularObject->pos - u*d;
-
-				if ((((proj-s.a)*(s.b-s.a))>0) && (((proj-s.b)*(s.a-s.b))>0))
-				{
-					// if there is a segment which is inside the circularObject, and the projection of the center lies within this segment, this projection is the nearest point. So we return. This is a consequence of having convexe polygones.
-					const Vector dist = u*-(circularObject->r+d);
-					const Point collisionPoint = circularObject->pos - u*(d);
-					circularObject->collideWithObject(*shapedObject, collisionPoint, dist);
-					return;
-				}
-			}
-		}
-
-		const double r2 = circularObject->r * circularObject->r;
-		double pointInsideD2 = r2;
-		Point pointInside;
-		Vector centerToPointInside;
-		
-		// test if there is vertex of shape is inside the circularObject. If so, take the closest to the center
-		for (unsigned i=0; i<shape.size(); i++)
-		{
-			const Point &candidate = shape[i];
-			const Vector centerToPoint = candidate - circularObject->pos;
-			const double d2 = centerToPoint.norm2();
-			if (d2 < pointInsideD2)
-			{
-				pointInsideD2 = d2;
-				pointInside = candidate;
-				centerToPointInside = centerToPoint;
-			}
-		}
-
-		// we get a collision, one point of shape is inside the circularObject
-		if (pointInsideD2 < r2)
-		{
-			const double pointInsideDist = sqrt(pointInsideD2);
-			const Vector dist = (centerToPointInside / pointInsideDist) * (circularObject->r - pointInsideDist);
-			const Point collisionPoint = pointInside + dist;
-			shapedObject->collideWithObject(*circularObject, collisionPoint, dist);
-		}
-	}
 
 	void World::collideObjects(PhysicalObject *object1, PhysicalObject *object2)
 	{

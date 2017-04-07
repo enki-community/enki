@@ -464,8 +464,6 @@ namespace Enki
 		BluetoothBase* bluetoothBase;
 
 	protected:
-		//! Do the collision of a circular object with one with a different shape (convex boundingsurface)
-		void collideCircleWithShape(PhysicalObject *circularObject, PhysicalObject *shapedObject, const Polygone &shape);
 		//! Collide two objects. Correct functions will be called depending on type of object (circular or other shape).
 		void collideObjects(PhysicalObject *object1, PhysicalObject *object2);
 		//! Collide the object with square walls.
