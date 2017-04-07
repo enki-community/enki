@@ -231,6 +231,12 @@ namespace Enki
 		{
 			return (a + b) / 2;
 		}
+		
+		//! Return a vector of the direction of the segment
+		Vector getDirection() const
+		{
+			return b - a;
+		}
 	};
 	
 	//! Polygone, which is a vector of points. Anti-clockwise, standard trigonometric orientation
@@ -351,6 +357,17 @@ namespace Enki
 	/*! \ingroup an */
 	std::ostream & operator << (std::ostream & outs, const Polygone &polygone);
 	
+	//! Return true and set collision arguments (passed by reference) if shape1 intersects shape2, return false and do not change anything otherwise
+	/*! \ingroup an */
+	/*!
+		\param shape1 first polygon
+		\param shape2 second polygon
+		\param mtv reference to the minimum translation vector for de-penetration, set if intersection happens
+		\param collisionPoint reference to the collision point, set if intersection happens
+		\param mtvApplyToShape1 reference to a flag stating whether mtv applies to shape1 (true), or shape2 (false), set if intersection happens
+	*/
+	bool doIntersect(const Polygone& shape1, const Polygone& shape2, Vector& mtv, Point& collisionPoint, bool& mtvApplyToShape1);
+	
 	//! Normlize an angle to be between -PI and +PI.
 	/*! \ingroup an */
 	inline double normalizeAngle(double angle)
@@ -375,96 +392,7 @@ namespace Enki
 	//! returns Point(HUGE_VAL, HUGE_VAL) if there's no intersection
 	//! added by yvan.bourquin@epfl.ch
 	/*! \ingroup an */
-	inline Point getIntersection(const Segment &s1, const Segment &s2)
-	{
-		// compute first segment's equation
-		const double c1 = s1.a.y + (-s1.a.x / (s1.b.x - s1.a.x)) * (s1.b.y - s1.a.y);
-		const double m1 = (s1.b.y - s1.a.y) / (s1.b.x - s1.a.x);
- 
-		// compute second segment's equation
-		const double c2 = s2.a.y + (-s2.a.x / (s2.b.x - s2.a.x)) * (s2.b.y - s2.a.y);
-		const double m2 = (s2.b.y - s2.a.y) / (s2.b.x - s2.a.x);
-
-		// are the lines parallel ?
-		if (m1 == m2)
-			return Point(HUGE_VAL, HUGE_VAL);
-
-		double x1 = s1.a.x;
-		double x2 = s1.b.x;
-		double x3 = s2.a.x;
-		double x4 = s2.b.x;
-		double y1 = s1.a.y;
-		double y2 = s1.b.y;
-		double y3 = s2.a.y;
-		double y4 = s2.b.y;
-
-		// make sure x1 < x2
-		if (x1 > x2)
-		{
-			double temp = x1;
-			x1 = x2;
-			x2 = temp;
-		}
-
-		// make sure x3 < x4
-		if (x3 > x4)
-		{
-			double temp = x3;
-			x3 = x4;
-			x4 = temp;
-		}
-
-		// make sure y1 < y2
-		if (y1 > y2)
-		{
-			double temp = y1;
-			y1 = y2;
-			y2 = temp;
-		}
-
-		// make sure y3 < y4
-		if (y3 > y4)
-		{
-			double temp = y3;
-			y3 = y4;
-			y4 = temp;
-		}
-
-		// intersection point in case of infinite slopes
-		double x;
-		double y;
-
-		// infinite slope m1
-		if (x1 == x2)
-		{
-			x = x1;
-			y = m2 * x1 + c2;
-			if (x > x3 && x < x4 && y > y1 && y <y2)
-				return Point(x, y);
-			else
-				return Point(HUGE_VAL, HUGE_VAL);
-		}
-
-		// infinite slope m2
-		if (x3 == x4)
-		{
-			x = x3;
-			y = m1 * x3 + c1;
-			if (x > x1 && x < x2 && y > y3 && y < y4)
-				return Point(x, y);
-			else
-				return Point(HUGE_VAL, HUGE_VAL);
-		}
-		
-		// compute lines intersection point
-		x = (c2 - c1) / (m1 - m2);
-
-		// see whether x in in both ranges [x1, x2] and [x3, x4]
-		if (x > x1 && x < x2 && x > x3 && x < x4)
-			return Point(x, m1 * x + c1);
-  
-		return Point(HUGE_VAL, HUGE_VAL);
-	}
+	Point getIntersection(const Segment &s1, const Segment &s2);
 	
 	//! Returns 2 times the signed triangle area. 
 	/** positive if abc winds counter-clockwise,

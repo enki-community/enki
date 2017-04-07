@@ -472,8 +472,6 @@ namespace Enki
 		void collideWithSquareWalls(PhysicalObject *object);
 		//! Collide the object with circular walls.
 		void collideWithCircularWalls(PhysicalObject *object);
-		//! Return true if point p of object of center c is inside polygone bs and return deinterlacement distVector.
-		bool isPointInside(const Point &p, const Point &c, const Polygone &bs, Vector *distVector);
 
 	public:
 		//! Construct a world with square walls, takes width and height of the world arena in cm.

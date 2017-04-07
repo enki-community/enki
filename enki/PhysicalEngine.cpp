@@ -793,60 +793,6 @@ namespace Enki
 			wallTextures[i].resize(1, color);
 	}
 	*/
-	
-	bool World::isPointInside(const Point &p, const Point &c, const Polygone &bs, Vector *distVector)
-	// p = candidate point of object; c = pos of object; bs = bounding surface of other object; distVector = deinterlacing dist to be calculated
-	{
-		// Segment 1 from points c to d
-		const Point d = p;
-		bool intersection_found = false;
-		 
-		for (size_t i=0; i<bs.size(); i++)
-		{
-			const size_t next = (i+1)%bs.size();
-			// Segment 2 from points a to b
-			const Point a(bs[i].x, bs[i].y);
-			const Point b(bs[next].x, bs[next].y);
-			
-			// test if segments 1 and 2 overlap 
-			// see: Real-time collision detection, C. Ericson, Page 152-153
-			
-			const double a1 = getTriangleAreaTwice(a,b,d);
-			const double a2 = getTriangleAreaTwice(a,b,c);
-			
-			if (a1 * a2 < 0.0f)
-			{
-				const double a3 = getTriangleAreaTwice(c,d,a);
-				const double a4 = a3 + a2 - a1;
-				if (a3 * a4 < 0.0f)
-				{
-					// Segments 1 and 2 intersect
-					intersection_found = true;
-					
-					const double dist = getTriangleHeight(a,b,d); // TODO: abs necessary?
-					
-					if (dist < 0)
-					{
-						// both c and p are outside bs
-						// the intersection can be handled when checking the points of bs					
-						return false; 
-					}
-					
-					Vector n = (b-a).perp().unitary();			
-					*distVector = n * (-dist); // TODO: ok that we modify this even if we might return false??						
-					/*
-						std::cout << "Hull: " << bs << std::endl;
-						std::cout << "i: " << i << std::endl;
-						std::cout << "next: " << next << std::endl;						
-						std::cout << "p: " << p  << std::endl;
-						std::cout << "c: " << c  << std::endl;	
-						assert(false);					
-					*/
-				}
-			}
-		}
-		return intersection_found;
-	}
 
 	void World::collideWithSquareWalls(PhysicalObject *object)
 	{
@@ -995,12 +941,9 @@ namespace Enki
 		// test if circularObject is inside a shape
 		for (unsigned i=0; i<shape.size(); i++)
 		{
-			const size_t next=(i+1)%shape.size();
-			const Segment s(shape[i].x, shape[i].y, shape[next].x, shape[next].y);
-
-			const Vector nn(s.a.y-s.b.y, s.b.x-s.a.x);	//orthog. vector
+			const Segment s(shape.getSegment(i));
+			const Vector nn(s.getDirection().perp());
 			const Vector u = nn.unitary();
-
 			const double d = (circularObject->pos-s.a)*u;
 			// if we are inside the circularObject
 			if ((d<0) && (-d<circularObject->r))
@@ -1075,37 +1018,27 @@ namespace Enki
 					{
 						const Point& shape2Centroid = jt->getTransformedCentroid();
 						const Polygone& shape2 = jt->getTransformedShape();
-						// TODO: move this into a polygone collision function
 						
-						// look in both directions
-						for (size_t i = 0; i < shape1.size(); i++)
+						Vector mtv;
+						Vector cp;
+						bool applyToShape1;
+						if (doIntersect(shape1, shape2, mtv, cp, applyToShape1))
 						{
-							const Point &candidate = shape1[i];
-							if (isPointInside(candidate, shape1Centroid, shape2, &dist))
+							const double mtvNorm(mtv.norm2());
+							if (mtvNorm > maxNorm)
 							{
-								if (dist.norm2() > maxNorm)
+								maxNorm = mtvNorm;
+								trueDist = mtv;
+								collisionPoint = cp;
+								if (applyToShape1)
 								{
-									maxNorm = dist.norm2();
 									o1 = object1;
 									o2 = object2;
-									collisionPoint = candidate + dist;
-									trueDist = dist;
 								}
-							}
-						}
-						
-						for (size_t i=0; i < shape2.size(); i++)
-						{
-							const Point &candidate = shape2[i];
-							if (isPointInside(candidate, shape2Centroid, shape1, &dist))
-							{
-								if (dist.norm2() > maxNorm)
+								else
 								{
-									maxNorm = dist.norm2();
-									o2 = object1;
 									o1 = object2;
-									collisionPoint = candidate + dist;
-									trueDist = dist;
+									o2 = object1;
 								}
 							}
 						}
