@@ -247,7 +247,7 @@ namespace Enki
 		
 		
 		// helper methods
-		unsigned int getButtonCode(QMouseEvent * event);
+		unsigned int getButtonCode(QMouseEvent * event) const;
 	};
 }
 

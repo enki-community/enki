@@ -1378,7 +1378,7 @@ namespace Enki
  	}
 
 	//! return all button pressed packed in an unsigned int. Used before to send to a robot for a clicked interaction
-	unsigned int ViewerWidget::getButtonCode(QMouseEvent * event)
+	unsigned int ViewerWidget::getButtonCode(QMouseEvent * event) const
 	{
 		unsigned int buttonCode(0);
 		if (event->buttons() & Qt::LeftButton)
