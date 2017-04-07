@@ -374,8 +374,6 @@ namespace Enki
 	/*! \ingroup an */
 	std::ostream & operator << (std::ostream & outs, const Polygone &polygone);
 	
-	
-	
 	//! Normlize an angle to be between -PI and +PI.
 	/*! \ingroup an */
 	inline double normalizeAngle(double angle)
@@ -387,46 +385,11 @@ namespace Enki
 		return angle;
 	}
 	
-	#if 0
-	// NOTE: unused for now
-	//! Return the area of the triangle formed by a,b,c in mathematical order (CCW)
-	inline double getTriangleArea(const Point &a, const Point &b, const Point &c)
-	{
-		return (a.x-c.x) * (b.y-c.y) - (a.y-c.y) * (b.x-c.x);
-	}
-	#endif
-  
 	//! get the intersection point between two line segments
 	//! returns Point(HUGE_VAL, HUGE_VAL) if there's no intersection
 	//! added by yvan.bourquin@epfl.ch
 	/*! \ingroup an */
 	Point getIntersection(const Segment &s1, const Segment &s2);
-	
-	//! Returns 2 times the signed triangle area. 
-	/** positive if abc winds counter-clockwise,
-	   negative if abc winds clockwise,
-	   zero if abc is degenerate.
-	   See: Real-time collision detection, C. Ericson, Page 152 */
-	/*! \ingroup an */
-	inline double getTriangleAreaTwice(const Point &a, const Point &b, const Point &c)
-	{
-		return (a.x - c.x) * (b.y - c.y) - (a.y - c.y) * (b.x - c.x);
-	}
-	
-	//! Returns signed height of triangle abc with base ab
-	/** positive if abc winds counter-clockwise
-	   negative if abc winds clockwise,
-	   zero if abc is degenerate. */
-	/*! \ingroup an */
-	inline double getTriangleHeight(const Point &a, const Point &b, const Point &c)
-	{
-		const double ba_norm = (b-a).norm();
-		if (ba_norm < std::numeric_limits<double>::epsilon())
-			return 0;
-		
-		// area of the parallelogram divided by the length of the base
-		return getTriangleAreaTwice(a, b, c) / ba_norm;
-	}
 }
 
 #endif
