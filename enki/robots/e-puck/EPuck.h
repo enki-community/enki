@@ -116,7 +116,7 @@ namespace Enki
 		//! Create a E-Puck with certain modules aka capabilities (basic)
 		EPuck(unsigned capabilities = CAPABILITY_BASIC_SENSORS);
 		//! Destructor
-		~EPuck();
+		virtual ~EPuck();
 		
 		//! Set ring color (true = red, false = black) 
 		void setLedRing(bool status);

@@ -110,7 +110,7 @@ namespace Enki
 		//! Constructor
 		Sbot();
 		//! Destructor
-		~Sbot() {}
+		~Sbot();
 	};
 
 

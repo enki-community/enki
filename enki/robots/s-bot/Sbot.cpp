@@ -119,6 +119,9 @@ namespace Enki
 		
 		setCylindric(6, 15, 500);
 	}
+
+    Sbot::~Sbot() {
+    }
 	
 	unsigned SbotGlobalSound::worldFrequenciesState = 0;
 	

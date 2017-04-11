@@ -60,7 +60,7 @@ namespace Enki
 		//! Constructor
 		Marxbot();
 		//! Destructor
-		~Marxbot() {}
+		~Marxbot();
 		//! Return the value of a virtual bumper
 		double getVirtualBumper(unsigned number);
 	};
