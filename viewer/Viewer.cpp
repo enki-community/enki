@@ -303,7 +303,7 @@ namespace Enki
 	{
 		setCamera(QPointF(x,y), altitude, yaw, pitch);
 	}
-	
+
 	void ViewerWidget::restartDumpFrames()
 	{
 		dumpFramesCounter = 0;
