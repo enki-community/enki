@@ -372,6 +372,16 @@ namespace Enki
 		void collideWithStaticObject(const Vector &n, const Point &cp);
 		//! Dynamics for collision with that at point cp (on that) with a penetrated distance of dist,
 		void collideWithObject(PhysicalObject &that, Point cp, const Vector &dist);
+
+	public:
+		int getId() const { return id; }
+		void setId(int id) { this->id = id; }
+
+	private:
+		// ID is used when sharing a world over the network where it should be
+		// possible to associate client objects with their corresponding ones on
+		// the server even if they don't have the same pointer address.
+		int id;
 	};
 
 	//! A robot is a PhysicalObject that has additional interactions and a controller.
@@ -506,6 +516,9 @@ namespace Enki
 	protected:
 		//! Can implement world specific control. By default do nothing
 		virtual void controlStep(double dt) { }
+
+	private:
+		int idNewObject;
 	};
 	
 	//! Fast random for use by Enki

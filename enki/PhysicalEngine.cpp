@@ -1117,6 +1117,11 @@ namespace Enki
 	
 	void World::addObject(PhysicalObject *o)
 	{
+		if (o->getId() == 0)
+		{
+			o->id = idNewObject;
+			idNewObject++;
+		}
 		objects.insert(o);
 	}
 
