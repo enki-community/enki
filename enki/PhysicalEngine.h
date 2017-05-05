@@ -313,14 +313,17 @@ namespace Enki
 		//! Set the overall color of this object, if hull is empty or if it does not contain any texture
 		void setColor(const Color &color);
 
-		enum ButtonCode
+		//! A struct with bitfields for buttons
+		enum MouseButtonCode
 		{
-			LEFT_MOUSE_BUTTON = 1<<0,
-			RIGHT_MOUSE_BUTTON = 1<<1,
-			MIDDLE_MOUSE_BUTTON = 1<<3
+			MOUSE_BUTTON_LEFT = 0,
+			MOUSE_BUTTON_RIGHT = 1,
+			MOUSE_BUTTON_MIDDLE = 2
 		};
-		//! called for robot if a click is performed on it
-		virtual void clickedInteraction(bool pressed, unsigned int buttonCode, double pointX, double pointY, double pointZ){};
+		//! Called for robot if a mouse button is pressed while pointing to it, point is given in relative coordinates
+		virtual void mousePressEvent(unsigned button, double pointX, double pointY, double pointZ) {};
+		//! Called for a robot if a previously mouse button was pressed and is now released
+		virtual void mouseReleaseEvent(unsigned button) {};
 		
 	private:		// setup methods
 		

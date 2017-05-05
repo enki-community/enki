@@ -180,6 +180,10 @@ namespace Enki
 		QVector3D pointedPoint;
 		bool movingObject;
 		
+		Robot* mouseLeftButtonRobot;
+		Robot* mouseRightButtonRobot;
+		Robot* mouseMiddleButtonRobot;
+		
 		double elapsedTime;
 
 	public:
@@ -244,10 +248,6 @@ namespace Enki
 		virtual void mouseDoubleClickEvent(QMouseEvent *event);
 		virtual void wheelEvent(QWheelEvent * event);
 		virtual void timerEvent(QTimerEvent * event);
-		
-		
-		// helper methods
-		unsigned int getButtonCode(QMouseEvent * event) const;
 	};
 }
 

@@ -193,6 +193,7 @@ namespace Enki
 		timerPeriodMs(30),
 		camera(world),
 		doDumpFrames(false),
+		dumpFramesCounter(0),
 		world(world),
 		worldList(0),
 		messageListWidth(0),
@@ -201,12 +202,14 @@ namespace Enki
 		mouseGrabbed(false),
 		wallsHeight(10),
 		trackingView(false),
-		dumpFramesCounter(0)
+		pointedObject(0),
+		selectedObject(0),
+		movingObject(false),
+		mouseLeftButtonRobot(0),
+		mouseRightButtonRobot(0),
+		mouseMiddleButtonRobot(0)
 	{
 		initTexturesResources();
-		pointedObject = 0;
-		selectedObject = 0;
-		movingObject = false;
 		elapsedTime = double(30)/1000.; // average second between two frame, can be updated each frame to better precision
 		showHelp();
 		
@@ -1251,22 +1254,53 @@ namespace Enki
 		// if pointed object is a robot call the clicked interaction function
 		Robot* robot = dynamic_cast<Robot*>(pointedObject);
 		if (robot)
-			robot->clickedInteraction(true, getButtonCode(event), pointedPoint.x(), pointedPoint.y(), pointedPoint.z());
+		{
+			Vector pointedPointXY(pointedPoint.x(), pointedPoint.y());
+			pointedPointXY -= robot->pos;
+			pointedPointXY = Matrix22(-robot->angle) * pointedPointXY;
+			if (event->button() == Qt::LeftButton)
+			{
+				robot->mousePressEvent(PhysicalObject::MOUSE_BUTTON_LEFT, pointedPointXY.x, pointedPointXY.y, pointedPoint.z());
+				mouseLeftButtonRobot = robot;
+			}
+			if (event->button() == Qt::RightButton)
+			{
+				robot->mousePressEvent(PhysicalObject::MOUSE_BUTTON_RIGHT, pointedPointXY.x, pointedPointXY.y, pointedPoint.z());
+				mouseRightButtonRobot = robot;
+			}
+			if (event->button() == Qt::MiddleButton)
+			{
+				robot->mousePressEvent(PhysicalObject::MOUSE_BUTTON_MIDDLE, pointedPointXY.x, pointedPointXY.y, pointedPoint.z());
+				mouseMiddleButtonRobot = robot;
+			}
+		}
 	}
 	
 	void ViewerWidget::mouseReleaseEvent(QMouseEvent * event)
 	{
-		// enable physics calculation for selected object
+		// make sure the selected object is in the world
 		if (selectedObject)
 		{
 			world->addObject(selectedObject);
 			movingObject = false;
 		}
-
-		// if pointed object is a robot call the clicked interaction function
-		Robot* robot = dynamic_cast<Robot*>(pointedObject);
-		if (robot)
-			robot->clickedInteraction(false, getButtonCode(event), pointedPoint.x(), pointedPoint.y(), pointedPoint.z());
+		
+		// release previously-pressed buttons
+		if ((event->button() == Qt::LeftButton) && mouseLeftButtonRobot)
+		{
+			mouseLeftButtonRobot->mouseReleaseEvent(PhysicalObject::MOUSE_BUTTON_LEFT);
+			mouseLeftButtonRobot = 0;
+		}
+		if ((event->button() == Qt::RightButton) && mouseRightButtonRobot)
+		{
+			mouseRightButtonRobot->mouseReleaseEvent(PhysicalObject::MOUSE_BUTTON_RIGHT);
+			mouseRightButtonRobot = 0;
+		}
+		if ((event->button() == Qt::MiddleButton) && mouseMiddleButtonRobot)
+		{
+			mouseMiddleButtonRobot->mouseReleaseEvent(PhysicalObject::MOUSE_BUTTON_MIDDLE);
+			mouseMiddleButtonRobot = 0;
+		}
 	}
 	
 	void ViewerWidget::mouseMoveEvent(QMouseEvent *event)
@@ -1376,19 +1410,4 @@ namespace Enki
 		world->step(double(timerPeriodMs)/1000., 3);
 		updateGL();
  	}
-
-	//! return all button pressed packed in an unsigned int. Used before to send to a robot for a clicked interaction
-	unsigned int ViewerWidget::getButtonCode(QMouseEvent * event) const
-	{
-		unsigned int buttonCode(0);
-		if (event->buttons() & Qt::LeftButton)
-			buttonCode |= PhysicalObject::LEFT_MOUSE_BUTTON;
-		if (event->buttons() & Qt::RightButton)
-			buttonCode |= PhysicalObject::RIGHT_MOUSE_BUTTON;
-		if (event->buttons() & Qt::MiddleButton)
-			buttonCode |= PhysicalObject::MIDDLE_MOUSE_BUTTON;
-		if (event->buttons() & Qt::MidButton)
-			buttonCode |= PhysicalObject::MIDDLE_MOUSE_BUTTON;
-		return buttonCode;
-	}
 }
