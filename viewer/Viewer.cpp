@@ -1001,7 +1001,7 @@ namespace Enki
 		pointedObject = 0;
 		QPoint cursorPosition = mapFromGlobal(QCursor::pos());
 
-		if (!rect().contains(cursorPosition,true)) // window don't contain cursor
+		if (!rect().contains(cursorPosition,true)) // window does not contain cursor
 			return;
 
 		// prepare matricies for invertion
@@ -1036,41 +1036,41 @@ namespace Enki
 
 		// prepare to find which object is pointed
 		Point cursor2Dpoint(pointedPoint.x(),pointedPoint.y());
-		const double cursorRadius = 0.05f;
+		const double cursorRadius = 0.2f;
 		for (World::ObjectsIterator it = world->objects.begin(); it != world->objects.end(); ++it)
 		{
 			const Vector distOCtoOC = (*it)->pos - cursor2Dpoint;		// distance between object bounding circle center and pointed point
 			const double addedRay = (*it)->getRadius() + cursorRadius;	// sum of bounded circle radius
 			if (distOCtoOC.norm2() <= (addedRay*addedRay)) 			// cursor point colide bounding circle
 			{
-				if (!(*it)->getHull().empty())				// check pointer circle and bject hull
+				if (!(*it)->getHull().empty())				// check pointer circle and object hull
 				{
 					PhysicalObject::Hull hull = (*it)->getHull();
 					for (PhysicalObject::Hull::const_iterator it2 = hull.begin(); it2 != hull.end(); ++it2) // check all convex shape of hull
 					{
 						const Polygone shape = it2->getTransformedShape();
-						unsigned int inside = 0;
-
-						// standard test : if circularObject is inside a convex shape
-						for (unsigned int i=0; i<shape.size(); i++)
+						bool inside(true);
+						for (size_t i = 0; i < shape.size(); i++)
 						{
-							const size_t next=(i+1)%shape.size();
-							const Segment s(shape[i].x, shape[i].y, shape[next].x, shape[next].y);
-							const double d = s.dist(cursor2Dpoint);
-
-							if (d<0 && std::abs(d)>cursorRadius) // out of hull
+							if (shape.getSegment(i).dist(cursor2Dpoint) < -cursorRadius)
+							{
+								inside = false;
 								break;
-							else inside++;
+							}
 						}
-						if (inside == shape.size()) // inside of hull
+						if (inside)
 						{
 							pointedObject = *it;
-							break;
+							return;
 						}
 					}
 				}
-				else	// object circle collide cursor circle => test already done !
+				else
+				{
+					// object circle collide cursor circle => test already done !
 					pointedObject = *it;
+					return;
+				}
 			}
 		}
 	}
