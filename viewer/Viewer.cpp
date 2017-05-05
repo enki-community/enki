@@ -210,7 +210,7 @@ namespace Enki
 		mouseMiddleButtonRobot(0)
 	{
 		initTexturesResources();
-		elapsedTime = double(30)/1000.; // average second between two frame, can be updated each frame to better precision
+		elapsedTime = double(30)/1000.; // average second between two frames, can be updated each frame to better precision
 		showHelp();
 		
 		startTimer(timerPeriodMs);
@@ -1028,10 +1028,11 @@ namespace Enki
 
 		if (input.w() != 0.0) // valid pointed point
 		{
-			pointedPoint = QVector3D(input.x(),input.y(),input.z());
+			pointedPoint = QVector3D(input.x(), input.y(), input.z());
 			pointedPoint /= input.w();
 		}
-		else return;
+		else
+			return;
 
 		// prepare to find which object is pointed
 		Point cursor2Dpoint(pointedPoint.x(),pointedPoint.y());
