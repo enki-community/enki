@@ -197,10 +197,10 @@ namespace Enki
 
 			glBegin (GL_QUADS);
 				glNormal3f (0,0,1);
-				glTexCoord2f(0.01f,0.01f); glVertex3f(-5, -2,0);
-				glTexCoord2f(0.01f,0.99f); glVertex3f(7, -2,0);
-				glTexCoord2f(0.99f,0.99f); glVertex3f(7, 9,0);
-				glTexCoord2f(0.99f,0.01f); glVertex3f(-5, 9,0);
+				glTexCoord2f(0.01f,0.01f); glVertex3f(-2.5, -2,0);
+				glTexCoord2f(0.01f,0.99f); glVertex3f(9.5, -2,0);
+				glTexCoord2f(0.99f,0.99f); glVertex3f(9.5, 9,0);
+				glTexCoord2f(0.99f,0.01f); glVertex3f(-2.5, 9,0);
 			glEnd();
 		}
 		if (thymio->getColorLed(Thymio2::BOTTOM_RIGHT).a() != 0.0)
@@ -210,10 +210,10 @@ namespace Enki
 
 			glBegin (GL_QUADS);
 				glNormal3f (0,0,1);
-				glTexCoord2f(0.99f,0.01f); glVertex3f(-5,-9,0);
-				glTexCoord2f(0.99f,0.99f); glVertex3f(7,-9,0);
-				glTexCoord2f(0.01f,0.99f); glVertex3f(7, 2,0);
-				glTexCoord2f(0.01f,0.01f); glVertex3f(-5, 2,0);
+				glTexCoord2f(0.99f,0.01f); glVertex3f(-2.5,-9,0);
+				glTexCoord2f(0.99f,0.99f); glVertex3f(9.5,-9,0);
+				glTexCoord2f(0.01f,0.99f); glVertex3f(9.5, 2,0);
+				glTexCoord2f(0.01f,0.01f); glVertex3f(-2.5, 2,0);
 			glEnd();
 		}
 		glDisable(GL_POLYGON_OFFSET_FILL);
