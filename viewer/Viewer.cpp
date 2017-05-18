@@ -1245,10 +1245,14 @@ namespace Enki
 			{
 				if (selectedObject != pointedObject)
 					setTracking(false);
-				if (isMovableByPicking(pointedObject))
-					selectedObject = pointedObject;
-				else
-					selectedObject = 0;
+				// only allow to deselect object if we are not actually moving it
+				if (!movingObject)
+				{
+					if (isMovableByPicking(pointedObject))
+						selectedObject = pointedObject;
+					else
+						selectedObject = 0;
+				}
 			}
 		}
 
