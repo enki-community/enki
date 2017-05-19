@@ -960,7 +960,7 @@ namespace Enki
 					{
 						const Polygone& shape2 = jt->getTransformedShape();
 						Vector mtv, cp;
-						if (shape1.doIntersect(shape2, mtv, cp))
+						if (shape1.doesIntersect(shape2, mtv, cp))
 						{
 							const double mtvNorm(mtv.norm2());
 							if (mtvNorm > maxNorm)
@@ -981,7 +981,7 @@ namespace Enki
 				for (PhysicalObject::Hull::const_iterator it = object1->hull.begin(); it != object1->hull.end(); ++it)
 				{
 					Vector mtv, cp;
-					if (it->getTransformedShape().doIntersect(object2->pos, object2->r, mtv, cp))
+					if (it->getTransformedShape().doesIntersect(object2->pos, object2->r, mtv, cp))
 					{
 						const double mtvNorm(mtv.norm2());
 						if (mtvNorm > maxNorm)
@@ -1002,7 +1002,7 @@ namespace Enki
 			for (PhysicalObject::Hull::const_iterator jt = object2->hull.begin(); jt != object2->hull.end(); ++jt)
 			{
 				Vector mtv, cp;
-				if (jt->getTransformedShape().doIntersect(object1->pos, object1->r, mtv, cp))
+				if (jt->getTransformedShape().doesIntersect(object1->pos, object1->r, mtv, cp))
 				{
 					const double mtvNorm(mtv.norm2());
 					if (mtvNorm > maxNorm)

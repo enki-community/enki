@@ -34,12 +34,31 @@
 #include "Geometry.h"
 #include <cassert>
 #include <iostream>
+#include <exception>
+#include <cmath>
 
 namespace Enki
 {
+	
+	template<class T>
+	bool almost_equal(T x, T y, int ulp = 2)
+	{
+		// the machine epsilon has to be scaled to the magnitude of the values used
+		// and multiplied by the desired precision in ULPs (units in the last place)
+		return std::abs(x-y) < std::numeric_limits<T>::epsilon() * std::abs(x+y) * ulp
+		// unless the result is subnormal
+			|| std::abs(x-y) < std::numeric_limits<T>::min();
+	}
+
 	std::ostream & operator << (std::ostream & outs, const Vector &vector)
 	{
 		outs << "(" << vector.x << ", " << vector.y << ")";
+		return outs;
+	}
+	
+	std::ostream & operator << (std::ostream & outs, const Segment &segment)
+	{
+		outs << segment.a << "-" << segment.b;
 		return outs;
 	}
 	
@@ -50,7 +69,183 @@ namespace Enki
 		return outs;
 	}
 	
-	bool Polygone::doIntersect(const Polygone& that, Vector& mtv, Point& collisionPoint) const
+	double Segment::dist(const Point &p) const
+	{
+		const Vector n(a.y-b.y, b.x-a.x);
+		const Vector u = n.unitary();
+		const Vector ap = p-a;
+		return ap * u;
+	}
+	
+	bool Segment::doesIntersect(const Segment &that, Point* intersectionPoint) const
+	{
+		const Vector r(this->b - this->a);
+		const Vector s(that.b - that.a);
+		const Vector thatAMinThisA(that.a - this->a);
+		const double rCrossS(r.cross(s));
+		if (almost_equal(rCrossS, 0.))
+		{
+			if (almost_equal(thatAMinThisA.cross(r), 0.))
+			{
+				// colinear, check if overlap
+				if (this->isDegenerate())
+				{
+					if (that.isDegenerate())
+					{
+						// both degenerate, are they equal?
+						if (this->a == that.a)
+						{
+							// yes? intersection
+							if (intersectionPoint)
+								*intersectionPoint = a;
+							return true;
+						}
+						return false;
+					}
+					else
+					{
+						// only this is degenerate, is it on that?
+						if ((a.x >= fmin(that.a.x, that.b.x)) &&
+							(a.y >= fmin(that.a.y, that.b.y)) &&
+							(a.x <= fmax(that.a.x, that.b.x)) &&
+							(a.y <= fmax(that.a.y, that.b.y)))
+						{
+							// yes, intersection
+							if (intersectionPoint)
+									*intersectionPoint = a;
+							return true;
+						}
+						return false;
+					}
+				}
+				// both segments have non-zero length
+				const Vector rOnNorm2(r / r.norm2());
+				const double t0(thatAMinThisA * rOnNorm2);
+				const double t1(t0 + s * rOnNorm2);
+				if (fmin(t0, t1) > 1)
+					return false;
+				if (fmax(t0, t1) < 0)
+					return false;
+				if (intersectionPoint)
+				{
+					// intersection is in the middle of the overlapping interval
+					const double t0Clamped(fmax(fmin(t0, 1.), 0.));
+					const double t1Clamped(fmax(fmin(t1, 1.), 0.));
+					const double tMean((t0Clamped + t1Clamped) / 2);
+					*intersectionPoint = a + r * tMean;
+				}
+				return true;
+			}
+			return false;
+		}
+		else
+		{
+			const double t(thatAMinThisA.cross(s) / rCrossS);
+			const double u(thatAMinThisA.cross(r) / rCrossS);
+			if (0 <= t && t <= 1 && 0 <= u && u <= 1)
+			{
+				if (intersectionPoint)
+					*intersectionPoint = a + r * t;
+				return true;
+			}
+			return false;
+		}
+	}
+	
+	Segment Polygone::getSegment(size_t i) const
+	{
+		if (size() < 2)
+			throw std::runtime_error("trying to get segment of a polygon with less than two points");
+		return Segment((*this)[i % size()], (*this)[(i + 1) % size()]);
+	}
+	
+	bool Polygone::isPointInside(const Point& p) const
+	{
+		for (size_t i = 0; i < size(); i++)
+		{
+			if (getSegment(i).dist(p) < 0)
+				return false;
+		}
+		return true;
+	}
+	
+	bool Polygone::getAxisAlignedBoundingBox(Point& bottomLeft, Point& topRight) const
+	{
+		if (empty())
+			return false;
+		
+		bottomLeft = (*this)[0];
+		topRight = (*this)[0];
+		
+		extendAxisAlignedBoundingBox(bottomLeft, topRight);
+		
+		return true;
+	}
+	
+	void Polygone::extendAxisAlignedBoundingBox(Point& bottomLeft, Point& topRight) const
+	{
+		for (const_iterator it = begin(); it != end(); ++it)
+		{
+			const Point& p = *it;
+			
+			if (p.x < bottomLeft.x)
+				bottomLeft.x = p.x;
+			else if (p.x > topRight.x)
+				topRight.x = p.x;
+			
+			if (p.y < bottomLeft.y)
+				bottomLeft.y = p.y;
+			else if (p.y > topRight.y)
+				topRight.y = p.y;
+		}
+	}
+	
+	double Polygone::getBoundingRadius() const
+	{
+		double radius = 0;
+		for (size_t i = 0; i < size(); i++)
+			radius = std::max<double>(radius, (*this)[i].norm());
+		return radius;
+	}
+	
+	void Polygone::translate(const Vector& delta)
+	{
+		for (iterator it = begin(); it != end(); ++it)
+			*it += delta;
+	}
+	
+	void Polygone::rotate(const double angle)
+	{
+		Matrix22 rot(angle);
+		for (iterator it = begin(); it != end(); ++it)
+			*it = rot * (*it);
+	}
+	
+	void Polygone::flipX()
+	{
+		for (size_t i = 0; i < size(); i++)
+			(*this)[i].x = -(*this)[i].x;
+		for (size_t i = 0; i < size() / 2; i++)
+		{
+			Point p = (*this)[i];
+			(*this)[i] = (*this)[size() - i - 1];
+			(*this)[size() - i - 1] = p;
+		}
+	}
+	
+	void Polygone::flipY()
+	{
+		for (size_t i = 0; i < size(); i++)
+			(*this)[i].y = -(*this)[i].y;
+		for (size_t i = 0; i < size() / 2; i++)
+		{
+			Point p = (*this)[i];
+			(*this)[i] = (*this)[size() - i - 1];
+			(*this)[size() - i - 1] = p;
+		}
+	}
+	
+	bool Polygone::doesIntersect(const Polygone& that, Vector& mtv, Point& intersectionPoint) const
 	{
 		// Note: does not handle optimally the case of full overlapping
 		
@@ -117,13 +312,13 @@ namespace Enki
 		
 		// there was no separate axis found, update collision variables...
 		mtv = minMTV;
-		collisionPoint = minCollisionPoint;
+		intersectionPoint = minCollisionPoint;
 		
 		// ... and return true
 		return true;
 	}
 	
-	bool Polygone::doIntersect(const Point& center, const double r, Vector& mtv, Point& collisionPoint) const
+	bool Polygone::doesIntersect(const Point& center, const double r, Vector& mtv, Point& intersectionPoint) const
 	{
 		// Note: does not handle optimally the case of full overlapping
 		
@@ -164,7 +359,7 @@ namespace Enki
 		if (minMTVDist != std::numeric_limits<double>::max())
 		{
 			mtv = minMTV;
-			collisionPoint = minCollisionPoint;
+			intersectionPoint = minCollisionPoint;
 			return true;
 		}
 		
@@ -190,100 +385,9 @@ namespace Enki
 		
 		// collision, update collision variables...
 		mtv = minMTV;
-		collisionPoint = minCollisionPoint;
+		intersectionPoint = minCollisionPoint;
 		
 		// ... and return true
 		return true;
-	}
-	
-	Point getIntersection(const Segment &s1, const Segment &s2)
-	{
-		// compute first segment's equation
-		const double c1 = s1.a.y + (-s1.a.x / (s1.b.x - s1.a.x)) * (s1.b.y - s1.a.y);
-		const double m1 = (s1.b.y - s1.a.y) / (s1.b.x - s1.a.x);
- 
-		// compute second segment's equation
-		const double c2 = s2.a.y + (-s2.a.x / (s2.b.x - s2.a.x)) * (s2.b.y - s2.a.y);
-		const double m2 = (s2.b.y - s2.a.y) / (s2.b.x - s2.a.x);
-
-		// are the lines parallel ?
-		if (m1 == m2)
-			return Point(HUGE_VAL, HUGE_VAL);
-
-		double x1 = s1.a.x;
-		double x2 = s1.b.x;
-		double x3 = s2.a.x;
-		double x4 = s2.b.x;
-		double y1 = s1.a.y;
-		double y2 = s1.b.y;
-		double y3 = s2.a.y;
-		double y4 = s2.b.y;
-
-		// make sure x1 < x2
-		if (x1 > x2)
-		{
-			double temp = x1;
-			x1 = x2;
-			x2 = temp;
-		}
-
-		// make sure x3 < x4
-		if (x3 > x4)
-		{
-			double temp = x3;
-			x3 = x4;
-			x4 = temp;
-		}
-
-		// make sure y1 < y2
-		if (y1 > y2)
-		{
-			double temp = y1;
-			y1 = y2;
-			y2 = temp;
-		}
-
-		// make sure y3 < y4
-		if (y3 > y4)
-		{
-			double temp = y3;
-			y3 = y4;
-			y4 = temp;
-		}
-
-		// intersection point in case of infinite slopes
-		double x;
-		double y;
-
-		// infinite slope m1
-		if (x1 == x2)
-		{
-			x = x1;
-			y = m2 * x1 + c2;
-			if (x > x3 && x < x4 && y > y1 && y <y2)
-				return Point(x, y);
-			else
-				return Point(HUGE_VAL, HUGE_VAL);
-		}
-
-		// infinite slope m2
-		if (x3 == x4)
-		{
-			x = x3;
-			y = m1 * x3 + c1;
-			if (x > x1 && x < x2 && y > y3 && y < y4)
-				return Point(x, y);
-			else
-				return Point(HUGE_VAL, HUGE_VAL);
-		}
-		
-		// compute lines intersection point
-		x = (c2 - c1) / (m1 - m2);
-
-		// see whether x in in both ranges [x1, x2] and [x3, x4]
-		if (x > x1 && x < x2 && x > x3 && x < x4)
-			return Point(x, m1 * x + c1);
-  
-		return Point(HUGE_VAL, HUGE_VAL);
 	}
 }
