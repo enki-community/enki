@@ -34,6 +34,7 @@
 #include "Geometry.h"
 #include <cassert>
 #include <iostream>
+#include <stdexcept>
 #include <exception>
 #include <cmath>
 
