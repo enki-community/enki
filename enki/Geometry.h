@@ -266,7 +266,7 @@ namespace Enki
 		//! Operator to add point inline
 		Polygone& operator << (const Point& p) { push_back(p); return *this; }
 		
-		//! Return true and set collisiont arguments (passed by reference) if this interests circle (center, r), return false and do not change anything otherwise
+		//! Return true and set intersection arguments (passed by reference) if this intersects circle (center, r), return false and do not change anything otherwise
 		/*!
 			\param center center of circle
 			\param r radius of circle
@@ -275,7 +275,7 @@ namespace Enki
 		*/
 		bool doesIntersect(const Point& center, const double r, Vector& mtv, Point& intersectionPoint) const;
 		
-		//! Return true and set collision arguments (passed by reference) if shape1 intersects shape2, return false and do not change anything otherwise
+		//! Return true and set intersection arguments (passed by reference) if shape1 intersects shape2, return false and do not change anything otherwise
 		/*!
 			\param that second polygon
 			\param mtv minimum translation vector for de-penetration, how much to move this for de-penetration, set if intersection happens
