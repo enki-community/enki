@@ -50,7 +50,7 @@ namespace Enki
 	
 	// PhysicalObject::Part
 	
-	PhysicalObject::Part::Part(const Polygone& shape, double height) :
+	PhysicalObject::Part::Part(const Polygon& shape, double height) :
 		height(height),
 		shape(shape)
 	{
@@ -59,7 +59,7 @@ namespace Enki
 		transformedShape.resize(shape.size());
 	}
 	
-	PhysicalObject::Part::Part(const Polygone& shape, double height, const Textures& textures) :
+	PhysicalObject::Part::Part(const Polygon& shape, double height, const Textures& textures) :
 		height(height),
 		shape(shape),
 		textures(textures)
@@ -148,7 +148,7 @@ namespace Enki
 	
 	// Hull
 	
-	Polygone PhysicalObject::Hull::getConvexHull() const
+	Polygon PhysicalObject::Hull::getConvexHull() const
 	{
 		// see http://en.wikipedia.org/wiki/Gift_wrapping_algorithm
 		// construct a vector of all points and get the left most
@@ -157,17 +157,17 @@ namespace Enki
 		Points points;
 		for (Hull::const_iterator it = begin(); it != end(); ++it)
 		{
-			const Polygone& part = it->getShape();
-			for (Polygone::const_iterator jt = part.begin(); jt != part.end(); ++jt)
+			const Polygon& part = it->getShape();
+			for (Polygon::const_iterator jt = part.begin(); jt != part.end(); ++jt)
 				points.insert(*jt);
 		}
 		
 		// do nothing for empty hulls
 		if (points.empty())
-			return Polygone();
+			return Polygon();
 		
 		//  Jarvis march/gift wrapping
-		Polygone convexHull;
+		Polygon convexHull;
 		convexHull.push_back(*points.begin());
 		points.erase(points.begin());
 		while (!points.empty())
@@ -823,7 +823,7 @@ namespace Enki
 			// iterate over all shapes
 			for (PhysicalObject::Hull::const_iterator it = object->hull.begin(); it != object->hull.end(); ++it)
 			{
-				const Polygone& shape = it->getTransformedShape();
+				const Polygon& shape = it->getTransformedShape();
 				
 				// let's assume walls are infinite
 				Point cp1, cp2; // cp1 is on x, cp2 is on y
@@ -906,7 +906,7 @@ namespace Enki
 			// iterate over all shapes
 			for (PhysicalObject::Hull::const_iterator it = object->hull.begin(); it != object->hull.end(); ++it)
 			{
-				const Polygone& shape = it->getTransformedShape();
+				const Polygon& shape = it->getTransformedShape();
 				Point cp;
 				double dist = 0;
 				for (size_t i=0; i<shape.size(); i++)
@@ -955,10 +955,10 @@ namespace Enki
 				// iterate on all shapes of both objects
 				for (PhysicalObject::Hull::const_iterator it = object1->hull.begin(); it != object1->hull.end(); ++it)
 				{
-					const Polygone& shape1 = it->getTransformedShape();
+					const Polygon& shape1 = it->getTransformedShape();
 					for (PhysicalObject::Hull::const_iterator jt = object2->hull.begin(); jt != object2->hull.end(); ++jt)
 					{
-						const Polygone& shape2 = jt->getTransformedShape();
+						const Polygon& shape2 = jt->getTransformedShape();
 						Vector mtv, cp;
 						if (shape1.doesIntersect(shape2, mtv, cp))
 						{

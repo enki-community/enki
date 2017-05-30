@@ -726,7 +726,7 @@ namespace Enki
 		glEndList();
 	}
 	
-	void ViewerWidget::renderShape(const Polygone& shape, const double height, const Color& color)
+	void ViewerWidget::renderShape(const Polygon& shape, const double height, const Color& color)
 	{
 		const size_t segmentCount = shape.size();
 		
@@ -777,7 +777,7 @@ namespace Enki
 		}
 		else
 		{
-			Polygone shape;
+			Polygon shape;
 			const size_t segmentCount(32);
 			shape.reserve(segmentCount);
 			const double radius(object->getRadius());
@@ -1048,7 +1048,7 @@ namespace Enki
 					PhysicalObject::Hull hull = (*it)->getHull();
 					for (PhysicalObject::Hull::const_iterator it2 = hull.begin(); it2 != hull.end(); ++it2) // check all convex shape of hull
 					{
-						const Polygone shape = it2->getTransformedShape();
+						const Polygon shape = it2->getTransformedShape();
 						bool inside(true);
 						for (size_t i = 0; i < shape.size(); i++)
 						{

@@ -191,9 +191,9 @@ namespace Enki
 		{
 		public:
 			//! Constructor, builds a shaped part without any texture; shape must be closed and convex.
-			Part(const Polygone& shape, double height);
+			Part(const Polygon& shape, double height);
 			//! Constructor, builds a shaped part with a textured shape; shape must be closed and convex.
-			Part(const Polygone& shape, double height, const Textures& textures);
+			Part(const Polygon& shape, double height, const Textures& textures);
 			//! Constructor, builds a rectangular part of size l1xl2, with a given height and color, and update radius
 			Part(double l1, double l2, double height);
 			
@@ -203,8 +203,8 @@ namespace Enki
 			// getters
 			inline double getHeight() const { return height; }
 			inline double getArea() const { return area; }
-			inline const Polygone& getShape() const { return shape; }
-			inline const Polygone& getTransformedShape() const { return transformedShape; }
+			inline const Polygon& getShape() const { return shape; }
+			inline const Polygon& getTransformedShape() const { return transformedShape; }
 			inline const Point& getCentroid() const { return centroid; }
 			inline const Point& getTransformedCentroid() const { return transformedCentroid; }
 			inline const Textures& getTextures() const { return textures; }
@@ -219,9 +219,9 @@ namespace Enki
 			//! The area of this part
 			double area;
 			//! The shape of the part in object coordinates.
-			Polygone shape;
+			Polygon shape;
 			//! The shape of the part in world coordinates, updated on initPhysicsInteractions().
-			Polygone transformedShape;
+			Polygon transformedShape;
 			//! The centroid (barycenter) of the part in object coordinates.
 			Point centroid;
 			//! The centroid (barycenter) of the part in world coordinates, updated on initPhysicsInteractions().
@@ -247,7 +247,7 @@ namespace Enki
 			//! Construct a hull with a single part
 			Hull(const Part& part) : std::vector<Part>(1, part) {}
 			//! Return the convex hull of this hull, using a simple Jarvis march/gift wrapping algorithm
-			Polygone getConvexHull() const;
+			Polygon getConvexHull() const;
 			//! Add this hull to another one
 			Hull operator+(const Hull& that) const;
 			//! Add this hull to another one
