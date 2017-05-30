@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 	// objects are garbage collected by the world on destruction
 	world.addObject(ePuck);
 	
-	Enki::Polygone p;
+	Enki::Polygon p;
 	const double amount = 9;
 	const double radius = 5;
 	const double height = 20;

@@ -72,7 +72,7 @@ namespace Enki
 		dryFrictionCoefficient = 2.5;
 		
 		// define the physical shape of the Thymio
-		Enki::Polygone thymio2Shape;
+		Enki::Polygon thymio2Shape;
 		const double amount = 10.0;
 		const double radius = 8.0;
 		const double height = 5.1;

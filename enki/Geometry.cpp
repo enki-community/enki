@@ -62,9 +62,9 @@ namespace Enki
 		return outs;
 	}
 	
-	std::ostream & operator << (std::ostream & outs, const Polygone &polygone)
+	std::ostream & operator << (std::ostream & outs, const Polygon &polygon)
 	{
-		for (Polygone::const_iterator it = polygone.begin(); it != polygone.end(); ++it)
+		for (Polygon::const_iterator it = polygon.begin(); it != polygon.end(); ++it)
 			outs << *it << " ";
 		return outs;
 	}
@@ -152,14 +152,14 @@ namespace Enki
 		}
 	}
 	
-	Segment Polygone::getSegment(size_t i) const
+	Segment Polygon::getSegment(size_t i) const
 	{
 		if (size() < 2)
 			throw std::runtime_error("trying to get segment of a polygon with less than two points");
 		return Segment((*this)[i % size()], (*this)[(i + 1) % size()]);
 	}
 	
-	bool Polygone::isPointInside(const Point& p) const
+	bool Polygon::isPointInside(const Point& p) const
 	{
 		for (size_t i = 0; i < size(); i++)
 		{
@@ -169,7 +169,7 @@ namespace Enki
 		return true;
 	}
 	
-	bool Polygone::getAxisAlignedBoundingBox(Point& bottomLeft, Point& topRight) const
+	bool Polygon::getAxisAlignedBoundingBox(Point& bottomLeft, Point& topRight) const
 	{
 		if (empty())
 			return false;
@@ -182,7 +182,7 @@ namespace Enki
 		return true;
 	}
 	
-	void Polygone::extendAxisAlignedBoundingBox(Point& bottomLeft, Point& topRight) const
+	void Polygon::extendAxisAlignedBoundingBox(Point& bottomLeft, Point& topRight) const
 	{
 		for (const_iterator it = begin(); it != end(); ++it)
 		{
@@ -200,7 +200,7 @@ namespace Enki
 		}
 	}
 	
-	double Polygone::getBoundingRadius() const
+	double Polygon::getBoundingRadius() const
 	{
 		double radius = 0;
 		for (size_t i = 0; i < size(); i++)
@@ -208,20 +208,20 @@ namespace Enki
 		return radius;
 	}
 	
-	void Polygone::translate(const Vector& delta)
+	void Polygon::translate(const Vector& delta)
 	{
 		for (iterator it = begin(); it != end(); ++it)
 			*it += delta;
 	}
 	
-	void Polygone::rotate(const double angle)
+	void Polygon::rotate(const double angle)
 	{
 		Matrix22 rot(angle);
 		for (iterator it = begin(); it != end(); ++it)
 			*it = rot * (*it);
 	}
 	
-	void Polygone::flipX()
+	void Polygon::flipX()
 	{
 		for (size_t i = 0; i < size(); i++)
 			(*this)[i].x = -(*this)[i].x;
@@ -233,7 +233,7 @@ namespace Enki
 		}
 	}
 	
-	void Polygone::flipY()
+	void Polygon::flipY()
 	{
 		for (size_t i = 0; i < size(); i++)
 			(*this)[i].y = -(*this)[i].y;
@@ -245,7 +245,7 @@ namespace Enki
 		}
 	}
 	
-	bool Polygone::doesIntersect(const Polygone& that, Vector& mtv, Point& intersectionPoint) const
+	bool Polygon::doesIntersect(const Polygon& that, Vector& mtv, Point& intersectionPoint) const
 	{
 		// Note: does not handle optimally the case of full overlapping
 		
@@ -318,7 +318,7 @@ namespace Enki
 		return true;
 	}
 	
-	bool Polygone::doesIntersect(const Point& center, const double r, Vector& mtv, Point& intersectionPoint) const
+	bool Polygon::doesIntersect(const Point& center, const double r, Vector& mtv, Point& intersectionPoint) const
 	{
 		// Note: does not handle optimally the case of full overlapping
 		

@@ -37,7 +37,7 @@
 using namespace Enki;
 using namespace std;
 
-#define CHECK_INTERSECT_POLYGONE_CIRCLE(func, val) \
+#define CHECK_INTERSECT_POLYGON_CIRCLE(func, val) \
 	if (func != val) { \
 		cerr << #func << " with r = " << r << " intersect result " << func << " instead of " << val << endl; \
 		exit(1); \
@@ -64,7 +64,7 @@ void testPolygonCircleIntersection()
 	Vector mtv;
 	Point cp;
 	
-	Polygone square;
+	Polygon square;
 	square.push_back(Point(1, 1));
 	square.push_back(Point(9, 1));
 	square.push_back(Point(9, 9));
@@ -73,28 +73,28 @@ void testPolygonCircleIntersection()
 	// should intersect
 	for (double r = 1.01*sqrt(2); r<30; r = r*r)
 	{
-		CHECK_INTERSECT_POLYGONE_CIRCLE(square.doesIntersect(Point(0, 0), r, mtv, cp), true);
-		CHECK_INTERSECT_POLYGONE_CIRCLE(square.doesIntersect(Point(5, 0), r, mtv, cp), true);
-		CHECK_INTERSECT_POLYGONE_CIRCLE(square.doesIntersect(Point(10, 0), r, mtv, cp), true);
-		CHECK_INTERSECT_POLYGONE_CIRCLE(square.doesIntersect(Point(10, 5), r, mtv, cp), true);
-		CHECK_INTERSECT_POLYGONE_CIRCLE(square.doesIntersect(Point(10, 10), r, mtv, cp), true);
-		CHECK_INTERSECT_POLYGONE_CIRCLE(square.doesIntersect(Point(5, 0), r, mtv, cp), true);
-		CHECK_INTERSECT_POLYGONE_CIRCLE(square.doesIntersect(Point(0, 10), r, mtv, cp), true);
-		CHECK_INTERSECT_POLYGONE_CIRCLE(square.doesIntersect(Point(0, 5), r, mtv, cp), true);
+		CHECK_INTERSECT_POLYGON_CIRCLE(square.doesIntersect(Point(0, 0), r, mtv, cp), true);
+		CHECK_INTERSECT_POLYGON_CIRCLE(square.doesIntersect(Point(5, 0), r, mtv, cp), true);
+		CHECK_INTERSECT_POLYGON_CIRCLE(square.doesIntersect(Point(10, 0), r, mtv, cp), true);
+		CHECK_INTERSECT_POLYGON_CIRCLE(square.doesIntersect(Point(10, 5), r, mtv, cp), true);
+		CHECK_INTERSECT_POLYGON_CIRCLE(square.doesIntersect(Point(10, 10), r, mtv, cp), true);
+		CHECK_INTERSECT_POLYGON_CIRCLE(square.doesIntersect(Point(5, 0), r, mtv, cp), true);
+		CHECK_INTERSECT_POLYGON_CIRCLE(square.doesIntersect(Point(0, 10), r, mtv, cp), true);
+		CHECK_INTERSECT_POLYGON_CIRCLE(square.doesIntersect(Point(0, 5), r, mtv, cp), true);
 		
-		CHECK_INTERSECT_POLYGONE_CIRCLE(square.doesIntersect(Point(5, 5), r, mtv, cp), true);
+		CHECK_INTERSECT_POLYGON_CIRCLE(square.doesIntersect(Point(5, 5), r, mtv, cp), true);
 	}
 	
 	// should not intersect
 	for (double r = -2; r < 12; r += 0.1)
 	{
-		CHECK_INTERSECT_POLYGONE_CIRCLE(square.doesIntersect(Point(r, 0), 0.9, mtv, cp), false);
-		CHECK_INTERSECT_POLYGONE_CIRCLE(square.doesIntersect(Point(r, 10), 0.9, mtv, cp), false);
-		CHECK_INTERSECT_POLYGONE_CIRCLE(square.doesIntersect(Point(0, r), 0.9, mtv, cp), false);
-		CHECK_INTERSECT_POLYGONE_CIRCLE(square.doesIntersect(Point(10, r), 0.9, mtv, cp), false);
+		CHECK_INTERSECT_POLYGON_CIRCLE(square.doesIntersect(Point(r, 0), 0.9, mtv, cp), false);
+		CHECK_INTERSECT_POLYGON_CIRCLE(square.doesIntersect(Point(r, 10), 0.9, mtv, cp), false);
+		CHECK_INTERSECT_POLYGON_CIRCLE(square.doesIntersect(Point(0, r), 0.9, mtv, cp), false);
+		CHECK_INTERSECT_POLYGON_CIRCLE(square.doesIntersect(Point(10, r), 0.9, mtv, cp), false);
 	}
 	
-	Polygone rect;
+	Polygon rect;
 	rect.push_back(Point(1, 1));
 	rect.push_back(Point(9, 1));
 	rect.push_back(Point(9, 2));
@@ -103,26 +103,26 @@ void testPolygonCircleIntersection()
 	// should intersect
 	for (double r = 1.01*sqrt(2); r<5; r += 0.01)
 	{
-		CHECK_INTERSECT_POLYGONE_CIRCLE(rect.doesIntersect(Point(0, 0), r, mtv, cp), true);
-		CHECK_INTERSECT_POLYGONE_CIRCLE(rect.doesIntersect(Point(5, 0), r, mtv, cp), true);
-		CHECK_INTERSECT_POLYGONE_CIRCLE(rect.doesIntersect(Point(10, 0), r, mtv, cp), true);
-		CHECK_INTERSECT_POLYGONE_CIRCLE(rect.doesIntersect(Point(10, 1.5), r, mtv, cp), true);
-		CHECK_INTERSECT_POLYGONE_CIRCLE(rect.doesIntersect(Point(10, 3), r, mtv, cp), true);
-		CHECK_INTERSECT_POLYGONE_CIRCLE(rect.doesIntersect(Point(5, 0), r, mtv, cp), true);
-		CHECK_INTERSECT_POLYGONE_CIRCLE(rect.doesIntersect(Point(0, 3), r, mtv, cp), true);
-		CHECK_INTERSECT_POLYGONE_CIRCLE(rect.doesIntersect(Point(0, 3), r, mtv, cp), true);
+		CHECK_INTERSECT_POLYGON_CIRCLE(rect.doesIntersect(Point(0, 0), r, mtv, cp), true);
+		CHECK_INTERSECT_POLYGON_CIRCLE(rect.doesIntersect(Point(5, 0), r, mtv, cp), true);
+		CHECK_INTERSECT_POLYGON_CIRCLE(rect.doesIntersect(Point(10, 0), r, mtv, cp), true);
+		CHECK_INTERSECT_POLYGON_CIRCLE(rect.doesIntersect(Point(10, 1.5), r, mtv, cp), true);
+		CHECK_INTERSECT_POLYGON_CIRCLE(rect.doesIntersect(Point(10, 3), r, mtv, cp), true);
+		CHECK_INTERSECT_POLYGON_CIRCLE(rect.doesIntersect(Point(5, 0), r, mtv, cp), true);
+		CHECK_INTERSECT_POLYGON_CIRCLE(rect.doesIntersect(Point(0, 3), r, mtv, cp), true);
+		CHECK_INTERSECT_POLYGON_CIRCLE(rect.doesIntersect(Point(0, 3), r, mtv, cp), true);
 		
-		CHECK_INTERSECT_POLYGONE_CIRCLE(rect.doesIntersect(Point(5, 1.5), r, mtv, cp), true);
+		CHECK_INTERSECT_POLYGON_CIRCLE(rect.doesIntersect(Point(5, 1.5), r, mtv, cp), true);
 	}
 	
 	// special cases that did not work
-	Polygone rect2;
+	Polygon rect2;
 	rect2.push_back(Point(5, 1));
 	rect2.push_back(Point(-5, 1));
 	rect2.push_back(Point(-5, -1));
 	rect2.push_back(Point(5, -1));
 	double r = 4;
-	CHECK_INTERSECT_POLYGONE_CIRCLE(rect2.doesIntersect(Point(7.18797, -3.12911), r, mtv, cp), true);
+	CHECK_INTERSECT_POLYGON_CIRCLE(rect2.doesIntersect(Point(7.18797, -3.12911), r, mtv, cp), true);
 }
 
 void testSegmentSegmentIntersection()

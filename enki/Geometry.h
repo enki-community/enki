@@ -229,14 +229,14 @@ namespace Enki
 	/*! \ingroup an */
 	std::ostream & operator << (std::ostream & outs, const Segment &segment);
 	
-	//! Polygone, which is a vector of points. Anti-clockwise, standard trigonometric orientation
+	//! Polygon, which is a vector of points. Anti-clockwise, standard trigonometric orientation
 	/*! \ingroup an */
-	struct Polygone: public std::vector<Point>
+	struct Polygon: public std::vector<Point>
 	{
 		//! Return the i-th segment
 		Segment getSegment(size_t i) const;
 		
-		//! Return true if p is inside this polygone
+		//! Return true if p is inside this polygon
 		bool isPointInside(const Point& p) const;
 		
 		//! Get the axis aligned bounding box and return whether it exists
@@ -264,7 +264,7 @@ namespace Enki
 		void flipY();
 		
 		//! Operator to add point inline
-		Polygone& operator << (const Point& p) { push_back(p); return *this; }
+		Polygon& operator << (const Point& p) { push_back(p); return *this; }
 		
 		//! Return true and set collisiont arguments (passed by reference) if this interests circle (center, r), return false and do not change anything otherwise
 		/*!
@@ -281,12 +281,12 @@ namespace Enki
 			\param mtv minimum translation vector for de-penetration, how much to move this for de-penetration, set if intersection happens
 			\param intersectionPoint point where this touches that, set if intersection happens
 		*/
-		bool doesIntersect(const Polygone& that, Vector& mtv, Point& intersectionPoint) const;
+		bool doesIntersect(const Polygon& that, Vector& mtv, Point& intersectionPoint) const;
 	};
 	
-	//! Print a polygone to a stream
+	//! Print a polygon to a stream
 	/*! \ingroup an */
-	std::ostream & operator << (std::ostream & outs, const Polygone &polygone);
+	std::ostream & operator << (std::ostream & outs, const Polygon &polygon);
 	
 	//! Normlize an angle to be between -PI and +PI.
 	/*! \ingroup an */
