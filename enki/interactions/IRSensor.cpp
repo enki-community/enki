@@ -320,7 +320,7 @@ namespace Enki
 	// This code does not check for and verify these conditions.
 	// Return: distance to shortest intersection point
 	//   or HUGE_VAL if there's no intersection
-	double IRSensor::distanceToPolygon(double rayAngle, const Polygone &p) const 
+	double IRSensor::distanceToPolygon(double rayAngle, const Polygon &p) const 
 	{
 		// compute ray segment in global coordinates
 		Point absEnd = absPos + Vector(cos(rayAngle), sin(rayAngle)) * range;

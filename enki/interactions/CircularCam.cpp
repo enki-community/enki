@@ -89,7 +89,7 @@ namespace Enki
 				if (height > it->getHeight())
 					continue;
 				
-				const Polygone& shape = it->getTransformedShape();
+				const Polygon& shape = it->getTransformedShape();
 				const size_t faceCount = shape.size();
 				if (it->isTextured())
 				{

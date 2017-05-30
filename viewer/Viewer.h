@@ -218,7 +218,7 @@ namespace Enki
 		void renderSegment(const Segment& segment, double height);
 		void renderWorldSegment(const Segment& segment);
 		void renderWorld();
-		void renderShape(const Polygone& shape, const double height, const Color& color);
+		void renderShape(const Polygon& shape, const double height, const Color& color);
 		void renderSimpleObject(PhysicalObject *object);
 		
 		// hooks for subclasses

@@ -189,7 +189,7 @@ namespace Enki
 		double inverseResponseFunction(double v) const;
 		//! Returns distance to PhysicalObject po for angle rayAngle.
 		//! Note: The polygon MUST be convex and have vertices oriented counterclockwise (ccw). This code does not check for and verify these conditions. Returns distance to shortest intersection point or HUGE_VAL if there is no intersection
-		double distanceToPolygon(double rayAngle, const Polygone &p) const;
+		double distanceToPolygon(double rayAngle, const Polygon &p) const;
 	};
 }
 

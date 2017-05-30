@@ -117,7 +117,7 @@ public:
 			const double amount = 9;
 			const double radius = 5;
 			const double height = 20;
-			Polygone p;
+			Polygon p;
 			for (double a = 0; a < 2*M_PI; a += 2*M_PI/amount)
 				p.push_back(Point(radius * cos(a), radius * sin(a)));
 			
@@ -139,7 +139,7 @@ public:
 			world->addObject(o);
 		}
 		
-		Polygone p2;
+		Polygon p2;
 		p2.push_back(Point(5,1));
 		p2.push_back(Point(-5,1));
 		p2.push_back(Point(-5,-1));
@@ -159,8 +159,8 @@ public:
 		{
 			PhysicalObject* o = new PhysicalObject;
 			PhysicalObject::Hull hull;
-			hull.push_back(Enki::PhysicalObject::Part(Polygone() << Point(5,1) << Point(-5,1) << Point(-5,-1) << Point(5,-1), 2));
-			hull.push_back(Enki::PhysicalObject::Part(Polygone() << Point(1,5) << Point(-1,5) << Point(-1,-5) << Point(1,-5), 4));
+			hull.push_back(Enki::PhysicalObject::Part(Polygon() << Point(5,1) << Point(-5,1) << Point(-5,-1) << Point(5,-1), 2));
+			hull.push_back(Enki::PhysicalObject::Part(Polygon() << Point(1,5) << Point(-1,5) << Point(-1,-5) << Point(1,-5), 4));
 			o->setCustomHull(hull, 60);
 			o->setColor(Color(0.2, 0.4, 0.6));
 			o->collisionElasticity = 0.2;
