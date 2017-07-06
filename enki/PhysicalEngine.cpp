@@ -46,6 +46,9 @@
 
 namespace Enki
 {
+	//switching to an std::atomic<unsigned> when in the future we switch to C++11
+	static unsigned int uidNewObject = 0;
+
 	FastRandom random;
 	
 	// PhysicalObject::Part
@@ -234,7 +237,8 @@ namespace Enki
 		viscousMomentFrictionCoefficient(0.01),
 		angle(0),
 		angSpeed(0),
-		interlacedDistance(0)
+		interlacedDistance(0),
+		uid(uidNewObject++)
 	{
 		setCylindric(1, 1, 1);
 	}
@@ -1117,11 +1121,6 @@ namespace Enki
 	
 	void World::addObject(PhysicalObject *o)
 	{
-		if (o->getId() == 0)
-		{
-			o->id = idNewObject;
-			idNewObject++;
-		}
 		objects.insert(o);
 	}
 
