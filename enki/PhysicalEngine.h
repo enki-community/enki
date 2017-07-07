@@ -374,9 +374,9 @@ namespace Enki
 		void collideWithObject(PhysicalObject &that, Point cp, const Vector &dist);
 
 	public:
-		// ID is used when sharing a world over the network where it should be
-		// possible to associate client objects with their corresponding ones on
-		// the server even if they don't have the same pointer address.
+		//! ID is used when sharing a world over the network where it should be
+		//! possible to associate client objects with their corresponding ones on
+		//! the server even if they don't have the same pointer address.
 		unsigned int uid;
 	};
 
