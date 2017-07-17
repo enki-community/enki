@@ -19,6 +19,7 @@ binary-arch: build
 	strip --strip-unneeded debian/tmp/usr/lib/*.a
 	strip --strip-unneeded debian/tmp/usr/lib/python2.7/dist-packages/*.so
 	cp changelog debian/tmp/usr/share/doc/libenki/changelog
+	cp AUTHORS debian/tmp/usr/share/doc/libenki/AUTHORS
 	cp debian/changelog debian/tmp/usr/share/doc/libenki/changelog.debian
 	cp debian/copyright debian/tmp/usr/share/doc/libenki
 	gzip -n9 debian/tmp/usr/share/doc/libenki/changelog.debian
