@@ -45,7 +45,7 @@ if (QT4_FOUND AND OPENGL_FOUND)
 	add_library (enkiviewer ${viewer_lib_SRCS} ${viewer_lib_RCC_SRCS})
 	set_target_properties(enkiviewer PROPERTIES VERSION ${LIB_VERSION_STRING} 
                                         SOVERSION ${LIB_VERSION_MAJOR})
-	target_link_libraries(enkiviewer enki ${QT_LIBRARIES} ${OPENGL_gl_LIBRARY})
+	target_link_libraries(enkiviewer enki ${QT_LIBRARIES})
 
 	set(ENKI_VIEWER_HDR
 		Viewer.h
