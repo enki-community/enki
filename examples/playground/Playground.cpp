@@ -36,6 +36,9 @@
 #include <enki/robots/e-puck/EPuck.h>
 #include <enki/robots/marxbot/Marxbot.h>
 #include <enki/robots/thymio2/Thymio2.h>
+#ifdef WIN32
+#define NOGDI // to avoid namespace clash between Win32 Polygon function and Enki class
+#endif // WIN32
 #include <QApplication>
 #include <QtGui>
 #include <iostream>
