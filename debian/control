@@ -7,6 +7,7 @@ Build-Depends: cmake (>= 2.6), libqt4-dev, libqt4-opengl-dev, mesa-common-dev, p
 
 Package:libenki
 Architecture: any
+Depends: ${shlibs:Depends}
 Description: Enki is a fast 2D physics-based robot simulator written in C++.
  It is able to simulate cinematics, collisions, sensors and cameras of robots 
  evolving on a flat surface. It also provides limited support for friction.

@@ -23,6 +23,7 @@ binary-arch: build
 	cp debian/copyright debian/tmp/usr/share/doc/libenki
 	gzip -n9 debian/tmp/usr/share/doc/libenki/changelog.debian
 	gzip -n9 debian/tmp/usr/share/doc/libenki/changelog
+	dpkg-shlibdeps debian/tmp/usr/lib/python2.7/dist-packages/*.so
 	chown -R root.root debian/tmp
 	chmod -R o-s,go=u,go-ws debian/tmp
 	dpkg-gencontrol
