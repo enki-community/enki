@@ -35,6 +35,9 @@
 #define __ENKI_VIEWER_H
 
 #include <typeinfo>
+#ifdef WIN32
+#define NOGDI // to avoid namespace clash between Win32 Polygon function and Enki class
+#endif // WIN32
 #include <QGLWidget>
 #include <QPoint>
 #include <QPointF>
