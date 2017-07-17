@@ -2,7 +2,7 @@
 
 a fast 2D robot simulator
 
-by Stéphane Magnenat and others ([full list](AUTHORS))
+© 1999-2017 Stéphane Magnenat and others ([full list](AUTHORS))
 
 ## License
 
