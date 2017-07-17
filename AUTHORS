@@ -3,14 +3,12 @@ Enki - a fast 2D robot simulator
 Lead programmer and software architect:
 Stephane Magnenat <stephane at magnenat dot net> (http://stephane.magnenat.net)
 
-Other main programmer:
-Markus Waibel <markus dot waibel at epfl dot ch>
-
 While working at
 Laboratory of Intelligent Systems, EPFL, Lausanne (http://lis.epfl.ch)
-Mobots, Laboratory of Robotics Systems, EPFL, Lausannse (http://mobots.epfl.ch)
+Mobots, Laboratory of Robotics Systems, EPFL, Lausanne (http://mobots.epfl.ch)
 
 Contributors:
+Markus Waibel <markus dot waibel at epfl dot ch>
 Antoine Beyeler <abeyeler at ab-ware dot com>
 Julien Hubert
 Cyberbotics (http://www.cyberbotics.com/)
@@ -19,7 +17,8 @@ Vincent Porchet
 Michele Bongiovanni
 David James Sherman (Inria)
 Thibault Laine (Inria)
-For minor contributons, see the commit log.
+For minor contributions, see the commit log.
 
 e-puck 3D model by:
 Basilio Noris
+Vincent Becker (Mobsya)
