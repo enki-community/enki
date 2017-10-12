@@ -12,19 +12,17 @@ find_library(enki_LIBRARY enki @PROJECT_BINARY_DIR@/enki CMAKE_FIND_ROOT_PATH_BO
 find_package_handle_standard_args(enki DEFAULT_MSG enki_INCLUDE_DIR enki_LIBRARY)
 
 # viewer
-set(QT_USE_QTOPENGL TRUE)
-find_package(Qt4)
-find_package(OpenGL)
-if (QT4_FOUND AND OPENGL_FOUND)
-	include(${QT_USE_FILE})
-	add_definitions(${QT_DEFINITIONS})
+find_package(Qt5Core)
+find_package(Qt5Gui)
+find_package(Qt5Widgets)
+find_package(Qt5OpenGL)
+if (Qt5Widgets_FOUND AND Qt5OpenGL_FOUND)
 	
 	if (CMAKE_HOST_UNIX)
 		add_definitions("-fPIC")
 	endif (CMAKE_HOST_UNIX)
 	
 	find_library(enki_VIEWER_LIBRARY enkiviewer @PROJECT_BINARY_DIR@/viewer CMAKE_FIND_ROOT_PATH_BOTH)
-	SET(enki_VIEWER_LIBRARIES ${enki_VIEWER_LIBRARY} ${QT_LIBRARIES} CACHE STRING "All libraries necessary to link Enki viewer")
+	set(enki_VIEWER_LIBRARIES ${enki_VIEWER_LIBRARY} Qt5::OpenGL Qt5::Widgets CACHE STRING "All libraries necessary to link Enki viewer")
 	find_package_handle_standard_args(enki_VIEWER DEFAULT_MSG enki_VIEWER_LIBRARIES)
-endif (QT4_FOUND AND OPENGL_FOUND)
-
+endif ()

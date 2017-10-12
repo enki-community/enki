@@ -33,7 +33,6 @@
 
 #include "objects/Objects.h"
 #include "Viewer.h"
-#include <Viewer.moc>
 #include "EPuckModel.h"
 #include <enki/robots/e-puck/EPuck.h>
 #include "MarxbotModel.h"

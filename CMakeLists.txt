@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8.11)
 
 project(Enki)
 
@@ -8,9 +8,13 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMakeModules)
 enable_testing()
 
 # check for Qt
-set(QT_USE_QTOPENGL TRUE)
-find_package(Qt4)
-find_package(OpenGL)
+find_package(Qt5Core)
+find_package(Qt5Gui)
+find_package(Qt5Widgets)
+find_package(Qt5OpenGL)
+
+# check for SDL2
+find_package(SDL2)
 
 # library version
 set(LIB_INSTALL_DIR lib CACHE FILEPATH "Where to install libraries")
