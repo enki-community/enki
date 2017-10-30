@@ -16,8 +16,13 @@ This section explains how to compile Enki from the source distribution.
 
 To compile Enki and programs who depend on it, you need:
 * a working and fairly recent c++ compiler
-* CMake
+* [CMake](https://cmake.org/)
 * A build environment compatible with CMake.
+
+In addition, if you want the support for the viewer and Python bindings, you need:
+* [Qt 4](https://download.qt.io/archive/qt/4.8/4.8.6/)
+* [Python](https://www.python.org/) with development support
+* [Boost.Python](http://www.boost.org/doc/libs/1_65_1/libs/python/doc/html/)
 
 ### Compilation under Unix
 
