@@ -211,7 +211,8 @@ namespace Enki
 	{
 		initTexturesResources();
 		elapsedTime = double(30)/1000.; // average second between two frames, can be updated each frame to better precision
-		showHelp();
+		
+		started();
 		
 		startTimer(timerPeriodMs);
 	}
@@ -1211,7 +1212,7 @@ namespace Enki
 	void ViewerWidget::keyPressEvent(QKeyEvent* event)
 	{
 		if (event->key() == Qt::Key_F1)
-			showHelp();
+			helpActivated();
 	}
 
 	void ViewerWidget::mousePressEvent(QMouseEvent *event)
@@ -1225,7 +1226,7 @@ namespace Enki
 			if (event->x() > width() - 72 && event->x() < width() - 24)
 			{
 				if (event->y() > 24 && event->y() < 72)
-					showHelp();
+					helpActivated();
 				else if (event->y() > 24+48+12 && event->y() < 72+48+12)
 					camera = UpdatableCameraPose(world);
 			}
@@ -1411,8 +1412,20 @@ namespace Enki
 	}
 	
 	void ViewerWidget::timerEvent(QTimerEvent * event)
- 	{
+	{
 		world->step(double(timerPeriodMs)/1000., 3);
 		updateGL();
- 	}
+	}
+	
+	//! Viewer has started, by default show help
+	void ViewerWidget::started()
+	{
+		showHelp();
+	}
+	
+	//! Help button or F1 have been pressed
+	void ViewerWidget::helpActivated()
+	{
+		showHelp();
+	}
 }

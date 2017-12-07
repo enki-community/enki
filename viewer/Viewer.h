@@ -248,6 +248,10 @@ namespace Enki
 		virtual void mouseDoubleClickEvent(QMouseEvent *event);
 		virtual void wheelEvent(QWheelEvent * event);
 		virtual void timerEvent(QTimerEvent * event);
+
+		// Internal event handling
+		virtual void started();
+		virtual void helpActivated();
 	};
 }
 
