@@ -250,7 +250,6 @@ namespace Enki
 		virtual void timerEvent(QTimerEvent * event);
 
 		// Internal event handling
-		virtual void started();
 		virtual void helpActivated();
 	};
 }

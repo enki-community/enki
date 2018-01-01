@@ -212,8 +212,6 @@ namespace Enki
 		initTexturesResources();
 		elapsedTime = double(30)/1000.; // average second between two frames, can be updated each frame to better precision
 		
-		started();
-		
 		startTimer(timerPeriodMs);
 	}
 	
@@ -1415,12 +1413,6 @@ namespace Enki
 	{
 		world->step(double(timerPeriodMs)/1000., 3);
 		updateGL();
-	}
-	
-	//! Viewer has started, by default show help
-	void ViewerWidget::started()
-	{
-		showHelp();
 	}
 	
 	//! Help button or F1 have been pressed
