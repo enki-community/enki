@@ -120,3 +120,4 @@ If you want to contribute to Enki, please open an issue to discuss your idea or 
 
 * Enki can be used in the [Webots mobile robots simulator](http://www.cyberbotics.com/) to provide fast 2D.
 * Enki the base of the [Aseba Playground](http://aseba.io) robot simulator and in the [Thymio VPL background simulation](https://github.com/aseba-community/thymio-vpl2/).
+* Several research projects (Google scholar citations [1](https://scholar.google.ch/scholar?cites=16751866430169972002), [2](https://scholar.google.ch/scholar?cites=3374045595950005828), [3](https://scholar.google.ch/scholar?cites=6874965545282527171)).
