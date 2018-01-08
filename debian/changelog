@@ -1,3 +1,9 @@
+libenki (2.0~git.20180108) xenial; urgency=medium
+
+  * Several bug fixes
+
+ -- Stéphane Magnenat <stephane@nospam.magnenat.net>  Mon, 08 Jan 2018 12:01:46 +0100
+
 libenki (2.0~git.20161121) xenial; urgency=medium
 
   * Several bug fixes
