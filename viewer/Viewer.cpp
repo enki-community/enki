@@ -1118,6 +1118,14 @@ namespace Enki
 		glDisable(GL_BLEND);
 	}
 	
+	void ViewerWidget::clickWidget(QMouseEvent *event)
+	{
+		if (event->y() > 24 && event->y() < 72)
+			helpActivated();
+		else if (event->y() > 24+48+12 && event->y() < 72+48+12)
+			camera = UpdatableCameraPose(world);
+	}
+	
 	void ViewerWidget::displayMessages()
 	{
 		// bound message list
@@ -1223,10 +1231,7 @@ namespace Enki
 		{
 			if (event->x() > width() - 72 && event->x() < width() - 24)
 			{
-				if (event->y() > 24 && event->y() < 72)
-					helpActivated();
-				else if (event->y() > 24+48+12 && event->y() < 72+48+12)
-					camera = UpdatableCameraPose(world);
+				clickWidget(event);
 			}
 			else if (!messageList.empty() && event->x() < messageListWidth && event->y() < messageListHeight)
 			{

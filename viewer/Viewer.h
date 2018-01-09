@@ -221,6 +221,10 @@ namespace Enki
 		void renderShape(const Polygon& shape, const double height, const Color& color);
 		void renderSimpleObject(PhysicalObject *object);
 		
+		// helper functions for coordinates
+		void glVertex2Screen(int x, int y);
+		void computeInfoMessageAreaSize();
+		
 		// hooks for subclasses
 		virtual void renderObjectsTypesHook();
 		virtual void renderObjectHook(PhysicalObject *object);
@@ -234,11 +238,10 @@ namespace Enki
 		
 		// scene rendering and picking
 		virtual void renderScene(double left, double right, double bottom, double top, double zNear, double zFar);
-		void picking(double left, double right, double bottom, double top, double zNear, double zFar);
-		void glVertex2Screen(int x, int y);
-		void displayMessages();
-		void computeInfoMessageAreaSize();
-		void displayWidgets();
+		virtual void picking(double left, double right, double bottom, double top, double zNear, double zFar);
+		virtual void displayMessages();
+		virtual void displayWidgets();
+		virtual void clickWidget(QMouseEvent *event);
 
 		// Qt events handling
 		virtual void keyPressEvent(QKeyEvent* event);
