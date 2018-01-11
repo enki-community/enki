@@ -5,6 +5,15 @@
 
 pipeline {
 	agent any // use any available Jenkins agent
+
+	// Trigger the build
+	triggers {
+		// Poll GitHub every two hours, in case webhooks aren't used
+		pollSCM('H */2 * * *')
+	}
+
+	// Everything will be built in the build/ directory.
+	// Everything will be installed in the dist/ directory.
 	stages {
 		stage('Prepare') {
 			steps {
