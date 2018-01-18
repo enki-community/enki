@@ -50,7 +50,7 @@ pipeline {
 				}
 				stage("Compile on windows") {
 					agent {
-						label 'windows'
+						label 'windows-qt5'
 					}
 					steps {
 						CMake([label: 'windows'])
