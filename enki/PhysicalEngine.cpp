@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -50,27 +50,27 @@ namespace Enki
 	static unsigned int uidNewObject = 0;
 
 	FastRandom random;
-	
+
 	// PhysicalObject::Part
-	
+
 	PhysicalObject::Part::Part(const Polygon& shape, double height) :
 		height(height),
 		shape(shape)
 	{
 		computeAreaAndCentroid();
-		
+
 		transformedShape.resize(shape.size());
 	}
-	
+
 	PhysicalObject::Part::Part(const Polygon& shape, double height, const Textures& textures) :
 		height(height),
 		shape(shape),
 		textures(textures)
 	{
 		computeAreaAndCentroid();
-		
+
 		transformedShape.resize(shape.size());
-		
+
 		if (textures.size() != shape.size())
 		{
 			std::cerr << "Error: PhysicalObject::Part::Part: texture sides count " << textures.size() << " missmatch shape sides count " << shape.size() << std::endl;
@@ -78,7 +78,7 @@ namespace Enki
 			this->textures.clear();
 			return;
 		}
-		
+
 		for (size_t i = 0; i < textures.size(); ++i)
 		{
 			if (textures[i].size() == 0)
@@ -90,43 +90,43 @@ namespace Enki
 			}
 		}
 	}
-	
+
 	PhysicalObject::Part::Part(double l1, double l2, double height) :
 		height(height),
-		area(l1*l2),
+		area(l1 * l2),
 		centroid(0, 0)
 	{
 		const double hl1 = l1 / 2;
 		const double hl2 = l2 / 2;
-		
+
 		shape << Point(-hl1, -hl2) << Point(hl1, -hl2) << Point(hl1, hl2) << Point(-hl1, hl2);
 		transformedShape.resize(shape.size());
 	}
-	
+
 	void PhysicalObject::Part::computeAreaAndCentroid()
 	{
 		// from: http://local.wasp.uwa.edu.au/~pbourke/geometry/polyarea/
 		const size_t size = shape.size();
-		
+
 		// area
 		area = 0;
 		for (size_t i = 0; i < size; ++i)
 		{
-			area += (shape[i].x * shape[(i+1) % size].y - shape[(i+1) % size].x * shape[i].y);
+			area += (shape[i].x * shape[(i + 1) % size].y - shape[(i + 1) % size].x * shape[i].y);
 		}
 		area /= 2;
-		
+
 		// centroid
 		centroid = Point(0, 0);
 		for (size_t i = 0; i < shape.size(); ++i)
 		{
-			const double multiplicator = (shape[i].x * shape[(i+1) % size].y - shape[(i+1) % size].x * shape[i].y);
-			centroid.x += (shape[i].x + shape[(i+1) % size].x) * multiplicator;
-			centroid.y += (shape[i].y + shape[(i+1) % size].y) * multiplicator;
+			const double multiplicator = (shape[i].x * shape[(i + 1) % size].y - shape[(i + 1) % size].x * shape[i].y);
+			centroid.x += (shape[i].x + shape[(i + 1) % size].x) * multiplicator;
+			centroid.y += (shape[i].y + shape[(i + 1) % size].y) * multiplicator;
 		}
 		centroid /= (6 * area);
 	}
-	
+
 	void PhysicalObject::Part::computeTransformedShape(const Matrix22& rot, const Point& trans)
 	{
 		assert(!shape.empty());
@@ -135,7 +135,7 @@ namespace Enki
 			transformedShape[i] = rot * (shape)[i] + trans;
 		transformedCentroid = rot * centroid + trans;
 	}
-	
+
 	void PhysicalObject::Part::applyTransformation(const Matrix22& rot, const Point& trans, double* radius = 0)
 	{
 		for (size_t i = 0; i < shape.size(); ++i)
@@ -146,11 +146,10 @@ namespace Enki
 		}
 		centroid = rot * centroid + trans;
 	}
-	
-	
-	
+
+
 	// Hull
-	
+
 	Polygon PhysicalObject::Hull::getConvexHull() const
 	{
 		// see http://en.wikipedia.org/wiki/Gift_wrapping_algorithm
@@ -164,11 +163,11 @@ namespace Enki
 			for (Polygon::const_iterator jt = part.begin(); jt != part.end(); ++jt)
 				points.insert(*jt);
 		}
-		
+
 		// do nothing for empty hulls
 		if (points.empty())
 			return Polygon();
-		
+
 		//  Jarvis march/gift wrapping
 		Polygon convexHull;
 		convexHull.push_back(*points.begin());
@@ -177,7 +176,7 @@ namespace Enki
 		{
 			Points::iterator candidate = points.begin();
 			Vector perp = (*candidate - convexHull.back()).perp();
-			
+
 			Points::iterator it = points.begin();
 			++it;
 			for (; it != points.end(); ++it)
@@ -195,10 +194,10 @@ namespace Enki
 			convexHull.push_back(*candidate);
 			points.erase(candidate);
 		}
-		
+
 		return convexHull;
 	}
-	
+
 	PhysicalObject::Hull PhysicalObject::Hull::operator+(const Hull& that) const
 	{
 		Hull newHull(*this);
@@ -206,14 +205,14 @@ namespace Enki
 			newHull.push_back(*it);
 		return newHull;
 	}
-	
+
 	PhysicalObject::Hull& PhysicalObject::Hull::operator+=(const Hull& that)
 	{
 		for (const_iterator it = that.begin(); it != that.end(); ++it)
 			push_back(*it);
 		return *this;
 	}
-	
+
 	void PhysicalObject::Hull::applyTransformation(const Matrix22& rot, const Point& trans, double* radius)
 	{
 		if (radius)
@@ -223,11 +222,11 @@ namespace Enki
 			it->applyTransformation(rot, trans, radius);
 		}
 	}
-	
+
 	// PhysicalObject
-	
+
 	const double PhysicalObject::g = 9.81;
-	
+
 	PhysicalObject::PhysicalObject(void) :
 		userData(NULL),
 		// default physical parameters
@@ -242,7 +241,7 @@ namespace Enki
 	{
 		setCylindric(1, 1, 1);
 	}
-	
+
 	PhysicalObject::~PhysicalObject(void)
 	{
 		if (userData && (userData->deletedWithObject))
@@ -250,7 +249,7 @@ namespace Enki
 			delete userData;
 		}
 	}
-	
+
 	void PhysicalObject::dirtyUserData()
 	{
 		if (userData)
@@ -259,43 +258,43 @@ namespace Enki
 			userData = 0;
 		}
 	}
-	
+
 	void PhysicalObject::setCylindric(double radius, double height, double mass)
 	{
 		// remove any hull
 		hull.clear();
 		this->height = height;
-		
+
 		// update the physical and interaction radius
 		r = radius;
-		
+
 		// set the mass
 		this->mass = mass;
-		
+
 		// update the moment of inertia
 		computeMomentOfInertia();
-		
+
 		dirtyUserData();
 	}
-	
+
 	void PhysicalObject::setRectangular(double l1, double l2, double height, double mass)
 	{
 		// assign a new hull
 		hull.resize(1, Part(l1, l2, height));
 		this->height = height;
-		
+
 		// compute the center of mass
 		setupCenterOfMass();
-		
+
 		// set the mass
 		this->mass = mass;
-		
+
 		// update the moment of inertia
 		computeMomentOfInertia();
-		
+
 		dirtyUserData();
 	}
-	
+
 	void PhysicalObject::setCustomHull(const Hull& hull, double mass)
 	{
 		// assign the new hull
@@ -303,27 +302,26 @@ namespace Enki
 		height = 0;
 		for (Hull::const_iterator it = hull.begin(); it != hull.end(); ++it)
 			height = std::max(height, it->getHeight());
-		
+
 		// compute the center of mass
 		setupCenterOfMass();
-		
+
 		// set the mass
 		this->mass = mass;
-		
+
 		// update the moment of inertia
 		computeMomentOfInertia();
-		
+
 		dirtyUserData();
 	}
-	
-	void PhysicalObject::setColor(const Color &color)
+
+	void PhysicalObject::setColor(const Color& color)
 	{
 		this->color = color;
-		
+
 		dirtyUserData();
-		
 	}
-	
+
 	void PhysicalObject::computeMomentOfInertia()
 	{
 		if (hull.empty())
@@ -345,9 +343,9 @@ namespace Enki
 							momentOfInertia += ix * ix + iy * iy;
 							numericalArea++;
 						}
-			
+
 			momentOfInertia *= mass / numericalArea;
-			
+
 			// Exact method:
 			/*
 			TODO: check this and implement
@@ -355,12 +353,12 @@ namespace Enki
 			*/
 		}
 	}
-	
+
 	void PhysicalObject::setupCenterOfMass()
 	{
 		if (hull.empty())
 			return;
-		
+
 		// Numerical method:
 		/*
 		// get bounding box of the whole hull
@@ -371,7 +369,7 @@ namespace Enki
 		++it;
 		for (;it != hull.end(); ++it)
 			it->shape.extendAxisAlignedBoundingBox(bottomLeft, topRight);
-		
+
 		// numerically compute the center of mass of the shape
 		Point cm;
 		double area = 0;
@@ -390,7 +388,7 @@ namespace Enki
 		cm /= area;
 		area = area / (dx * dy);
 		*/
-		
+
 		// Exact method:
 		Point cm;
 		double area = 0;
@@ -402,7 +400,7 @@ namespace Enki
 			area += partArea;
 		}
 		cm /= area;
-		
+
 		// FIXME: this shift is really ugly. We can only do it for non-robots
 		// because otherwise the local interactions are missplaced.
 		Robot* robot(dynamic_cast<Robot*>(this));
@@ -417,7 +415,7 @@ namespace Enki
 			hull.applyTransformation(Matrix22::identity(), Vector(), &r);
 		}
 	}
-	
+
 	void PhysicalObject::computeTransformedShape()
 	{
 		if (!hull.empty())
@@ -427,8 +425,8 @@ namespace Enki
 				it->computeTransformedShape(rotMat, pos);
 		}
 	}
-	
-	
+
+
 	static double sgn(double v)
 	{
 		if (v > 0)
@@ -439,33 +437,33 @@ namespace Enki
 			return 0;
 	}
 
-	#if 0
+#if 0
 	void PhysicalObject::physicsStep(double dt)
 	{
 		// NOTE: not used for now, see later if we should remove or not
-		
+
 		/*applyForces(dt);
-		
+
 		pos += speed * dt;
 		angle += angSpeed * dt;
 		*/
 		/* TODO: Runge-Kutta
 			but this needs a refactoring in order to harvest equations up to now.
 			furthermore, we have a so simple model that it is seldom useful for now.
-		xn+1 = xn + h⁄6 (a + 2 b + 2 c + d)  where 
+		xn+1 = xn + h⁄6 (a + 2 b + 2 c + d)  where
 		a = f (tn, xn)
 		b = f (tn + h⁄2, xn + h⁄2 a)
 		c = f (tn + h⁄2, xn + h⁄2 b)
 		d = f (tn + h, xn + h c)
 		*/
 	}
-	#endif
-	
+#endif
+
 	void PhysicalObject::controlStep(double dt)
 	{
 		interlacedDistance = 0.;
 	}
-	
+
 	void PhysicalObject::applyForces(double dt)
 	{
 		/*
@@ -473,7 +471,7 @@ namespace Enki
 		The only force available are the friction ones below
 		// static friction
 		const double minSpeedForMovement = 0.001;
-		if ((speed.norm2() < minSpeedForMovement * minSpeedForMovement) && 
+		if ((speed.norm2() < minSpeedForMovement * minSpeedForMovement) &&
 			(abs(angSpeed) < minSpeedForMovement) &&
 			(acc.norm2() * mass < staticFrictionThreshold * staticFrictionThreshold) &&
 			(angAcc * momentOfInertia < staticFrictionThreshold))
@@ -485,28 +483,28 @@ namespace Enki
 			angSpeed = 0.;
 			return;
 		}*/
-		
+
 		Vector acc = 0.;
 		double angAcc = 0.;
-		
+
 		// dry friction, set speed to zero if bigger
-		Vector dryFriction = - speed.unitary() * g * dryFrictionCoefficient;
+		Vector dryFriction = -speed.unitary() * g * dryFrictionCoefficient;
 		if ((dryFriction * dt).norm2() > speed.norm2())
 			speed = 0.;
 		else
 			acc += dryFriction;
-		
+
 		// dry rotation friction, set angSpeed to zero if bigger
-		double dryAngFriction = - sgn(angSpeed) * g * dryFrictionCoefficient;
+		double dryAngFriction = -sgn(angSpeed) * g * dryFrictionCoefficient;
 		if ((fabs(dryAngFriction) * dt) > fabs(angSpeed))
 			angSpeed = 0.;
 		else
 			angAcc += dryAngFriction;
-		
+
 		// viscous friction
-		acc += - speed * viscousFrictionCoefficient;
-		angAcc += - angSpeed * viscousMomentFrictionCoefficient;
-		
+		acc += -speed * viscousFrictionCoefficient;
+		angAcc += -angSpeed * viscousMomentFrictionCoefficient;
+
 		// el cheapos integration
 		speed += acc * dt;
 		angSpeed += angAcc * dt;
@@ -515,13 +513,13 @@ namespace Enki
 	void PhysicalObject::initPhysicsInteractions(double dt)
 	{
 		applyForces(dt);
-		
+
 		pos += speed * dt;
 		angle += angSpeed * dt;
 		computeTransformedShape();
-		
+
 		// store position after integration
-		posBeforeCollision  = pos;
+		posBeforeCollision = pos;
 	}
 
 	void PhysicalObject::finalizePhysicsInteractions(double dt)
@@ -530,17 +528,17 @@ namespace Enki
 		interlacedDistance += (posBeforeCollision - pos).norm();
 		angle = normalizeAngle(angle);
 	}
-	
-	
-	void PhysicalObject::collideWithStaticObject(const Vector &n, const Point &cp)
+
+
+	void PhysicalObject::collideWithStaticObject(const Vector& n, const Point& cp)
 	{
 		// only perform physics if we are in a physically-realistic collision situation,
 		if (n * speed > 0)
 		{
-			//std::cerr << this << " Warning collideWithStaticObject " << std::endl; 
+			//std::cerr << this << " Warning collideWithStaticObject " << std::endl;
 			return;
 		}
-		
+
 		// from http://www.myphysicslab.com/collision.html
 		const Vector r_ap = (cp - pos);
 		const Vector v_ap = speed + r_ap.crossFromZVector(angSpeed);
@@ -549,12 +547,12 @@ namespace Enki
 		const double j = num / denom;
 		speed += (n * j) / mass;
 		angSpeed += r_ap.cross(n * j) / momentOfInertia;
-		
+
 		// call the collision callback
 		collisionEvent(0);
 	}
 
-	void PhysicalObject::collideWithObject(PhysicalObject &that, Point cp, const Vector &dist)
+	void PhysicalObject::collideWithObject(PhysicalObject& that, Point cp, const Vector& dist)
 	{
 		// handle infinite mass case
 		if (mass < 0)
@@ -588,38 +586,38 @@ namespace Enki
 				return;
 			}
 		}
-		
+
 		// calculate de-penetration vector to put that out of contact
 		const double massSum = mass + that.mass;
-		const Vector thisDisp = dist*that.mass/massSum;
-		const Vector thatDisp = -dist*mass/massSum;
+		const Vector thisDisp = dist * that.mass / massSum;
+		const Vector thatDisp = -dist * mass / massSum;
 		pos += thisDisp;
 		computeTransformedShape();
 		that.pos += thatDisp;
 		that.computeTransformedShape();
 		cp += thatDisp; // we have to move cp as much as we move that because cp lie on that's boundary
-		
+
 		// Perform physics!
 		// we use model from http://www.myphysicslab.com/collision.html
 		// this is object A, that is object B
 		const Vector n = dist.unitary();
-		
+
 		const Vector r_ap = (cp - pos);
 		const Vector r_bp = (cp - that.pos);
-		
+
 		const Vector v_ap = speed + r_ap.crossFromZVector(angSpeed);
 		const Vector v_bp = that.speed + r_bp.crossFromZVector(that.angSpeed);
 		const Vector v_ab = v_ap - v_bp;
-		
+
 		const double num = -(1 + collisionElasticity * that.collisionElasticity) * (v_ab * n);
-		const double denom = (1/mass) + (1/that.mass) + (r_ap.cross(n) * r_ap.cross(n)) / momentOfInertia + (r_bp.cross(n) * r_bp.cross(n)) / that.momentOfInertia;
+		const double denom = (1 / mass) + (1 / that.mass) + (r_ap.cross(n) * r_ap.cross(n)) / momentOfInertia + (r_bp.cross(n) * r_bp.cross(n)) / that.momentOfInertia;
 		const double j = num / denom;
-		
+
 		speed += (n * j) / mass;
 		that.speed -= (n * j) / that.mass;
 		angSpeed += r_ap.cross(n * j) / momentOfInertia;
 		that.angSpeed -= r_bp.cross(n * j) / that.momentOfInertia;
-		
+
 		// call the collision callbacks
 		collisionEvent(&that);
 		that.collisionEvent(this);
@@ -629,19 +627,19 @@ namespace Enki
 	struct InteractionRadiusCompare
 	{
 		//! Return true if li1->r is smaller then li2->r, false otherwise
-		bool operator()(const LocalInteraction *li1,const LocalInteraction *li2)
+		bool operator()(const LocalInteraction* li1, const LocalInteraction* li2)
 		{
 			return li1->getRange() > li2->getRange();
 		}
 	};
 
 
-	void Robot::addLocalInteraction(LocalInteraction *li)
+	void Robot::addLocalInteraction(LocalInteraction* li)
 	{
 		localInteractions.push_back(li);
 		sortLocalInteractions();
 	}
-	
+
 	void Robot::sortLocalInteractions(void)
 	{
 		// instantiate the compare function object
@@ -652,19 +650,19 @@ namespace Enki
 
 	void Robot::initLocalInteractions(double dt, World* w)
 	{
-		for (size_t i=0; i<localInteractions.size(); i++ )
+		for (size_t i = 0; i < localInteractions.size(); i++)
 		{
 			localInteractions[i]->init(dt, w);
 		}
 	}
 
 
-	void Robot::doLocalInteractions(double dt, World *w, PhysicalObject *po)
+	void Robot::doLocalInteractions(double dt, World* w, PhysicalObject* po)
 	{
-		for (size_t i=0; i<localInteractions.size(); i++)
+		for (size_t i = 0; i < localInteractions.size(); i++)
 		{
-			const Vector vectCenter(this->pos.x - po->pos.x, this->pos.y - po->pos.y );
-			if (vectCenter.norm2() <  (localInteractions[i]->r+po->getRadius())*(localInteractions[i]->r+po->getRadius()))
+			const Vector vectCenter(this->pos.x - po->pos.x, this->pos.y - po->pos.y);
+			if (vectCenter.norm2() < (localInteractions[i]->r + po->getRadius()) * (localInteractions[i]->r + po->getRadius()))
 				localInteractions[i]->objectStep(dt, w, po);
 			else
 				return;
@@ -674,9 +672,9 @@ namespace Enki
 
 	void Robot::doLocalWallsInteraction(double dt, World* w)
 	{
-		for (size_t i=0; i<localInteractions.size(); i++)
+		for (size_t i = 0; i < localInteractions.size(); i++)
 		{
-			if ((this->pos.x>localInteractions[i]->r) && (this->pos.y>localInteractions[i]->r) && (w->w-this->pos.x>localInteractions[i]->r) && (w->h-this->pos.y>localInteractions[i]->r))
+			if ((this->pos.x > localInteractions[i]->r) && (this->pos.y > localInteractions[i]->r) && (w->w - this->pos.x > localInteractions[i]->r) && (w->h - this->pos.y > localInteractions[i]->r))
 				return;
 			else
 				localInteractions[i]->wallsStep(dt, w);
@@ -685,7 +683,7 @@ namespace Enki
 
 	void Robot::finalizeLocalInteractions(double dt, World* w)
 	{
-		for (size_t i=0; i<localInteractions.size(); i++ )
+		for (size_t i = 0; i < localInteractions.size(); i++)
 		{
 			localInteractions[i]->finalize(dt, w);
 		}
@@ -693,21 +691,21 @@ namespace Enki
 
 	void Robot::doGlobalInteractions(double dt, World* w)
 	{
-		for (size_t i=0; i<globalInteractions.size(); i++)
+		for (size_t i = 0; i < globalInteractions.size(); i++)
 		{
 			globalInteractions[i]->step(dt, w);
 		}
 	}
-	
-	World::GroundTexture::GroundTexture():
+
+	World::GroundTexture::GroundTexture() :
 		width(0),
 		height(0)
 	{}
-	
-	World::GroundTexture::GroundTexture(unsigned width, unsigned height, const uint32_t* data):
+
+	World::GroundTexture::GroundTexture(unsigned width, unsigned height, const uint32_t* data) :
 		width(width),
 		height(height),
-		data(data, data+width*height)
+		data(data, data + width * height)
 	{}
 
 	World::World(double width, double height, const Color& color, const GroundTexture& groundTexture) :
@@ -721,7 +719,7 @@ namespace Enki
 		bluetoothBase(NULL)
 	{
 	}
-	
+
 	World::World(double r, const Color& color, const GroundTexture& groundTexture) :
 		wallsType(WALLS_CIRCULAR),
 		w(0),
@@ -733,7 +731,7 @@ namespace Enki
 		bluetoothBase(NULL)
 	{
 	}
-	
+
 	World::World() :
 		wallsType(WALLS_NONE),
 		w(0),
@@ -750,16 +748,16 @@ namespace Enki
 		if (takeObjectOwnership)
 			for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 				delete (*i);
-		
+
 		if (bluetoothBase)
 			delete bluetoothBase;
 	}
-	
+
 	bool World::hasGroundTexture() const
 	{
 		return !groundTexture.data.empty();
 	}
-	
+
 	Color World::getGroundColor(const Point& p) const
 	{
 		if (groundTexture.data.empty() || wallsType == WALLS_NONE)
@@ -772,18 +770,18 @@ namespace Enki
 		}
 		else if (wallsType == WALLS_CIRCULAR)
 		{
-			texX = (p.x+r) * groundTexture.width / (2*r);
-			texY = (p.y+r) * groundTexture.height / (2*r);
+			texX = (p.x + r) * groundTexture.width / (2 * r);
+			texY = (p.y + r) * groundTexture.height / (2 * r);
 		}
 		else
 			abort();
-		
+
 		if (texX < 0 || texX >= groundTexture.width || texY < 0 || texY >= groundTexture.height)
 			return color;
 		uint32_t data = groundTexture.data[texY * groundTexture.width + texX];
 		return Color::fromARGB(data);
 	}
-	
+
 	/*
 	Texture of world walls is disabled now, re-enable a proper support if required
 	void World::setWallsColor(const Color& color)
@@ -793,7 +791,7 @@ namespace Enki
 	}
 	*/
 
-	void World::collideWithSquareWalls(PhysicalObject *object)
+	void World::collideWithSquareWalls(PhysicalObject* object)
 	{
 		// object is circle only
 		if (object->hull.empty())
@@ -801,25 +799,25 @@ namespace Enki
 			const double x = object->pos.x;
 			const double y = object->pos.y;
 			const double r = object->r;
-			if (x-r < 0)
+			if (x - r < 0)
 			{
 				object->collideWithStaticObject(Vector(1, 0), Vector(0, y));
-				object->pos.x += r-x;
+				object->pos.x += r - x;
 			}
-			if (y-r < 0)
+			if (y - r < 0)
 			{
 				object->collideWithStaticObject(Vector(0, 1), Vector(x, 0));
-				object->pos.y += r-y;
+				object->pos.y += r - y;
 			}
-			if (x+r > w)
+			if (x + r > w)
 			{
 				object->collideWithStaticObject(Vector(-1, 0), Vector(w, y));
-				object->pos.x += w-(x+r);
+				object->pos.x += w - (x + r);
 			}
-			if (y+r > h)
+			if (y + r > h)
 			{
 				object->collideWithStaticObject(Vector(0, -1), Vector(x, h));
-				object->pos.y += h-(y+r);
+				object->pos.y += h - (y + r);
 			}
 		}
 		else
@@ -828,14 +826,14 @@ namespace Enki
 			for (PhysicalObject::Hull::const_iterator it = object->hull.begin(); it != object->hull.end(); ++it)
 			{
 				const Polygon& shape = it->getTransformedShape();
-				
+
 				// let's assume walls are infinite
 				Point cp1, cp2; // cp1 is on x, cp2 is on y
 				Vector cp;
-				
+
 				double dist = 0;
 				double n = 0;
-				for (size_t i=0; i<shape.size(); i++)
+				for (size_t i = 0; i < shape.size(); i++)
 				{
 					const double x = shape[i].x;
 					const double y = shape[i].y;
@@ -846,9 +844,9 @@ namespace Enki
 						cp.y = y;
 						n = 1;
 					}
-					if (x-w > -dist)
+					if (x - w > -dist)
 					{
-						dist = w-x;
+						dist = w - x;
 						cp.x = w;
 						cp.y = y;
 						n = -1;
@@ -859,10 +857,10 @@ namespace Enki
 					object->collideWithStaticObject(Vector(n, 0), cp);
 					object->pos.x += dist;
 				}
-				
+
 				dist = 0;
 				n = 0;
-				for (size_t i=0; i<shape.size(); i++)
+				for (size_t i = 0; i < shape.size(); i++)
 				{
 					const double x = shape[i].x;
 					const double y = shape[i].y;
@@ -873,9 +871,9 @@ namespace Enki
 						cp.y = 0;
 						n = 1;
 					}
-					if (y-h > -dist)
+					if (y - h > -dist)
 					{
-						dist = h-y;
+						dist = h - y;
 						cp.x = x;
 						cp.y = h;
 						n = -1;
@@ -889,8 +887,8 @@ namespace Enki
 			}
 		}
 	}
-	
-	void World::collideWithCircularWalls(PhysicalObject *object)
+
+	void World::collideWithCircularWalls(PhysicalObject* object)
 	{
 		const double r2 = r * r;
 		// object is circle only
@@ -913,7 +911,7 @@ namespace Enki
 				const Polygon& shape = it->getTransformedShape();
 				Point cp;
 				double dist = 0;
-				for (size_t i=0; i<shape.size(); i++)
+				for (size_t i = 0; i < shape.size(); i++)
 				{
 					if (shape[i].norm2() > r2)
 					{
@@ -937,12 +935,12 @@ namespace Enki
 		}
 	}
 
-	void World::collideObjects(PhysicalObject *object1, PhysicalObject *object2)
+	void World::collideObjects(PhysicalObject* object1, PhysicalObject* object2)
 	{
 		// Is there a possible contact ?
-		const Vector distOCtoOC = object1->pos-object2->pos;
-		const double addedRay = object1->r+object2->r;
-		if (distOCtoOC.norm2() > (addedRay*addedRay))
+		const Vector distOCtoOC = object1->pos - object2->pos;
+		const double addedRay = object1->r + object2->r;
+		if (distOCtoOC.norm2() > (addedRay * addedRay))
 			return;
 
 		// variables for finding parts of maximum penetration
@@ -1025,7 +1023,7 @@ namespace Enki
 			// collide 2 circles
 			const Vector ud = distOCtoOC.unitary();
 			const double dLength = distOCtoOC.norm();
-			maxNorm = addedRay-dLength;
+			maxNorm = addedRay - dLength;
 			maxMtv = ud * maxNorm;
 			collisionPoint = object2->pos + ud * object2->r;
 			o1 = object1;
@@ -1050,7 +1048,7 @@ namespace Enki
 			// init physics interactions
 			for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 				(*i)->initPhysicsInteractions(overSampledDt);
-			
+
 			// collide objects together
 			unsigned iCounter, jCounter;
 			iCounter = 0;
@@ -1067,7 +1065,7 @@ namespace Enki
 				}
 				iCounter++;
 			}
-			
+
 			// collide objects with walls and physics step
 			for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 			{
@@ -1080,7 +1078,7 @@ namespace Enki
 				(*i)->finalizePhysicsInteractions(overSampledDt);
 			}
 		}
-		
+
 		// init non-physics interactions
 		for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 		{
@@ -1111,47 +1109,46 @@ namespace Enki
 			o->finalizeGlobalInteractions(dt, this);
 			o->controlStep(dt);
 		}
-		
+
 		// do a control step for the world
 		controlStep(dt);
 		// TODO: cleanup this
 		if (bluetoothBase)
 			bluetoothBase->step(dt, this);
 	}
-	
-	void World::addObject(PhysicalObject *o)
+
+	void World::addObject(PhysicalObject* o)
 	{
 		objects.insert(o);
 	}
 
-	void World::removeObject(PhysicalObject *o)
+	void World::removeObject(PhysicalObject* o)
 	{
 		objects.erase(o);
 	}
-	
+
 	void World::disconnectExternalObjectsUserData()
 	{
 		for (ObjectsIterator i = objects.begin(); i != objects.end(); ++i)
 			if ((*i)->userData && (!(*i)->userData->deletedWithObject))
 				(*i)->userData = 0;
 	}
-	
+
 	void World::setRandomSeed(unsigned long seed)
 	{
 		random.setSeed(seed);
 	}
-	
+
 	void World::initBluetoothBase()
 	{
 		bluetoothBase = new BluetoothBase();
 	}
-	
+
 	BluetoothBase* World::getBluetoothBase()
 	{
 		if (!bluetoothBase)
 			bluetoothBase = new BluetoothBase();
-	
+
 		return bluetoothBase;
 	}
 }
-

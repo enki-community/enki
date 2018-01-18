@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -52,12 +52,12 @@ namespace Enki
 	struct PixelOperationFunctor
 	{
 		//! Virtual destructor, do nothing
-		virtual ~PixelOperationFunctor() { }
+		virtual ~PixelOperationFunctor() {}
 		//! Modify the pixel and depth buffer² for a given object color and distance²
-		virtual void operator()(double &zBuffer2, Color &pixelBuffer, const double &objectDist2, const Color &objectColor) = 0;
+		virtual void operator()(double& zBuffer2, Color& pixelBuffer, const double& objectDist2, const Color& objectColor) = 0;
 	};
-	
-	
+
+
 	//! 1D Circular camera
 	/*!
 		The maximum aperture angle of this camera is PI, so this is not an omnicam.
@@ -85,18 +85,18 @@ namespace Enki
 		double halfFieldOfView;
 		//! Angular offset based on owner angle
 		double angleOffset;
-		
+
 		//! Fog switch, exponential decay of light with distance
 		bool useFog;
 		//! Density of fog, used to compute light attenuation with the function: light = light0 * exp(-fogDensity * distance)
 		double fogDensity;
 		//! Minimum incoming light, otherwise 0. Only used if useFog is true
 		Color lightThreshold;
-		
-		//! Pointer to active pixel operation
-		PixelOperationFunctor *pixelOperation;
 
-	public :
+		//! Pointer to active pixel operation
+		PixelOperationFunctor* pixelOperation;
+
+	public:
 		//! Constructor.
 		/*!
 			\param owner robot this camera is attached to
@@ -106,29 +106,29 @@ namespace Enki
 			\param halfFieldOfView half aperture of the camera. The real field of view is twice this value [0; PI/2]
 			\param pixelCount number of pixel to cover the full field of view
 		*/
-		CircularCam(Robot *owner, Vector pos, double height, double orientation, double halfFieldOfView, unsigned pixelCount);
+		CircularCam(Robot* owner, Vector pos, double height, double orientation, double halfFieldOfView, unsigned pixelCount);
 		//! Destructor
-		virtual ~CircularCam(){}
+		virtual ~CircularCam() {}
 		virtual void init(double dt, World* w);
-		virtual void objectStep(double dt, World *w, PhysicalObject *po);
+		virtual void objectStep(double dt, World* w, PhysicalObject* po);
 		virtual void wallsStep(double dt, World* w);
 		virtual void finalize(double dt, World* w);
-		
+
 		//! Change the sight range of the camera
 		void setRange(double range);
 		//! Return the absolute position (world coordinates) of the camera, updated at each time step on init()
 		Point getAbsolutePosition(void) { return absPos; }
 		//! Return the absolute orientation (world coordinates) of the camera, updated at each time step on init()
 		double getAbsoluteOrientation(void) { return absOrientation; }
-		
+
 	protected:
 		//! Return linear interpolated value between d0 and d1, given a sensorvalue sv between s0 and s1
 		double interpolateLinear(double s0, double s1, double sv, double d0, double d1);
 		//! Draw a textured line from point p0 to p1 using texture - WTF are p0 and p1??
-		void drawTexturedLine(const Point &p0, const Point &p1, const Texture &texture);
+		void drawTexturedLine(const Point& p0, const Point& p1, const Texture& texture);
 	};
-	
-	
+
+
 	//! 1D omnidirectional circular camera, based on 2 CircularCam
 	//! Pixels start at -PI and then follow mathematical orientation to PI
 	/*! \ingroup interaction */
@@ -139,25 +139,25 @@ namespace Enki
 		std::valarray<double> zbuffer;
 		//! Image (array of size pixelCount of Color)
 		std::valarray<Color> image;
-		
+
 	protected:
 		//! Cameras doing the real job, first part
 		CircularCam cam0;
 		//! Cameras doing the real job, second part
 		CircularCam cam1;
 
-	public :
+	public:
 		//! Constructor
 		/*!
 			\param owner robot this camera is attached to
 			\param height height of this camera with respect to ground
 			\param halfPixelCount half the number of pixel to cover the full 2*PI field of view
 		*/
-		OmniCam(Robot *owner, double height, unsigned halfPixelCount);
+		OmniCam(Robot* owner, double height, unsigned halfPixelCount);
 		//! Destructor
-		virtual ~OmniCam(){}
+		virtual ~OmniCam() {}
 		virtual void init(double dt, World* w);
-		virtual void objectStep(double dt, World *w, PhysicalObject *po);
+		virtual void objectStep(double dt, World* w, PhysicalObject* po);
 		virtual void wallsStep(double dt, World* w);
 		virtual void finalize(double dt, World* w);
 		//! Change the sight range of the camera
@@ -165,8 +165,7 @@ namespace Enki
 		//! Change the fog condition for this camera. If useFog is true, an exponential fog with density will be used. Additionally, a threshold can be applied on the resulting color
 		void setFogConditions(bool useFog, double density = 0.0, Color threshold = Color::black);
 		//! Change the pixel operation functor
-		void setPixelOperationFunctor(PixelOperationFunctor *pixelOperationFunctor);
+		void setPixelOperationFunctor(PixelOperationFunctor* pixelOperationFunctor);
 	};
 }
 #endif
-

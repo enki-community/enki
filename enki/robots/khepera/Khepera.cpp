@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -40,15 +40,15 @@ namespace Enki
 {
 	Khepera::Khepera(unsigned capabilities) :
 		DifferentialWheeled(5.2, 100, 0.05),
-		infraredSensor0(this, Vector(1.0, 1.5),  1.8, M_PI/2, 10, 1200, -0.9, 7, 20),
-		infraredSensor1(this, Vector(1.3, 1.3),  1.8, M_PI/4, 10, 1200, -0.9, 7, 20),
-		infraredSensor2(this, Vector(1.6, 0.6),  1.8, 0,      10, 1200, -0.9, 7, 20),
-		infraredSensor3(this, Vector(1.6, -0.6), 1.8, 0,      10, 1200, -0.9, 7, 20),
-		infraredSensor4(this, Vector(1.3, -1.3), 1.8, -M_PI/4,10, 1200, -0.9, 7, 20),
-		infraredSensor5(this, Vector(1.0, -1.5), 1.8, -M_PI/2,10, 1200, -0.9, 7, 20),
-		infraredSensor6(this, Vector(-1.5, -1.0),1.8, -M_PI,  10, 1200, -0.9, 7, 20),
-		infraredSensor7(this, Vector(-1.5, 1.0), 1.8, -M_PI,  10, 1200, -0.9, 7, 20),
-		camera(this, Vector(0, 0), 0, 0.0, M_PI/4, 50)
+		infraredSensor0(this, Vector(1.0, 1.5), 1.8, M_PI / 2, 10, 1200, -0.9, 7, 20),
+		infraredSensor1(this, Vector(1.3, 1.3), 1.8, M_PI / 4, 10, 1200, -0.9, 7, 20),
+		infraredSensor2(this, Vector(1.6, 0.6), 1.8, 0, 10, 1200, -0.9, 7, 20),
+		infraredSensor3(this, Vector(1.6, -0.6), 1.8, 0, 10, 1200, -0.9, 7, 20),
+		infraredSensor4(this, Vector(1.3, -1.3), 1.8, -M_PI / 4, 10, 1200, -0.9, 7, 20),
+		infraredSensor5(this, Vector(1.0, -1.5), 1.8, -M_PI / 2, 10, 1200, -0.9, 7, 20),
+		infraredSensor6(this, Vector(-1.5, -1.0), 1.8, -M_PI, 10, 1200, -0.9, 7, 20),
+		infraredSensor7(this, Vector(-1.5, 1.0), 1.8, -M_PI, 10, 1200, -0.9, 7, 20),
+		camera(this, Vector(0, 0), 0, 0.0, M_PI / 4, 50)
 	{
 		if (capabilities & CAPABILITIY_BASIC_SENSORS)
 		{
@@ -61,13 +61,12 @@ namespace Enki
 			addLocalInteraction(&infraredSensor6);
 			addLocalInteraction(&infraredSensor7);
 		}
-		
+
 		if (capabilities & CAPABILITY_CAMERA)
 		{
 			addLocalInteraction(&camera);
 		}
-		
+
 		setCylindric(2.6, 5, 80);
 	}
 }
-

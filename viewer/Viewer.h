@@ -57,55 +57,55 @@ namespace Enki
 {
 	class World;
 	class PhysicalObject;
-	
+
 	class ViewerWidget : public QGLWidget
 	{
 		Q_OBJECT
-	
+
 	public:
 		const int timerPeriodMs;
-		
+
 		class ViewerUserData : public PhysicalObject::UserData
 		{
 		public:
 			virtual void draw(PhysicalObject* object) const = 0;
-			virtual void drawSpecial(PhysicalObject* object, int param = 0) const { }
+			virtual void drawSpecial(PhysicalObject* object, int param = 0) const {}
 			// for data managed by the viewer, called upon viewer destructor
-			virtual void cleanup(ViewerWidget* viewer) { }
+			virtual void cleanup(ViewerWidget* viewer) {}
 		};
-		
+
 		// complex robot, one per robot type stored here
 		class CustomRobotModel : public ViewerUserData
 		{
 		public:
 			QVector<GLuint> lists;
 			QVector<GLuint> textures;
-		
+
 		public:
 			CustomRobotModel();
 		};
-		
+
 		//! Camera pose
 		struct CameraPose
 		{
-			QPointF pos; 		//!< (x,y) position of the camera
-			double altitude;	//!< altitude (z) of the camera
-			double yaw; 		//!< yaw angle, mathematical orientation
-			double pitch; 		//!< pitch angle, negative looking down, positive looking up
-			
+			QPointF pos; //!< (x,y) position of the camera
+			double altitude; //!< altitude (z) of the camera
+			double yaw; //!< yaw angle, mathematical orientation
+			double pitch; //!< pitch angle, negative looking down, positive looking up
+
 			// constructors
 			CameraPose();
-			CameraPose(const World *world);
+			CameraPose(const World* world);
 			CameraPose(const QPointF& pos, double altitude, double yaw, double pitch);
 		};
-	
+
 	protected:
 		//! A camera pose that can be updated given a target position
-		struct UpdatableCameraPose: CameraPose
+		struct UpdatableCameraPose : CameraPose
 		{
-			double userYaw;		//!< yaw controlled by the user, added to the angle of the object in tracking
-			double radius;		//!< radius distance used in tracking mode to compute camera to tracked object distance
-			
+			double userYaw; //!< yaw controlled by the user, added to the angle of the object in tracking
+			double radius; //!< radius distance used in tracking mode to compute camera to tracked object distance
+
 			// the camera base coordinate system
 			QVector3D forward;
 			QVector3D left;
@@ -113,24 +113,24 @@ namespace Enki
 
 			// constructors
 			UpdatableCameraPose();
-			UpdatableCameraPose(const World *world);
+			UpdatableCameraPose(const World* world);
 			UpdatableCameraPose(const QPointF& pos, double altitude, double yaw, double pitch);
-			
+
 			// assignment to base class
 			UpdatableCameraPose& operator=(const CameraPose& pose);
 
-			// updates of base coordinate system 
+			// updates of base coordinate system
 			void update();
 			void updateTracking(double targetAngle, const QVector3D& targetPosition = QVector3D(), double zNear = 2.f);
 		};
-		
+
 	public:
 		bool doDumpFrames;
 		unsigned dumpFramesCounter;
-		
+
 	protected:
-		World *world;
-		
+		World* world;
+
 		GLuint helpWidget;
 		GLuint centerWidget;
 		GLuint selectionTexture;
@@ -138,21 +138,21 @@ namespace Enki
 		GLuint worldTexture;
 		GLuint wallTexture;
 		GLuint worldGroundTexture;
-		
+
 		typedef QMap<const std::type_info*, ViewerUserData*> ManagedObjectsMap;
 		typedef QMapIterator<const std::type_info*, ViewerUserData*> ManagedObjectsMapIterator;
 		ManagedObjectsMap managedObjects;
 		typedef QMap<const std::type_info*, const std::type_info*> ManagedObjectsAliasesMap;
 		typedef QMapIterator<const std::type_info*, const std::type_info*> ManagedObjectsAliasesMapIterator;
 		ManagedObjectsAliasesMap managedObjectsAliases;
-		
+
 		struct InfoMessage
 		{
 			QString message;
 			double persistance;
 			QColor color;
 			QUrl link;
-			
+
 			InfoMessage(const QString& message, double persistance, const QColor& color, const QUrl& link);
 		};
 		typedef std::list<InfoMessage> MessageList;
@@ -165,7 +165,8 @@ namespace Enki
 		{
 			bool movableByPicking;
 
-			ExtendedAttributes():movableByPicking(false){};
+			ExtendedAttributes() :
+				movableByPicking(false){};
 		};
 		std::map<PhysicalObject*, ExtendedAttributes> objectExtendedAttributesList;
 
@@ -175,21 +176,21 @@ namespace Enki
 		UpdatableCameraPose camera; //!< current camera pose
 		bool trackingView; //!< to know if camera is in tracking mode
 		CameraPose nonTrackingCamera; //!< copy of global camera when in tracking view
-	
+
 		PhysicalObject *pointedObject, *selectedObject;
 		QVector3D pointedPoint;
 		bool movingObject;
-		
+
 		Robot* mouseLeftButtonRobot;
 		Robot* mouseRightButtonRobot;
 		Robot* mouseMiddleButtonRobot;
-		
+
 		double elapsedTime;
 
 	public:
-		ViewerWidget(World *world, QWidget *parent = 0);
+		ViewerWidget(World* world, QWidget* parent = 0);
 		~ViewerWidget();
-	
+
 		World* getWorld() const;
 		CameraPose getCamera() const;
 		QVector3D getPointedPoint() const;
@@ -197,7 +198,7 @@ namespace Enki
 		PhysicalObject* getSelectedObject() const;
 		bool isTrackingActivated() const;
 		bool isMovableByPicking(PhysicalObject* object) const;
-		
+
 		void setMovableByPicking(PhysicalObject* object, bool movable = true);
 		void removeExtendedAttributes(PhysicalObject* object);
 
@@ -219,38 +220,38 @@ namespace Enki
 		void renderWorldSegment(const Segment& segment);
 		void renderWorld();
 		void renderShape(const Polygon& shape, const double height, const Color& color);
-		void renderSimpleObject(PhysicalObject *object);
-		
+		void renderSimpleObject(PhysicalObject* object);
+
 		// helper functions for coordinates
 		void glVertex2Screen(int x, int y);
 		void computeInfoMessageAreaSize();
-		
+
 		// hooks for subclasses
 		virtual void renderObjectsTypesHook();
-		virtual void renderObjectHook(PhysicalObject *object);
-		virtual void displayObjectHook(PhysicalObject *object);
+		virtual void renderObjectHook(PhysicalObject* object);
+		virtual void displayObjectHook(PhysicalObject* object);
 		virtual void sceneCompletedHook();
 
 		// Qt-OpenGL setup and drawing
 		virtual void initializeGL();
 		virtual void paintGL();
 		virtual void resizeGL(int width, int height);
-		
+
 		// scene rendering and picking
 		virtual void renderScene(double left, double right, double bottom, double top, double zNear, double zFar);
 		virtual void picking(double left, double right, double bottom, double top, double zNear, double zFar);
 		virtual void displayMessages();
 		virtual void displayWidgets();
-		virtual void clickWidget(QMouseEvent *event);
+		virtual void clickWidget(QMouseEvent* event);
 
 		// Qt events handling
 		virtual void keyPressEvent(QKeyEvent* event);
-		virtual void mousePressEvent(QMouseEvent *event);
-		virtual void mouseReleaseEvent(QMouseEvent * event);
-		virtual void mouseMoveEvent(QMouseEvent *event);
-		virtual void mouseDoubleClickEvent(QMouseEvent *event);
-		virtual void wheelEvent(QWheelEvent * event);
-		virtual void timerEvent(QTimerEvent * event);
+		virtual void mousePressEvent(QMouseEvent* event);
+		virtual void mouseReleaseEvent(QMouseEvent* event);
+		virtual void mouseMoveEvent(QMouseEvent* event);
+		virtual void mouseDoubleClickEvent(QMouseEvent* event);
+		virtual void wheelEvent(QWheelEvent* event);
+		virtual void timerEvent(QTimerEvent* event);
 
 		// Internal event handling
 		virtual void helpActivated();

@@ -7,8 +7,8 @@
 	Copyright (C) 2006 Laboratory of Robotics Systems, EPFL, Lausanne
 	See AUTHORS for details
 
-	This program is free software; the authors of any publication 
-	arising from research using this software are asked to add the 
+	This program is free software; the authors of any publication
+	arising from research using this software are asked to add the
 	following reference:
 	Enki - a fast 2D robot simulator
 	http://lis.epfl.ch/enki
@@ -41,7 +41,7 @@
 /*!	\file Thymio2.h
 	\brief Header of the Thymio robot
 */
-	
+
 namespace Enki
 {
 	//! A simple model of the Thymio robot.
@@ -63,7 +63,7 @@ namespace Enki
 		IRSensor infraredSensor5;
 		//! The infrared sensor 6 (back-right)
 		IRSensor infraredSensor6;
-		
+
 		//! The ground sensor 0 (left)
 		GroundSensor groundSensor0;
 		//! The ground sensor 1 (right)
@@ -76,23 +76,41 @@ namespace Enki
 		enum LedIndex
 		{
 			TOP = 0,
-			BOTTOM_LEFT, BOTTOM_RIGHT,
+			BOTTOM_LEFT,
+			BOTTOM_RIGHT,
 
-			BUTTON_UP, BUTTON_DOWN, BUTTON_LEFT, BUTTON_RIGHT,
+			BUTTON_UP,
+			BUTTON_DOWN,
+			BUTTON_LEFT,
+			BUTTON_RIGHT,
 
-			RING_0, RING_1, RING_2, RING_3,
-			RING_4, RING_5, RING_6, RING_7,
+			RING_0,
+			RING_1,
+			RING_2,
+			RING_3,
+			RING_4,
+			RING_5,
+			RING_6,
+			RING_7,
 
-			IR_FRONT_0, IR_FRONT_1, IR_FRONT_2,
-			IR_FRONT_3, IR_FRONT_4, IR_FRONT_5,
+			IR_FRONT_0,
+			IR_FRONT_1,
+			IR_FRONT_2,
+			IR_FRONT_3,
+			IR_FRONT_4,
+			IR_FRONT_5,
 
-			IR_BACK_0, IR_BACK_1,
+			IR_BACK_0,
+			IR_BACK_1,
 
-			LEFT_RED, LEFT_BLUE, RIGHT_BLUE, RIGHT_RED,
+			LEFT_RED,
+			LEFT_BLUE,
+			RIGHT_BLUE,
+			RIGHT_RED,
 
 			LED_COUNT
 		};
-		
+
 	public:
 		//! Create a Thymio II
 		Thymio2();
@@ -100,7 +118,7 @@ namespace Enki
 		~Thymio2();
 
 		void setLedIntensity(LedIndex ledIndex, double intensity = 1.f);
-		void setLedColor(LedIndex ledIndex, const Color& color = Color(1.,1.,1.,1.));
+		void setLedColor(LedIndex ledIndex, const Color& color = Color(1., 1., 1., 1.));
 		Color getColorLed(LedIndex ledIndex) const;
 
 	protected:
@@ -109,4 +127,3 @@ namespace Enki
 }
 
 #endif
-

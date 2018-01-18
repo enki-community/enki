@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -43,25 +43,25 @@
 
 namespace Enki
 {
-	ActiveSoundSource::ActiveSoundSource(Robot *owner, double r, unsigned channels)
+	ActiveSoundSource::ActiveSoundSource(Robot* owner, double r, unsigned channels)
 	{
 		this->r = r;
 		this->owner = owner;
-	
+
 		noOfChannels = channels;
-	
+
 		pitch = new double[channels];
 		assert(pitch);
-		
-		for (size_t i=0; i<channels; i++)
+
+		for (size_t i = 0; i < channels; i++)
 			pitch[i] = 0.0;
-	
+
 		enableFlag = false;
 		elapsedTime = 0.0;
-	
+
 		activityTime = 5.0;
 	}
-	
+
 	ActiveSoundSource::~ActiveSoundSource()
 	{
 		delete[] pitch;
@@ -71,13 +71,13 @@ namespace Enki
 	{
 		this->r = range;
 	}
-		
+
 	void ActiveSoundSource::setSound(unsigned channel, double signal)
 	{
 		if (channel < noOfChannels)
 			pitch[channel] = signal;
 	}
-		
+
 	void ActiveSoundSource::realisticSetSound(unsigned channel, double signal)
 	{
 		double variance = 1;
@@ -89,7 +89,7 @@ namespace Enki
 			pitch[channel] = signal;
 			for (int i=1; i<=2; i++) {
 				gaussian = exp(-(i*i)/(2*variance*variance));
-				if (channel != 0 && (channel != 1 || i != 2)) 
+				if (channel != 0 && (channel != 1 || i != 2))
 					pitch[channel-i] = gaussian*signal;
 				if (channel+i < noOfChannels) pitch[channel+i] = gaussian*signal;
 			}
@@ -98,7 +98,7 @@ namespace Enki
 			if (c < 0)
 				c = 0;
 			if (c >= noOfChannels)
-				c = noOfChannels-1;
+				c = noOfChannels - 1;
 			channel = c;
 			pitch[channel] = signal;
 		}
@@ -112,12 +112,12 @@ namespace Enki
 			return -1;
 	}
 
-	
+
 	double ActiveSoundSource::getMaxSound(int* channel)
 	{
 		double maxPitch = 0;
-		
-		for (unsigned i=0; i<noOfChannels; i++)
+
+		for (unsigned i = 0; i < noOfChannels; i++)
 			if (pitch[i] > maxPitch)
 			{
 				maxPitch = pitch[i];
@@ -125,14 +125,13 @@ namespace Enki
 			}
 
 		if (maxPitch)
-			return maxPitch; 
+			return maxPitch;
 		else
 			return -1;
 	}
-	
-	ActiveSoundObject::ActiveSoundObject(Robot *owner, double actionRange, unsigned channels) :
+
+	ActiveSoundObject::ActiveSoundObject(Robot* owner, double actionRange, unsigned channels) :
 		speaker(owner, actionRange, channels)
 	{
-	
 	}
 }

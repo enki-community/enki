@@ -7,8 +7,8 @@
 	Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
 	See AUTHORS for details
 
-	This program is free software; the authors of any publication 
-	arising from research using this software are asked to add the 
+	This program is free software; the authors of any publication
+	arising from research using this software are asked to add the
 	following reference:
 	Enki - a fast 2D robot simulator
 	http://lis.epfl.ch/enki
@@ -43,17 +43,17 @@
 namespace Enki
 {
 	using namespace std;
-	
+
 	Thymio2::Thymio2() :
 		DifferentialWheeled(9.4, 16.6, 0.027),
-		infraredSensor0(this, Vector(6.2, 4.85),   3.4, 0.69813,  14, 4505, 0.03, 73, 2.87),
-		infraredSensor1(this, Vector(7.5, 2.55),   3.4, 0.34906,  14, 4505, 0.03, 73, 2.87),
-		infraredSensor2(this, Vector(7.95, 0.0),   3.4, 0.0,      14, 4505, 0.03, 73, 2.87),
-		infraredSensor3(this, Vector(7.5, -2.55),  3.4, -0.34906, 14, 4505, 0.03, 73, 2.87),
-		infraredSensor4(this, Vector(6.2, -4.85),  3.4, -0.69813, 14, 4505, 0.03, 73, 2.87),
-		infraredSensor5(this, Vector(-2.95, 2.95), 3.4, -M_PI,    14, 4505, 0.03, 73, 2.87),
-		infraredSensor6(this, Vector(-2.95, -2.95),3.4, -M_PI,    14, 4505, 0.03, 73, 2.87),
-		groundSensor0(this, Vector(7.2, 1.15),  0.44, 9, 884, 60, 0.4, 10),
+		infraredSensor0(this, Vector(6.2, 4.85), 3.4, 0.69813, 14, 4505, 0.03, 73, 2.87),
+		infraredSensor1(this, Vector(7.5, 2.55), 3.4, 0.34906, 14, 4505, 0.03, 73, 2.87),
+		infraredSensor2(this, Vector(7.95, 0.0), 3.4, 0.0, 14, 4505, 0.03, 73, 2.87),
+		infraredSensor3(this, Vector(7.5, -2.55), 3.4, -0.34906, 14, 4505, 0.03, 73, 2.87),
+		infraredSensor4(this, Vector(6.2, -4.85), 3.4, -0.69813, 14, 4505, 0.03, 73, 2.87),
+		infraredSensor5(this, Vector(-2.95, 2.95), 3.4, -M_PI, 14, 4505, 0.03, 73, 2.87),
+		infraredSensor6(this, Vector(-2.95, -2.95), 3.4, -M_PI, 14, 4505, 0.03, 73, 2.87),
+		groundSensor0(this, Vector(7.2, 1.15), 0.44, 9, 884, 60, 0.4, 10),
 		groundSensor1(this, Vector(7.2, -1.15), 0.44, 9, 884, 60, 0.4, 10)
 	{
 		// add interactions
@@ -66,21 +66,21 @@ namespace Enki
 		addLocalInteraction(&infraredSensor6);
 		addLocalInteraction(&groundSensor0);
 		addLocalInteraction(&groundSensor1);
-		
+
 		//staticFrictionThreshold = 0.5;
 		dryFrictionCoefficient = 0.25;
 		dryFrictionCoefficient = 2.5;
-		
+
 		// define the physical shape of the Thymio
 		Enki::Polygon thymio2Shape;
 		const double amount = 10.0;
 		const double radius = 8.0;
 		const double height = 5.1;
-		const double angle1 = asin(5.5/8.0);
-		const double angle2 = atan(5.5/3.0);
-		const double distance = sqrt(3.0*3.0+5.5*5.5);
-		for (double a = -angle1; a < angle1+0.01; a += 2*angle1/amount)
-			thymio2Shape.push_back(Enki::Point(radius * cos(a), radius * sin(a)));        
+		const double angle1 = asin(5.5 / 8.0);
+		const double angle2 = atan(5.5 / 3.0);
+		const double distance = sqrt(3.0 * 3.0 + 5.5 * 5.5);
+		for (double a = -angle1; a < angle1 + 0.01; a += 2 * angle1 / amount)
+			thymio2Shape.push_back(Enki::Point(radius * cos(a), radius * sin(a)));
 		thymio2Shape.push_back(Enki::Point(distance * cos(M_PI - angle2), distance * sin(M_PI - angle2)));
 		thymio2Shape.push_back(Enki::Point(distance * cos(M_PI - angle2), distance * sin(M_PI + angle2)));
 		Enki::PhysicalObject::Hull hull(Enki::PhysicalObject::Part(thymio2Shape, height));
@@ -90,36 +90,57 @@ namespace Enki
 		textureID = 0;
 		ledTexture = NULL;
 		ledTextureNeedUpdate = true;
-		for (unsigned int i=0; i<LED_COUNT; i++)
+		for (unsigned int i = 0; i < LED_COUNT; i++)
 		{
-			switch(i)
+			switch (i)
 			{
-				case TOP:     	   ledColor[i] = Color(0.0,0.0,0.0,0.0); break;
-				case BOTTOM_LEFT:  ledColor[i] = Color(0.0,0.0,0.0,0.0); break;
-				case BOTTOM_RIGHT: ledColor[i] = Color(0.0,0.0,0.0,0.0); break;
+				case TOP: ledColor[i] = Color(0.0, 0.0, 0.0, 0.0); break;
+				case BOTTOM_LEFT: ledColor[i] = Color(0.0, 0.0, 0.0, 0.0); break;
+				case BOTTOM_RIGHT: ledColor[i] = Color(0.0, 0.0, 0.0, 0.0); break;
 
-				case BUTTON_UP: case BUTTON_DOWN: case BUTTON_LEFT: case BUTTON_RIGHT:
-					ledColor[i] = Color(1.0,0.0,0.0,0.0); break;
+				case BUTTON_UP:
+				case BUTTON_DOWN:
+				case BUTTON_LEFT:
+				case BUTTON_RIGHT:
+					ledColor[i] = Color(1.0, 0.0, 0.0, 0.0);
+					break;
 
-				case RING_0: case RING_1: case RING_2: case RING_3:
-				case RING_4: case RING_5: case RING_6: case RING_7:
-					ledColor[i] = Color(1.0,0.5,0.0,0.0); break;
+				case RING_0:
+				case RING_1:
+				case RING_2:
+				case RING_3:
+				case RING_4:
+				case RING_5:
+				case RING_6:
+				case RING_7:
+					ledColor[i] = Color(1.0, 0.5, 0.0, 0.0);
+					break;
 
-				case IR_FRONT_0: case IR_FRONT_1: case IR_FRONT_2: 
-				case IR_FRONT_3: case IR_FRONT_4: case IR_FRONT_5: 
-				case IR_BACK_0:  case IR_BACK_1: 
-					ledColor[i] = Color(1.0,0.0,0.0,0.0); break;
+				case IR_FRONT_0:
+				case IR_FRONT_1:
+				case IR_FRONT_2:
+				case IR_FRONT_3:
+				case IR_FRONT_4:
+				case IR_FRONT_5:
+				case IR_BACK_0:
+				case IR_BACK_1:
+					ledColor[i] = Color(1.0, 0.0, 0.0, 0.0);
+					break;
 
-				case LEFT_BLUE: case RIGHT_BLUE:
-					ledColor[i] = Color(0.0,1.0,1.0,0.0); break;
-				case LEFT_RED:  case RIGHT_RED: 
-					ledColor[i] = Color(1.0,0.0,0.0,0.0); break;
+				case LEFT_BLUE:
+				case RIGHT_BLUE:
+					ledColor[i] = Color(0.0, 1.0, 1.0, 0.0);
+					break;
+				case LEFT_RED:
+				case RIGHT_RED:
+					ledColor[i] = Color(1.0, 0.0, 0.0, 0.0);
+					break;
 
 				default: break;
 			}
 		}
 	}
-	
+
 	Thymio2::~Thymio2()
 	{
 		delete[] ledTexture;
@@ -127,7 +148,7 @@ namespace Enki
 
 	void Thymio2::setLedIntensity(LedIndex ledIndex, double intensity)
 	{
-		if (ledIndex<0 || ledIndex>=LED_COUNT)
+		if (ledIndex < 0 || ledIndex >= LED_COUNT)
 			return;
 		intensity = std::max(0., std::min(1., intensity));
 		if (intensity != ledColor[ledIndex].a())
@@ -139,11 +160,13 @@ namespace Enki
 
 	void Thymio2::setLedColor(LedIndex ledIndex, const Color& color)
 	{
-		if (ledIndex<0 || ledIndex>=LED_COUNT)
+		if (ledIndex < 0 || ledIndex >= LED_COUNT)
 			return;
 		switch (ledIndex)
 		{
-			case TOP: case BOTTOM_LEFT: case BOTTOM_RIGHT:
+			case TOP:
+			case BOTTOM_LEFT:
+			case BOTTOM_RIGHT:
 				if (color != ledColor[ledIndex])
 				{
 					ledColor[ledIndex] = color;
@@ -158,10 +181,9 @@ namespace Enki
 
 	Color Thymio2::getColorLed(LedIndex ledIndex) const
 	{
-		if (ledIndex<0 || ledIndex>=LED_COUNT)
-			return Color(0,0,0,0);
+		if (ledIndex < 0 || ledIndex >= LED_COUNT)
+			return Color(0, 0, 0, 0);
 		else
 			return ledColor[ledIndex];
 	}
 }
-

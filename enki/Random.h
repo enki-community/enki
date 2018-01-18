@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -49,38 +49,42 @@ namespace Enki
 	{
 	private:
 		unsigned long randx; //!< value used to compute next pseudo-random value
-	
+
 	public:
 		//! Construct the random generator, initialize with a seed of 0
 		FastRandom(void) { randx = 0; }
 		//! Set the seed
 		void setSeed(unsigned long seed) { randx = seed; }
 		//! Get a random number between 0 and 2^31
-		unsigned long get(void) { return (randx = randx*1103515245 + 12345) & 0x7fffffff; }
+		unsigned long get(void) { return (randx = randx * 1103515245 + 12345) & 0x7fffffff; }
 		//! Get a random double between 0 and range, use get() internally
 		double getRange(double range) { return (static_cast<double>(get()) * range) / 2147483648.0; }
 	};
-	
+
 	//! Return a number in [0;1[ in a uniform distribution
 	/*! \ingroup an */
 	inline double uniformRand(void)
 	{
-		return double(rand())/RAND_MAX;
+		return double(rand()) / RAND_MAX;
 	}
-	
+
 	//! Functor to be used with \<algorithm\>
 	struct UniformRand
 	{
 		double from; //!< lower bound of uniform distribution
-		double to;//!< upper bound of uniform distribution
-		
+		double to; //!< upper bound of uniform distribution
+
 		//! Constructor. Params define the range of the uniform distribution.
-		UniformRand(double from = 0.0, double to = 1.0) { this->from = from; this->to = to; }
-		
+		UniformRand(double from = 0.0, double to = 1.0)
+		{
+			this->from = from;
+			this->to = to;
+		}
+
 		//! Functor operator for use with, e.g., std::generate
-		double operator()() const { return from + (to-from)*uniformRand(); }
+		double operator()() const { return from + (to - from) * uniformRand(); }
 	};
-	
+
 	//! Return a number between [0;max[ in integer in a uniform distribution
 	/*! \ingroup an */
 	inline unsigned intRand(unsigned max)
@@ -90,14 +94,14 @@ namespace Enki
 		else
 			return 0;
 	}
-	
+
 	//! Return true with a probability prob. If no argument is given, prob = 0.5
 	/*! \ingroup an */
 	inline bool boolRand(double prob = 0.5)
 	{
 		return uniformRand() < prob;
 	}
-	
+
 	//! Return a random number with a gaussian distribution of a certain mean and standard deviation.
 	/*! \ingroup an */
 	inline double gaussianRand(double mean, double sigm)
@@ -108,18 +112,17 @@ namespace Enki
 		// C++ wrapper available.
 		// http://gslwrap.sourceforge.net/
 		double r, x, y;
-		
+
 		// Generate random number in unity circle.
 		do
 		{
-			x = uniformRand()*2 - 1;
-			y = uniformRand()*2 - 1;
-			r = x*x + y*y;
-		}
-		while (r > 1.0 || r == 0);
-		
+			x = uniformRand() * 2 - 1;
+			y = uniformRand() * 2 - 1;
+			r = x * x + y * y;
+		} while (r > 1.0 || r == 0);
+
 		// Box-Muller transform.
-		return sigm * y * sqrt (-2.0 * log(r) / r) + mean;
+		return sigm * y * sqrt(-2.0 * log(r) / r) + mean;
 	}
 }
 
