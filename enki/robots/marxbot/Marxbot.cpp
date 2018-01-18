@@ -45,14 +45,14 @@ namespace Enki
 	// around m=3000, x0=0.2, c=1
 	double marxbotVirtualBumperResponseFunction(double dist)
 	{
-		if (dist<0.5)
-			dist = -440*dist+3000;
-		else if (dist>=0.5 && dist<=9)
-			dist = 4526*exp(-0.9994*dist);
+		if (dist < 0.5)
+			dist = -440 * dist + 3000;
+		else if (dist >= 0.5 && dist <= 9)
+			dist = 4526 * exp(-0.9994 * dist);
 		else
 			dist = random.getRange(20.0);
 
-		dist *= (0.97+random.getRange(0.06));
+		dist *= (0.97 + random.getRange(0.06));
 
 		return dist;
 	}
@@ -74,4 +74,3 @@ namespace Enki
 		return marxbotVirtualBumperResponseFunction(sqrt(rotatingDistanceSensor.zbuffer[(physicalNumber * 180) / 24]) - getRadius());
 	}
 }
-

@@ -41,7 +41,7 @@ namespace Enki
 {
 	using namespace std;
 
-	GroundSensor::GroundSensor(Robot *owner, Vector pos, double cFactor, double sFactor, double mFactor, double aFactor, double spatialSd, double noiseSd):
+	GroundSensor::GroundSensor(Robot* owner, Vector pos, double cFactor, double sFactor, double mFactor, double aFactor, double spatialSd, double noiseSd) :
 		pos(pos),
 		cFactor(cFactor),
 		sFactor(sFactor),
@@ -58,8 +58,8 @@ namespace Enki
 		{
 			for (int j = 0; j < 9; ++j)
 			{
-				const double x(double(i-4) / 4.);
-				const double y(double(j-4) / 4.);
+				const double x(double(i - 4) / 4.);
+				const double y(double(j - 4) / 4.);
 				filter[i][j] = exp(-(x * x + y * y) / (2. * var));
 				sum += filter[i][j];
 			}
@@ -91,9 +91,9 @@ namespace Enki
 		{
 			for (int j = 0; j < 9; ++j)
 			{
-				const double x(double(i-4) / 4.);
-				const double y(double(j-4) / 4.);
-				const double groundIntensity(w->getGroundColor(Point(absPos.x+x, absPos.y+y)).toGray());
+				const double x(double(i - 4) / 4.);
+				const double y(double(j - 4) / 4.);
+				const double groundIntensity(w->getGroundColor(Point(absPos.x + x, absPos.y + y)).toGray());
 				v += filter[i][j] * groundIntensity;
 			}
 		}

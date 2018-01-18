@@ -42,7 +42,7 @@
 */
 namespace Enki
 {
-	SbotFeeding::SbotFeeding(double r, Robot *owner)
+	SbotFeeding::SbotFeeding(double r, Robot* owner)
 	{
 		this->r = r;
 		this->owner = owner;
@@ -62,17 +62,18 @@ namespace Enki
 		dEnergyInactive = 0;
 	}
 
-	void SbotFeeding::objectStep(double dt, PhysicalObject *po, World *w)
+	void SbotFeeding::objectStep(double dt, PhysicalObject* po, World* w)
 	{
-		FeedableSbot *sbot = dynamic_cast<FeedableSbot *>(po);
-		if (sbot) {
+		FeedableSbot* sbot = dynamic_cast<FeedableSbot*>(po);
+		if (sbot)
+		{
 			if (actualTime < activeDuration || activeDuration == -1)
 			{
 				if ((actualEnergy > 0) || (dEnergyActive < 0))
 				{
 					sbot->dEnergy += dEnergyActive;
 					if ((consumeEnergy) && (dEnergyActive > 0))
-						actualEnergy -= dEnergyActive*dt;
+						actualEnergy -= dEnergyActive * dt;
 				}
 			}
 			else
@@ -81,7 +82,7 @@ namespace Enki
 				{
 					sbot->dEnergy += dEnergyInactive;
 					if ((consumeEnergy) && (dEnergyInactive > 0))
-						actualEnergy -= dEnergyInactive*dt;
+						actualEnergy -= dEnergyInactive * dt;
 				}
 			}
 		}
@@ -89,12 +90,12 @@ namespace Enki
 
 	void SbotFeeding::finalize(double dt)
 	{
-		if ( activeDuration == -1 )
+		if (activeDuration == -1)
 		{
 			owner->setColor(activeColor);
 			return;
 		}
-		else if ( inactiveDuration == -1 )
+		else if (inactiveDuration == -1)
 		{
 			owner->setColor(inactiveColor);
 			return;
@@ -102,7 +103,7 @@ namespace Enki
 
 		actualTime += dt;
 
-		double totalTime = activeDuration+inactiveDuration;
+		double totalTime = activeDuration + inactiveDuration;
 		while (actualTime > totalTime)
 			actualTime -= totalTime;
 
@@ -130,4 +131,3 @@ namespace Enki
 		speaker.setSoundRange(soundRange);
 	}
 }
-

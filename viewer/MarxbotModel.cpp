@@ -82,16 +82,16 @@ namespace Enki
 
 		// wheels
 		glPushMatrix();
-		glTranslatef(0,0,wheelRadius);
-			glPushMatrix();
-			glRotated((fmod(dw->rightOdometry, wheelCirc) * 360) / wheelCirc, 0, 1, 0);
-			glCallList(lists[1]);
-			glPopMatrix();
-			glPushMatrix();
-			glRotated(180.f, 0, 0, 1);
-			glRotated((fmod(-dw->leftOdometry, wheelCirc) * 360) / wheelCirc, 0, 1, 0);
-			glCallList(lists[1]);
-			glPopMatrix();
+		glTranslatef(0, 0, wheelRadius);
+		glPushMatrix();
+		glRotated((fmod(dw->rightOdometry, wheelCirc) * 360) / wheelCirc, 0, 1, 0);
+		glCallList(lists[1]);
+		glPopMatrix();
+		glPushMatrix();
+		glRotated(180.f, 0, 0, 1);
+		glRotated((fmod(-dw->leftOdometry, wheelCirc) * 360) / wheelCirc, 0, 1, 0);
+		glCallList(lists[1]);
+		glPopMatrix();
 		glPopMatrix();
 
 		glDisable(GL_TEXTURE_2D);

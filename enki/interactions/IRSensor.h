@@ -146,11 +146,11 @@ namespace Enki
 			\param c third parameter of response function
 			\param noiseSd standard deviation of Gaussian noise in the response space
 		*/
-		IRSensor(Robot *owner, Vector pos, double height, double orientation, double range, double m, double x0, double c, double noiseSd = 0.);
+		IRSensor(Robot* owner, Vector pos, double height, double orientation, double range, double m, double x0, double c, double noiseSd = 0.);
 		//! Reset distance values
 		void init(double dt, World* w);
 		//! Check for all potential intersections using smartRadius of sensor and calculate and find closest distance for each ray.
-		void objectStep(double dt, World *w, PhysicalObject *po);
+		void objectStep(double dt, World* w, PhysicalObject* po);
 		//! Separated from objectStep because it is much simpler.
 		void wallsStep(double dt, World* w);
 		//! Applies the SensorResponseFunction to each ray and combines all rays using weights defined in the rayCombinationKernel.
@@ -189,7 +189,7 @@ namespace Enki
 		double inverseResponseFunction(double v) const;
 		//! Returns distance to PhysicalObject po for angle rayAngle.
 		//! Note: The polygon MUST be convex and have vertices oriented counterclockwise (ccw). This code does not check for and verify these conditions. Returns distance to shortest intersection point or HUGE_VAL if there is no intersection
-		double distanceToPolygon(double rayAngle, const Polygon &p) const;
+		double distanceToPolygon(double rayAngle, const Polygon& p) const;
 	};
 }
 

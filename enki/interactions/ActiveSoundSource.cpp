@@ -43,7 +43,7 @@
 
 namespace Enki
 {
-	ActiveSoundSource::ActiveSoundSource(Robot *owner, double r, unsigned channels)
+	ActiveSoundSource::ActiveSoundSource(Robot* owner, double r, unsigned channels)
 	{
 		this->r = r;
 		this->owner = owner;
@@ -53,7 +53,7 @@ namespace Enki
 		pitch = new double[channels];
 		assert(pitch);
 
-		for (size_t i=0; i<channels; i++)
+		for (size_t i = 0; i < channels; i++)
 			pitch[i] = 0.0;
 
 		enableFlag = false;
@@ -98,7 +98,7 @@ namespace Enki
 			if (c < 0)
 				c = 0;
 			if (c >= noOfChannels)
-				c = noOfChannels-1;
+				c = noOfChannels - 1;
 			channel = c;
 			pitch[channel] = signal;
 		}
@@ -117,7 +117,7 @@ namespace Enki
 	{
 		double maxPitch = 0;
 
-		for (unsigned i=0; i<noOfChannels; i++)
+		for (unsigned i = 0; i < noOfChannels; i++)
 			if (pitch[i] > maxPitch)
 			{
 				maxPitch = pitch[i];
@@ -130,9 +130,8 @@ namespace Enki
 			return -1;
 	}
 
-	ActiveSoundObject::ActiveSoundObject(Robot *owner, double actionRange, unsigned channels) :
+	ActiveSoundObject::ActiveSoundObject(Robot* owner, double actionRange, unsigned channels) :
 		speaker(owner, actionRange, channels)
 	{
-
 	}
 }

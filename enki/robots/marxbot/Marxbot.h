@@ -64,7 +64,5 @@ namespace Enki
 		//! Return the value of a virtual bumper
 		double getVirtualBumper(unsigned number);
 	};
-
 }
 #endif
-

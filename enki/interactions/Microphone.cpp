@@ -43,21 +43,21 @@
 
 namespace Enki
 {
-	Microphone::Microphone(Robot *owner, Vector micRelPos, double range,
-						 MicrophoneResponseModel micModel, unsigned channels)
+	Microphone::Microphone(Robot* owner, Vector micRelPos, double range,
+		MicrophoneResponseModel micModel, unsigned channels)
 	{
 		this->owner = owner;
- 		this->r = range;
+		this->r = range;
 		this->micModel = micModel;
 		this->micRelPos = micRelPos;
 		this->noOfChannels = channels;
 		this->acquiredSound = new double[noOfChannels];
 
-		for (size_t i=0; i<noOfChannels; i++)
+		for (size_t i = 0; i < noOfChannels; i++)
 			acquiredSound[i] = 0.0;
 
 		Matrix22 rot(owner->angle);
-		micAbsPos = owner->pos + rot*micRelPos;
+		micAbsPos = owner->pos + rot * micRelPos;
 	}
 
 	Microphone::~Microphone(void)
@@ -68,38 +68,38 @@ namespace Enki
 	void Microphone::init()
 	{
 		Matrix22 rot(owner->angle);
-		micAbsPos = owner->pos + rot*micRelPos;
+		micAbsPos = owner->pos + rot * micRelPos;
 		resetSound();
 	}
 
-	void Microphone::objectStep(double dt, PhysicalObject *po, World *w)
+	void Microphone::objectStep(double dt, PhysicalObject* po, World* w)
 	{
 		// Current distance between the interacting physical object and
 		// the sensor (used later in sound filtering)
 		double current_dist = (po->pos - micAbsPos).norm();
 
 		// Get current object sound
-		double *currentSound = new double[noOfChannels];
+		double* currentSound = new double[noOfChannels];
 		assert(currentSound);
 
 
-		ActiveSoundObject *so = dynamic_cast<ActiveSoundObject *>(po);
+		ActiveSoundObject* so = dynamic_cast<ActiveSoundObject*>(po);
 		if (so)
 		{
 			assert(noOfChannels == so->speaker.noOfChannels);
-			for (size_t i=0; i<noOfChannels; i++)
+			for (size_t i = 0; i < noOfChannels; i++)
 				currentSound[i] = so->speaker.pitch[i];
 		}
 		else
-			for (size_t i=0; i<noOfChannels; i++)
+			for (size_t i = 0; i < noOfChannels; i++)
 				currentSound[i] = 0.0;
 
 		// Apply sensor model to acquisition
-		for (size_t i=0; i<noOfChannels; i++)
+		for (size_t i = 0; i < noOfChannels; i++)
 			currentSound[i] = micModel(currentSound[i], current_dist);
 
 		// Acquired sound is always the sum of all contributes after model filtering
-		for(size_t i=0; i<noOfChannels; i++)
+		for (size_t i = 0; i < noOfChannels; i++)
 			acquiredSound[i] += currentSound[i];
 
 		// 3.0 is the saturating value of tanh used in sigmoidal neurons
@@ -110,7 +110,6 @@ namespace Enki
 		*/
 
 		delete[] currentSound;
-
 	}
 
 	double* Microphone::getAcquiredSound(void)
@@ -120,16 +119,17 @@ namespace Enki
 
 	void Microphone::resetSound()
 	{
-		for (size_t i=0; i<noOfChannels; i++) acquiredSound[i] = 0.0;
+		for (size_t i = 0; i < noOfChannels; i++)
+			acquiredSound[i] = 0.0;
 	}
 
-	void Microphone::getMaxChannel(double *intensity, int *channel)
+	void Microphone::getMaxChannel(double* intensity, int* channel)
 	{
 		*intensity = 0;
 		*channel = -1;
-		for (size_t i = 0; i < noOfChannels; i++ )
+		for (size_t i = 0; i < noOfChannels; i++)
 		{
-			if ( acquiredSound[i] > *intensity )
+			if (acquiredSound[i] > *intensity)
 			{
 				*intensity = acquiredSound[i];
 				*channel = i;
@@ -142,55 +142,55 @@ namespace Enki
 		return micAbsPos;
 	}
 
-	FourWayMic::FourWayMic(Robot *owner, double micDist, double range,
-						   MicrophoneResponseModel micModel, unsigned channels)
+	FourWayMic::FourWayMic(Robot* owner, double micDist, double range,
+		MicrophoneResponseModel micModel, unsigned channels)
 	{
 		this->owner = owner;
 		this->r = range;
 		this->micModel = micModel;
 		this->micDist = micDist;
 		this->noOfChannels = channels;
-		for (size_t i=0; i<4; i++)
+		for (size_t i = 0; i < 4; i++)
 		{
 			this->acquiredSound[i] = new double[noOfChannels];
-			for (size_t j=0; j<noOfChannels; j++)
+			for (size_t j = 0; j < noOfChannels; j++)
 				acquiredSound[i][j] = 0.0;
 		}
 
 		Matrix22 rot(owner->angle);
-		allMicAbsPos[0] = owner->pos + rot*Vector( micDist, micDist);
-		allMicAbsPos[1] = owner->pos + rot*Vector( micDist,-micDist);
-		allMicAbsPos[2] = owner->pos + rot*Vector(-micDist, micDist);
-		allMicAbsPos[3] = owner->pos + rot*Vector(-micDist,-micDist);
+		allMicAbsPos[0] = owner->pos + rot * Vector(micDist, micDist);
+		allMicAbsPos[1] = owner->pos + rot * Vector(micDist, -micDist);
+		allMicAbsPos[2] = owner->pos + rot * Vector(-micDist, micDist);
+		allMicAbsPos[3] = owner->pos + rot * Vector(-micDist, -micDist);
 	}
 
 	FourWayMic::~FourWayMic(void)
 	{
-		for (unsigned i=0; i<4; i++)
+		for (unsigned i = 0; i < 4; i++)
 			delete[] acquiredSound[i];
 	}
 
 	void FourWayMic::init()
 	{
 		Matrix22 rot(owner->angle);
-		allMicAbsPos[0] = owner->pos + rot*Vector( micDist, micDist);
-		allMicAbsPos[1] = owner->pos + rot*Vector( micDist,-micDist);
-		allMicAbsPos[2] = owner->pos + rot*Vector(-micDist, micDist);
-		allMicAbsPos[3] = owner->pos + rot*Vector(-micDist,-micDist);
+		allMicAbsPos[0] = owner->pos + rot * Vector(micDist, micDist);
+		allMicAbsPos[1] = owner->pos + rot * Vector(micDist, -micDist);
+		allMicAbsPos[2] = owner->pos + rot * Vector(-micDist, micDist);
+		allMicAbsPos[3] = owner->pos + rot * Vector(-micDist, -micDist);
 		resetSound();
 	}
 
-	void FourWayMic::objectStep(double dt, PhysicalObject *po, World *w)
+	void FourWayMic::objectStep(double dt, PhysicalObject* po, World* w)
 	{
 		// Get current object sound
-		double *currentSound = new double[noOfChannels];
+		double* currentSound = new double[noOfChannels];
 		assert(currentSound);
 
-		ActiveSoundObject *so = dynamic_cast<ActiveSoundObject *>(po);
+		ActiveSoundObject* so = dynamic_cast<ActiveSoundObject*>(po);
 		if (so)
 		{
 			assert(noOfChannels == so->speaker.noOfChannels);
-			for (size_t i=0; i<noOfChannels; i++)
+			for (size_t i = 0; i < noOfChannels; i++)
 				currentSound[i] = so->speaker.pitch[i];
 		}
 
@@ -199,11 +199,11 @@ namespace Enki
 		double current_dist;
 		double min_dist = 0xFFFFFFFF;
 		unsigned min_dist_micNo = 0;
-		for (size_t i=0; i<4; i++)
+		for (size_t i = 0; i < 4; i++)
 		{
 			current_dist = (po->pos - allMicAbsPos[i]).norm();
 			// find mic closest to interacting physical object
-			if ( current_dist < min_dist )
+			if (current_dist < min_dist)
 			{
 				min_dist = current_dist;
 				min_dist_micNo = i;
@@ -212,7 +212,7 @@ namespace Enki
 
 		// Apply sensor model to acquisition
 		// Acquired sound is always the sum of all contributes after model filtering
-		for (size_t j=0; j<noOfChannels; j++)
+		for (size_t j = 0; j < noOfChannels; j++)
 			acquiredSound[min_dist_micNo][j] += micModel(currentSound[j], min_dist);
 
 		// 3.0 is the saturating value of tanh used in sigmoidal neurons
@@ -223,7 +223,6 @@ namespace Enki
 		*/
 
 		delete[] currentSound;
-
 	}
 
 	double* FourWayMic::getAcquiredSound(unsigned micNo)
@@ -233,18 +232,18 @@ namespace Enki
 
 	void FourWayMic::resetSound()
 	{
-		for (size_t i=0; i<4; i++)
-			for (size_t j=0; j<noOfChannels; j++)
+		for (size_t i = 0; i < 4; i++)
+			for (size_t j = 0; j < noOfChannels; j++)
 				acquiredSound[i][j] = 0.0;
 	}
 
-	void FourWayMic::getMaxChannel(unsigned micNo, double *intensity, int *channel)
+	void FourWayMic::getMaxChannel(unsigned micNo, double* intensity, int* channel)
 	{
 		*intensity = 0;
 		*channel = -1;
-		for (size_t i = 0; i < noOfChannels; i++ )
+		for (size_t i = 0; i < noOfChannels; i++)
 		{
-			if ( acquiredSound[micNo][i] > *intensity )
+			if (acquiredSound[micNo][i] > *intensity)
 			{
 				*intensity = acquiredSound[micNo][i];
 				*channel = i;

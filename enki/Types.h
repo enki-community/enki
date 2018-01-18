@@ -67,53 +67,136 @@ namespace Enki
 		}
 
 		//! access component i
-		const double& operator[](size_t i) const { assert(i < 4); return components[i]; }
+		const double& operator[](size_t i) const
+		{
+			assert(i < 4);
+			return components[i];
+		}
 		//! access component i
-		double& operator[](size_t i) { assert(i < 4); return components[i]; }
+		double& operator[](size_t i)
+		{
+			assert(i < 4);
+			return components[i];
+		}
 
 		// operations with scalar
 		//! Add d to each component
-		void operator +=(double d) { for (size_t i=0; i<3; i++) components[i] += d; }
+		void operator+=(double d)
+		{
+			for (size_t i = 0; i < 3; i++)
+				components[i] += d;
+		}
 		//! Add d to each component and return result in a new color. I'm left unchanged
-		Color operator +(double d) const { Color c; for (size_t i=0; i<3; i++) c.components[i] = components[i] + d; return c; }
+		Color operator+(double d) const
+		{
+			Color c;
+			for (size_t i = 0; i < 3; i++)
+				c.components[i] = components[i] + d;
+			return c;
+		}
 
 		//! Substract d from each component
-		void operator -=(double d) { for (size_t i=0; i<3; i++) components[i] -= d; }
+		void operator-=(double d)
+		{
+			for (size_t i = 0; i < 3; i++)
+				components[i] -= d;
+		}
 		//! Substract d from each component and return result in a new color. I'm left unchanged
-		Color operator -(double d) const { Color c; for (size_t i=0; i<3; i++) c.components[i] = components[i] - d; return c; }
+		Color operator-(double d) const
+		{
+			Color c;
+			for (size_t i = 0; i < 3; i++)
+				c.components[i] = components[i] - d;
+			return c;
+		}
 
 		//! Multiply each component with d
-		void operator *=(double d) { for (size_t i=0; i<3; i++) components[i] *= d; }
+		void operator*=(double d)
+		{
+			for (size_t i = 0; i < 3; i++)
+				components[i] *= d;
+		}
 		//! Multiply each component with d and return result in a new color. I'm left unchanged
-		Color operator *(double d) const { Color c; for (size_t i=0; i<3; i++) c.components[i] = components[i] * d; return c; }
+		Color operator*(double d) const
+		{
+			Color c;
+			for (size_t i = 0; i < 3; i++)
+				c.components[i] = components[i] * d;
+			return c;
+		}
 
 		//! Divide each component with d
-		void operator /=(double d) { for (size_t i=0; i<3; i++) components[i] /= d; }
+		void operator/=(double d)
+		{
+			for (size_t i = 0; i < 3; i++)
+				components[i] /= d;
+		}
 		//! Divide each component with d and return result in a new color. I'm left unchanged
-		Color operator /(double d) const { Color c; for (size_t i=0; i<3; i++) c.components[i] = components[i] / d; return c; }
+		Color operator/(double d) const
+		{
+			Color c;
+			for (size_t i = 0; i < 3; i++)
+				c.components[i] = components[i] / d;
+			return c;
+		}
 
 		// operation with another color
 		//! Add oc's components to ours
-		void operator +=(const Color &oc) { for (size_t i=0; i<3; i++) components[i] += oc.components[i]; }
+		void operator+=(const Color& oc)
+		{
+			for (size_t i = 0; i < 3; i++)
+				components[i] += oc.components[i];
+		}
 		//! Add oc's components to ours and return result in a new color. I'm left unchanged
-		Color operator +(const Color &oc) const { Color c; for (size_t i=0; i<3; i++) c.components[i] = components[i] + oc.components[i]; return c; }
+		Color operator+(const Color& oc) const
+		{
+			Color c;
+			for (size_t i = 0; i < 3; i++)
+				c.components[i] = components[i] + oc.components[i];
+			return c;
+		}
 
 		//! Substract oc's components to ours
-		void operator -=(const Color &oc) { for (size_t i=0; i<3; i++) components[i] -= oc.components[i]; }
+		void operator-=(const Color& oc)
+		{
+			for (size_t i = 0; i < 3; i++)
+				components[i] -= oc.components[i];
+		}
 		//! Substract oc's components to ours and return result in a new color. I'm left unchanged
-		Color operator -(const Color &oc) const { Color c; for (size_t i=0; i<3; i++) c.components[i] = components[i] - oc.components[i]; return c; }
+		Color operator-(const Color& oc) const
+		{
+			Color c;
+			for (size_t i = 0; i < 3; i++)
+				c.components[i] = components[i] - oc.components[i];
+			return c;
+		}
 
 		//! Compare all components and return true if they're the same.
-		bool operator ==(const Color &c) const { for (size_t i=0; i<4; i++) if (components[i] != c.components[i]) return false; return true; }
+		bool operator==(const Color& c) const
+		{
+			for (size_t i = 0; i < 4; i++)
+				if (components[i] != c.components[i])
+					return false;
+			return true;
+		}
 		//! Compare all components and return false if they're the same.
-		bool operator !=(const Color &c) const { return !(*this == c); }
+		bool operator!=(const Color& c) const { return !(*this == c); }
 		//! Threshold the color using limit. For each component, if value is below limit, set it to 0
-		void threshold(const Color &limit) { for (size_t i=0; i<3; i++) components[i] = components[i] > limit.components[i] ? components[i] : 0; }
+		void threshold(const Color& limit)
+		{
+			for (size_t i = 0; i < 3; i++)
+				components[i] = components[i] > limit.components[i] ? components[i] : 0;
+		}
 		//! Return the grey level value
 		double toGray() const { return (components[0] + components[1] + components[2]) / 3; }
 
 		//! Return a string describing this color
-		std::string toString() const { std::ostringstream oss; oss << *this; return oss.str(); }
+		std::string toString() const
+		{
+			std::ostringstream oss;
+			oss << *this;
+			return oss.str();
+		}
 
 		//! Red component value getter
 		double r() const { return components[0]; }
@@ -159,7 +242,7 @@ namespace Enki
 		//! blue (0, 0, 1)
 		static const Color blue;
 
-		friend std::ostream & operator<<(std::ostream &os, const Color& c);
+		friend std::ostream& operator<<(std::ostream& os, const Color& c);
 	};
 
 	//! A texture

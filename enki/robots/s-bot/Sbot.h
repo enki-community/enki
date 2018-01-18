@@ -63,11 +63,11 @@ namespace Enki
 
 	public:
 		//! Constructor
-		SbotGlobalSound (Robot *me) { this->owner = me; }
+		SbotGlobalSound(Robot* me) { this->owner = me; }
 		//! Initialisation, set world frequencies to zero. Called one time for each robot, which could be optimised.
 		virtual void init() { worldFrequenciesState = 0; }
 		//! Emit our frequencies to the world
-		virtual void step(double dt, World *w) { worldFrequenciesState |= frequenciesState; }
+		virtual void step(double dt, World* w) { worldFrequenciesState |= frequenciesState; }
 		// FIXME: ugly and not re-entrant, will be removed by ECS refactor
 		//! Return state of the frequencies in the world
 		static unsigned getWorldFrequenciesState(void);
@@ -87,11 +87,11 @@ namespace Enki
 		//! meaning: the 4 mics are 0.5 away from robot center, can
 		//! hear sounds up to ! 5 units away, uses a step model to
 		//! detect sounds and can distinguish 20 frequencies
-		SbotMicrophone(Robot *owner, double micDist, double range,
-					   MicrophoneResponseModel micModel, unsigned channels) :
+		SbotMicrophone(Robot* owner, double micDist, double range,
+			MicrophoneResponseModel micModel, unsigned channels) :
 			FourWayMic(owner, micDist, range, micModel, channels) {}
 		//! Check for local interactions with other physical objects
-		void objectStep(double dt, PhysicalObject *po, World *w);
+		void objectStep(double dt, PhysicalObject* po, World* w);
 	};
 
 	//! A very simplified model of the Sbot mobile robot.
@@ -129,9 +129,14 @@ namespace Enki
 		double lastDEnergy;
 
 		//! Constructor
-		FeedableSbot() { energy=0; dEnergy=0; lastDEnergy=0; }
+		FeedableSbot()
+		{
+			energy = 0;
+			dEnergy = 0;
+			lastDEnergy = 0;
+		}
 		//! Call DifferentialWheeled::step and compute the new energy
-		virtual void controlStep(double dt) ;
+		virtual void controlStep(double dt);
 	};
 
 
@@ -154,4 +159,3 @@ namespace Enki
 	};
 }
 #endif
-

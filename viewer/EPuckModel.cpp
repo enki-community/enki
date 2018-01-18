@@ -88,7 +88,7 @@ namespace Enki
 		glCallList(lists[1]);
 
 		//glColor3d(1-object->getColor().components[0], 1+object->getColor().components[1], 1+object->getColor().components[2]);
-		glColor3d(0.6+object->getColor().components[0]-0.3*object->getColor().components[1]-0.3*object->getColor().components[2], 0.6+object->getColor().components[1]-0.3*object->getColor().components[0]-0.3*object->getColor().components[2], 0.6+object->getColor().components[2]-0.3*object->getColor().components[0]-0.3*object->getColor().components[1]);
+		glColor3d(0.6 + object->getColor().components[0] - 0.3 * object->getColor().components[1] - 0.3 * object->getColor().components[2], 0.6 + object->getColor().components[1] - 0.3 * object->getColor().components[0] - 0.3 * object->getColor().components[2], 0.6 + object->getColor().components[2] - 0.3 * object->getColor().components[0] - 0.3 * object->getColor().components[1]);
 		glCallList(lists[2]);
 
 		glColor3d(1, 1, 1);
@@ -113,7 +113,7 @@ namespace Enki
 		// bottom shadow
 		glPushMatrix();
 		// disable writing of z-buffer
-		glDepthMask( GL_FALSE );
+		glDepthMask(GL_FALSE);
 		//glTranslated(0, 0, -wheelRadius+0.01);
 		glTranslated(0, 0, -wheelRadius);
 		glEnable(GL_POLYGON_OFFSET_FILL);
@@ -128,7 +128,7 @@ namespace Enki
 		glVertex2f(-5.f, 5.f);
 		glEnd();
 		glDisable(GL_POLYGON_OFFSET_FILL);
-		glDepthMask( GL_TRUE );
+		glDepthMask(GL_TRUE);
 		glPopMatrix();
 
 		// wheel shadow

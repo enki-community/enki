@@ -132,8 +132,7 @@ namespace Enki
 	{
 		friend class World;
 
-	public:			// inner classes
-
+	public: // inner classes
 		// User data
 
 		//! User specific data that can be attached to any object in the world.
@@ -144,13 +143,17 @@ namespace Enki
 
 		public:
 			//! Ask the user data to garbage collect itself if appropriate (i.e. not a singleton)
-			void deleteIfRequired() { if (deletedWithObject) delete this; }
+			void deleteIfRequired()
+			{
+				if (deletedWithObject)
+					delete this;
+			}
 			//! Virtual destructor, call destructor of child classes
 			virtual ~UserData() {}
 		};
 
 		//! Data attached by the user to this physical object. If non-null, will be destroyed with the object.
-		UserData *userData;
+		UserData* userData;
 
 		// Physics
 
@@ -240,12 +243,13 @@ namespace Enki
 		};
 
 		//! A hull is a vector of Hull
-		struct Hull:std::vector<Part>
+		struct Hull : std::vector<Part>
 		{
 			//! Construct an empty hull
 			Hull() {}
 			//! Construct a hull with a single part
-			Hull(const Part& part) : std::vector<Part>(1, part) {}
+			Hull(const Part& part) :
+				std::vector<Part>(1, part) {}
 			//! Return the convex hull of this hull, using a simple Jarvis march/gift wrapping algorithm
 			Polygon getConvexHull() const;
 			//! Add this hull to another one
@@ -256,8 +260,7 @@ namespace Enki
 			void applyTransformation(const Matrix22& rot, const Point& trans, double* radius = 0);
 		};
 
-	private:		// variables
-
+	private: // variables
 		// Physics
 
 		//! position before collision, used to compute interlacedDistance
@@ -284,8 +287,7 @@ namespace Enki
 		//! The overall color of this object, if hull is empty or if it does not contain any texture
 		Color color;
 
-	public:			// methods
-
+	public: // methods
 		//! Constructor
 		PhysicalObject();
 		//! Destructor
@@ -311,7 +313,7 @@ namespace Enki
 		//! Set a custom shape and mass to the object
 		void setCustomHull(const Hull& hull, double mass);
 		//! Set the overall color of this object, if hull is empty or if it does not contain any texture
-		void setColor(const Color &color);
+		void setColor(const Color& color);
 
 		//! A struct with bitfields for buttons
 		enum MouseButtonCode
@@ -321,12 +323,11 @@ namespace Enki
 			MOUSE_BUTTON_MIDDLE = 2
 		};
 		//! Called for robot if a mouse button is pressed while pointing to it, point is given in relative coordinates
-		virtual void mousePressEvent(unsigned button, double pointX, double pointY, double pointZ) {};
+		virtual void mousePressEvent(unsigned button, double pointX, double pointY, double pointZ){};
 		//! Called for a robot if a previously mouse button was pressed and is now released
-		virtual void mouseReleaseEvent(unsigned button) {};
+		virtual void mouseReleaseEvent(unsigned button){};
 
-	private:		// setup methods
-
+	private: // setup methods
 		//! When a physical parameter (color, shape, ...) has been changed, the user data must be updated.
 		void dirtyUserData();
 		//! Compute the moment of inertia tensor depending on radius, mass, height, and hull, assuming that the hull is centered around the center of mass, which is done by setupCentorOfMass()
@@ -336,8 +337,7 @@ namespace Enki
 		//! Compute the hull of this object in world coordinates.
 		void computeTransformedShape();
 
-	protected:		// physical actions
-
+	protected: // physical actions
 		/*//! A physics simulation step for this object. It is considered as deinterlaced. The position and orientation are updated.
 		virtual void physicsStep(double dt);*/
 		//! Control step, not oversampled
@@ -346,35 +346,34 @@ namespace Enki
 		virtual void applyForces(double dt);
 
 		//! The object collided with o during the current physical step, if o is null, it collided with walls. Called just before the object is de-interlaced
-		virtual void collisionEvent(PhysicalObject *o) {}
+		virtual void collisionEvent(PhysicalObject* o) {}
 
 		//! Initialize the object specific interactions, do nothing for PhysicalObject.
-		virtual void initLocalInteractions(double dt, World* w) { }
+		virtual void initLocalInteractions(double dt, World* w) {}
 		//! Do the interactions with the other PhysicalObject, do nothing for PhysicalObject.
-		virtual void doLocalInteractions(double dt, World *w, PhysicalObject *o) { }
+		virtual void doLocalInteractions(double dt, World* w, PhysicalObject* o) {}
 		//! Do the interactions with the walls of world w, do nothing for PhysicalObject.
-		virtual void doLocalWallsInteraction(double dt, World* w) { }
+		virtual void doLocalWallsInteraction(double dt, World* w) {}
 		//! All interactions are finished, do nothing for PhysicalObject.
-		virtual void finalizeLocalInteractions(double dt, World* w) { }
+		virtual void finalizeLocalInteractions(double dt, World* w) {}
 
 		//! Initialize the global interactions, do nothing for PhysicalObject.
-		virtual void initGlobalInteractions(double dt, World* w) { }
+		virtual void initGlobalInteractions(double dt, World* w) {}
 		//! Do the global interactions with the world, do nothing for PhysicalObject.
-		virtual void doGlobalInteractions(double dt, World* w) { }
+		virtual void doGlobalInteractions(double dt, World* w) {}
 		//! All global interactions are finished, do nothing for PhysicalObject.
-		virtual void finalizeGlobalInteractions(double dt, World* w) { }
+		virtual void finalizeGlobalInteractions(double dt, World* w) {}
 
-	private:		// physical actions
-
+	private: // physical actions
 		//! Initialize the collision logic
 		void initPhysicsInteractions(double dt);
 		//! All collisions are finished, deinterlace the object.
 		void finalizePhysicsInteractions(double dt);
 
 		//! Dynamics for collision with a static object at points cp with normal vector n
-		void collideWithStaticObject(const Vector &n, const Point &cp);
+		void collideWithStaticObject(const Vector& n, const Point& cp);
 		//! Dynamics for collision with that at point cp (on that) with a penetrated distance of dist,
-		void collideWithObject(PhysicalObject &that, Point cp, const Vector &dist);
+		void collideWithObject(PhysicalObject& that, Point cp, const Vector& dist);
 
 	public:
 		//! ID is used when sharing a world over the network where it should be
@@ -385,23 +384,23 @@ namespace Enki
 
 	//! A robot is a PhysicalObject that has additional interactions and a controller.
 	/*! \ingroup core */
-	class Robot: public PhysicalObject
+	class Robot : public PhysicalObject
 	{
 	protected:
 		//! Vector of local interactions
-		std::vector<LocalInteraction *> localInteractions;
+		std::vector<LocalInteraction*> localInteractions;
 		//! Vector of global interactions
-		std::vector<GlobalInteraction *> globalInteractions;
+		std::vector<GlobalInteraction*> globalInteractions;
 
 	public:
 		//! Add a new local interaction, re-sort interaction vector from long ranged to short ranged.
-		void addLocalInteraction(LocalInteraction *li);
+		void addLocalInteraction(LocalInteraction* li);
 		//! Add a global interaction, just add it at the end of the vector.
-		void addGlobalInteraction(GlobalInteraction *gi) {globalInteractions.push_back(gi);}
+		void addGlobalInteraction(GlobalInteraction* gi) { globalInteractions.push_back(gi); }
 		//! Initialize the local interactions, call init on each one.
 		virtual void initLocalInteractions(double dt, World* w);
 		//! Do the local interactions with other objects, call objectStep on each one.
-		virtual void doLocalInteractions(double dt, World *w, PhysicalObject *po);
+		virtual void doLocalInteractions(double dt, World* w, PhysicalObject* po);
 		//! Do the local interactions with walls, call wallsStep on each one.
 		virtual void doLocalWallsInteraction(double dt, World* w);
 		//! All the local interactions are finished, call finalize on each one.
@@ -423,9 +422,9 @@ namespace Enki
 		//! Type of walls around the world
 		enum WallsType
 		{
-			WALLS_SQUARE = 0,	//!< square walls, use w and h for size
-			WALLS_CIRCULAR,		//!< circle walls, use r for radius
-			WALLS_NONE			//!< no walls
+			WALLS_SQUARE = 0, //!< square walls, use w and h for size
+			WALLS_CIRCULAR, //!< circle walls, use r for radius
+			WALLS_NONE //!< no walls
 		};
 
 		//! type of walls this world is using
@@ -461,7 +460,7 @@ namespace Enki
 		//! Current ground texture
 		const GroundTexture groundTexture;
 
-		typedef std::set<PhysicalObject *> Objects;
+		typedef std::set<PhysicalObject*> Objects;
 		typedef Objects::iterator ObjectsIterator;
 
 		//! Whether the world should delete the objects upon destruction, true by default
@@ -474,11 +473,11 @@ namespace Enki
 
 	protected:
 		//! Collide two objects. Correct functions will be called depending on type of object (circular or other shape).
-		void collideObjects(PhysicalObject *object1, PhysicalObject *object2);
+		void collideObjects(PhysicalObject* object1, PhysicalObject* object2);
 		//! Collide the object with square walls.
-		void collideWithSquareWalls(PhysicalObject *object);
+		void collideWithSquareWalls(PhysicalObject* object);
 		//! Collide the object with circular walls.
-		void collideWithCircularWalls(PhysicalObject *object);
+		void collideWithCircularWalls(PhysicalObject* object);
 
 	public:
 		//! Construct a world with square walls, takes width and height of the world arena in cm.
@@ -499,9 +498,9 @@ namespace Enki
 		virtual void step(double dt, unsigned physicsOversampling = 1);
 		//! Add an object to the world, simply add it to the vector. Object will be automatically deleted when world will be destroyed.
 		//! If the object is already in the world, do nothing
-		void addObject(PhysicalObject *o);
+		void addObject(PhysicalObject* o);
 		//! Remove an object from the world and destroy it. If object is not in the world, do nothing
-		void removeObject(PhysicalObject *o);
+		void removeObject(PhysicalObject* o);
 		//! Set to 0 the userData member of all object whose value userData->deletedWithObject are false; call this before the creator of user data is destroyed, this method is typically called from a viewer just before its destruction.
 		void disconnectExternalObjectsUserData();
 
@@ -514,7 +513,7 @@ namespace Enki
 
 	protected:
 		//! Can implement world specific control. By default do nothing
-		virtual void controlStep(double dt) { }
+		virtual void controlStep(double dt) {}
 	};
 
 	//! Fast random for use by Enki

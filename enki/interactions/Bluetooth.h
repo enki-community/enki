@@ -49,9 +49,9 @@ namespace Enki
 
 	//! Implementation of an onboard Bluetooth module
 	/*! \ingroup interaction */
-	class Bluetooth: public GlobalInteraction
+	class Bluetooth : public GlobalInteraction
 	{
-protected:
+	protected:
 		friend class BluetoothBase;
 
 		//! Range of the interaction
@@ -107,7 +107,7 @@ protected:
 		//! Initialise all the data structure requires by the module
 		void initAllData();
 
-public:
+	public:
 		//! Error that bluetooth communication can produce
 		enum Errors
 		{
@@ -125,12 +125,12 @@ public:
 
 		//! Constructor
 		//! e.g.: "bluetooth(this,10000,7,100,10,1)" for a module of address 1 with a range of 10 meters, 7 supporting simultaneous connections capable of receiving packets of 100 bytes and emitting packets of 10 bytes.
-		Bluetooth(Robot* owner,double range, unsigned maxConnections, unsigned rxbuffersize, unsigned txbuffersize,unsigned address);
+		Bluetooth(Robot* owner, double range, unsigned maxConnections, unsigned rxbuffersize, unsigned txbuffersize, unsigned address);
 		//! Destructor
 		virtual ~Bluetooth();
 
 		//! On every timestep, send the commands recorded to the bluetooth Base to be executed
-		virtual void step(double dt, World *w);
+		virtual void step(double dt, World* w);
 
 		//! Change the address of the module
 		void setAddress(unsigned address);
@@ -154,7 +154,7 @@ public:
 		unsigned getSizeReceived(unsigned source);
 
 		//! Send data to the module of address "dest"
-		bool sendDataTo(unsigned dest,char* data,unsigned size);
+		bool sendDataTo(unsigned dest, char* data, unsigned size);
 		//! Return the flags indicating on which connection a transmission error occured
 		unsigned* getTransmissionError();
 		//! Indicate if an error of transmission occured during the last step
@@ -184,9 +184,7 @@ public:
 		unsigned getNbConnections();
 		//! Return the addresses of the other connected modules
 		unsigned* getConnectedAddresses();
-
 	};
-
 }
 
 #endif

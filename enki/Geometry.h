@@ -35,11 +35,11 @@
 #define __ENKI_GEOMETRY_H
 
 #ifdef WIN32
-#define _USE_MATH_DEFINES
-#include <math.h>
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
+#	define _USE_MATH_DEFINES
+#	include <math.h>
+#	ifndef NOMINMAX
+#		define NOMINMAX
+#	endif
 #endif
 #include <cmath>
 #include <vector>
@@ -48,7 +48,7 @@
 #include <algorithm>
 
 #ifdef _MSC_VER
-#define round(x) floor((x) + 0.5)
+#	define round(x) floor((x) + 0.5)
 #endif
 
 /*!	\file Geometry.h
@@ -75,41 +75,98 @@ namespace Enki
 		//! Constructor, create vector with coordinates (0, 0)
 		Vector() { x = y = 0; }
 		//! Constructor, create vector with coordinates (v, v)
-		Vector(double v) { this->x = v; this->y = v; }
+		Vector(double v)
+		{
+			this->x = v;
+			this->y = v;
+		}
 		//! Constructor, create vector with coordinates (x, y)
-		Vector(double x, double y) { this->x = x; this->y = y; }
+		Vector(double x, double y)
+		{
+			this->x = x;
+			this->y = y;
+		}
 		//! Constructor, create vector with coordinates (array[0], array[1])
-		Vector(double array[2]) { x = array[0]; y = array[1]; }
+		Vector(double array[2])
+		{
+			x = array[0];
+			y = array[1];
+		}
 
 		//! Add vector v component by component
-		void operator +=(const Vector &v) { x += v.x; y += v.y; }
+		void operator+=(const Vector& v)
+		{
+			x += v.x;
+			y += v.y;
+		}
 		//! Substract vector v component by component
-		void operator -=(const Vector &v) { x -= v.x; y -= v.y; }
+		void operator-=(const Vector& v)
+		{
+			x -= v.x;
+			y -= v.y;
+		}
 		//! Multiply each component by scalar f
-		void operator *=(double f) { x *= f; y *= f; }
+		void operator*=(double f)
+		{
+			x *= f;
+			y *= f;
+		}
 		//! Divive each component by scalar f
-		void operator /=(double f) { x /= f; y /= f; }
+		void operator/=(double f)
+		{
+			x /= f;
+			y /= f;
+		}
 		//! Add vector v component by component and return the resulting vector
-		Vector operator +(const Vector &v) const { Vector n; n.x = x + v.x; n.y = y + v.y; return n; }
+		Vector operator+(const Vector& v) const
+		{
+			Vector n;
+			n.x = x + v.x;
+			n.y = y + v.y;
+			return n;
+		}
 		//! Substract vector v component by component and return the resulting vector
-		Vector operator -(const Vector &v) const { Vector n; n.x = x - v.x; n.y = y - v.y; return n; }
+		Vector operator-(const Vector& v) const
+		{
+			Vector n;
+			n.x = x - v.x;
+			n.y = y - v.y;
+			return n;
+		}
 		//! Multiply each component by scalar f and return the resulting vector
-		Vector operator /(double f) const { Vector n; n.x = x/f; n.y = y/f; return n; }
+		Vector operator/(double f) const
+		{
+			Vector n;
+			n.x = x / f;
+			n.y = y / f;
+			return n;
+		}
 		//! Divive each component by scalar f and return the resulting vector
-		Vector operator *(double f) const { Vector n; n.x = x*f; n.y = y*f; return n; }
+		Vector operator*(double f) const
+		{
+			Vector n;
+			n.x = x * f;
+			n.y = y * f;
+			return n;
+		}
 		//! Invert this vector
-		Vector operator -() const { return Vector(-x, -y); }
+		Vector operator-() const { return Vector(-x, -y); }
 
 		//! Return the scalar product with vector v
-		double operator *(const Vector &v) const { return x*v.x + y*v.y; }
+		double operator*(const Vector& v) const { return x * v.x + y * v.y; }
 		//! Return the norm of this vector
-		double norm(void) const { return sqrt(x*x + y*y); }
+		double norm(void) const { return sqrt(x * x + y * y); }
 		//! Return the square norm of this vector (and thus avoid a square root)
-		double norm2(void) const { return x*x+y*y; }
+		double norm2(void) const { return x * x + y * y; }
 		//! Return the cross product with vector v
-		double cross(const Vector &v) const { return x * v.y - y * v.x; }
+		double cross(const Vector& v) const { return x * v.y - y * v.x; }
 		//! Return a unitary vector of same direction
-		Vector unitary(void) const { if (norm() < std::numeric_limits<double>::epsilon()) return Vector(); return *this / norm(); }
+		Vector unitary(void) const
+		{
+			if (norm() < std::numeric_limits<double>::epsilon())
+				return Vector();
+			return *this / norm();
+		}
 		//! Return the angle with the horizontal (arc tangant (y/x))
 		double angle(void) const { return atan2(y, x); }
 		//! Return the perpendicular of the same norm in math. orientation (CCW)
@@ -121,13 +178,19 @@ namespace Enki
 		Vector crossFromZVector(double l) const { return Vector(-y * l, x * l); }
 
 		//! Comparison operator
-		bool operator <(const Vector& that) const { if (this->x == that.x) return (this->y < that.y); else return (this->x < that.x); }
+		bool operator<(const Vector& that) const
+		{
+			if (this->x == that.x)
+				return (this->y < that.y);
+			else
+				return (this->x < that.x);
+		}
 		//! Comparison operator
-		bool operator ==(const Vector& that) const { return (this->x == that.x) && (this->y == that.y); }
+		bool operator==(const Vector& that) const { return (this->x == that.x) && (this->y == that.y); }
 	};
 
 	//! Print a vector to a stream
-	std::ostream & operator << (std::ostream & outs, const Vector &vector);
+	std::ostream& operator<<(std::ostream& outs, const Vector& vector);
 
 	//! A point in a 2D space, another name for a vector
 	/*! \ingroup an */
@@ -156,39 +219,127 @@ namespace Enki
 		//! Constructor, create matrix with 0
 		Matrix22() { _11 = _21 = _12 = _22 = 0; }
 		//! Constructor, create matrix with _11 _21 _12 _22
-		Matrix22(double _11, double _21, double _12, double _22) { this->_11 = _11; this->_21 = _21; this->_12 = _12; this->_22 = _22; }
+		Matrix22(double _11, double _21, double _12, double _22)
+		{
+			this->_11 = _11;
+			this->_21 = _21;
+			this->_12 = _12;
+			this->_22 = _22;
+		}
 		//! Constructor, create rotation matrix of angle alpha in radian
-		Matrix22(double alpha) { _11 = cos(alpha); _21 = sin(alpha); _12 = -_21; _22 = _11; }
+		Matrix22(double alpha)
+		{
+			_11 = cos(alpha);
+			_21 = sin(alpha);
+			_12 = -_21;
+			_22 = _11;
+		}
 		//! Constructor, create matrix with array[0] array[1] array[2] array[3]
-		Matrix22(double array[4]) { _11=array[0]; _21=array[1]; _12=array[2]; _22=array[3]; }
+		Matrix22(double array[4])
+		{
+			_11 = array[0];
+			_21 = array[1];
+			_12 = array[2];
+			_22 = array[3];
+		}
 
 		//! Fill with zero
 		void zeros() { _11 = _21 = _12 = _22 = 0; }
 
 		//! Add matrix v component by component
-		void operator +=(const Matrix22 &v) { _11 += v._11; _21 += v._21; _12 += v._12; _22 += v._22; }
+		void operator+=(const Matrix22& v)
+		{
+			_11 += v._11;
+			_21 += v._21;
+			_12 += v._12;
+			_22 += v._22;
+		}
 		//! Substract matrix v component by component
-		void operator -=(const Matrix22 &v) { _11 -= v._11; _21 -= v._21; _12 -= v._12; _22 -= v._22; }
+		void operator-=(const Matrix22& v)
+		{
+			_11 -= v._11;
+			_21 -= v._21;
+			_12 -= v._12;
+			_22 -= v._22;
+		}
 		//! Multiply each component by scalar f
-		void operator *=(double f) { _11 *= f; _21 *= f; _12 *= f; _22 *= f; }
+		void operator*=(double f)
+		{
+			_11 *= f;
+			_21 *= f;
+			_12 *= f;
+			_22 *= f;
+		}
 		//! Divive each component by scalar f
-		void operator /=(double f) { _11 /= f; _21 /= f; _12 /= f; _22 /= f; }
+		void operator/=(double f)
+		{
+			_11 /= f;
+			_21 /= f;
+			_12 /= f;
+			_22 /= f;
+		}
 		//! Add matrix v component by component and return the resulting matrix
-		Matrix22 operator +(const Matrix22 &v) const { Matrix22 n; n._11 = _11 + v._11; n._21 = _21 + v._21; n._12 = _12 + v._12; n._22 = _22 + v._22; return n; }
+		Matrix22 operator+(const Matrix22& v) const
+		{
+			Matrix22 n;
+			n._11 = _11 + v._11;
+			n._21 = _21 + v._21;
+			n._12 = _12 + v._12;
+			n._22 = _22 + v._22;
+			return n;
+		}
 		//! Subtract matrix v component by component and return the resulting matrix
-		Matrix22 operator -(const Matrix22 &v) const { Matrix22 n; n._11 = _11 - v._11; n._21 = _21 - v._21; n._12 = _12 - v._12; n._22 = _22 - v._22; return n; }
+		Matrix22 operator-(const Matrix22& v) const
+		{
+			Matrix22 n;
+			n._11 = _11 - v._11;
+			n._21 = _21 - v._21;
+			n._12 = _12 - v._12;
+			n._22 = _22 - v._22;
+			return n;
+		}
 		//! Multiply each component by scalar f and return the resulting matrix
-		Matrix22 operator *(double f) const { Matrix22 n; n._11 = _11 * f; n._21 = _21 * f; n._12 = _12 * f; n._22 = _22 * f; return n; }
+		Matrix22 operator*(double f) const
+		{
+			Matrix22 n;
+			n._11 = _11 * f;
+			n._21 = _21 * f;
+			n._12 = _12 * f;
+			n._22 = _22 * f;
+			return n;
+		}
 		//! Divide each component by scalar f and return the resulting matrix
-		Matrix22 operator /(double f) const { Matrix22 n; n._11 = _11 / f; n._21 = _21 / f; n._12 = _12 / f; n._22 = _22 / f; return n; }
+		Matrix22 operator/(double f) const
+		{
+			Matrix22 n;
+			n._11 = _11 / f;
+			n._21 = _21 / f;
+			n._12 = _12 / f;
+			n._22 = _22 / f;
+			return n;
+		}
 		//! Return the transpose of the matrix
-		Matrix22 transpose() const { Matrix22 n; n._11 = _11; n._21 = _12; n._12 = _21; n._22 = _22; return n; }
+		Matrix22 transpose() const
+		{
+			Matrix22 n;
+			n._11 = _11;
+			n._21 = _12;
+			n._12 = _21;
+			n._22 = _22;
+			return n;
+		}
 
 		//! Multiply vector v and return the resulting vector
-		Point operator*(const Point &v) const { Point n; n.x = v.x*_11 + v.y*_12; n.y = v.x*_21 + v.y*_22; return n; }
+		Point operator*(const Point& v) const
+		{
+			Point n;
+			n.x = v.x * _11 + v.y * _12;
+			n.y = v.x * _21 + v.y * _22;
+			return n;
+		}
 
 		//! Creates a diagonal matrix
-		static Matrix22 fromDiag(double _1, double _2 ) { return Matrix22(_1, 0, 0, _2); }
+		static Matrix22 fromDiag(double _1, double _2) { return Matrix22(_1, 0, 0, _2); }
 		//! Create an identity matrix
 		static Matrix22 identity() { return fromDiag(1, 1); }
 	};
@@ -198,11 +349,27 @@ namespace Enki
 	struct Segment
 	{
 		//! Constructor, create segment from point (ax, ay) to point (bx, by)
-		Segment(double ax, double ay, double bx, double by) { this->a.x = ax; this->a.y = ay; this->b.x = bx; this->b.y = by; }
+		Segment(double ax, double ay, double bx, double by)
+		{
+			this->a.x = ax;
+			this->a.y = ay;
+			this->b.x = bx;
+			this->b.y = by;
+		}
 		//! Constructor, create segment from point (array[0], array[1]) to point (array[2], array[3])
-		Segment(double array[4]) { a.x = array[0]; a.y = array[1]; b.x = array[2]; b.y = array[3]; }
+		Segment(double array[4])
+		{
+			a.x = array[0];
+			a.y = array[1];
+			b.x = array[2];
+			b.y = array[3];
+		}
 		//! Constructor, create segment from point p1 to point p2
-		Segment(const Point &p1, const Point &p2) { a = p1; b = p2; }
+		Segment(const Point& p1, const Point& p2)
+		{
+			a = p1;
+			b = p2;
+		}
 
 		//! Start point
 		Point a;
@@ -210,10 +377,10 @@ namespace Enki
 		Point b;
 
 		//! Compute the distance of p to this segment
-		double dist(const Point &p) const;
+		double dist(const Point& p) const;
 
 		//! Return true if o intersect this segment
-		bool doesIntersect(const Segment &that, Point* intersectionPoint = 0) const;
+		bool doesIntersect(const Segment& that, Point* intersectionPoint = 0) const;
 
 		//! Return the middle point
 		Point getMiddlePoint() const { return (a + b) / 2; }
@@ -227,11 +394,11 @@ namespace Enki
 
 	//! Print a segment to a stream
 	/*! \ingroup an */
-	std::ostream & operator << (std::ostream & outs, const Segment &segment);
+	std::ostream& operator<<(std::ostream& outs, const Segment& segment);
 
 	//! Polygon, which is a vector of points. Anti-clockwise, standard trigonometric orientation
 	/*! \ingroup an */
-	struct Polygon: public std::vector<Point>
+	struct Polygon : public std::vector<Point>
 	{
 		//! Return the i-th segment
 		Segment getSegment(size_t i) const;
@@ -264,7 +431,11 @@ namespace Enki
 		void flipY();
 
 		//! Operator to add point inline
-		Polygon& operator << (const Point& p) { push_back(p); return *this; }
+		Polygon& operator<<(const Point& p)
+		{
+			push_back(p);
+			return *this;
+		}
 
 		//! Return true and set intersection arguments (passed by reference) if this intersects circle (center, r), return false and do not change anything otherwise
 		/*!
@@ -286,16 +457,16 @@ namespace Enki
 
 	//! Print a polygon to a stream
 	/*! \ingroup an */
-	std::ostream & operator << (std::ostream & outs, const Polygon &polygon);
+	std::ostream& operator<<(std::ostream& outs, const Polygon& polygon);
 
 	//! Normlize an angle to be between -PI and +PI.
 	/*! \ingroup an */
 	inline double normalizeAngle(double angle)
 	{
 		while (angle > M_PI)
-			angle -= 2*M_PI;
+			angle -= 2 * M_PI;
 		while (angle < -M_PI)
-			angle += 2*M_PI;
+			angle += 2 * M_PI;
 		return angle;
 	}
 }

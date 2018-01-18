@@ -42,7 +42,7 @@
 
 namespace Enki
 {
-	class DifferentialWheeled: public virtual Robot
+	class DifferentialWheeled : public virtual Robot
 	{
 	public:
 		//! Left speed of the robot

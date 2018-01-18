@@ -52,9 +52,9 @@ namespace Enki
 	struct PixelOperationFunctor
 	{
 		//! Virtual destructor, do nothing
-		virtual ~PixelOperationFunctor() { }
+		virtual ~PixelOperationFunctor() {}
 		//! Modify the pixel and depth buffer² for a given object color and distance²
-		virtual void operator()(double &zBuffer2, Color &pixelBuffer, const double &objectDist2, const Color &objectColor) = 0;
+		virtual void operator()(double& zBuffer2, Color& pixelBuffer, const double& objectDist2, const Color& objectColor) = 0;
 	};
 
 
@@ -94,9 +94,9 @@ namespace Enki
 		Color lightThreshold;
 
 		//! Pointer to active pixel operation
-		PixelOperationFunctor *pixelOperation;
+		PixelOperationFunctor* pixelOperation;
 
-	public :
+	public:
 		//! Constructor.
 		/*!
 			\param owner robot this camera is attached to
@@ -106,11 +106,11 @@ namespace Enki
 			\param halfFieldOfView half aperture of the camera. The real field of view is twice this value [0; PI/2]
 			\param pixelCount number of pixel to cover the full field of view
 		*/
-		CircularCam(Robot *owner, Vector pos, double height, double orientation, double halfFieldOfView, unsigned pixelCount);
+		CircularCam(Robot* owner, Vector pos, double height, double orientation, double halfFieldOfView, unsigned pixelCount);
 		//! Destructor
-		virtual ~CircularCam(){}
+		virtual ~CircularCam() {}
 		virtual void init(double dt, World* w);
-		virtual void objectStep(double dt, World *w, PhysicalObject *po);
+		virtual void objectStep(double dt, World* w, PhysicalObject* po);
 		virtual void wallsStep(double dt, World* w);
 		virtual void finalize(double dt, World* w);
 
@@ -125,7 +125,7 @@ namespace Enki
 		//! Return linear interpolated value between d0 and d1, given a sensorvalue sv between s0 and s1
 		double interpolateLinear(double s0, double s1, double sv, double d0, double d1);
 		//! Draw a textured line from point p0 to p1 using texture - WTF are p0 and p1??
-		void drawTexturedLine(const Point &p0, const Point &p1, const Texture &texture);
+		void drawTexturedLine(const Point& p0, const Point& p1, const Texture& texture);
 	};
 
 
@@ -146,18 +146,18 @@ namespace Enki
 		//! Cameras doing the real job, second part
 		CircularCam cam1;
 
-	public :
+	public:
 		//! Constructor
 		/*!
 			\param owner robot this camera is attached to
 			\param height height of this camera with respect to ground
 			\param halfPixelCount half the number of pixel to cover the full 2*PI field of view
 		*/
-		OmniCam(Robot *owner, double height, unsigned halfPixelCount);
+		OmniCam(Robot* owner, double height, unsigned halfPixelCount);
 		//! Destructor
-		virtual ~OmniCam(){}
+		virtual ~OmniCam() {}
 		virtual void init(double dt, World* w);
-		virtual void objectStep(double dt, World *w, PhysicalObject *po);
+		virtual void objectStep(double dt, World* w, PhysicalObject* po);
 		virtual void wallsStep(double dt, World* w);
 		virtual void finalize(double dt, World* w);
 		//! Change the sight range of the camera
@@ -165,8 +165,7 @@ namespace Enki
 		//! Change the fog condition for this camera. If useFog is true, an exponential fog with density will be used. Additionally, a threshold can be applied on the resulting color
 		void setFogConditions(bool useFog, double density = 0.0, Color threshold = Color::black);
 		//! Change the pixel operation functor
-		void setPixelOperationFunctor(PixelOperationFunctor *pixelOperationFunctor);
+		void setPixelOperationFunctor(PixelOperationFunctor* pixelOperationFunctor);
 	};
 }
 #endif
-

@@ -74,12 +74,12 @@ namespace Enki
 
 		const double realLeftSpeed = clamp(
 			leftSpeed * (baseFactor + random.getRange(noiseFactor)),
-			-maxSpeed,maxSpeed
-		);
+			-maxSpeed,
+			maxSpeed);
 		const double realRightSpeed = clamp(
 			rightSpeed * (baseFactor + random.getRange(noiseFactor)),
-			-maxSpeed, maxSpeed
-		);
+			-maxSpeed,
+			maxSpeed);
 
 		// set non slipping, override speed
 		cmdSpeed = (realLeftSpeed + realRightSpeed) * 0.5;
@@ -99,10 +99,8 @@ namespace Enki
 	{
 		const Vector cmdVelocity(
 			cmdSpeed * cos(angle + angSpeed * dt * 0.5),
-			cmdSpeed * sin(angle + angSpeed * dt * 0.5)
-		);
+			cmdSpeed * sin(angle + angSpeed * dt * 0.5));
 		angSpeed = cmdAngSpeed;
 		speed = cmdVelocity;
 	}
 }
-

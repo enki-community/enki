@@ -42,10 +42,10 @@
 #include <enki/robots/thymio2/Thymio2.h>
 
 #ifdef Q_OS_WIN
-	#ifndef GL_BGRA
+#	ifndef GL_BGRA
 		// Windows only ships with OpenGL 1.1, while GL_BGRA is defined in version 1.2
-		#define GL_BGRA GL_BGRA_EXT
-	#endif // GL_BGRA
+#		define GL_BGRA GL_BGRA_EXT
+#	endif // GL_BGRA
 #endif // Q_OS_WIN
 #include <QApplication>
 #include <QtGui>
@@ -70,8 +70,8 @@ inline Derived polymorphic_downcast(Base base)
 
 namespace Enki
 {
-	#define rad2deg (180 / M_PI)
-	#define clamp(x, low, high) ((x) < (low) ? (low) : ((x) > (high) ? (high) : (x)))
+#define rad2deg (180 / M_PI)
+#define clamp(x, low, high) ((x) < (low) ? (low) : ((x) > (high) ? (high) : (x)))
 
 	// simple display list, one per instance
 	class SimpleDisplayList : public ViewerWidget::ViewerUserData
@@ -104,7 +104,7 @@ namespace Enki
 	}
 
 	//! Create a camera at 0
-	ViewerWidget::CameraPose::CameraPose():
+	ViewerWidget::CameraPose::CameraPose() :
 		altitude(0),
 		yaw(0),
 		pitch(0)
@@ -112,16 +112,16 @@ namespace Enki
 	}
 
 	//! Create a camera centered on a given world
-	ViewerWidget::CameraPose::CameraPose(const World *world):
+	ViewerWidget::CameraPose::CameraPose(const World* world) :
 		pos(QPointF(world->w * 0.5, -qMax(0., world->r * 0.9))),
-		altitude(qMax(qMax(world->w, world->h), world->r*2) * 0.9),
-		yaw(M_PI/2),
-		pitch(-(3*M_PI)/8)
+		altitude(qMax(qMax(world->w, world->h), world->r * 2) * 0.9),
+		yaw(M_PI / 2),
+		pitch(-(3 * M_PI) / 8)
 	{
 	}
 
 	//! Create a camera at a given pos
-	ViewerWidget::CameraPose::CameraPose(const QPointF& pos, double altitude, double yaw, double pitch):
+	ViewerWidget::CameraPose::CameraPose(const QPointF& pos, double altitude, double yaw, double pitch) :
 		pos(pos),
 		altitude(altitude),
 		yaw(yaw),
@@ -129,22 +129,22 @@ namespace Enki
 	{
 	}
 
-	ViewerWidget::UpdatableCameraPose::UpdatableCameraPose():
+	ViewerWidget::UpdatableCameraPose::UpdatableCameraPose() :
 		userYaw(0),
 		radius(20)
 	{
 		update();
 	}
 
-	ViewerWidget::UpdatableCameraPose::UpdatableCameraPose(const World *world):
+	ViewerWidget::UpdatableCameraPose::UpdatableCameraPose(const World* world) :
 		CameraPose(world),
-		userYaw(M_PI/2),
+		userYaw(M_PI / 2),
 		radius(20)
 	{
 		update();
 	}
 
-	ViewerWidget::UpdatableCameraPose::UpdatableCameraPose(const QPointF& pos, double altitude, double yaw, double pitch):
+	ViewerWidget::UpdatableCameraPose::UpdatableCameraPose(const QPointF& pos, double altitude, double yaw, double pitch) :
 		CameraPose(pos, altitude, yaw, pitch),
 		userYaw(yaw),
 		radius(20)
@@ -163,8 +163,8 @@ namespace Enki
 	void ViewerWidget::UpdatableCameraPose::update()
 	{
 		yaw = userYaw;
-		forward = QVector3D( cos(yaw)*cos(pitch), sin(yaw)*cos(pitch), sin(pitch) );
-		left = QVector3D::crossProduct(QVector3D(0,0,1), forward).normalized();
+		forward = QVector3D(cos(yaw) * cos(pitch), sin(yaw) * cos(pitch), sin(pitch));
+		left = QVector3D::crossProduct(QVector3D(0, 0, 1), forward).normalized();
 		up = QVector3D::crossProduct(forward, left).normalized();
 	}
 
@@ -172,23 +172,23 @@ namespace Enki
 	void ViewerWidget::UpdatableCameraPose::updateTracking(double targetAngle, const QVector3D& targetPosition, double zNear)
 	{
 		yaw = userYaw + targetAngle;
-		forward = QVector3D( cos(yaw)*cos(pitch), sin(yaw)*cos(pitch), sin(pitch) );
-		left = QVector3D::crossProduct(QVector3D(0,0,1), forward).normalized();
+		forward = QVector3D(cos(yaw) * cos(pitch), sin(yaw) * cos(pitch), sin(pitch));
+		left = QVector3D::crossProduct(QVector3D(0, 0, 1), forward).normalized();
 		up = QVector3D::crossProduct(forward, left).normalized();
 
-		pos.rx() = targetPosition.x() - radius*forward.x();
-		pos.ry() = targetPosition.y() - radius*forward.y();
-		altitude = targetPosition.z() + zNear*1.01 - radius*forward.z();
+		pos.rx() = targetPosition.x() - radius * forward.x();
+		pos.ry() = targetPosition.y() - radius * forward.y();
+		altitude = targetPosition.z() + zNear * 1.01 - radius * forward.z();
 	}
 
-	ViewerWidget::InfoMessage::InfoMessage(const QString& message, double persistance, const QColor& color, const QUrl& link):
+	ViewerWidget::InfoMessage::InfoMessage(const QString& message, double persistance, const QColor& color, const QUrl& link) :
 		message(message),
 		persistance(persistance),
 		color(color),
 		link(link)
 	{}
 
-	ViewerWidget::ViewerWidget(World *world, QWidget *parent) :
+	ViewerWidget::ViewerWidget(World* world, QWidget* parent) :
 		QGLWidget(parent),
 		timerPeriodMs(30),
 		camera(world),
@@ -210,7 +210,7 @@ namespace Enki
 		mouseMiddleButtonRobot(0)
 	{
 		initTexturesResources();
-		elapsedTime = double(30)/1000.; // average second between two frames, can be updated each frame to better precision
+		elapsedTime = double(30) / 1000.; // average second between two frames, can be updated each frame to better precision
 
 		startTimer(timerPeriodMs);
 	}
@@ -224,8 +224,8 @@ namespace Enki
 			deleteTexture(centerWidget);
 			deleteTexture(selectionTexture);
 			glDeleteLists(worldList, 1);
-			deleteTexture (worldTexture);
-			deleteTexture (wallTexture);
+			deleteTexture(worldTexture);
+			deleteTexture(wallTexture);
 			if (world->hasGroundTexture())
 				glDeleteTextures(1, &worldGroundTexture);
 		}
@@ -303,7 +303,7 @@ namespace Enki
 
 	void ViewerWidget::setCamera(double x, double y, double altitude, double yaw, double pitch)
 	{
-		setCamera(QPointF(x,y), altitude, yaw, pitch);
+		setCamera(QPointF(x, y), altitude, yaw, pitch);
 	}
 
 	void ViewerWidget::restartDumpFrames()
@@ -340,7 +340,7 @@ namespace Enki
 	void ViewerWidget::addInfoMessage(const QString& message, double persistance, const QColor& color, const QUrl& link)
 	{
 		// add or update message in the list
-		for (MessageList::iterator it = messageList.begin(); it!=messageList.end(); it++)
+		for (MessageList::iterator it = messageList.begin(); it != messageList.end(); it++)
 		{
 			if (it->message == message)
 			{
@@ -394,7 +394,7 @@ namespace Enki
 		// draw ground
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ZERO, GL_SRC_COLOR);
-		glDepthMask( GL_FALSE );
+		glDepthMask(GL_FALSE);
 		glEnable(GL_POLYGON_OFFSET_FILL);
 
 		Vector dvpm = Vector(vu.y, -vu.x) * height;
@@ -412,7 +412,7 @@ namespace Enki
 		glEnd();
 
 		glDisable(GL_POLYGON_OFFSET_FILL);
-		glDepthMask( GL_TRUE );
+		glDepthMask(GL_TRUE);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDisable(GL_BLEND);
 	}
@@ -430,7 +430,7 @@ namespace Enki
 		// draw ground
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ZERO, GL_SRC_COLOR);
-		glDepthMask( GL_FALSE );
+		glDepthMask(GL_FALSE);
 		glEnable(GL_POLYGON_OFFSET_FILL);
 
 		glNormal3d(0, 0, 1);
@@ -443,7 +443,7 @@ namespace Enki
 		glEnd();
 
 		glDisable(GL_POLYGON_OFFSET_FILL);
-		glDepthMask( GL_TRUE );
+		glDepthMask(GL_TRUE);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDisable(GL_BLEND);
 	}
@@ -453,8 +453,8 @@ namespace Enki
 		Vector v = segment.b - segment.a;
 		Vector vu = v.unitary();
 		Vector n = Vector(v.y, -v.x).unitary();
-		int count = ((int)(v.norm()-20) / 10+1);
-		double l = (v.norm()-20) / (double)count;
+		int count = ((int)(v.norm() - 20) / 10 + 1);
+		double l = (v.norm() - 20) / (double)count;
 		Vector dv = vu * l;
 		Vector dvm = vu * 10;
 		Vector dvpm = Vector(vu.y, -vu.x) * 10;
@@ -470,9 +470,9 @@ namespace Enki
 		glTexCoord2f(0.01f, 0.5f);
 		glVertex3d(pos.x, pos.y, 0);
 		glTexCoord2f(0.5f, 0.5f);
-		glVertex3d((pos+dvm).x, (pos+dvm).y, 0);
+		glVertex3d((pos + dvm).x, (pos + dvm).y, 0);
 		glTexCoord2f(0.5f, 0.99f);
-		glVertex3d((pos+dvm).x, (pos+dvm).y, wallsHeight);
+		glVertex3d((pos + dvm).x, (pos + dvm).y, wallsHeight);
 		glTexCoord2f(0.01f, 0.99f);
 		glVertex3d(pos.x, pos.y, wallsHeight);
 		glEnd();
@@ -489,7 +489,7 @@ namespace Enki
 		glVertex3d(pos.x + dvpm.x, pos.y + dvpm.y, wallsHeight);
 		glEnd();
 
-		pos += vu*10;
+		pos += vu * 10;
 
 		// draw sides
 		for (int i = 0; i < count; i++)
@@ -499,9 +499,9 @@ namespace Enki
 			glTexCoord2f(0.5f, 0.5f);
 			glVertex3d(pos.x, pos.y, 0);
 			glTexCoord2f(0.99f, 0.5f);
-			glVertex3d((pos+dv).x, (pos+dv).y, 0);
+			glVertex3d((pos + dv).x, (pos + dv).y, 0);
 			glTexCoord2f(0.99f, 0.99f);
-			glVertex3d((pos+dv).x, (pos+dv).y, wallsHeight);
+			glVertex3d((pos + dv).x, (pos + dv).y, wallsHeight);
 			glTexCoord2f(0.5f, 0.99f);
 			glVertex3d(pos.x, pos.y, wallsHeight);
 			glEnd();
@@ -515,7 +515,7 @@ namespace Enki
 		glColor3d(1, 1, 1);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ZERO, GL_SRC_COLOR);
-		glDepthMask( GL_FALSE );
+		glDepthMask(GL_FALSE);
 		glEnable(GL_POLYGON_OFFSET_FILL);
 
 		// draw corner ground
@@ -524,14 +524,14 @@ namespace Enki
 		glTexCoord2f(0.01f, 0.01f);
 		glVertex3d(pos.x + dvpm.x, pos.y + dvpm.y, 0);
 		glTexCoord2f(0.5f, 0.01f);
-		glVertex3d((pos+dvm).x + dvpm.x, (pos+dvm).y + dvpm.y, 0);
+		glVertex3d((pos + dvm).x + dvpm.x, (pos + dvm).y + dvpm.y, 0);
 		glTexCoord2f(0.5f, 0.5f);
-		glVertex3d((pos+dvm).x, (pos+dvm).y, 0);
+		glVertex3d((pos + dvm).x, (pos + dvm).y, 0);
 		glTexCoord2f(0.01f, 0.5f);
 		glVertex3d(pos.x, pos.y, 0);
 		glEnd();
 
-		pos += vu*10;
+		pos += vu * 10;
 
 		// draw side ground
 		for (int i = 0; i < count; i++)
@@ -541,9 +541,9 @@ namespace Enki
 			glTexCoord2f(0.5f, 0.01f);
 			glVertex3d(pos.x + dvpm.x, pos.y + dvpm.y, 0);
 			glTexCoord2f(0.99f, 0.01f);
-			glVertex3d((pos+dv).x + dvpm.x, (pos+dv).y + dvpm.y, 0);
+			glVertex3d((pos + dv).x + dvpm.x, (pos + dv).y + dvpm.y, 0);
 			glTexCoord2f(0.99f, 0.5f);
-			glVertex3d((pos+dv).x, (pos+dv).y, 0);
+			glVertex3d((pos + dv).x, (pos + dv).y, 0);
 			glTexCoord2f(0.5f, 0.5f);
 			glVertex3d(pos.x, pos.y, 0);
 			glEnd();
@@ -552,7 +552,7 @@ namespace Enki
 		}
 
 		glDisable(GL_POLYGON_OFFSET_FILL);
-		glDepthMask( GL_TRUE );
+		glDepthMask(GL_TRUE);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDisable(GL_BLEND);
 	}
@@ -575,14 +575,14 @@ namespace Enki
 				// TODO: use world texture if any
 				glBegin(GL_QUADS);
 				glVertex3d(-infPlanSize, -infPlanSize, wallsHeight);
-				glVertex3d(infPlanSize+world->w, -infPlanSize, wallsHeight);
-				glVertex3d(infPlanSize+world->w, 0, wallsHeight);
+				glVertex3d(infPlanSize + world->w, -infPlanSize, wallsHeight);
+				glVertex3d(infPlanSize + world->w, 0, wallsHeight);
 				glVertex3d(-infPlanSize, 0, wallsHeight);
 
 				glVertex3d(-infPlanSize, world->h, wallsHeight);
-				glVertex3d(infPlanSize+world->w, world->h, wallsHeight);
-				glVertex3d(infPlanSize+world->w, world->h+infPlanSize, wallsHeight);
-				glVertex3d(-infPlanSize, world->h+infPlanSize, wallsHeight);
+				glVertex3d(infPlanSize + world->w, world->h, wallsHeight);
+				glVertex3d(infPlanSize + world->w, world->h + infPlanSize, wallsHeight);
+				glVertex3d(-infPlanSize, world->h + infPlanSize, wallsHeight);
 
 				glVertex3d(-infPlanSize, 0, wallsHeight);
 				glVertex3d(0, 0, wallsHeight);
@@ -590,8 +590,8 @@ namespace Enki
 				glVertex3d(-infPlanSize, world->h, wallsHeight);
 
 				glVertex3d(world->w, 0, wallsHeight);
-				glVertex3d(world->w+infPlanSize, 0, wallsHeight);
-				glVertex3d(world->w+infPlanSize, world->h, wallsHeight);
+				glVertex3d(world->w + infPlanSize, 0, wallsHeight);
+				glVertex3d(world->w + infPlanSize, world->h, wallsHeight);
 				glVertex3d(world->w, world->h, wallsHeight);
 				glEnd();
 
@@ -629,12 +629,12 @@ namespace Enki
 			case World::WALLS_CIRCULAR:
 			{
 				const double r(world->r);
-				const int segmentCount = std::max(24, int((r*2.*M_PI) / 10.));
+				const int segmentCount = std::max(24, int((r * 2. * M_PI) / 10.));
 				for (int i = 0; i < segmentCount; ++i)
 				{
 					const double angStart(((double)i * 2. * M_PI) / (double)segmentCount);
-					const double angEnd(((double)(i+1) * 2. * M_PI) / (double)segmentCount);
-					const double angMid((angStart+angEnd)/2);
+					const double angEnd(((double)(i + 1) * 2. * M_PI) / (double)segmentCount);
+					const double angMid((angStart + angEnd) / 2);
 					const double innerR(r - 10);
 
 					glDisable(GL_TEXTURE_2D);
@@ -643,10 +643,10 @@ namespace Enki
 
 					// draw to infinity
 					glBegin(GL_QUADS);
-					glVertex3d(cos(angStart)*r, sin(angStart)*r, 10);
-					glVertex3d(cos(angStart)*(r+infPlanSize), sin(angStart)*(r+infPlanSize), 10);
-					glVertex3d(cos(angEnd)*(r+infPlanSize), sin(angEnd)*(r+infPlanSize), 10);
-					glVertex3d(cos(angEnd)*r, sin(angEnd)*r, 10);
+					glVertex3d(cos(angStart) * r, sin(angStart) * r, 10);
+					glVertex3d(cos(angStart) * (r + infPlanSize), sin(angStart) * (r + infPlanSize), 10);
+					glVertex3d(cos(angEnd) * (r + infPlanSize), sin(angEnd) * (r + infPlanSize), 10);
+					glVertex3d(cos(angEnd) * r, sin(angEnd) * r, 10);
 					glEnd();
 
 					// draw ground center
@@ -659,9 +659,9 @@ namespace Enki
 					glBegin(GL_TRIANGLES);
 					glTexCoord2f(0.5f, 0.5f);
 					glVertex3d(0, 0, 0);
-					glTexCoord2f(0.5f+0.5f*cosf(angStart), 0.5f+0.5f*sinf(angStart));
+					glTexCoord2f(0.5f + 0.5f * cosf(angStart), 0.5f + 0.5f * sinf(angStart));
 					glVertex3d(cos(angStart) * r, sin(angStart) * r, 0);
-					glTexCoord2f(0.5f+0.5f*cosf(angEnd), 0.5f+0.5f*sinf(angEnd));
+					glTexCoord2f(0.5f + 0.5f * cosf(angEnd), 0.5f + 0.5f * sinf(angEnd));
 					glVertex3d(cos(angEnd) * r, sin(angEnd) * r, 0);
 					glEnd();
 
@@ -672,20 +672,20 @@ namespace Enki
 					glNormal3d(-cos(angMid), -sin(angMid), 0);
 					glBegin(GL_QUADS);
 					glTexCoord2f(0.5f, 0.5f);
-					glVertex3d(cos(angEnd)*r, sin(angEnd)*r, 0);
+					glVertex3d(cos(angEnd) * r, sin(angEnd) * r, 0);
 					glTexCoord2f(0.99f, 0.5f);
-					glVertex3d(cos(angStart)*r, sin(angStart)*r, 0);
+					glVertex3d(cos(angStart) * r, sin(angStart) * r, 0);
 					glTexCoord2f(0.99f, 0.99f);
-					glVertex3d(cos(angStart)*r, sin(angStart)*r, 10);
+					glVertex3d(cos(angStart) * r, sin(angStart) * r, 10);
 					glTexCoord2f(0.5f, 0.99f);
-					glVertex3d(cos(angEnd)*r, sin(angEnd)*r, 10);
+					glVertex3d(cos(angEnd) * r, sin(angEnd) * r, 10);
 					glEnd();
 
 					// draw ground shadow
 					glColor3d(1, 1, 1);
 					glEnable(GL_BLEND);
 					glBlendFunc(GL_ZERO, GL_SRC_COLOR);
-					glDepthMask( GL_FALSE );
+					glDepthMask(GL_FALSE);
 					glEnable(GL_POLYGON_OFFSET_FILL);
 
 					glNormal3d(0, 0, 1);
@@ -701,7 +701,7 @@ namespace Enki
 					glEnd();
 
 					glDisable(GL_POLYGON_OFFSET_FILL);
-					glDepthMask( GL_TRUE );
+					glDepthMask(GL_TRUE);
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 					glDisable(GL_BLEND);
 				}
@@ -712,9 +712,9 @@ namespace Enki
 			{
 				glBegin(GL_QUADS);
 				glVertex3d(-infPlanSize, -infPlanSize, 0);
-				glVertex3d(world->w+infPlanSize, -infPlanSize, 0);
-				glVertex3d(world->w+infPlanSize, world->h+infPlanSize, 0);
-				glVertex3d(-infPlanSize, world->h+infPlanSize, 0);
+				glVertex3d(world->w + infPlanSize, -infPlanSize, 0);
+				glVertex3d(world->w + infPlanSize, world->h + infPlanSize, 0);
+				glVertex3d(-infPlanSize, world->h + infPlanSize, 0);
 				glEnd();
 			}
 			break;
@@ -738,15 +738,14 @@ namespace Enki
 		{
 			// TODO: ugly, separate function for object and shadow
 			glColor3d(color.components[0], color.components[1], color.components[2]);
-			renderSegment(Segment(shape[i], shape[(i+1) % segmentCount] ), height);
+			renderSegment(Segment(shape[i], shape[(i + 1) % segmentCount]), height);
 			glColor3d(1, 1, 1);
-			renderSegmentShadow(Segment(shape[i], shape[(i+1) % segmentCount] ), height);
+			renderSegmentShadow(Segment(shape[i], shape[(i + 1) % segmentCount]), height);
 			renderInterSegmentShadow(
 				shape[i],
-				shape[(i+1) % segmentCount],
-				shape[(i+2) % segmentCount],
-				height
-			);
+				shape[(i + 1) % segmentCount],
+				shape[(i + 2) % segmentCount],
+				height);
 		}
 
 		glDisable(GL_TEXTURE_2D);
@@ -760,9 +759,9 @@ namespace Enki
 		glEnd();
 	}
 
-	void ViewerWidget::renderSimpleObject(PhysicalObject *object)
+	void ViewerWidget::renderSimpleObject(PhysicalObject* object)
 	{
-		SimpleDisplayList *userData = new SimpleDisplayList;
+		SimpleDisplayList* userData = new SimpleDisplayList;
 		object->userData = userData;
 		glNewList(userData->list, GL_COMPILE);
 
@@ -780,9 +779,9 @@ namespace Enki
 			const size_t segmentCount(32);
 			shape.reserve(segmentCount);
 			const double radius(object->getRadius());
-			for (size_t i=0; i<segmentCount; ++i)
+			for (size_t i = 0; i < segmentCount; ++i)
 			{
-				const double alpha(i*2.*M_PI/double(segmentCount));
+				const double alpha(i * 2. * M_PI / double(segmentCount));
 				shape.push_back(Point(cos(alpha) * radius, sin(alpha) * radius));
 			}
 			renderShape(shape, object->getHeight(), object->getColor());
@@ -797,11 +796,10 @@ namespace Enki
 	//! Called on GL initialisation to render application specific meshed objects, for instance application specific robots
 	void ViewerWidget::renderObjectsTypesHook()
 	{
-
 	}
 
 	//! Called inside the creation of the object display list in local object coordinate
-	void ViewerWidget::renderObjectHook(PhysicalObject *object)
+	void ViewerWidget::renderObjectHook(PhysicalObject* object)
 	{
 		// dir on top of robots
 		if (dynamic_cast<Robot*>(object))
@@ -816,9 +814,8 @@ namespace Enki
 	}
 
 	//! Called when object is displayed, after the display list, with the current world matrix
-	void ViewerWidget::displayObjectHook(PhysicalObject *object)
+	void ViewerWidget::displayObjectHook(PhysicalObject* object)
 	{
-
 	}
 
 	//! Called when the drawing of the scene is completed.
@@ -834,9 +831,9 @@ namespace Enki
 	{
 		glClearColor(world->color.r(), world->color.g(), world->color.b(), 1.0);
 
-		float LightAmbient[] = {0.6, 0.6, 0.6, 1};
-		float LightDiffuse[] = {1.2, 1.2, 1.2, 1};
-		float defaultColor[] = {0.5, 0.5, 0.5, 1};
+		float LightAmbient[] = { 0.6, 0.6, 0.6, 1 };
+		float LightDiffuse[] = { 1.2, 1.2, 1.2, 1 };
+		float defaultColor[] = { 0.5, 0.5, 0.5, 1 };
 		glLightfv(GL_LIGHT0, GL_AMBIENT, LightAmbient);
 		glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse);
 		glEnable(GL_LIGHT0);
@@ -892,7 +889,7 @@ namespace Enki
 		//float aspectRatio = (float)width() / (float)height();
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glFrustum(left, right, bottom, top, zNear, zFar);//(-aspectRatio, aspectRatio, -1, 1, 2, 2000);
+		glFrustum(left, right, bottom, top, zNear, zFar); //(-aspectRatio, aspectRatio, -1, 1, 2, 2000);
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
@@ -904,7 +901,7 @@ namespace Enki
 
 		glTranslated(-camera.pos.x(), -camera.pos.y(), -camera.altitude);
 
-		GLfloat LightPosition[] = {(GLfloat)world->w/2, (GLfloat)world->h/2, 60, 1};
+		GLfloat LightPosition[] = { (GLfloat)world->w / 2, (GLfloat)world->h / 2, 60, 1 };
 		glLightfv(GL_LIGHT0, GL_POSITION, LightPosition);
 
 		glCallList(worldList);
@@ -951,7 +948,7 @@ namespace Enki
 			glTranslated((*it)->pos.x, (*it)->pos.y, 0);
 			glRotated(rad2deg * (*it)->angle, 0, 0, 1);
 
-			ViewerUserData* userData = polymorphic_downcast<ViewerUserData *>((*it)->userData);
+			ViewerUserData* userData = polymorphic_downcast<ViewerUserData*>((*it)->userData);
 
 			userData->draw(*it);
 			displayObjectHook(*it);
@@ -970,7 +967,7 @@ namespace Enki
 			// if it is being move, draw the object as it has not been drawn before
 			if (movingObject)
 			{
-				ViewerUserData* userData = polymorphic_downcast<ViewerUserData *>(selectedObject->userData);
+				ViewerUserData* userData = polymorphic_downcast<ViewerUserData*>(selectedObject->userData);
 				userData->draw(selectedObject);
 				displayObjectHook(selectedObject);
 			}
@@ -980,13 +977,17 @@ namespace Enki
 			glEnable(GL_TEXTURE_2D);
 			glDisable(GL_LIGHTING);
 			glBindTexture(GL_TEXTURE_2D, selectionTexture);
-			glColor4d(1,1,1,1);
+			glColor4d(1, 1, 1, 1);
 			glBegin(GL_QUADS);
-				const double r(selectedObject->getRadius() * 1.5);
-				glTexCoord2f(0.f, 0.f); glVertex3d(-r, -r, 0.1);
-				glTexCoord2f(1.f, 0.f); glVertex3d(r, -r, 0.1);
-				glTexCoord2f(1.f, 1.f); glVertex3d(r, r, 0.1);
-				glTexCoord2f(0.f, 1.f); glVertex3d(-r, r, 0.1);
+			const double r(selectedObject->getRadius() * 1.5);
+			glTexCoord2f(0.f, 0.f);
+			glVertex3d(-r, -r, 0.1);
+			glTexCoord2f(1.f, 0.f);
+			glVertex3d(r, -r, 0.1);
+			glTexCoord2f(1.f, 1.f);
+			glVertex3d(r, r, 0.1);
+			glTexCoord2f(0.f, 1.f);
+			glVertex3d(-r, r, 0.1);
 			glEnd();
 			glDisable(GL_TEXTURE_2D);
 			glDisable(GL_BLEND);
@@ -1000,30 +1001,30 @@ namespace Enki
 		pointedObject = 0;
 		QPoint cursorPosition = mapFromGlobal(QCursor::pos());
 
-		if (!rect().contains(cursorPosition,true)) // window does not contain cursor
+		if (!rect().contains(cursorPosition, true)) // window does not contain cursor
 			return;
 
 		// prepare matricies for invertion
 		QMatrix4x4 projection;
-			projection.setToIdentity();
-			projection.frustum(left, right, bottom, top, zNear, zFar);
+		projection.setToIdentity();
+		projection.frustum(left, right, bottom, top, zNear, zFar);
 		QMatrix4x4 modelview;
-			modelview.setToIdentity();
-			modelview.rotate(-90, 1, 0, 0);
-			modelview.rotate(rad2deg * -camera.pitch, 1, 0, 0);
-			modelview.rotate(90, 0, 0, 1);
-			modelview.rotate(rad2deg * -camera.yaw, 0, 0, 1);
-			modelview.translate(-camera.pos.x(), -camera.pos.y(), -camera.altitude);
-		QMatrix4x4 transformMatrix = (projection*modelview).inverted();
+		modelview.setToIdentity();
+		modelview.rotate(-90, 1, 0, 0);
+		modelview.rotate(rad2deg * -camera.pitch, 1, 0, 0);
+		modelview.rotate(90, 0, 0, 1);
+		modelview.rotate(rad2deg * -camera.yaw, 0, 0, 1);
+		modelview.translate(-camera.pos.x(), -camera.pos.y(), -camera.altitude);
+		QMatrix4x4 transformMatrix = (projection * modelview).inverted();
 
 		// cursor position in viewport coordinates
-		const double fragmentX = double(cursorPosition.x() - width()/2) / (width()/2);
-		const double fragmentY = double(height() - cursorPosition.y() - height()/2) / (height()/2);
+		const double fragmentX = double(cursorPosition.x() - width() / 2) / (width() / 2);
+		const double fragmentY = double(height() - cursorPosition.y() - height() / 2) / (height() / 2);
 		float depth;
-		glReadPixels( cursorPosition.x(), height() - cursorPosition.y(), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth );
+		glReadPixels(cursorPosition.x(), height() - cursorPosition.y(), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
 
-		QVector4D input(fragmentX, fragmentY, 2*depth - 1, 1);
-		input = transformMatrix*input;
+		QVector4D input(fragmentX, fragmentY, 2 * depth - 1, 1);
+		input = transformMatrix * input;
 
 		if (input.w() != 0.0) // valid pointed point
 		{
@@ -1034,15 +1035,15 @@ namespace Enki
 			return;
 
 		// prepare to find which object is pointed
-		Point cursor2Dpoint(pointedPoint.x(),pointedPoint.y());
+		Point cursor2Dpoint(pointedPoint.x(), pointedPoint.y());
 		const double cursorRadius = 0.2f;
 		for (World::ObjectsIterator it = world->objects.begin(); it != world->objects.end(); ++it)
 		{
-			const Vector distOCtoOC = (*it)->pos - cursor2Dpoint;		// distance between object bounding circle center and pointed point
-			const double addedRay = (*it)->getRadius() + cursorRadius;	// sum of bounded circle radius
-			if (distOCtoOC.norm2() <= (addedRay*addedRay)) 			// cursor point colide bounding circle
+			const Vector distOCtoOC = (*it)->pos - cursor2Dpoint; // distance between object bounding circle center and pointed point
+			const double addedRay = (*it)->getRadius() + cursorRadius; // sum of bounded circle radius
+			if (distOCtoOC.norm2() <= (addedRay * addedRay)) // cursor point colide bounding circle
 			{
-				if (!(*it)->getHull().empty())				// check pointer circle and object hull
+				if (!(*it)->getHull().empty()) // check pointer circle and object hull
 				{
 					PhysicalObject::Hull hull = (*it)->getHull();
 					for (PhysicalObject::Hull::const_iterator it2 = hull.begin(); it2 != hull.end(); ++it2) // check all convex shape of hull
@@ -1088,7 +1089,7 @@ namespace Enki
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
-		glColor4d(1,1,1,1);
+		glColor4d(1, 1, 1, 1);
 		const int margin(24);
 		const int size(48);
 
@@ -1096,21 +1097,29 @@ namespace Enki
 		glBegin(GL_QUADS);
 		{
 			const int yPos(0);
-			glTexCoord2f(0.f, 0.f); glVertex2Screen(width() - margin - size, margin + size + yPos);
-			glTexCoord2f(1.f, 0.f); glVertex2Screen(width() - margin, margin + size + yPos);
-			glTexCoord2f(1.f, 1.f); glVertex2Screen(width() - margin, margin + yPos);
-			glTexCoord2f(0.f, 1.f); glVertex2Screen(width() - margin - size, margin + yPos);
+			glTexCoord2f(0.f, 0.f);
+			glVertex2Screen(width() - margin - size, margin + size + yPos);
+			glTexCoord2f(1.f, 0.f);
+			glVertex2Screen(width() - margin, margin + size + yPos);
+			glTexCoord2f(1.f, 1.f);
+			glVertex2Screen(width() - margin, margin + yPos);
+			glTexCoord2f(0.f, 1.f);
+			glVertex2Screen(width() - margin - size, margin + yPos);
 		}
 		glEnd();
 
 		glBindTexture(GL_TEXTURE_2D, centerWidget);
 		glBegin(GL_QUADS);
 		{
-			const int yPos(48+12);
-			glTexCoord2f(0.f, 0.f); glVertex2Screen(width() - margin - size, margin + size + yPos);
-			glTexCoord2f(1.f, 0.f); glVertex2Screen(width() - margin, margin + size + yPos);
-			glTexCoord2f(1.f, 1.f); glVertex2Screen(width() - margin, margin + yPos);
-			glTexCoord2f(0.f, 1.f); glVertex2Screen(width() - margin - size, margin + yPos);
+			const int yPos(48 + 12);
+			glTexCoord2f(0.f, 0.f);
+			glVertex2Screen(width() - margin - size, margin + size + yPos);
+			glTexCoord2f(1.f, 0.f);
+			glVertex2Screen(width() - margin, margin + size + yPos);
+			glTexCoord2f(1.f, 1.f);
+			glVertex2Screen(width() - margin, margin + yPos);
+			glTexCoord2f(0.f, 1.f);
+			glVertex2Screen(width() - margin - size, margin + yPos);
 		}
 		glEnd();
 
@@ -1118,11 +1127,11 @@ namespace Enki
 		glDisable(GL_BLEND);
 	}
 
-	void ViewerWidget::clickWidget(QMouseEvent *event)
+	void ViewerWidget::clickWidget(QMouseEvent* event)
 	{
 		if (event->y() > 24 && event->y() < 72)
 			helpActivated();
-		else if (event->y() > 24+48+12 && event->y() < 72+48+12)
+		else if (event->y() > 24 + 48 + 12 && event->y() < 72 + 48 + 12)
 			camera = UpdatableCameraPose(world);
 	}
 
@@ -1138,21 +1147,21 @@ namespace Enki
 
 		// fill background
 		glEnable(GL_BLEND);
-		glColor4d(1,1,1,0.8);
+		glColor4d(1, 1, 1, 0.8);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		glBegin(GL_QUADS);
-			glVertex2Screen(0, messageListHeight);
-			glVertex2Screen(messageListWidth, messageListHeight);
-			glVertex2Screen(messageListWidth, 0);
-			glVertex2Screen(0, 0);
+		glVertex2Screen(0, messageListHeight);
+		glVertex2Screen(messageListWidth, messageListHeight);
+		glVertex2Screen(messageListWidth, 0);
+		glVertex2Screen(0, 0);
 		glEnd();
 		glDisable(GL_BLEND);
 
 		// draw messages
-		const int lineSpacing(fontMetrics.lineSpacing()+3);
+		const int lineSpacing(fontMetrics.lineSpacing() + 3);
 		unsigned i = 0;
 		const size_t messageListSize(messageList.size());
 		for (MessageList::iterator it = messageList.begin(); it != messageList.end(); i++)
@@ -1161,7 +1170,7 @@ namespace Enki
 			color.setAlphaF(clamp(it->persistance, 0., 1.));
 			qglColor(color);
 
-			renderText(10, 5 + (i+1)*lineSpacing, it->message);
+			renderText(10, 5 + (i + 1) * lineSpacing, it->message);
 
 			if (it->persistance >= 0)
 			{
@@ -1180,7 +1189,7 @@ namespace Enki
 		messageListWidth = 0;
 		for (MessageList::iterator it = messageList.begin(); it != messageList.end(); ++it)
 			messageListWidth = std::max(messageListWidth, fontMetrics.width(it->message));
-		const int lineSpacing(fontMetrics.lineSpacing()+3);
+		const int lineSpacing(fontMetrics.lineSpacing() + 3);
 		messageListWidth += 20;
 		messageListHeight = messageList.size() * lineSpacing;
 		if (messageListHeight)
@@ -1198,10 +1207,10 @@ namespace Enki
 			camera.update();
 
 		const double aspectRatio = double(width()) / double(height());
-		renderScene(-aspectRatio*0.5*znear, aspectRatio*0.5*znear, -0.5*znear, 0.5*znear, znear, 2000);
+		renderScene(-aspectRatio * 0.5 * znear, aspectRatio * 0.5 * znear, -0.5 * znear, 0.5 * znear, znear, 2000);
 		sceneCompletedHook();
 
-		picking(-aspectRatio*0.5*znear, aspectRatio*0.5*znear, -0.5*znear, 0.5*znear, znear, 2000);
+		picking(-aspectRatio * 0.5 * znear, aspectRatio * 0.5 * znear, -0.5 * znear, 0.5 * znear, znear, 2000);
 
 		displayMessages();
 		displayWidgets();
@@ -1221,7 +1230,7 @@ namespace Enki
 			helpActivated();
 	}
 
-	void ViewerWidget::mousePressEvent(QMouseEvent *event)
+	void ViewerWidget::mousePressEvent(QMouseEvent* event)
 	{
 		// initialization
 		mouseGrabPos = event->pos();
@@ -1285,7 +1294,7 @@ namespace Enki
 		}
 	}
 
-	void ViewerWidget::mouseReleaseEvent(QMouseEvent * event)
+	void ViewerWidget::mouseReleaseEvent(QMouseEvent* event)
 	{
 		// make sure the selected object is in the world
 		if (selectedObject)
@@ -1312,7 +1321,7 @@ namespace Enki
 		}
 	}
 
-	void ViewerWidget::mouseMoveEvent(QMouseEvent *event)
+	void ViewerWidget::mouseMoveEvent(QMouseEvent* event)
 	{
 		if (!trackingView && selectedObject)
 		{
@@ -1327,7 +1336,7 @@ namespace Enki
 
 				const QPoint diff = event->pos() - mouseGrabPos;
 				const double sensitivity = 10;
-				selectedObject->angle -= sensitivity * (double)diff.x() / (1+width());
+				selectedObject->angle -= sensitivity * (double)diff.x() / (1 + width());
 				mouseGrabPos = event->pos();
 			}
 
@@ -1340,8 +1349,8 @@ namespace Enki
 						world->removeObject(selectedObject);
 					movingObject = true;
 
-					selectedObject->pos = Point(pointedPoint.x(),pointedPoint.y());
-					selectedObject->speed = Vector(0,0);
+					selectedObject->pos = Point(pointedPoint.x(), pointedPoint.y());
+					selectedObject->speed = Vector(0, 0);
 					selectedObject->angSpeed = 0;
 				}
 			}
@@ -1356,18 +1365,18 @@ namespace Enki
 				const QPoint diff = event->pos() - mouseGrabPos;
 				if (event->modifiers() & Qt::ShiftModifier)
 				{
-					const double sensitivity = -(1 + 0.1*camera.altitude) * 0.1;
-					camera.pos.rx() += sensitivity * diff.y()*camera.forward.x();
-					camera.pos.ry() += sensitivity * diff.y()*camera.forward.y();
-					camera.altitude += sensitivity * diff.y()*camera.forward.z();
+					const double sensitivity = -(1 + 0.1 * camera.altitude) * 0.1;
+					camera.pos.rx() += sensitivity * diff.y() * camera.forward.x();
+					camera.pos.ry() += sensitivity * diff.y() * camera.forward.y();
+					camera.altitude += sensitivity * diff.y() * camera.forward.z();
 				}
 				else
 				{
-					const double sensibility = 20 + 2.*camera.altitude;
+					const double sensibility = 20 + 2. * camera.altitude;
 					const double sizeFactor = 1 + (width() + height()) / 2;
-					camera.pos.rx() -= sensibility * (diff.x()*camera.left.x() + diff.y()*camera.up.x()) / sizeFactor;
-					camera.pos.ry() -= sensibility * (diff.x()*camera.left.y() + diff.y()*camera.up.y()) / sizeFactor;
-					camera.altitude -= sensibility * (diff.x()*camera.left.z() + diff.y()*camera.up.z()) / sizeFactor;
+					camera.pos.rx() -= sensibility * (diff.x() * camera.left.x() + diff.y() * camera.up.x()) / sizeFactor;
+					camera.pos.ry() -= sensibility * (diff.x() * camera.left.y() + diff.y() * camera.up.y()) / sizeFactor;
+					camera.altitude -= sensibility * (diff.x() * camera.left.z() + diff.y() * camera.up.z()) / sizeFactor;
 				}
 				camera.altitude = std::max(camera.altitude, 0.);
 				mouseGrabPos = event->pos();
@@ -1378,27 +1387,27 @@ namespace Enki
 			{
 				const QPoint diff = event->pos() - mouseGrabPos;
 				const double sensitivity = 4;
-				camera.userYaw -= sensitivity * (double)diff.x() / (1+width());
+				camera.userYaw -= sensitivity * (double)diff.x() / (1 + width());
 
 				const double delta = 0.01;
-				camera.pitch = clamp(camera.pitch - sensitivity * (double)diff.y() / (1+height()), -M_PI / 2 + delta, M_PI / 2 - delta);
+				camera.pitch = clamp(camera.pitch - sensitivity * (double)diff.y() / (1 + height()), -M_PI / 2 + delta, M_PI / 2 - delta);
 
 				mouseGrabPos = event->pos();
 			}
 		}
 	}
 
-	void ViewerWidget::mouseDoubleClickEvent(QMouseEvent *event)
+	void ViewerWidget::mouseDoubleClickEvent(QMouseEvent* event)
 	{
 		setTracking(true);
 	}
 
-	void ViewerWidget::wheelEvent(QWheelEvent * event)
+	void ViewerWidget::wheelEvent(QWheelEvent* event)
 	{
 		// zoom
 		if (trackingView)
 		{
-			camera.radius *= 1 - 0.0003*event->delta();
+			camera.radius *= 1 - 0.0003 * event->delta();
 			if (camera.radius < 1.0)
 				camera.radius = 1.0;
 		}
@@ -1406,17 +1415,17 @@ namespace Enki
 		// translate camera
 		else
 		{
-			const double sensitivity = (1 + 0.1*camera.altitude) * 0.003;
-			camera.pos.rx() += sensitivity * event->delta()*camera.forward.x();
-			camera.pos.ry() += sensitivity * event->delta()*camera.forward.y();
-			camera.altitude += sensitivity * event->delta()*camera.forward.z();
+			const double sensitivity = (1 + 0.1 * camera.altitude) * 0.003;
+			camera.pos.rx() += sensitivity * event->delta() * camera.forward.x();
+			camera.pos.ry() += sensitivity * event->delta() * camera.forward.y();
+			camera.altitude += sensitivity * event->delta() * camera.forward.z();
 			camera.altitude = std::max(camera.altitude, 0.);
 		}
 	}
 
-	void ViewerWidget::timerEvent(QTimerEvent * event)
+	void ViewerWidget::timerEvent(QTimerEvent* event)
 	{
-		world->step(double(timerPeriodMs)/1000., 3);
+		world->step(double(timerPeriodMs) / 1000., 3);
 		updateGL();
 	}
 

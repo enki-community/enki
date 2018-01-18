@@ -96,7 +96,7 @@ namespace Enki
 		\param spatialSd standard deviation of the reading beam on the sensor on the ground
 		\param noiseSd standard deviation of Gaussian noise in the response space
 		*/
-		GroundSensor(Robot *owner, Vector pos, double cFactor, double sFactor, double mFactor, double aFactor, double spatialSd = 0.4, double noiseSd = 0.);
+		GroundSensor(Robot* owner, Vector pos, double cFactor, double sFactor, double mFactor, double aFactor, double spatialSd = 0.4, double noiseSd = 0.);
 		//! Compute absolute position
 		void init(double dt, World* w);
 

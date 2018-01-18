@@ -56,7 +56,7 @@ namespace Enki
 		//! Set the seed
 		void setSeed(unsigned long seed) { randx = seed; }
 		//! Get a random number between 0 and 2^31
-		unsigned long get(void) { return (randx = randx*1103515245 + 12345) & 0x7fffffff; }
+		unsigned long get(void) { return (randx = randx * 1103515245 + 12345) & 0x7fffffff; }
 		//! Get a random double between 0 and range, use get() internally
 		double getRange(double range) { return (static_cast<double>(get()) * range) / 2147483648.0; }
 	};
@@ -65,20 +65,24 @@ namespace Enki
 	/*! \ingroup an */
 	inline double uniformRand(void)
 	{
-		return double(rand())/RAND_MAX;
+		return double(rand()) / RAND_MAX;
 	}
 
 	//! Functor to be used with \<algorithm\>
 	struct UniformRand
 	{
 		double from; //!< lower bound of uniform distribution
-		double to;//!< upper bound of uniform distribution
+		double to; //!< upper bound of uniform distribution
 
 		//! Constructor. Params define the range of the uniform distribution.
-		UniformRand(double from = 0.0, double to = 1.0) { this->from = from; this->to = to; }
+		UniformRand(double from = 0.0, double to = 1.0)
+		{
+			this->from = from;
+			this->to = to;
+		}
 
 		//! Functor operator for use with, e.g., std::generate
-		double operator()() const { return from + (to-from)*uniformRand(); }
+		double operator()() const { return from + (to - from) * uniformRand(); }
 	};
 
 	//! Return a number between [0;max[ in integer in a uniform distribution
@@ -112,14 +116,13 @@ namespace Enki
 		// Generate random number in unity circle.
 		do
 		{
-			x = uniformRand()*2 - 1;
-			y = uniformRand()*2 - 1;
-			r = x*x + y*y;
-		}
-		while (r > 1.0 || r == 0);
+			x = uniformRand() * 2 - 1;
+			y = uniformRand() * 2 - 1;
+			r = x * x + y * y;
+		} while (r > 1.0 || r == 0);
 
 		// Box-Muller transform.
-		return sigm * y * sqrt (-2.0 * log(r) / r) + mean;
+		return sigm * y * sqrt(-2.0 * log(r) / r) + mean;
 	}
 }
 

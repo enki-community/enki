@@ -55,7 +55,7 @@ namespace Enki
 	{
 	protected:
 		//! Robot/object with the microphone
-		PhysicalObject *owner;
+		PhysicalObject* owner;
 		//! Absolute position in the world, updated on init()
 		Vector micAbsPos;
 		//! Relative position of mic on object
@@ -74,20 +74,20 @@ namespace Enki
 		//! e.g.: Microphone(this, Vector(0.5, 0.5), 5, micStepModel, 20);
 		//! meaning: the mic is (0.5, 0.5) away from robot center, can hear sounds up to
 		//! 5 units away, uses a step model to detect sounds and can distinguish 20 frequencies
-		Microphone(Robot *owner, Vector micRelPos, double range,
-				   MicrophoneResponseModel micModel, unsigned channels);
+		Microphone(Robot* owner, Vector micRelPos, double range,
+			MicrophoneResponseModel micModel, unsigned channels);
 		//! Destructor
 		~Microphone(void);
 		//! Reset distance values, called every w->step()
 		void init();
 		//! Check for local interactions with other physical objects
-		virtual void objectStep(double dt, PhysicalObject *po, World *w);
+		virtual void objectStep(double dt, PhysicalObject* po, World* w);
 		//! Reset sound buffer to 0 after one time-step in experiment
 		void resetSound(void);
 		//! Return frequencies of input sound
 		double* getAcquiredSound(void);
 		//! Find frequency with maximum intensity
-		void getMaxChannel(double *intensity, int *channel);
+		void getMaxChannel(double* intensity, int* channel);
 		//! Get absolute position of microphone
 		Vector getMicAbsPos();
 	};
@@ -98,7 +98,7 @@ namespace Enki
 	{
 	protected:
 		//! Robot/object with the microphone
-		PhysicalObject *owner;
+		PhysicalObject* owner;
 		//! Absolute position in the world, updated on init()
 		Vector allMicAbsPos[4];
 		//! Distance of the mics from centre of object
@@ -117,20 +117,20 @@ namespace Enki
 		//! e.g.: FourWayMic(this, 0.5, 5, micStepModel, 20);
 		//! meaning: each of the 4 mics is 0.5 away from robot center, can hear sounds up to
 		//! 5 units away, uses a step model to detect sounds and can distinguish 20 frequencies
-		FourWayMic(Robot *owner, double micDist, double range,
-				   MicrophoneResponseModel micModel, unsigned channels);
+		FourWayMic(Robot* owner, double micDist, double range,
+			MicrophoneResponseModel micModel, unsigned channels);
 		//! Destructor
 		~FourWayMic(void);
 		//! Reset distance values, called every w->step()
 		void init();
 		//! Check for local interactions with other physical objects
-		virtual void objectStep(double dt, PhysicalObject *po, World *w);
+		virtual void objectStep(double dt, PhysicalObject* po, World* w);
 		//! Reset sound buffer to 0 after one time-step in experiment
 		void resetSound(void);
 		//! Return frequencies of input sound
 		double* getAcquiredSound(unsigned micNo);
 		//! Find frequency with maximum intensity
-		void getMaxChannel(unsigned micNo, double *intensity, int *channel);
+		void getMaxChannel(unsigned micNo, double* intensity, int* channel);
 		//! Get absolute position of microphone
 		Vector getMicAbsPos(unsigned micNo);
 	};

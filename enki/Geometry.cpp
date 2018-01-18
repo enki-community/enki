@@ -46,39 +46,39 @@ namespace Enki
 	{
 		// the machine epsilon has to be scaled to the magnitude of the values used
 		// and multiplied by the desired precision in ULPs (units in the last place)
-		return std::abs(x-y) < std::numeric_limits<T>::epsilon() * std::abs(x+y) * ulp
-		// unless the result is subnormal
-			|| std::abs(x-y) < std::numeric_limits<T>::min();
+		return std::abs(x - y) < std::numeric_limits<T>::epsilon() * std::abs(x + y) * ulp
+			// unless the result is subnormal
+			|| std::abs(x - y) < std::numeric_limits<T>::min();
 	}
 
-	std::ostream & operator << (std::ostream & outs, const Vector &vector)
+	std::ostream& operator<<(std::ostream& outs, const Vector& vector)
 	{
 		outs << "(" << vector.x << ", " << vector.y << ")";
 		return outs;
 	}
 
-	std::ostream & operator << (std::ostream & outs, const Segment &segment)
+	std::ostream& operator<<(std::ostream& outs, const Segment& segment)
 	{
 		outs << segment.a << "-" << segment.b;
 		return outs;
 	}
 
-	std::ostream & operator << (std::ostream & outs, const Polygon &polygon)
+	std::ostream& operator<<(std::ostream& outs, const Polygon& polygon)
 	{
 		for (Polygon::const_iterator it = polygon.begin(); it != polygon.end(); ++it)
 			outs << *it << " ";
 		return outs;
 	}
 
-	double Segment::dist(const Point &p) const
+	double Segment::dist(const Point& p) const
 	{
-		const Vector n(a.y-b.y, b.x-a.x);
+		const Vector n(a.y - b.y, b.x - a.x);
 		const Vector u = n.unitary();
-		const Vector ap = p-a;
+		const Vector ap = p - a;
 		return ap * u;
 	}
 
-	bool Segment::doesIntersect(const Segment &that, Point* intersectionPoint) const
+	bool Segment::doesIntersect(const Segment& that, Point* intersectionPoint) const
 	{
 		const Vector r(this->b - this->a);
 		const Vector s(that.b - that.a);
@@ -106,14 +106,11 @@ namespace Enki
 					else
 					{
 						// only this is degenerate, is it on that?
-						if ((a.x >= fmin(that.a.x, that.b.x)) &&
-							(a.y >= fmin(that.a.y, that.b.y)) &&
-							(a.x <= fmax(that.a.x, that.b.x)) &&
-							(a.y <= fmax(that.a.y, that.b.y)))
+						if ((a.x >= fmin(that.a.x, that.b.x)) && (a.y >= fmin(that.a.y, that.b.y)) && (a.x <= fmax(that.a.x, that.b.x)) && (a.y <= fmax(that.a.y, that.b.y)))
 						{
 							// yes, intersection
 							if (intersectionPoint)
-									*intersectionPoint = a;
+								*intersectionPoint = a;
 							return true;
 						}
 						return false;
@@ -335,12 +332,12 @@ namespace Enki
 			const Vector normal(segment.getDirection().perp());
 			const Vector u(normal.unitary());
 			// positive distance for inside
-			double dist((center-segment.a)*u + r);
+			double dist((center - segment.a) * u + r);
 			// if circle is outside, we found a separate axis
 			if (dist <= 0)
 				return false;
 			// no, we need to check whether the projection of center is on the segment
-			const Point proj(center + u*(r-dist));
+			const Point proj(center + u * (r - dist));
 			const double prodA((proj - segment.a) * segment.getDirection());
 			const double prodB((proj - segment.b) * segment.getDirection());
 			// yes?
@@ -372,7 +369,7 @@ namespace Enki
 		{
 			const Vector centerToPoint((*this)[i] - center);
 			const double d2(centerToPoint.norm2());
-			if (d2 < minPointCenterDist2 && d2 <= r*r)
+			if (d2 < minPointCenterDist2 && d2 <= r * r)
 			{
 				minPointCenterDist2 = d2;
 				minMTV = centerToPoint.unitary() * (r - sqrt(d2));

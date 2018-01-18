@@ -59,31 +59,34 @@ namespace Enki
 		//! Robots can access protected members me
 		friend class Robot;
 		//! The physical object that owns the interaction.
-		Robot *owner;
+		Robot* owner;
 
-	public :
+	public:
 		//! Constructor
-		LocalInteraction():r(0) {}
+		LocalInteraction() :
+			r(0) {}
 		//! Constructor
-		LocalInteraction(double range, Robot* owner) : r(range), owner(owner) {}
+		LocalInteraction(double range, Robot* owner) :
+			r(range),
+			owner(owner) {}
 		//! Destructor
-		virtual ~LocalInteraction() { }
+		virtual ~LocalInteraction() {}
 		//! Init at each step
-		virtual void init(double dt, World* w) { }
+		virtual void init(double dt, World* w) {}
 		//! Interact with object
 		/*!
 			\param dt time step
 			\param po object to interact with
 			\param w world where the interaction takes place
 		*/
-		virtual void objectStep(double dt, World* w, PhysicalObject *po) { }
+		virtual void objectStep(double dt, World* w, PhysicalObject* po) {}
 		//! Interact with walls
 		/*!
 			\param w world to which interact
 		*/
-		virtual void wallsStep(double dt, World* w) { }
+		virtual void wallsStep(double dt, World* w) {}
 		//! Finalize at each step
-		virtual void finalize(double dt, World* w) { }
+		virtual void finalize(double dt, World* w) {}
 		//! Return the range of the interaction
 		double getRange() const { return r; }
 	};
@@ -94,22 +97,22 @@ namespace Enki
 	{
 	protected:
 		//! The physical object that owns the interaction.
-		Robot *owner;
+		Robot* owner;
 
-	public :
+	public:
 		//! Constructor
 		GlobalInteraction() {}
 		//! Constructor
-		GlobalInteraction(Robot* owner) : owner(owner) {}
+		GlobalInteraction(Robot* owner) :
+			owner(owner) {}
 		//! Destructor
-		virtual ~GlobalInteraction() { }
+		virtual ~GlobalInteraction() {}
 		//! Init at each step
-		virtual void init(double dt, World *w) { }
+		virtual void init(double dt, World* w) {}
 		//! Interact with world
-		virtual void step(double dt, World *w) { }
+		virtual void step(double dt, World* w) {}
 		//! Finalize at each step
-		virtual void finalize(double dt, World *w) { }
+		virtual void finalize(double dt, World* w) {}
 	};
 }
 #endif
-

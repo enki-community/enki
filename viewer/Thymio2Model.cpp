@@ -64,43 +64,125 @@ namespace Enki
 		lists[1] = GenThymio2Wheel();
 
 		textureDimension = bodyTexture.width();
-		Vector buttonCenter(0.136f,0.764f);
-		for (unsigned i=0; i<Thymio2::LED_COUNT; i++)
+		Vector buttonCenter(0.136f, 0.764f);
+		for (unsigned i = 0; i < Thymio2::LED_COUNT; i++)
 		{
-			switch(i)
+			switch (i)
 			{
-				case Thymio2::TOP:     	    ledCenter[i].push_back(Vector(0.5f,0.5f));       ledSize[i].push_back(Vector(1.f,1.f)); break;
-				case Thymio2::BOTTOM_LEFT:  ledCenter[i].push_back(Vector(0.6074f,0.1841f)); ledSize[i].push_back(Vector(0.1133f,0.2939f));
-											ledCenter[i].push_back(Vector(0.7309f,0.7837f)); ledSize[i].push_back(Vector(0.1885f,0.1396f)); break;
-				case Thymio2::BOTTOM_RIGHT: ledCenter[i].push_back(Vector(0.6636f,0.4297f)); ledSize[i].push_back(Vector(0.2236f,0.1875f)); break;
+				case Thymio2::TOP:
+					ledCenter[i].push_back(Vector(0.5f, 0.5f));
+					ledSize[i].push_back(Vector(1.f, 1.f));
+					break;
+				case Thymio2::BOTTOM_LEFT:
+					ledCenter[i].push_back(Vector(0.6074f, 0.1841f));
+					ledSize[i].push_back(Vector(0.1133f, 0.2939f));
+					ledCenter[i].push_back(Vector(0.7309f, 0.7837f));
+					ledSize[i].push_back(Vector(0.1885f, 0.1396f));
+					break;
+				case Thymio2::BOTTOM_RIGHT:
+					ledCenter[i].push_back(Vector(0.6636f, 0.4297f));
+					ledSize[i].push_back(Vector(0.2236f, 0.1875f));
+					break;
 
-				case Thymio2::BUTTON_UP:    ledCenter[i].push_back((buttonCenter + Vector(-0.038f,0))); ledSize[i].push_back(Vector(0.035f,0.045f)); break;
-				case Thymio2::BUTTON_DOWN:  ledCenter[i].push_back((buttonCenter + Vector( 0.038f,0))); ledSize[i].push_back(Vector(0.035f,0.045f)); break;
-				case Thymio2::BUTTON_LEFT:  ledCenter[i].push_back((buttonCenter + Vector(0, 0.038f))); ledSize[i].push_back(Vector(0.045f,0.035f)); break;
-				case Thymio2::BUTTON_RIGHT: ledCenter[i].push_back((buttonCenter + Vector(0,-0.038f))); ledSize[i].push_back(Vector(0.045f,0.035f)); break;
+				case Thymio2::BUTTON_UP:
+					ledCenter[i].push_back((buttonCenter + Vector(-0.038f, 0)));
+					ledSize[i].push_back(Vector(0.035f, 0.045f));
+					break;
+				case Thymio2::BUTTON_DOWN:
+					ledCenter[i].push_back((buttonCenter + Vector(0.038f, 0)));
+					ledSize[i].push_back(Vector(0.035f, 0.045f));
+					break;
+				case Thymio2::BUTTON_LEFT:
+					ledCenter[i].push_back((buttonCenter + Vector(0, 0.038f)));
+					ledSize[i].push_back(Vector(0.045f, 0.035f));
+					break;
+				case Thymio2::BUTTON_RIGHT:
+					ledCenter[i].push_back((buttonCenter + Vector(0, -0.038f)));
+					ledSize[i].push_back(Vector(0.045f, 0.035f));
+					break;
 
-				case Thymio2::RING_0:       ledCenter[i].push_back((buttonCenter + Vector(-0.105f,0)));         ledSize[i].push_back(Vector(0.04f,0.08f)); break;
-				case Thymio2::RING_1:       ledCenter[i].push_back((buttonCenter + Vector(-0.0703f, 0.0703f))); ledSize[i].push_back(Vector(0.065f,0.065f)); break;
-				case Thymio2::RING_2:       ledCenter[i].push_back((buttonCenter + Vector( 0, 0.105f)));        ledSize[i].push_back(Vector(0.08f,0.04f)); break;
-				case Thymio2::RING_3:       ledCenter[i].push_back((buttonCenter + Vector( 0.0703f, 0.0703f))); ledSize[i].push_back(Vector(0.065f,0.065f)); break;
-				case Thymio2::RING_4:       ledCenter[i].push_back((buttonCenter + Vector( 0.105f,0)));         ledSize[i].push_back(Vector(0.04f,0.08f)); break;
-				case Thymio2::RING_5:       ledCenter[i].push_back((buttonCenter + Vector( 0.0703f,-0.0703f))); ledSize[i].push_back(Vector(0.065f,0.065f)); break;
-				case Thymio2::RING_6:       ledCenter[i].push_back((buttonCenter + Vector( 0,-0.105f)));        ledSize[i].push_back(Vector(0.08f,0.04f)); break;
-				case Thymio2::RING_7:       ledCenter[i].push_back((buttonCenter + Vector(-0.0703f,-0.0703f))); ledSize[i].push_back(Vector(0.065f,0.065f)); break;
+				case Thymio2::RING_0:
+					ledCenter[i].push_back((buttonCenter + Vector(-0.105f, 0)));
+					ledSize[i].push_back(Vector(0.04f, 0.08f));
+					break;
+				case Thymio2::RING_1:
+					ledCenter[i].push_back((buttonCenter + Vector(-0.0703f, 0.0703f)));
+					ledSize[i].push_back(Vector(0.065f, 0.065f));
+					break;
+				case Thymio2::RING_2:
+					ledCenter[i].push_back((buttonCenter + Vector(0, 0.105f)));
+					ledSize[i].push_back(Vector(0.08f, 0.04f));
+					break;
+				case Thymio2::RING_3:
+					ledCenter[i].push_back((buttonCenter + Vector(0.0703f, 0.0703f)));
+					ledSize[i].push_back(Vector(0.065f, 0.065f));
+					break;
+				case Thymio2::RING_4:
+					ledCenter[i].push_back((buttonCenter + Vector(0.105f, 0)));
+					ledSize[i].push_back(Vector(0.04f, 0.08f));
+					break;
+				case Thymio2::RING_5:
+					ledCenter[i].push_back((buttonCenter + Vector(0.0703f, -0.0703f)));
+					ledSize[i].push_back(Vector(0.065f, 0.065f));
+					break;
+				case Thymio2::RING_6:
+					ledCenter[i].push_back((buttonCenter + Vector(0, -0.105f)));
+					ledSize[i].push_back(Vector(0.08f, 0.04f));
+					break;
+				case Thymio2::RING_7:
+					ledCenter[i].push_back((buttonCenter + Vector(-0.0703f, -0.0703f)));
+					ledSize[i].push_back(Vector(0.065f, 0.065f));
+					break;
 
-				case Thymio2::IR_FRONT_0:   ledCenter[i].push_back(Vector(0.5586f,0.0459f)); ledSize[i].push_back(Vector(0.06f,0.06f)); break;
-				case Thymio2::IR_FRONT_1:   ledCenter[i].push_back(Vector(0.5644f,0.1279f)); ledSize[i].push_back(Vector(0.06f,0.06f)); break;
-				case Thymio2::IR_FRONT_2:   ledCenter[i].push_back(Vector(0.5673f,0.2441f)); ledSize[i].push_back(Vector(0.06f,0.06f)); break;
-				case Thymio2::IR_FRONT_3:   ledCenter[i].push_back(Vector(0.5693f,0.3056f)); ledSize[i].push_back(Vector(0.06f,0.06f)); break;
-				case Thymio2::IR_FRONT_4:   ledCenter[i].push_back(Vector(0.5664f,0.4258f)); ledSize[i].push_back(Vector(0.06f,0.06f)); break;
-				case Thymio2::IR_FRONT_5:   ledCenter[i].push_back(Vector(0.5615f,0.5185f)); ledSize[i].push_back(Vector(0.06f,0.06f)); break;
-				case Thymio2::IR_BACK_0:    ledCenter[i].push_back(Vector(0.8759f,0.6289f)); ledSize[i].push_back(Vector(0.06f,0.06f)); break;
-				case Thymio2::IR_BACK_1:    ledCenter[i].push_back(Vector(0.5449f,0.6289f)); ledSize[i].push_back(Vector(0.06f,0.06f)); break;
+				case Thymio2::IR_FRONT_0:
+					ledCenter[i].push_back(Vector(0.5586f, 0.0459f));
+					ledSize[i].push_back(Vector(0.06f, 0.06f));
+					break;
+				case Thymio2::IR_FRONT_1:
+					ledCenter[i].push_back(Vector(0.5644f, 0.1279f));
+					ledSize[i].push_back(Vector(0.06f, 0.06f));
+					break;
+				case Thymio2::IR_FRONT_2:
+					ledCenter[i].push_back(Vector(0.5673f, 0.2441f));
+					ledSize[i].push_back(Vector(0.06f, 0.06f));
+					break;
+				case Thymio2::IR_FRONT_3:
+					ledCenter[i].push_back(Vector(0.5693f, 0.3056f));
+					ledSize[i].push_back(Vector(0.06f, 0.06f));
+					break;
+				case Thymio2::IR_FRONT_4:
+					ledCenter[i].push_back(Vector(0.5664f, 0.4258f));
+					ledSize[i].push_back(Vector(0.06f, 0.06f));
+					break;
+				case Thymio2::IR_FRONT_5:
+					ledCenter[i].push_back(Vector(0.5615f, 0.5185f));
+					ledSize[i].push_back(Vector(0.06f, 0.06f));
+					break;
+				case Thymio2::IR_BACK_0:
+					ledCenter[i].push_back(Vector(0.8759f, 0.6289f));
+					ledSize[i].push_back(Vector(0.06f, 0.06f));
+					break;
+				case Thymio2::IR_BACK_1:
+					ledCenter[i].push_back(Vector(0.5449f, 0.6289f));
+					ledSize[i].push_back(Vector(0.06f, 0.06f));
+					break;
 
-				case Thymio2::LEFT_BLUE:    ledCenter[i].push_back(Vector(0.7163f,0.8428f)); ledSize[i].push_back(Vector(0.0771f,0.0878f)); break;
-				case Thymio2::LEFT_RED:     ledCenter[i].push_back(Vector(0.7163f,0.8428f)); ledSize[i].push_back(Vector(0.0771f,0.0878f)); break;
-				case Thymio2::RIGHT_BLUE:   ledCenter[i].push_back(Vector(0.7974f,0.3750f)); ledSize[i].push_back(Vector(0.0910f,0.0910f)); break;
-				case Thymio2::RIGHT_RED:    ledCenter[i].push_back(Vector(0.7773f,0.4336f)); ledSize[i].push_back(Vector(0.0400f,0.0400f)); break;
+				case Thymio2::LEFT_BLUE:
+					ledCenter[i].push_back(Vector(0.7163f, 0.8428f));
+					ledSize[i].push_back(Vector(0.0771f, 0.0878f));
+					break;
+				case Thymio2::LEFT_RED:
+					ledCenter[i].push_back(Vector(0.7163f, 0.8428f));
+					ledSize[i].push_back(Vector(0.0771f, 0.0878f));
+					break;
+				case Thymio2::RIGHT_BLUE:
+					ledCenter[i].push_back(Vector(0.7974f, 0.3750f));
+					ledSize[i].push_back(Vector(0.0910f, 0.0910f));
+					break;
+				case Thymio2::RIGHT_RED:
+					ledCenter[i].push_back(Vector(0.7773f, 0.4336f));
+					ledSize[i].push_back(Vector(0.0400f, 0.0400f));
+					break;
 				default: break;
 			}
 
@@ -138,7 +220,7 @@ namespace Enki
 		glBindTexture(GL_TEXTURE_2D, thymio->textureID);
 
 		glPushMatrix();
-		glTranslatef(2.5,0,0);
+		glTranslatef(2.5, 0, 0);
 		glCallList(lists[0]);
 		glPopMatrix();
 
@@ -146,20 +228,20 @@ namespace Enki
 		glBindTexture(GL_TEXTURE_2D, textures[1]);
 
 		glPushMatrix();
-		glTranslatef(0,0,wheelRadius);
+		glTranslatef(0, 0, wheelRadius);
 		glRotated(180.f, 0, 0, 1);
-			glPushMatrix();
-			glTranslatef(0,4,0);
-			glRotated(-(fmod(thymio->rightOdometry, wheelCirc) * 360) / wheelCirc, 0, 1, 0);
-			glCallList(lists[1]);
-			glPopMatrix();
+		glPushMatrix();
+		glTranslatef(0, 4, 0);
+		glRotated(-(fmod(thymio->rightOdometry, wheelCirc) * 360) / wheelCirc, 0, 1, 0);
+		glCallList(lists[1]);
+		glPopMatrix();
 
-			glPushMatrix();
-			glTranslatef(0,-4,0);
-			glRotated(180.f, 0, 0, 1);
-			glRotated(-(fmod(-thymio->leftOdometry, wheelCirc) * 360) / wheelCirc, 0, 1, 0);
-			glCallList(lists[1]);
-			glPopMatrix();
+		glPushMatrix();
+		glTranslatef(0, -4, 0);
+		glRotated(180.f, 0, 0, 1);
+		glRotated(-(fmod(-thymio->leftOdometry, wheelCirc) * 360) / wheelCirc, 0, 1, 0);
+		glCallList(lists[1]);
+		glPopMatrix();
 		glPopMatrix();
 
 		// shadow
@@ -171,7 +253,7 @@ namespace Enki
 		// bottom shadow
 		glPushMatrix();
 		// disable writing of z-buffer
-		glDepthMask( GL_FALSE );
+		glDepthMask(GL_FALSE);
 		glEnable(GL_POLYGON_OFFSET_FILL);
 		glBegin(GL_QUADS);
 		glTexCoord2f(1.0f, 0.0f);
@@ -193,31 +275,39 @@ namespace Enki
 		if (thymio->getColorLed(Thymio2::BOTTOM_LEFT).a() != 0.0)
 		{
 			const Color color = thymio->getColorLed(Thymio2::BOTTOM_LEFT) * 0.6;
-			glColor4d(color.r(),color.g(),color.b(),color.a());
+			glColor4d(color.r(), color.g(), color.b(), color.a());
 
-			glBegin (GL_QUADS);
-				glNormal3f (0,0,1);
-				glTexCoord2f(0.01f,0.01f); glVertex3f(-2.5, -2,0);
-				glTexCoord2f(0.01f,0.99f); glVertex3f(9.5, -2,0);
-				glTexCoord2f(0.99f,0.99f); glVertex3f(9.5, 9,0);
-				glTexCoord2f(0.99f,0.01f); glVertex3f(-2.5, 9,0);
+			glBegin(GL_QUADS);
+			glNormal3f(0, 0, 1);
+			glTexCoord2f(0.01f, 0.01f);
+			glVertex3f(-2.5, -2, 0);
+			glTexCoord2f(0.01f, 0.99f);
+			glVertex3f(9.5, -2, 0);
+			glTexCoord2f(0.99f, 0.99f);
+			glVertex3f(9.5, 9, 0);
+			glTexCoord2f(0.99f, 0.01f);
+			glVertex3f(-2.5, 9, 0);
 			glEnd();
 		}
 		if (thymio->getColorLed(Thymio2::BOTTOM_RIGHT).a() != 0.0)
 		{
 			const Color color = thymio->getColorLed(Thymio2::BOTTOM_RIGHT) * 0.6;
-			glColor4d(color.r(),color.g(),color.b(),color.a());
+			glColor4d(color.r(), color.g(), color.b(), color.a());
 
-			glBegin (GL_QUADS);
-				glNormal3f (0,0,1);
-				glTexCoord2f(0.99f,0.01f); glVertex3f(-2.5,-9,0);
-				glTexCoord2f(0.99f,0.99f); glVertex3f(9.5,-9,0);
-				glTexCoord2f(0.01f,0.99f); glVertex3f(9.5, 2,0);
-				glTexCoord2f(0.01f,0.01f); glVertex3f(-2.5, 2,0);
+			glBegin(GL_QUADS);
+			glNormal3f(0, 0, 1);
+			glTexCoord2f(0.99f, 0.01f);
+			glVertex3f(-2.5, -9, 0);
+			glTexCoord2f(0.99f, 0.99f);
+			glVertex3f(9.5, -9, 0);
+			glTexCoord2f(0.01f, 0.99f);
+			glVertex3f(9.5, 2, 0);
+			glTexCoord2f(0.01f, 0.01f);
+			glVertex3f(-2.5, 2, 0);
 			glEnd();
 		}
 		glDisable(GL_POLYGON_OFFSET_FILL);
-		glDepthMask( GL_TRUE );
+		glDepthMask(GL_TRUE);
 
 		// end
 		glDisable(GL_LIGHTING);
@@ -230,32 +320,33 @@ namespace Enki
 	{
 		if (!thymio->ledTexture)
 		{
-			thymio->ledTexture = new uint32_t[textureDimension*textureDimension];
-			std::fill(&thymio->ledTexture[0], &thymio->ledTexture[textureDimension*textureDimension], 0xFFFFFFFF);
+			thymio->ledTexture = new uint32_t[textureDimension * textureDimension];
+			std::fill(&thymio->ledTexture[0], &thymio->ledTexture[textureDimension * textureDimension], 0xFFFFFFFF);
 		}
 
 		uint32_t* tex = thymio->ledTexture;
-		uint32_t* bodyTex   = (uint32_t*)bodyTexture.bits();
+		uint32_t* bodyTex = (uint32_t*)bodyTexture.bits();
 		uint32_t* bodyDiff0 = (uint32_t*)bodyDiffusionMap0.bits();
 		uint32_t* bodyDiff1 = (uint32_t*)bodyDiffusionMap1.bits();
 		uint32_t* bodyDiff2 = (uint32_t*)bodyDiffusionMap2.bits();
 
 		// fill with body texture
 		assert(bodyTex);
-		std::copy(&bodyTex[0], &bodyTex[textureDimension*textureDimension], &tex[0]);
+		std::copy(&bodyTex[0], &bodyTex[textureDimension * textureDimension], &tex[0]);
 
 		// color led areas
-		for (unsigned i=0; i<Thymio2::LED_COUNT; i++)
+		for (unsigned i = 0; i < Thymio2::LED_COUNT; i++)
 		{
-			for (unsigned j=0;j<ledCenter[i].size();j++)
+			for (unsigned j = 0; j < ledCenter[i].size(); j++)
 			{
 				const Color ledColor = thymio->getColorLed((Thymio2::LedIndex)i);
-				switch(i)
+				switch (i)
 				{
 					case Thymio2::TOP:
 						drawRect(tex, bodyTex, ledCenter[i][j], ledSize[i][j], ledColor, bodyDiff0);
 						break;
-					case Thymio2::BOTTOM_LEFT: case Thymio2::BOTTOM_RIGHT:
+					case Thymio2::BOTTOM_LEFT:
+					case Thymio2::BOTTOM_RIGHT:
 						drawRect(tex, bodyTex, ledCenter[i][j], ledSize[i][j], ledColor, bodyDiff1);
 						break;
 					default:
@@ -285,28 +376,28 @@ namespace Enki
 		const uint32_t colorG(color.g() * 255);
 		const uint32_t colorB(color.b() * 255);
 
-		for (int j = center.y*textureDimension - size.y*textureDimension/2; j < center.y*textureDimension + size.y*textureDimension/2; j++)
-			for (int i = center.x*textureDimension - size.x*textureDimension/2; i < center.x*textureDimension + size.x*textureDimension/2; i++)
+		for (int j = center.y * textureDimension - size.y * textureDimension / 2; j < center.y * textureDimension + size.y * textureDimension / 2; j++)
+			for (int i = center.x * textureDimension - size.x * textureDimension / 2; i < center.x * textureDimension + size.x * textureDimension / 2; i++)
 			{
-				if (i<0 || j<0 || i>=textureDimension || j>=textureDimension)
+				if (i < 0 || j < 0 || i >= textureDimension || j >= textureDimension)
 					continue;
 
 				// index
-				const size_t index(i+textureDimension*j);
+				const size_t index(i + textureDimension * j);
 
 				// expand destination (prev color) into its components
 				uint32_t& destination(target[index]);
-				const uint32_t destA((destination>>24) & 0xff);
-				const uint32_t destR((destination>>16) & 0xff);
-				const uint32_t destG((destination>>8)  & 0xff);
-				const uint32_t destB((destination>>0)  & 0xff);
+				const uint32_t destA((destination >> 24) & 0xff);
+				const uint32_t destR((destination >> 16) & 0xff);
+				const uint32_t destG((destination >> 8) & 0xff);
+				const uint32_t destB((destination >> 0) & 0xff);
 
 				// expand diffuse into its components
 				const uint32_t diffuse(diffTex[index]);
-				const uint32_t diffA((diffuse>>24) & 0xff);
-				const uint32_t diffR((diffuse>>16) & 0xff);
-				const uint32_t diffG((diffuse>>8)  & 0xff);
-				const uint32_t diffB((diffuse>>0)  & 0xff);
+				const uint32_t diffA((diffuse >> 24) & 0xff);
+				const uint32_t diffR((diffuse >> 16) & 0xff);
+				const uint32_t diffG((diffuse >> 8) & 0xff);
+				const uint32_t diffB((diffuse >> 0) & 0xff);
 
 				// compute source color
 				// gamma correction because LEDs have non-linear transfer functions
@@ -314,18 +405,12 @@ namespace Enki
 				const uint32_t sourceR(pow_035_table[(colorR * diffR) >> 8]);
 				const uint32_t sourceG(pow_030_table[(colorG * diffG) >> 8]);
 				const uint32_t sourceB(pow_040_table[(colorB * diffB) >> 8]);
-				const uint32_t oneMSrcA(255-sourceA);
+				const uint32_t oneMSrcA(255 - sourceA);
 
 				// blend color
 				destination =
-					(((destR * oneMSrcA + sourceR * sourceA) >> 8) << 16 ) |
-					(((destG * oneMSrcA + sourceG * sourceA) >> 8) << 8  ) |
-					(((destB * oneMSrcA + sourceB * sourceA) >> 8) << 0  ) |
-					0xff000000
-				;
+					(((destR * oneMSrcA + sourceR * sourceA) >> 8) << 16) | (((destG * oneMSrcA + sourceG * sourceA) >> 8) << 8) | (((destB * oneMSrcA + sourceB * sourceA) >> 8) << 0) | 0xff000000;
 			}
 	}
 
 } // namespace Enki
-
-

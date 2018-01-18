@@ -60,7 +60,7 @@ namespace Enki
 			\param minDist minimum scanning distance
 			\param maxDist maximum scanning distance
 		*/
-		EPuckScannerTurret(Robot *owner, double height, unsigned halfPixelCount);
+		EPuckScannerTurret(Robot* owner, double height, unsigned halfPixelCount);
 
 		virtual void finalize(double dt, World* w);
 
@@ -124,4 +124,3 @@ namespace Enki
 }
 
 #endif
-

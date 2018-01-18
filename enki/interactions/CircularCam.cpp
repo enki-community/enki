@@ -46,7 +46,7 @@ namespace Enki
 	struct DepthTest : public PixelOperationFunctor
 	{
 		//! If objectDist2 < zBuffer2, then pixelBuffer = objectColor and zBuffer2 = objectDist2
-		virtual void operator()(double &zBuffer2, Color &pixelBuffer, const double &objectDist2, const Color &objectColor)
+		virtual void operator()(double& zBuffer2, Color& pixelBuffer, const double& objectDist2, const Color& objectColor)
 		{
 			if (objectDist2 < zBuffer2)
 			{
@@ -57,7 +57,7 @@ namespace Enki
 	} depthTest; //!< Standard depth test instance
 
 
-	CircularCam::CircularCam(Robot *owner, Vector pos, double height, double orientation, double halfFieldOfView, unsigned pixelCount) :
+	CircularCam::CircularCam(Robot* owner, Vector pos, double height, double orientation, double halfFieldOfView, unsigned pixelCount) :
 		zbuffer(pixelCount),
 		image(pixelCount)
 	{
@@ -75,7 +75,7 @@ namespace Enki
 		pixelOperation = &depthTest;
 	}
 
-	void CircularCam::objectStep(double dt, World *w, PhysicalObject *po)
+	void CircularCam::objectStep(double dt, World* w, PhysicalObject* po)
 	{
 		// if we see over the object
 		if (height > po->getHeight())
@@ -93,14 +93,14 @@ namespace Enki
 				const size_t faceCount = shape.size();
 				if (it->isTextured())
 				{
-					for (size_t i = 0; i<faceCount; i++)
-						drawTexturedLine(shape[i], shape[(i+1) % faceCount], it->getTextures()[i]);
+					for (size_t i = 0; i < faceCount; i++)
+						drawTexturedLine(shape[i], shape[(i + 1) % faceCount], it->getTextures()[i]);
 				}
 				else
 				{
 					Texture texture(1, po->getColor());
-					for (size_t i = 0; i<faceCount; i++)
-						drawTexturedLine(shape[i], shape[(i+1) % faceCount], texture);
+					for (size_t i = 0; i < faceCount; i++)
+						drawTexturedLine(shape[i], shape[(i + 1) % faceCount], texture);
 				}
 			}
 		}
@@ -148,10 +148,10 @@ namespace Enki
 
 	double CircularCam::interpolateLinear(double s0, double s1, double sv, double d0, double d1)
 	{
-		return d0 + ( (sv - s0) / (s1 - s0) ) * (d1 - d0) ;
+		return d0 + ((sv - s0) / (s1 - s0)) * (d1 - d0);
 	}
 
-	void CircularCam::drawTexturedLine(const Point &p0, const Point &p1, const Texture &texture)
+	void CircularCam::drawTexturedLine(const Point& p0, const Point& p1, const Texture& texture)
 	{
 		bool invertTextureIndex = false;
 
@@ -164,8 +164,8 @@ namespace Enki
 		// Find angle of interest. Here we order p0 and p1 so that
 		// p0 is the point with the smallest angle (in the [-pi;pi]
 		// range).
-		double p0dir = p0c.angle(); 			// [-pi;pi]
-		double p1dir = p1c.angle(); 			// [-pi;pi]
+		double p0dir = p0c.angle(); // [-pi;pi]
+		double p1dir = p1c.angle(); // [-pi;pi]
 		if (p0dir > p1dir)
 		{
 			std::swap(p0dir, p1dir);
@@ -173,8 +173,8 @@ namespace Enki
 			invertTextureIndex = !invertTextureIndex;
 		}
 
-		const double beginAperture = -halfFieldOfView; 	// [-pi/2;0]
-		const double endAperture = halfFieldOfView; 		// [0; pi/2]
+		const double beginAperture = -halfFieldOfView; // [-pi/2;0]
+		const double endAperture = halfFieldOfView; // [0; pi/2]
 
 		// check if the line is going "behind us"
 		if (p1dir - p0dir > M_PI)
@@ -185,9 +185,9 @@ namespace Enki
 			std::swap(p0dir, p1dir);
 			std::swap(p0c, p1c);
 			if (p1dir < -halfFieldOfView)
-				p1dir += 2*M_PI;
+				p1dir += 2 * M_PI;
 			else
-				p0dir -= 2*M_PI;
+				p0dir -= 2 * M_PI;
 			invertTextureIndex = !invertTextureIndex;
 		}
 
@@ -203,16 +203,16 @@ namespace Enki
 		const size_t pixelCount = zbuffer.size();
 		const double beginAngle = std::max(p0dir, beginAperture);
 		const double endAngle = std::min(p1dir, endAperture);
-		const double dAngle = 2*halfFieldOfView / (pixelCount - 1);
+		const double dAngle = 2 * halfFieldOfView / (pixelCount - 1);
 
 		// align begin and end angle to our sampled angles
- 		const double beginIndex = ceil((beginAngle-beginAperture) / dAngle);
- 		const double endIndex = floor((endAngle-beginAperture) / dAngle);
+		const double beginIndex = ceil((beginAngle - beginAperture) / dAngle);
+		const double endIndex = floor((endAngle - beginAperture) / dAngle);
 		const double alignedBeginAngle = beginAperture + beginIndex * dAngle;
 		const double alignedEndAngle = beginAperture + endIndex * dAngle;
 
-		const double beginPixel = round(interpolateLinear(beginAperture, endAperture, alignedBeginAngle, 0, pixelCount-1));
-		const double endPixel = round(interpolateLinear(beginAperture, endAperture, alignedEndAngle, 0, pixelCount-1));
+		const double beginPixel = round(interpolateLinear(beginAperture, endAperture, alignedBeginAngle, 0, pixelCount - 1));
+		const double endPixel = round(interpolateLinear(beginAperture, endAperture, alignedEndAngle, 0, pixelCount - 1));
 
 		// Optimization stuff
 		const double x10 = p1c.x - p0c.x;
@@ -229,16 +229,16 @@ namespace Enki
 		{
 			double lambda = 0;
 
-			if (fabs(angle) == M_PI/2)
+			if (fabs(angle) == M_PI / 2)
 			{
-				lambda  = - p0c.x / x10;
+				lambda = -p0c.x / x10;
 				tanDirty = true;
 			}
 			else
 			{
 				// OPTIMIZATION: we compute tan(angle+n*dAngle) recursively, using
 				// the formula tan(a+b) = (tan(a) + tan(b))/(1 - tan(a)*tan(b)
-				if(tanDirty)
+				if (tanDirty)
 				{
 					tanAngle = tan(angle);
 					tanDirty = false;
@@ -294,8 +294,8 @@ namespace Enki
 		absOrientation = owner->angle + angleOffset;
 
 		// fill zbuffer with infinite
-		std::fill( &zbuffer[0], &zbuffer[zbuffer.size()], std::numeric_limits<double>::max() );
-		std::fill( &image[0], &image[image.size()], w->color);
+		std::fill(&zbuffer[0], &zbuffer[zbuffer.size()], std::numeric_limits<double>::max());
+		std::fill(&image[0], &image[image.size()], w->color);
 	}
 
 	void CircularCam::wallsStep(double dt, World* w)
@@ -317,22 +317,21 @@ namespace Enki
 			case World::WALLS_CIRCULAR:
 			{
 				const double r(w->r);
-				const int segmentCount((r*2.*M_PI) / 10.);
+				const int segmentCount((r * 2. * M_PI) / 10.);
 				for (int i = 0; i < segmentCount; ++i)
 				{
 					const double angStart(((double)i * 2. * M_PI) / (double)segmentCount);
-					const double angEnd(((double)(i+1) * 2. * M_PI) / (double)segmentCount);
+					const double angEnd(((double)(i + 1) * 2. * M_PI) / (double)segmentCount);
 					drawTexturedLine(
-						Point(cos(angStart)*r, sin(angStart)*r),
-						Point(cos(angEnd)*r, sin(angEnd)*r),
-						texture
-					);
+						Point(cos(angStart) * r, sin(angStart) * r),
+						Point(cos(angEnd) * r, sin(angEnd) * r),
+						texture);
 				}
 			}
 			break;
 
 			default:
-			break;
+				break;
 		}
 
 		// disable world texture for now
@@ -365,18 +364,17 @@ namespace Enki
 	}
 
 
-
-	OmniCam::OmniCam(Robot *owner, double height, unsigned halfPixelCount) :
+	OmniCam::OmniCam(Robot* owner, double height, unsigned halfPixelCount) :
 		zbuffer(halfPixelCount * 2),
 		image(halfPixelCount * 2),
-		cam0(owner, Point(0, 0), height, -M_PI/2, M_PI/2, halfPixelCount),
-		cam1(owner, Point(0, 0), height, M_PI/2, M_PI/2, halfPixelCount)
+		cam0(owner, Point(0, 0), height, -M_PI / 2, M_PI / 2, halfPixelCount),
+		cam1(owner, Point(0, 0), height, M_PI / 2, M_PI / 2, halfPixelCount)
 	{
 		this->r = std::numeric_limits<double>::max();
 		this->owner = owner;
 	}
 
-	void OmniCam::objectStep(double dt, World *w, PhysicalObject *po)
+	void OmniCam::objectStep(double dt, World* w, PhysicalObject* po)
 	{
 		cam0.objectStep(dt, w, po);
 		cam1.objectStep(dt, w, po);
@@ -421,11 +419,9 @@ namespace Enki
 		cam1.lightThreshold = threshold;
 	}
 
-	void OmniCam::setPixelOperationFunctor(PixelOperationFunctor *pixelOperationFunctor)
+	void OmniCam::setPixelOperationFunctor(PixelOperationFunctor* pixelOperationFunctor)
 	{
 		cam0.pixelOperation = pixelOperationFunctor;
 		cam1.pixelOperation = pixelOperationFunctor;
 	}
 }
-
-

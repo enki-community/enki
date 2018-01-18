@@ -45,14 +45,14 @@ namespace Enki
 
 	//! Time limited sound emitter
 	/*! \ingroup interaction */
-	class ActiveSoundSource: public LocalInteraction
+	class ActiveSoundSource : public LocalInteraction
 	{
 	public:
 		//! No of channels of this sound source
 		unsigned noOfChannels;
 
 		//! Produced sound: vector of different pitch as they were channels.
-		double *pitch;
+		double* pitch;
 
 		//! Sound activity
 		bool enableFlag;
@@ -62,12 +62,12 @@ namespace Enki
 		double activityTime;
 
 		//! Constructor
-		ActiveSoundSource(Robot *owner, double r, unsigned channels);
+		ActiveSoundSource(Robot* owner, double r, unsigned channels);
 		//! Destructor
 		~ActiveSoundSource();
 		// Local interaction functions
 		virtual void init() {}
-		virtual void objectStep(double dt, PhysicalObject *po, World *w) {}
+		virtual void objectStep(double dt, PhysicalObject* po, World* w) {}
 
 		//! Set the range of this sound interraction
 		void setSoundRange(double range);
@@ -91,9 +91,8 @@ namespace Enki
 
 	public:
 		//! Constructor. Owner must point to the object which carries this emitter
-		ActiveSoundObject(Robot *owner, double actionRange, unsigned channels);
+		ActiveSoundObject(Robot* owner, double actionRange, unsigned channels);
 	};
 }
 
 #endif
-

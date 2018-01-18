@@ -97,9 +97,9 @@ namespace Enki
 		//! Execute the previously scheduled transfer of data
 		bool bbSendDataTo(Bluetooth* source, unsigned address, char* data, unsigned size);
 		//! Execute the previously scheduled connections
-		bool bbConnectTo(Bluetooth* source,unsigned address);
+		bool bbConnectTo(Bluetooth* source, unsigned address);
 		//! Execute the previously scheduled disconnections
-		bool bbCloseConnection(Bluetooth* source,unsigned address);
+		bool bbCloseConnection(Bluetooth* source, unsigned address);
 
 		//! Return the pointer of the Bluetooth module associated with "address"
 		Bluetooth* getAddress(unsigned address);
@@ -135,14 +135,13 @@ namespace Enki
 		//! Schedule a transmission of data to be sent during the next step
 		void sendDataTo(Bluetooth* source, unsigned address, char* data, unsigned size);
 		//! Schedule a connection to another Bluetooth module
-		void connectTo(Bluetooth* source,unsigned address);
+		void connectTo(Bluetooth* source, unsigned address);
 		//! Schedule a disconnection between two Bluetooth Module
-		void closeConnection(Bluetooth* source,unsigned address);
+		void closeConnection(Bluetooth* source, unsigned address);
 
 		//! Execute the previously scheduled operations.
-		virtual void step(double dt, World *w);
+		virtual void step(double dt, World* w);
 	};
-
 }
 
 #endif

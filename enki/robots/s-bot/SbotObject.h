@@ -67,10 +67,10 @@ namespace Enki
 		//! The energy difference per second when inactive
 		double dEnergyInactive;
 
-	public :
+	public:
 		//! Constructor, r is the radius of the interaction
-		SbotFeeding(double r, Robot *owner);
-		virtual void objectStep (double dt, PhysicalObject *po, World *w);
+		SbotFeeding(double r, Robot* owner);
+		virtual void objectStep(double dt, PhysicalObject* po, World* w);
 		virtual void finalize(double dt);
 	};
 
@@ -99,4 +99,3 @@ namespace Enki
 	};
 }
 #endif
-

@@ -41,7 +41,7 @@
 #include <iostream>
 
 #ifdef USE_SDL
-#include <SDL.h>
+#	include <SDL.h>
 #endif
 
 /*!	\file Studio.cpp
@@ -54,77 +54,77 @@ using namespace std;
 class EnkiPlayground : public ViewerWidget
 {
 protected:
-	#ifdef USE_SDL
-	QVector<SDL_Joystick *> joysticks;
-	#endif
+#ifdef USE_SDL
+	QVector<SDL_Joystick*> joysticks;
+#endif
 	QVector<EPuck*> epucks;
 	QMap<PhysicalObject*, int> bullets;
 
 public:
-	EnkiPlayground(World *world, QWidget *parent = 0) :
+	EnkiPlayground(World* world, QWidget* parent = 0) :
 		ViewerWidget(world, parent)
 	{
-		#define PROBLEM_CENTERED_THYMIO2
+#define PROBLEM_CENTERED_THYMIO2
 
-		#ifdef PROBLEM_CENTERED_THYMIO2
+#ifdef PROBLEM_CENTERED_THYMIO2
 		{
-			Thymio2 *thymio = new Thymio2;
+			Thymio2* thymio = new Thymio2;
 			thymio->pos = Point(0, 0);
-			thymio->setLedColor(Thymio2::TOP,Color(1.0,0.0,0.0,1.0));
-			thymio->setLedColor(Thymio2::BOTTOM_LEFT,Color(0.0,1.0,0.0,1.0));
-			thymio->setLedColor(Thymio2::BOTTOM_RIGHT,Color(0.0,0.0,1.0,1.0));
+			thymio->setLedColor(Thymio2::TOP, Color(1.0, 0.0, 0.0, 1.0));
+			thymio->setLedColor(Thymio2::BOTTOM_LEFT, Color(0.0, 1.0, 0.0, 1.0));
+			thymio->setLedColor(Thymio2::BOTTOM_RIGHT, Color(0.0, 0.0, 1.0, 1.0));
 
-			thymio->setLedIntensity(Thymio2::BUTTON_UP,1.0);
-			thymio->setLedIntensity(Thymio2::BUTTON_DOWN,1.0);
-			thymio->setLedIntensity(Thymio2::BUTTON_LEFT,1.0);
-			thymio->setLedIntensity(Thymio2::BUTTON_RIGHT,1.0);
+			thymio->setLedIntensity(Thymio2::BUTTON_UP, 1.0);
+			thymio->setLedIntensity(Thymio2::BUTTON_DOWN, 1.0);
+			thymio->setLedIntensity(Thymio2::BUTTON_LEFT, 1.0);
+			thymio->setLedIntensity(Thymio2::BUTTON_RIGHT, 1.0);
 
-			thymio->setLedIntensity(Thymio2::RING_0,1.0);
-			thymio->setLedIntensity(Thymio2::RING_1,1.0);
-			thymio->setLedIntensity(Thymio2::RING_2,1.0);
-			thymio->setLedIntensity(Thymio2::RING_3,1.0);
-			thymio->setLedIntensity(Thymio2::RING_4,1.0);
-			thymio->setLedIntensity(Thymio2::RING_5,1.0);
-			thymio->setLedIntensity(Thymio2::RING_6,1.0);
-			thymio->setLedIntensity(Thymio2::RING_7,1.0);
+			thymio->setLedIntensity(Thymio2::RING_0, 1.0);
+			thymio->setLedIntensity(Thymio2::RING_1, 1.0);
+			thymio->setLedIntensity(Thymio2::RING_2, 1.0);
+			thymio->setLedIntensity(Thymio2::RING_3, 1.0);
+			thymio->setLedIntensity(Thymio2::RING_4, 1.0);
+			thymio->setLedIntensity(Thymio2::RING_5, 1.0);
+			thymio->setLedIntensity(Thymio2::RING_6, 1.0);
+			thymio->setLedIntensity(Thymio2::RING_7, 1.0);
 
-			thymio->setLedIntensity(Thymio2::IR_FRONT_0,1.0);
-			thymio->setLedIntensity(Thymio2::IR_FRONT_1,1.0);
-			thymio->setLedIntensity(Thymio2::IR_FRONT_2,1.0);
-			thymio->setLedIntensity(Thymio2::IR_FRONT_3,1.0);
-			thymio->setLedIntensity(Thymio2::IR_FRONT_4,1.0);
-			thymio->setLedIntensity(Thymio2::IR_FRONT_5,1.0);
+			thymio->setLedIntensity(Thymio2::IR_FRONT_0, 1.0);
+			thymio->setLedIntensity(Thymio2::IR_FRONT_1, 1.0);
+			thymio->setLedIntensity(Thymio2::IR_FRONT_2, 1.0);
+			thymio->setLedIntensity(Thymio2::IR_FRONT_3, 1.0);
+			thymio->setLedIntensity(Thymio2::IR_FRONT_4, 1.0);
+			thymio->setLedIntensity(Thymio2::IR_FRONT_5, 1.0);
 
-			thymio->setLedIntensity(Thymio2::IR_BACK_0,1.0);
-			thymio->setLedIntensity(Thymio2::IR_BACK_1,1.0);
+			thymio->setLedIntensity(Thymio2::IR_BACK_0, 1.0);
+			thymio->setLedIntensity(Thymio2::IR_BACK_1, 1.0);
 
-			thymio->setLedIntensity(Thymio2::LEFT_RED,1.0);
-			thymio->setLedIntensity(Thymio2::LEFT_BLUE,1.0);
-			thymio->setLedIntensity(Thymio2::RIGHT_BLUE,1.0);
-			thymio->setLedIntensity(Thymio2::RIGHT_RED,1.0);
+			thymio->setLedIntensity(Thymio2::LEFT_RED, 1.0);
+			thymio->setLedIntensity(Thymio2::LEFT_BLUE, 1.0);
+			thymio->setLedIntensity(Thymio2::RIGHT_BLUE, 1.0);
+			thymio->setLedIntensity(Thymio2::RIGHT_RED, 1.0);
 			thymio->leftSpeed = 3;
 			thymio->rightSpeed = 4;
 			world->addObject(thymio);
 		}
-		#endif // PROBLEM_CENTERED_THYMIO2
+#endif // PROBLEM_CENTERED_THYMIO2
 
-		#define PROBLEM_GENERIC_TOY
-		#define PROBLEM_BALL_LINE
+#define PROBLEM_GENERIC_TOY
+#define PROBLEM_BALL_LINE
 		//#define PROBLEM_LONE_EPUCK
 
-		#ifdef PROBLEM_GENERIC_TOY
+#ifdef PROBLEM_GENERIC_TOY
 		{
 			const double amount = 9;
 			const double radius = 5;
 			const double height = 20;
 			Enki::Polygon p;
-			for (double a = 0; a < 2*M_PI; a += 2*M_PI/amount)
+			for (double a = 0; a < 2 * M_PI; a += 2 * M_PI / amount)
 				p.push_back(Point(radius * cos(a), radius * sin(a)));
 
 			PhysicalObject* o = new PhysicalObject;
 			PhysicalObject::Hull hull(Enki::PhysicalObject::Part(p, height));
 			o->setCustomHull(hull, -1);
-			o->setColor(Color(0.4,0.6,0.8));
+			o->setColor(Color(0.4, 0.6, 0.8));
 			o->pos = Point(100, 100);
 			world->addObject(o);
 		}
@@ -140,10 +140,10 @@ public:
 		}
 
 		Enki::Polygon p2;
-		p2.push_back(Point(5,1));
-		p2.push_back(Point(-5,1));
-		p2.push_back(Point(-5,-1));
-		p2.push_back(Point(5,-1));
+		p2.push_back(Point(5, 1));
+		p2.push_back(Point(-5, 1));
+		p2.push_back(Point(-5, -1));
+		p2.push_back(Point(5, -1));
 		for (int i = 0; i < 5; i++)
 		{
 			PhysicalObject* o = new PhysicalObject;
@@ -159,17 +159,17 @@ public:
 		{
 			PhysicalObject* o = new PhysicalObject;
 			PhysicalObject::Hull hull;
-			hull.push_back(Enki::PhysicalObject::Part(Enki::Polygon() << Point(5,1) << Point(-5,1) << Point(-5,-1) << Point(5,-1), 2));
-			hull.push_back(Enki::PhysicalObject::Part(Enki::Polygon() << Point(1,5) << Point(-1,5) << Point(-1,-5) << Point(1,-5), 4));
+			hull.push_back(Enki::PhysicalObject::Part(Enki::Polygon() << Point(5, 1) << Point(-5, 1) << Point(-5, -1) << Point(5, -1), 2));
+			hull.push_back(Enki::PhysicalObject::Part(Enki::Polygon() << Point(1, 5) << Point(-1, 5) << Point(-1, -5) << Point(1, -5), 4));
 			o->setCustomHull(hull, 60);
 			o->setColor(Color(0.2, 0.4, 0.6));
 			o->collisionElasticity = 0.2;
 			o->pos = Point(UniformRand(20, 100)(), UniformRand(20, 100)());
 			world->addObject(o);
 		}
-		#endif // PROBLEM_GENERIC_TOY
+#endif // PROBLEM_GENERIC_TOY
 
-		#ifdef PROBLEM_BALL_LINE
+#ifdef PROBLEM_BALL_LINE
 		for (double d = 40; d < 60; d += 8)
 		{
 			PhysicalObject* o = new PhysicalObject;
@@ -179,24 +179,24 @@ public:
 			o->dryFrictionCoefficient = 0.;
 			world->addObject(o);
 		}
-		#endif // PROBLEM_BALL_LINE
+#endif // PROBLEM_BALL_LINE
 
-		#ifdef PROBLEM_LONE_EPUCK
+#ifdef PROBLEM_LONE_EPUCK
 		addDefaultsRobots(world);
-		#endif // PROBLEM_LONE_EPUCK
+#endif // PROBLEM_LONE_EPUCK
 
-		#define PROBLEM_MARXBOT
+#define PROBLEM_MARXBOT
 
-		#ifdef PROBLEM_MARXBOT
-		Marxbot *marxbot = new Marxbot;
+#ifdef PROBLEM_MARXBOT
+		Marxbot* marxbot = new Marxbot;
 		marxbot->pos = Point(60, 50);
 		marxbot->leftSpeed = 8;
 		marxbot->rightSpeed = 2;
 		world->addObject(marxbot);
-		#endif // PROBLEM_MARXBOT
+#endif // PROBLEM_MARXBOT
 
-		#ifdef USE_SDL
-		if((SDL_Init(SDL_INIT_JOYSTICK)==-1))
+#ifdef USE_SDL
+		if ((SDL_Init(SDL_INIT_JOYSTICK) == -1))
 		{
 			cerr << "Error : Could not initialize SDL: " << SDL_GetError() << endl;
 			addDefaultsRobots(world);
@@ -214,27 +214,27 @@ public:
 			}
 			if (SDL_JoystickNumAxes(joystick) < 2)
 			{
-				cerr << "Error: not enough axis on joystick" << i<< endl;
+				cerr << "Error: not enough axis on joystick" << i << endl;
 				SDL_JoystickClose(joystick);
 				continue;
 			}
 			joysticks.push_back(joystick);
 
-			EPuck *epuck = new EPuck;
+			EPuck* epuck = new EPuck;
 			//epuck->pos = Point(UniformRand(20, 100)(), UniformRand(20, 100)());
 			epuck->pos = Point(20, 20);
 			epucks.push_back(epuck);
 			world->addObject(epuck);
 		}
 		cout << "Added " << joystickCount << " controlled e-pucks." << endl;
-		#else // USE_SDL
+#else // USE_SDL
 		addDefaultsRobots(world);
-		#endif // USE_SDL
+#endif // USE_SDL
 	}
 
-	void addDefaultsRobots(World *world)
+	void addDefaultsRobots(World* world)
 	{
-		EPuck *epuck = new EPuck;
+		EPuck* epuck = new EPuck;
 		epuck->pos = Point(60, 50);
 		//epuck->leftSpeed = 5;
 		//epuck->rightSpeed = 5;
@@ -250,17 +250,17 @@ public:
 
 	~EnkiPlayground()
 	{
-		#ifdef USE_SDL
+#ifdef USE_SDL
 		for (int i = 0; i < joysticks.size(); ++i)
 			SDL_JoystickClose(joysticks[i]);
 		SDL_Quit();
-		#endif
+#endif
 	}
 
-	virtual void timerEvent(QTimerEvent * event)
+	virtual void timerEvent(QTimerEvent* event)
 	{
 		static int fireCounter = 0;
-		#ifdef USE_SDL
+#ifdef USE_SDL
 		SDL_JoystickUpdate();
 		doDumpFrames = false;
 		for (int i = 0; i < joysticks.size(); ++i)
@@ -270,20 +270,19 @@ public:
 			if (world->hasGroundTexture())
 				cout << "Robot " << i << " is on ground of colour " << world->getGroundColor(epuck->pos) << endl;
 
-			#define SPEED_MAX 13.
-			//cout << "S " << epuck->infraredSensor2.getRayDist(0) << " " << epuck->infraredSensor2.getRayDist(1) << " " << epuck->infraredSensor2.getRayDist(2) << endl;
-			#if 0
+#	define SPEED_MAX 13.
+	//cout << "S " << epuck->infraredSensor2.getRayDist(0) << " " << epuck->infraredSensor2.getRayDist(1) << " " << epuck->infraredSensor2.getRayDist(2) << endl;
+#	if 0
 			epuck->leftSpeed = - SDL_JoystickGetAxis(joysticks[i], 1) / (32767. / SPEED_MAX);
 			epuck->rightSpeed = - SDL_JoystickGetAxis(joysticks[i], 4) / (32767. / SPEED_MAX);
-			#else
+#	else
 			double x = SDL_JoystickGetAxis(joysticks[i], 0) / (32767. / SPEED_MAX);
 			double y = -SDL_JoystickGetAxis(joysticks[i], 1) / (32767. / SPEED_MAX);
 			epuck->leftSpeed = y + x;
 			epuck->rightSpeed = y - x;
-			#endif
+#	endif
 
-			if ((SDL_JoystickGetButton(joysticks[i], 6) || SDL_JoystickGetButton(joysticks[i], 7)) &&
-				(++fireCounter % 2) == 0)
+			if ((SDL_JoystickGetButton(joysticks[i], 6) || SDL_JoystickGetButton(joysticks[i], 7)) && (++fireCounter % 2) == 0)
 			{
 				PhysicalObject* o = new PhysicalObject;
 				Vector delta(cos(epuck->angle), sin(epuck->angle));
@@ -298,7 +297,7 @@ public:
 			}
 			doDumpFrames |= SDL_JoystickGetButton(joysticks[i], 0);
 		}
-		#endif
+#endif
 		QMap<PhysicalObject*, int>::iterator i = bullets.begin();
 		while (i != bullets.end())
 		{
@@ -321,12 +320,11 @@ public:
 
 	virtual void sceneCompletedHook()
 	{
-
 	}
 };
 
 // http://qtnode.net/wiki?title=Qt_with_cmake
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
 	QApplication app(argc, argv);
 
@@ -336,11 +334,11 @@ int main(int argc, char *argv[])
 	if (igt)
 		gt = QGLWidget::convertToGLFormat(QImage(app.arguments().last()));
 	igt = !gt.isNull();
-	#if QT_VERSION >= QT_VERSION_CHECK(4,7,0)
-	const uint32_t *bits = (const uint32_t*)gt.constBits();
-	#else
-	uint32_t *bits = (uint32_t*)gt.bits();
-	#endif
+#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
+	const uint32_t* bits = (const uint32_t*)gt.constBits();
+#else
+	uint32_t* bits = (uint32_t*)gt.bits();
+#endif
 	World world(120, Color(0.9, 0.9, 0.9), igt ? World::GroundTexture(gt.width(), gt.height(), bits) : World::GroundTexture());
 	EnkiPlayground viewer(&world);
 
@@ -348,4 +346,3 @@ int main(int argc, char *argv[])
 
 	return app.exec();
 }
-

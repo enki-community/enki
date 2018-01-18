@@ -44,39 +44,40 @@ namespace Enki
 	{
 		//apply filter to signal
 		double Lp;
-		double d = distance/10;
+		double d = distance / 10;
 		double attenuation = 100;
 		if (distance <= 5.2)
 			Lp = log(signal);
 		else
-			Lp = log(signal/exp(d*d/attenuation));
+			Lp = log(signal / exp(d * d / attenuation));
 
-		if (Lp < 0) return 0.0;
+		if (Lp < 0)
+			return 0.0;
 		return Lp;
 	}
 
-	void SbotMicrophone::objectStep(double dt, PhysicalObject *po, World *w)
+	void SbotMicrophone::objectStep(double dt, PhysicalObject* po, World* w)
 	{
 		// Get current object sound
-		double *currentSound = new double[noOfChannels];
+		double* currentSound = new double[noOfChannels];
 		assert(currentSound);
 
-		SbotActiveSoundObject *so = dynamic_cast<SbotActiveSoundObject *>(po);
+		SbotActiveSoundObject* so = dynamic_cast<SbotActiveSoundObject*>(po);
 		if (so)
 		{
-			assert(noOfChannels==so->speaker.noOfChannels);
-			for (size_t i=0; i<noOfChannels; i++)
+			assert(noOfChannels == so->speaker.noOfChannels);
+			for (size_t i = 0; i < noOfChannels; i++)
 			{
 				currentSound[i] = so->speaker.pitch[i];
 			}
 		}
 		else
 		{
-			SoundSbot *ss = dynamic_cast<SoundSbot *>(po);
+			SoundSbot* ss = dynamic_cast<SoundSbot*>(po);
 			if (ss)
 			{
-				assert(noOfChannels==ss->speaker.noOfChannels);
-				for (size_t i=0; i<noOfChannels; i++)
+				assert(noOfChannels == ss->speaker.noOfChannels);
+				for (size_t i = 0; i < noOfChannels; i++)
 				{
 					currentSound[i] = ss->speaker.pitch[i];
 				}
@@ -88,11 +89,11 @@ namespace Enki
 		double current_dist;
 		double min_dist = 0xFFFFFFFF;
 		unsigned min_dist_micNo = 0;
-		for (size_t i=0; i<4; i++)
+		for (size_t i = 0; i < 4; i++)
 		{
 			current_dist = (po->pos - allMicAbsPos[i]).norm();
 			// find mic closest to interacting physical object
-			if ( current_dist < min_dist )
+			if (current_dist < min_dist)
 			{
 				min_dist = current_dist;
 				min_dist_micNo = i;
@@ -101,7 +102,7 @@ namespace Enki
 
 		// Apply sensor model to acquisition
 		// Acquired sound is always the sum of all contributes after model filtering
-		for (size_t j=0; j<noOfChannels; j++)
+		for (size_t j = 0; j < noOfChannels; j++)
 		{
 			acquiredSound[min_dist_micNo][j] += micModel(currentSound[j], min_dist);
 		}
@@ -147,4 +148,3 @@ namespace Enki
 		addLocalInteraction(&speaker);
 	}
 }
-
