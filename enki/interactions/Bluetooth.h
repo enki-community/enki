@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -45,7 +45,7 @@
 */
 
 namespace Enki
-{	
+{
 
 	//! Implementation of an onboard Bluetooth module
 	/*! \ingroup interaction */
@@ -53,17 +53,17 @@ namespace Enki
 	{
 protected:
 		friend class BluetoothBase;
-		
+
 		//! Range of the interaction
 		double range;
-		
+
 		//! Number of connections currently established
 		unsigned nbConnections;
 		//! Maximum number of simultaneous connections supported
 		unsigned maxConnections;
 		//! Address of the Bluetooth module
 		unsigned address;
-		
+
 		//! Reception buffers for data coming from other connected modules
 		char** rxBuffer;
 		//! Transmission buffers for data sent to other connected modules
@@ -80,24 +80,24 @@ protected:
 		unsigned* sizeToSend;
 		//! Size of the data received
 		unsigned* sizeReceived;
-		
+
 		//! Flag indicating a change in the address of the module
 		bool updateAddress;
 		//! Flag indicating that the current address has been assigned randomly
 		bool randomAddress;
-		
+
 		//! Queue containing request for connection to other modules
 		std::queue<unsigned> connectToRobot;
 		//! Queue containing request for closing the connection with other modules
 		std::queue<unsigned> closeConnectionToRobot;
-		
+
 		//! Flags indicating transmission errors
 		unsigned* transmissionError;
 		//! Flag indicating an error involving the connection toward another robot
 		char connectionError;
 		//! Flag indicating an error involving the disconnection from another robot
 		char disconnectionError;
-		
+
 		//! Deallocate the memory dedicated for the reception buffer
 		void cancelRxBuffer();
 		//! Deallocate the memory dedicated for the transmission buffer
@@ -106,7 +106,7 @@ protected:
 		void cancelAllData();
 		//! Initialise all the data structure requires by the module
 		void initAllData();
-		
+
 public:
 		//! Error that bluetooth communication can produce
 		enum Errors
@@ -128,20 +128,20 @@ public:
 		Bluetooth(Robot* owner,double range, unsigned maxConnections, unsigned rxbuffersize, unsigned txbuffersize,unsigned address);
 		//! Destructor
 		virtual ~Bluetooth();
-		
+
 		//! On every timestep, send the commands recorded to the bluetooth Base to be executed
 		virtual void step(double dt, World *w);
-		
+
 		//! Change the address of the module
 		void setAddress(unsigned address);
 		//! Return the address of the module
 		unsigned getAddress();
-		
+
 		//! Initiate a connection with another module
 		void connectTo(unsigned address);
 		//! Close an established connection with another module
 		bool closeConnection(unsigned index);
-		
+
 		//! Indicate if data was received during the last step
 		bool didIReceive();
 		//! Indicate if data from the module having the address "source" was received during the last step
@@ -152,41 +152,41 @@ public:
 		const char* getRxBuffer(unsigned source);
 		//! Return the amount of data received from another module of address "source" during the last step
 		unsigned getSizeReceived(unsigned source);
-		
+
 		//! Send data to the module of address "dest"
 		bool sendDataTo(unsigned dest,char* data,unsigned size);
 		//! Return the flags indicating on which connection a transmission error occured
 		unsigned* getTransmissionError();
-		//! Indicate if an error of transmission occured during the last step 
+		//! Indicate if an error of transmission occured during the last step
 		bool isThereTxError();
-		
+
 		//! Return the status of the connection error flag
 		unsigned getConnectionError();
 		//! Return the status of the disconnection error flag
 		unsigned getDisconnectionError();
-		
+
 		//! Return the size of the transmission buffers
 		unsigned getTxBufferSize();
 		//! Modify the size of the transmission buffers
 		void changeTxBufferSize(unsigned size);
-		
+
 		//! Return the size of the reception buffers
 		unsigned getRxBufferSize();
 		//! Modify the size of the reception buffers
 		void changeRxBufferSize(unsigned size);
-		
+
 		//! Return the maximum number of simultaneous connections supported by this module
 		unsigned getMaxConnections();
 		//! Change the maximum number of simultaneous connections supported by this module
 		void changeMaxConnections(unsigned size);
-		
+
 		//! Return the number of established connections to other modules
 		unsigned getNbConnections();
 		//! Return the addresses of the other connected modules
 		unsigned* getConnectedAddresses();
-		
+
 	};
-	
+
 }
 
 #endif

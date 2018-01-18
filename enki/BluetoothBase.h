@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -62,7 +62,7 @@ namespace Enki
 			//! Address of the associated bluetooth module
 			unsigned address;
 		};
-		
+
 		//! Information needed to establish a connection or a disconnection
 		struct Connections
 		{
@@ -71,7 +71,7 @@ namespace Enki
 			//! Destination address of the connection
 			unsigned destaddress;
 		};
-		
+
 		//! Information needed to send data along an established connection
 		struct Transmissions
 		{
@@ -84,7 +84,7 @@ namespace Enki
 			//! Size in byte of the data to be sent
 			unsigned size;
 		};
-		
+
 		//! List of registered Bluetooth module
 		std::list<BtClients> clients;
 		//! Queue of the connection to be established
@@ -93,19 +93,19 @@ namespace Enki
 		std::queue<Connections> disconnectbuffer;
 		//! Queue of the data to be transmitted
 		std::queue<Transmissions> transmissions;
-		
+
 		//! Execute the previously scheduled transfer of data
 		bool bbSendDataTo(Bluetooth* source, unsigned address, char* data, unsigned size);
 		//! Execute the previously scheduled connections
 		bool bbConnectTo(Bluetooth* source,unsigned address);
 		//! Execute the previously scheduled disconnections
 		bool bbCloseConnection(Bluetooth* source,unsigned address);
-		
+
 		//! Return the pointer of the Bluetooth module associated with "address"
 		Bluetooth* getAddress(unsigned address);
 		//! Check if the distance between the two modules is small enough for communication
 		bool checkDistance(Bluetooth* source, Bluetooth* destination);
-		
+
 	public:
 		//! Bluetooth transmission errors
 		enum Errors
@@ -121,24 +121,24 @@ namespace Enki
 			//! The reception buffer is full and no additional data can be written
 			RECEPTION_BUFFER_FULL = 4
 		};
-		
+
 		//! Constructor
 		BluetoothBase();
 		//! Destructor
 		virtual ~BluetoothBase();
-		
+
 		//! Register a module Bluetooth with its associated address
 		bool registerClient(Bluetooth* owner, unsigned address);
 		//! Remove a previously registered Bluetooth module
 		bool removeClient(Bluetooth* owner);
-		
+
 		//! Schedule a transmission of data to be sent during the next step
 		void sendDataTo(Bluetooth* source, unsigned address, char* data, unsigned size);
 		//! Schedule a connection to another Bluetooth module
 		void connectTo(Bluetooth* source,unsigned address);
 		//! Schedule a disconnection between two Bluetooth Module
 		void closeConnection(Bluetooth* source,unsigned address);
-		
+
 		//! Execute the previously scheduled operations.
 		virtual void step(double dt, World *w);
 	};

@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -46,22 +46,22 @@ namespace Enki
 	{
 		this->r = r;
 		this->owner = owner;
-		
+
 		activeColor = Color(255, 0, 0);
 		inactiveColor = Color(0, 0, 0);
 		owner->setColor(activeColor);
-		
+
 		actualEnergy = 1000;
 		actualTime = 0;
 		//set to -1 to make feeding infinitely active or inactive
 		inactiveDuration = 0;
 		activeDuration = -1;
-		
+
 		consumeEnergy = false;
 		dEnergyActive = 1;
 		dEnergyInactive = 0;
 	}
-	
+
 	void SbotFeeding::objectStep(double dt, PhysicalObject *po, World *w)
 	{
 		FeedableSbot *sbot = dynamic_cast<FeedableSbot *>(po);
@@ -90,22 +90,22 @@ namespace Enki
 	void SbotFeeding::finalize(double dt)
 	{
 		if ( activeDuration == -1 )
-		{ 
+		{
 			owner->setColor(activeColor);
 			return;
 		}
 		else if ( inactiveDuration == -1 )
 		{
 			owner->setColor(inactiveColor);
-			return; 
+			return;
 		}
 
 		actualTime += dt;
-		
+
 		double totalTime = activeDuration+inactiveDuration;
 		while (actualTime > totalTime)
 			actualTime -= totalTime;
-		
+
 		owner->setColor((actualTime < activeDuration) ? activeColor : inactiveColor);
 	}
 
@@ -113,7 +113,7 @@ namespace Enki
 		feeding(actionRange, this)
 	{
 		addLocalInteraction(&feeding);
-		
+
 		// we override physical settings setup because we only have objectRadius here
 		setCylindric(objectRadius, 1.9, -1);
 	}

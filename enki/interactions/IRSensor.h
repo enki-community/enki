@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -47,41 +47,41 @@
 namespace Enki
 {
 	//! A generic infrared sensor
-	/*! \ingroup interaction 
-	
+	/*! \ingroup interaction
+
 	This sensor is based on a inverse square response function and three casted rays.
-	
+
 	During objectStep() and wallsStep() it casts the three rays,
 	separated by an angle of 15 degrees. Distances are in cm. For negative distance values, i.e. a sensor inside an object, wall, etc., the value of the sensor response function at distance 0 will be used. If a ray fails to touch the object, the distance returned will be HUGE_VAL; the sensor response function will return a 0 sensor response for this case.
-	
+
 	Upon finalize(), it computes finalValue and finalDist.
 	It does so first using the following equation for each ray:
-	
+
 		               m * (c - x0*x0)
 		value = F(x) = ----------------
 		               x*x - 2*x0*x + c
-	
+
 	where x is the distance to the obstacle.
-	
+
 	It then combines the three rays with this equation:
-	
+
 		finalValue = F(d_center) + F(d_left) + F(d_right) - 2*F(d_center*alpha)
-	
+
 	where d_R is the distance of ray R, and alpha is 1/cos(15 degrees).
-	
+
 	Finally, it computes the final distance using:
-	
+
 		finalDist = F-1(finalValue)
-	
+
 	where:
 		                                       m
 		F-1(v) = x0 + sqrt( (x0*x0-c) * ( 1 - --- ) )
 		                                       v
-	
-	
+
+
 	TODO
 	SensorResponseFunctors translate the distances stored in the rayValues[] into actual sensor activations.  An appropriate noise model (if realistic modelling is desired) should be included in the sensor response function.
-	 
+
 	*/
 	class IRSensor : public LocalInteraction
 	{
@@ -112,7 +112,7 @@ namespace Enki
 		const double c;
 		//! Standard deviation of Gaussian noise in the response space
 		const double noiseSd;
-		
+
 		//! Radius for the smallest circle enclosing all rays
 		double smartRadius;
 		//! Current position of the center of the smartRadius, i.e. center of the smallest circle enclosing all rays in relative (robot) coordinates
@@ -127,12 +127,12 @@ namespace Enki
 		std::vector<double> rayAngles;
 		//! The angle for each ray relative to the sensor orientation in absolute (world) coordinates
 		std::vector<double> absRayAngles;
-	
+
 		//! Final sensor value
 		double finalValue;
 		//! Final computed distance
 		double finalDist;
-		
+
 	public:
 		//! Constructor
 		/*!
@@ -151,20 +151,20 @@ namespace Enki
 		void init(double dt, World* w);
 		//! Check for all potential intersections using smartRadius of sensor and calculate and find closest distance for each ray.
 		void objectStep(double dt, World *w, PhysicalObject *po);
-		//! Separated from objectStep because it is much simpler. 
+		//! Separated from objectStep because it is much simpler.
 		void wallsStep(double dt, World* w);
 		//! Applies the SensorResponseFunction to each ray and combines all rays using weights defined in the rayCombinationKernel.
 		void finalize(double dt, World* w);
-		
+
 		//! Return the final sensor value
 		double getValue(void) const { return finalValue; }
-		//! Return the distance through the inverse response of the final sensor value 
+		//! Return the distance through the inverse response of the final sensor value
 		double getDist(void) const { return finalDist; }
 		//! Return the value of a ray
 		double getRayValue(unsigned i) const { return rayValues.at(i); }
 		//! Return the distance of a ray
 		double getRayDist(unsigned i) const { return rayDists.at(i); }
-		
+
 		//! Return the absolute position of the IR sensor, updated at each time step on init()
 		Point getAbsolutePosition(void) const { return absPos; }
 		//! Return the absolute orientation of the IR sensor, updated at each time step on init()
@@ -179,7 +179,7 @@ namespace Enki
 		double getSmartRadius(void) const { return smartRadius; }
 		//! Return current position of the center of the smartRadius, i.e. center of the smallest circle enclosing all rays in relative (robot) coordinates
 		Point getAbsSmartPos(void) const { return absSmartPos; }
-		
+
 	protected:
 		//! If dist is smaller than current ray distance, update distance and response value
 		void updateRay(size_t i, double dist);

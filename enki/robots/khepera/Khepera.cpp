@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -61,12 +61,12 @@ namespace Enki
 			addLocalInteraction(&infraredSensor6);
 			addLocalInteraction(&infraredSensor7);
 		}
-		
+
 		if (capabilities & CAPABILITY_CAMERA)
 		{
 			addLocalInteraction(&camera);
 		}
-		
+
 		setCylindric(2.6, 5, 80);
 	}
 }

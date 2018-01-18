@@ -7,8 +7,8 @@
 	Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
 	See AUTHORS for details
 
-	This program is free software; the authors of any publication 
-	arising from research using this software are asked to add the 
+	This program is free software; the authors of any publication
+	arising from research using this software are asked to add the
 	following reference:
 	Enki - a fast 2D robot simulator
 	http://lis.epfl.ch/enki
@@ -43,7 +43,7 @@
 namespace Enki
 {
 	using namespace std;
-	
+
 	Thymio2::Thymio2() :
 		DifferentialWheeled(9.4, 16.6, 0.027),
 		infraredSensor0(this, Vector(6.2, 4.85),   3.4, 0.69813,  14, 4505, 0.03, 73, 2.87),
@@ -66,11 +66,11 @@ namespace Enki
 		addLocalInteraction(&infraredSensor6);
 		addLocalInteraction(&groundSensor0);
 		addLocalInteraction(&groundSensor1);
-		
+
 		//staticFrictionThreshold = 0.5;
 		dryFrictionCoefficient = 0.25;
 		dryFrictionCoefficient = 2.5;
-		
+
 		// define the physical shape of the Thymio
 		Enki::Polygon thymio2Shape;
 		const double amount = 10.0;
@@ -80,7 +80,7 @@ namespace Enki
 		const double angle2 = atan(5.5/3.0);
 		const double distance = sqrt(3.0*3.0+5.5*5.5);
 		for (double a = -angle1; a < angle1+0.01; a += 2*angle1/amount)
-			thymio2Shape.push_back(Enki::Point(radius * cos(a), radius * sin(a)));        
+			thymio2Shape.push_back(Enki::Point(radius * cos(a), radius * sin(a)));
 		thymio2Shape.push_back(Enki::Point(distance * cos(M_PI - angle2), distance * sin(M_PI - angle2)));
 		thymio2Shape.push_back(Enki::Point(distance * cos(M_PI - angle2), distance * sin(M_PI + angle2)));
 		Enki::PhysicalObject::Hull hull(Enki::PhysicalObject::Part(thymio2Shape, height));
@@ -105,21 +105,21 @@ namespace Enki
 				case RING_4: case RING_5: case RING_6: case RING_7:
 					ledColor[i] = Color(1.0,0.5,0.0,0.0); break;
 
-				case IR_FRONT_0: case IR_FRONT_1: case IR_FRONT_2: 
-				case IR_FRONT_3: case IR_FRONT_4: case IR_FRONT_5: 
-				case IR_BACK_0:  case IR_BACK_1: 
+				case IR_FRONT_0: case IR_FRONT_1: case IR_FRONT_2:
+				case IR_FRONT_3: case IR_FRONT_4: case IR_FRONT_5:
+				case IR_BACK_0:  case IR_BACK_1:
 					ledColor[i] = Color(1.0,0.0,0.0,0.0); break;
 
 				case LEFT_BLUE: case RIGHT_BLUE:
 					ledColor[i] = Color(0.0,1.0,1.0,0.0); break;
-				case LEFT_RED:  case RIGHT_RED: 
+				case LEFT_RED:  case RIGHT_RED:
 					ledColor[i] = Color(1.0,0.0,0.0,0.0); break;
 
 				default: break;
 			}
 		}
 	}
-	
+
 	Thymio2::~Thymio2()
 	{
 		delete[] ledTexture;

@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -94,7 +94,7 @@ struct Vector_from_python
 			type_id<Vector>()
 		);
 	}
-	
+
 	static void* convertible(PyObject* objPtr)
 	{
 		if (PyTuple_Check(objPtr))
@@ -102,7 +102,7 @@ struct Vector_from_python
 			Py_ssize_t l = PyTuple_Size(objPtr);
 			if (l != 2)
 				return 0;
-			
+
 			PyObject* item0(PyTuple_GetItem(objPtr, 0));
 			assert (item0);
 			if (!(PyFloat_Check(item0) || PyInt_Check(item0)))
@@ -117,7 +117,7 @@ struct Vector_from_python
 			Py_ssize_t l = PyObject_Length(objPtr);
 			if (l != 2)
 				return 0;
-			
+
 			PyObject* item0(PyList_GetItem(objPtr, 0));
 			assert (item0);
 			if (!(PyFloat_Check(item0) || PyInt_Check(item0)))
@@ -127,14 +127,14 @@ struct Vector_from_python
 			if (!(PyFloat_Check(item1) || PyInt_Check(item1)))
 				return 0;
 		}
-		
+
 		return objPtr;
 	}
-	
+
 	static void construct(PyObject* objPtr, converter::rvalue_from_python_stage1_data* data)
 	{
 		double x,y;
-		
+
 		if (PyTuple_Check(objPtr))
 		{
 			x = PyFloat_AsDouble(PyTuple_GetItem(objPtr, 0));
@@ -145,7 +145,7 @@ struct Vector_from_python
 			x = PyFloat_AsDouble(PyList_GetItem(objPtr, 0));
 			y = PyFloat_AsDouble(PyList_GetItem(objPtr, 1));
 		}
-		
+
 		void* storage = ((converter::rvalue_from_python_storage<Vector>*)data)->storage.bytes;
 		new (storage) Vector(x,y);
 		data->convertible = storage;
@@ -157,7 +157,7 @@ struct Vector_from_python
 static World::GroundTexture loadTexture(const std::string& fileName)
 {
 	/*World::GroundTexture t;
-	
+
 	std::ifstream ifs(ppmFileName.c_str(), std::ifstream::in);
 	if (!ifs.good())
 		throw std::runtime_error("Cannot open file " + ppmFileName);
@@ -184,10 +184,10 @@ static World::GroundTexture loadTexture(const std::string& fileName)
 			t.data.push_back(r|(g<<8)|(b<<16));
 		}
 	}
-	
+
 	return t;*/
 	QImage gt(QGLWidget::convertToGLFormat(QImage(fileName.c_str())));
-	
+
 	#if QT_VERSION >= QT_VERSION_CHECK(4,7,0)
 	return World::GroundTexture(gt.width(), gt.height(), (const uint32_t*)gt.constBits());
 	#else
@@ -202,13 +202,13 @@ struct WorldWithoutObjectsOwnership: public World
 	{
 		takeObjectOwnership = false;
 	}
-	
+
 	WorldWithoutObjectsOwnership(double r, const Color& wallsColor = Color::gray, const GroundTexture& groundTexture = GroundTexture()):
 		World(r, wallsColor, groundTexture)
 	{
 		takeObjectOwnership = false;
 	}
-	
+
 	WorldWithoutObjectsOwnership()
 	{
 		takeObjectOwnership = false;
@@ -221,7 +221,7 @@ struct WorldWithTexturedGround: public WorldWithoutObjectsOwnership
 		WorldWithoutObjectsOwnership(width, height, wallsColor, loadTexture(ppmFileName))
 	{
 	}
-	
+
 	WorldWithTexturedGround(double r, const std::string& ppmFileName, const Color& wallsColor = Color::gray):
 		WorldWithoutObjectsOwnership(r, wallsColor, loadTexture(ppmFileName))
 	{
@@ -255,15 +255,15 @@ struct EPuckWrap: EPuck, wrapper<EPuck>
 	EPuckWrap():
 		EPuck(CAPABILITY_BASIC_SENSORS|CAPABILITY_CAMERA)
 	{}
-	
+
 	virtual void controlStep(double dt)
 	{
 		if (override controlStep = this->get_override("controlStep"))
 			controlStep(dt);
-		
+
 		EPuck::controlStep(dt);
 	}
-	
+
 	list getProxSensorValues(void)
 	{
 		list l;
@@ -277,7 +277,7 @@ struct EPuckWrap: EPuck, wrapper<EPuck>
 		l.append(infraredSensor7.getValue());
 		return l;
 	}
-	
+
 	list getProxSensorDistances(void)
 	{
 		list l;
@@ -291,7 +291,7 @@ struct EPuckWrap: EPuck, wrapper<EPuck>
 		l.append(infraredSensor7.getDist());
 		return l;
 	}
-	
+
 	Texture getCameraImage(void)
 	{
 		Texture texture;
@@ -308,10 +308,10 @@ struct Thymio2Wrap: Thymio2, wrapper<Thymio2>
 	{
 		if (override controlStep = this->get_override("controlStep"))
 			controlStep(dt);
-		
+
 		Thymio2::controlStep(dt);
 	}
-	
+
 	list getProxSensorValues(void)
 	{
 		list l;
@@ -324,7 +324,7 @@ struct Thymio2Wrap: Thymio2, wrapper<Thymio2>
 		l.append(infraredSensor6.getValue());
 		return l;
 	}
-	
+
 	list getProxSensorDistances(void)
 	{
 		list l;
@@ -337,7 +337,7 @@ struct Thymio2Wrap: Thymio2, wrapper<Thymio2>
 		l.append(infraredSensor6.getDist());
 		return l;
 	}
-	
+
 	list getGroundSensorValues(void)
 	{
 		list l;
@@ -350,7 +350,7 @@ struct Thymio2Wrap: Thymio2, wrapper<Thymio2>
 struct PythonViewer: public ViewerWidget
 {
 	PyThreadState *pythonSavedState;
-	 
+
 	PythonViewer(World& world, Vector camPos, double camAltitude, double camYaw, double camPitch, double _wallsHeight):
 		ViewerWidget(&world),
 		pythonSavedState(0)
@@ -361,10 +361,10 @@ struct PythonViewer: public ViewerWidget
 		camera.yaw = camYaw;
 		camera.pitch = camPitch;
 		wallsHeight = _wallsHeight;
-		
+
 		managedObjectsAliases[&typeid(EPuckWrap)] = &typeid(EPuck);
 	}
-	
+
 	void sceneCompletedHook()
 	{
 		glColor3d(0,0,0);
@@ -372,7 +372,7 @@ struct PythonViewer: public ViewerWidget
 		renderText(10, height()-30, tr("move camera on x/y by moving mouse while pressing ctrl+shift+left mouse button"));
 		renderText(10, height()-10, tr("move camera on z by moving mouse while pressing ctrl+shift+right mouse button"));
 	}
-	
+
 	void timerEvent(QTimerEvent * event)
 	{
 		// get back Python lock
@@ -414,11 +414,11 @@ BOOST_PYTHON_MODULE(pyenki)
 	// setup converters
 	to_python_converter<Vector, Vector_to_python_tuple>();
 	Vector_from_python();
-	
+
 	// TODO: complete doc
-	
+
 	// Color and texture
-	
+
 	class_<Color>("Color",
 		"A color in RGBA",
 		init<optional<double, double, double, double> >(
@@ -460,17 +460,17 @@ BOOST_PYTHON_MODULE(pyenki)
 		.add_property("a", &Color::a, &Color::setA)
 		.add_property("components", getColorComponents, setColorComponents)
 	;
-	
+
 	class_<Texture>("Texture")
 		.def(vector_indexing_suite<Texture>())
 	;
-	
+
 	class_<Textures>("Textures")
 		.def(vector_indexing_suite<Textures>())
 	;
-	
+
 	// Physical objects
-	
+
 	class_<PhysicalObject>("PhysicalObject", no_init)
 		.def_readonly("radius", &PhysicalObject::getRadius)
 		.def_readonly("height", &PhysicalObject::getHeight)
@@ -489,20 +489,20 @@ BOOST_PYTHON_MODULE(pyenki)
 		.add_property("color",  make_function(&PhysicalObject::getColor, return_value_policy<copy_const_reference>()), &PhysicalObject::setColor)
 		// warning setting the "color" property at run time using the viewer from the non-gui thread will lead to a crash because it will do an OpenGL call from that thread
 	;
-	
+
 	class_<CircularPhysicalObject, bases<PhysicalObject> >("CircularObject",
 		init<double, double, double, optional<const Color&> >(args("radius", "height", "mass", "color"))
 	);
-	
+
 	class_<RectangularPhysicalObject, bases<PhysicalObject> >("RectangularObject",
 		init<double, double, double, double, optional<const Color&> >(args("l1", "l2", "height", "mass", "color"))
 	);
-	
+
 	// Robots
-	
+
 	class_<Robot, bases<PhysicalObject> >("PhysicalObject", no_init)
 	;
-	
+
 	class_<DifferentialWheeled, bases<Robot> >("DifferentialWheeled", no_init)
 		.def_readwrite("leftSpeed", &DifferentialWheeled::leftSpeed)
 		.def_readwrite("rightSpeed", &DifferentialWheeled::rightSpeed)
@@ -512,26 +512,26 @@ BOOST_PYTHON_MODULE(pyenki)
 		.def_readonly("rightOdometry", &DifferentialWheeled::rightOdometry)
 		.def("resetEncoders", &DifferentialWheeled::resetEncoders)
 	;
-	
+
 	class_<EPuckWrap, bases<DifferentialWheeled>, boost::noncopyable>("EPuck")
 		.def("controlStep", &EPuckWrap::controlStep)
 		.def_readonly("proximitySensorValues", &EPuckWrap::getProxSensorValues)
 		.def_readonly("proximitySensorDistances", &EPuckWrap::getProxSensorDistances)
 		.def_readonly("cameraImage", &EPuckWrap::getCameraImage)
 	;
-	
+
 	class_<Thymio2Wrap, bases<DifferentialWheeled>, boost::noncopyable>("Thymio2")
 		.def("controlStep", &Thymio2Wrap::controlStep)
 		.def_readonly("proximitySensorValues", &Thymio2Wrap::getProxSensorValues)
 		.def_readonly("proximitySensorDistances", &Thymio2Wrap::getProxSensorDistances)
 		.def_readonly("groundSensorValues", &Thymio2Wrap::getGroundSensorValues)
 	;
-	
+
 	// World
-	
+
 	class_<World>("WorldBase", no_init)
 	;
-	
+
 	class_<WorldWithoutObjectsOwnership, bases<World> >("World",
 		"The world is the container of all objects and robots.\n"
 		"It is either a rectangular arena with walls at all sides, a circular area with walls, or an infinite surface."
@@ -547,7 +547,7 @@ BOOST_PYTHON_MODULE(pyenki)
 		.def("run", run)
 		.def("runInViewer", runInViewer, runInViewer_overloads(args("self", "camPos", "camAltitude", "camYaw", "camPitch", "wallsHeight")))
 	;
-	
+
 	class_<WorldWithTexturedGround, bases<World> >("WorldWithTexturedGround",
 		init<double, double, const std::string&, optional<const Color&> >(args("width", "height", "ppmFileName", "wallsColor"))
 	)

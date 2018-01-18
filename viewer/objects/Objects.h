@@ -6,11 +6,11 @@
     Copyright (C) 2005-2006 Laboratory of Intelligent Systems, EPFL, Lausanne
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
-    
+
     E-puck 3D model is Copyright (C) 2008 Basilio Noris
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -45,7 +45,7 @@ namespace Enki
 	GLint GenEPuckRing();
 	GLint GenEPuckWheelLeft();
 	GLint GenEPuckWheelRight();
-	
+
 	GLint GenMarxbotBase();
 	GLint GenMarxbotWheel();
 

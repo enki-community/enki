@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -52,7 +52,7 @@ namespace Enki
 		this->micRelPos = micRelPos;
 		this->noOfChannels = channels;
 		this->acquiredSound = new double[noOfChannels];
-			
+
 		for (size_t i=0; i<noOfChannels; i++)
 			acquiredSound[i] = 0.0;
 
@@ -64,7 +64,7 @@ namespace Enki
 	{
 		delete[] acquiredSound;
 	}
-	
+
 	void Microphone::init()
 	{
 		Matrix22 rot(owner->angle);
@@ -74,15 +74,15 @@ namespace Enki
 
 	void Microphone::objectStep(double dt, PhysicalObject *po, World *w)
 	{
-		// Current distance between the interacting physical object and 
+		// Current distance between the interacting physical object and
 		// the sensor (used later in sound filtering)
 		double current_dist = (po->pos - micAbsPos).norm();
-	
+
 		// Get current object sound
 		double *currentSound = new double[noOfChannels];
 		assert(currentSound);
-		
-		
+
+
 		ActiveSoundObject *so = dynamic_cast<ActiveSoundObject *>(po);
 		if (so)
 		{
@@ -93,22 +93,22 @@ namespace Enki
 		else
 			for (size_t i=0; i<noOfChannels; i++)
 				currentSound[i] = 0.0;
-		
+
 		// Apply sensor model to acquisition
 		for (size_t i=0; i<noOfChannels; i++)
 			currentSound[i] = micModel(currentSound[i], current_dist);
-		
+
 		// Acquired sound is always the sum of all contributes after model filtering
-		for(size_t i=0; i<noOfChannels; i++) 
+		for(size_t i=0; i<noOfChannels; i++)
 			acquiredSound[i] += currentSound[i];
-		
+
 		// 3.0 is the saturating value of tanh used in sigmoidal neurons
 		/*
-		for(size_t i=0; i<noOfChannels; i++) 
+		for(size_t i=0; i<noOfChannels; i++)
 			if ((acquiredSound[i]*acquiredSound[i])>9.0)
 				acquiredSound[i] = 3.0;
 		*/
-	 
+
 		delete[] currentSound;
 
 	}
@@ -141,8 +141,8 @@ namespace Enki
 	{
 		return micAbsPos;
 	}
-		
-	FourWayMic::FourWayMic(Robot *owner, double micDist, double range, 
+
+	FourWayMic::FourWayMic(Robot *owner, double micDist, double range,
 						   MicrophoneResponseModel micModel, unsigned channels)
 	{
 		this->owner = owner;
@@ -169,7 +169,7 @@ namespace Enki
 		for (unsigned i=0; i<4; i++)
 			delete[] acquiredSound[i];
 	}
-		
+
 	void FourWayMic::init()
 	{
 		Matrix22 rot(owner->angle);
@@ -185,7 +185,7 @@ namespace Enki
 		// Get current object sound
 		double *currentSound = new double[noOfChannels];
 		assert(currentSound);
-		
+
 		ActiveSoundObject *so = dynamic_cast<ActiveSoundObject *>(po);
 		if (so)
 		{
@@ -193,8 +193,8 @@ namespace Enki
 			for (size_t i=0; i<noOfChannels; i++)
 				currentSound[i] = so->speaker.pitch[i];
 		}
-		
-		// Current distance between the interacting physical object and 
+
+		// Current distance between the interacting physical object and
 		// the sensor (used later in sound filtering)
 		double current_dist;
 		double min_dist = 0xFFFFFFFF;
@@ -214,14 +214,14 @@ namespace Enki
 		// Acquired sound is always the sum of all contributes after model filtering
 		for (size_t j=0; j<noOfChannels; j++)
 			acquiredSound[min_dist_micNo][j] += micModel(currentSound[j], min_dist);
-		
+
 		// 3.0 is the saturating value of tanh used in sigmoidal neurons
 		/*
-		for(size_t i=0; i<noOfChannels; i++) 
+		for(size_t i=0; i<noOfChannels; i++)
 			if ((acquiredSound[i]*acquiredSound[i])>9.0)
 				acquiredSound[i] = 3.0;
 		*/
-	 
+
 		delete[] currentSound;
 
 	}
@@ -233,8 +233,8 @@ namespace Enki
 
 	void FourWayMic::resetSound()
 	{
-		for (size_t i=0; i<4; i++) 
-			for (size_t j=0; j<noOfChannels; j++) 
+		for (size_t i=0; i<4; i++)
+			for (size_t j=0; j<noOfChannels; j++)
 				acquiredSound[i][j] = 0.0;
 	}
 

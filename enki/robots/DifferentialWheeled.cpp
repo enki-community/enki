@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -48,7 +48,7 @@ namespace Enki
 		else
 			return v;
 	}
-	
+
 	DifferentialWheeled::DifferentialWheeled(double distBetweenWheels, double maxSpeed, double noiseAmount) :
 		distBetweenWheels(distBetweenWheels),
 		maxSpeed(maxSpeed),
@@ -59,19 +59,19 @@ namespace Enki
 		leftSpeed = rightSpeed = 0;
 		resetEncoders();
 	}
-	
+
 	void DifferentialWheeled::resetEncoders()
 	{
 		leftEncoder = rightEncoder = 0.0;
 		leftOdometry = rightOdometry = 0.0;
 	}
-	
+
 	void DifferentialWheeled::controlStep(double dt)
 	{
 		// +/- noiseAmout % of motor noise
 		const double baseFactor = 1 - noiseAmount;
 		const double noiseFactor = 2 * noiseAmount;
-		
+
 		const double realLeftSpeed = clamp(
 			leftSpeed * (baseFactor + random.getRange(noiseFactor)),
 			-maxSpeed,maxSpeed
@@ -80,21 +80,21 @@ namespace Enki
 			rightSpeed * (baseFactor + random.getRange(noiseFactor)),
 			-maxSpeed, maxSpeed
 		);
-		
+
 		// set non slipping, override speed
 		cmdSpeed = (realLeftSpeed + realRightSpeed) * 0.5;
 		cmdAngSpeed = (realRightSpeed - realLeftSpeed) / distBetweenWheels;
-		
+
 		// Compute encoders
 		leftEncoder = realLeftSpeed;
 		rightEncoder = realRightSpeed;
 		leftOdometry += leftEncoder * dt;
 		rightOdometry += rightEncoder * dt;
-		
+
 		// Call parent
 		Robot::controlStep(dt);
 	}
-	
+
 	void DifferentialWheeled::applyForces(double dt)
 	{
 		const Vector cmdVelocity(

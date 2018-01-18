@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -60,16 +60,16 @@ using namespace std;
 void testPolygonCircleIntersection()
 {
 	//cout << "polygon circle intersection" << endl;
-	
+
 	Vector mtv;
 	Point cp;
-	
+
 	Polygon square;
 	square.push_back(Point(1, 1));
 	square.push_back(Point(9, 1));
 	square.push_back(Point(9, 9));
 	square.push_back(Point(1, 9));
-	
+
 	// should intersect
 	for (double r = 1.01*sqrt(2); r<30; r = r*r)
 	{
@@ -81,10 +81,10 @@ void testPolygonCircleIntersection()
 		CHECK_INTERSECT_POLYGON_CIRCLE(square.doesIntersect(Point(5, 0), r, mtv, cp), true);
 		CHECK_INTERSECT_POLYGON_CIRCLE(square.doesIntersect(Point(0, 10), r, mtv, cp), true);
 		CHECK_INTERSECT_POLYGON_CIRCLE(square.doesIntersect(Point(0, 5), r, mtv, cp), true);
-		
+
 		CHECK_INTERSECT_POLYGON_CIRCLE(square.doesIntersect(Point(5, 5), r, mtv, cp), true);
 	}
-	
+
 	// should not intersect
 	for (double r = -2; r < 12; r += 0.1)
 	{
@@ -93,13 +93,13 @@ void testPolygonCircleIntersection()
 		CHECK_INTERSECT_POLYGON_CIRCLE(square.doesIntersect(Point(0, r), 0.9, mtv, cp), false);
 		CHECK_INTERSECT_POLYGON_CIRCLE(square.doesIntersect(Point(10, r), 0.9, mtv, cp), false);
 	}
-	
+
 	Polygon rect;
 	rect.push_back(Point(1, 1));
 	rect.push_back(Point(9, 1));
 	rect.push_back(Point(9, 2));
 	rect.push_back(Point(1, 2));
-	
+
 	// should intersect
 	for (double r = 1.01*sqrt(2); r<5; r += 0.01)
 	{
@@ -111,10 +111,10 @@ void testPolygonCircleIntersection()
 		CHECK_INTERSECT_POLYGON_CIRCLE(rect.doesIntersect(Point(5, 0), r, mtv, cp), true);
 		CHECK_INTERSECT_POLYGON_CIRCLE(rect.doesIntersect(Point(0, 3), r, mtv, cp), true);
 		CHECK_INTERSECT_POLYGON_CIRCLE(rect.doesIntersect(Point(0, 3), r, mtv, cp), true);
-		
+
 		CHECK_INTERSECT_POLYGON_CIRCLE(rect.doesIntersect(Point(5, 1.5), r, mtv, cp), true);
 	}
-	
+
 	// special cases that did not work
 	Polygon rect2;
 	rect2.push_back(Point(5, 1));
@@ -141,51 +141,51 @@ void testSegmentSegmentIntersection()
 	Segment e3(0,-0.1,0,-1);   // no: bottom
 	Segment null0(0,0,0,0);    // null segment at 0
 	Segment null1(1,1,1,1);    // null segment at 1
-	
+
 	Point intersectionPoint;
-	
+
 	CHECK_INTERSECT_SEGMENT_SEGMENT(a.doesIntersect(b0, &intersectionPoint), true, Point(0,0));
 	CHECK_INTERSECT_SEGMENT_SEGMENT(b0.doesIntersect(a, &intersectionPoint), true, Point(0,0));
-	
+
 	CHECK_INTERSECT_SEGMENT_SEGMENT(a.doesIntersect(b1, &intersectionPoint), true, Point(0,0));
 	CHECK_INTERSECT_SEGMENT_SEGMENT(b1.doesIntersect(a, &intersectionPoint), true, Point(0,0));
-	
+
 	CHECK_INTERSECT_SEGMENT_SEGMENT(a.doesIntersect(b2, &intersectionPoint), true, Point(0,0));
 	CHECK_INTERSECT_SEGMENT_SEGMENT(b2.doesIntersect(a, &intersectionPoint), true, Point(0,0));
-	
+
 	CHECK_INTERSECT_SEGMENT_SEGMENT(a.doesIntersect(c0, &intersectionPoint), true, Point(0.95,0));
 	CHECK_INTERSECT_SEGMENT_SEGMENT(c0.doesIntersect(a, &intersectionPoint), true, Point(0.95,0));
-	
+
 	CHECK_INTERSECT_SEGMENT_SEGMENT(a.doesIntersect(c1, &intersectionPoint), true, Point(1,0));
 	CHECK_INTERSECT_SEGMENT_SEGMENT(c1.doesIntersect(a, &intersectionPoint), true, Point(1,0));
-	
+
 	CHECK_INTERSECT_SEGMENT_SEGMENT(a.doesIntersect(d0, &intersectionPoint), true, Point(-0.95,0));
 	CHECK_INTERSECT_SEGMENT_SEGMENT(d0.doesIntersect(a, &intersectionPoint), true, Point(-0.95,0));
-	
+
 	CHECK_INTERSECT_SEGMENT_SEGMENT(a.doesIntersect(d1, &intersectionPoint), true, Point(-1,0));
 	CHECK_INTERSECT_SEGMENT_SEGMENT(d1.doesIntersect(a, &intersectionPoint), true, Point(-1,0));
-	
+
 	CHECK_INTERSECT_SEGMENT_SEGMENT(a.doesIntersect(e0, &intersectionPoint), false, Point(0,0));
 	CHECK_INTERSECT_SEGMENT_SEGMENT(e0.doesIntersect(a, &intersectionPoint), false, Point(0,0));
-	
+
 	CHECK_INTERSECT_SEGMENT_SEGMENT(a.doesIntersect(e1, &intersectionPoint), false, Point(0,0));
 	CHECK_INTERSECT_SEGMENT_SEGMENT(e1.doesIntersect(a, &intersectionPoint), false, Point(0,0));
-	
+
 	CHECK_INTERSECT_SEGMENT_SEGMENT(a.doesIntersect(e2, &intersectionPoint), false, Point(0,0));
 	CHECK_INTERSECT_SEGMENT_SEGMENT(e2.doesIntersect(a, &intersectionPoint), false, Point(0,0));
-	
+
 	CHECK_INTERSECT_SEGMENT_SEGMENT(a.doesIntersect(e3, &intersectionPoint), false, Point(0,0));
 	CHECK_INTERSECT_SEGMENT_SEGMENT(e3.doesIntersect(a, &intersectionPoint), false, Point(0,0));
-	
+
 	CHECK_INTERSECT_SEGMENT_SEGMENT(a.doesIntersect(null0, &intersectionPoint), true, Point(0,0));
 	CHECK_INTERSECT_SEGMENT_SEGMENT(null0.doesIntersect(a, &intersectionPoint), true, Point(0,0));
-	
+
 	CHECK_INTERSECT_SEGMENT_SEGMENT(b0.doesIntersect(null0, &intersectionPoint), true, Point(0,0));
 	CHECK_INTERSECT_SEGMENT_SEGMENT(null0.doesIntersect(b0, &intersectionPoint), true, Point(0,0));
-	
+
 	CHECK_INTERSECT_SEGMENT_SEGMENT(null0.doesIntersect(null0, &intersectionPoint), true, Point(0,0));
 	CHECK_INTERSECT_SEGMENT_SEGMENT(null1.doesIntersect(null1, &intersectionPoint), true, Point(1,1));
-	
+
 	CHECK_INTERSECT_SEGMENT_SEGMENT(null0.doesIntersect(null1, &intersectionPoint), false, Point(0,0));
 	CHECK_INTERSECT_SEGMENT_SEGMENT(null1.doesIntersect(null0, &intersectionPoint), false, Point(0,0));
 }
@@ -194,6 +194,6 @@ int main()
 {
 	testPolygonCircleIntersection();
 	testSegmentSegmentIntersection();
-	
+
 	return 0;
 }

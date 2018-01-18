@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -56,11 +56,11 @@ namespace Enki
 		// FIXME: ugly and not re-entrant, will be removed by ECS refactor
 		//! The world frequencies state, mask of all frequencies
 		static unsigned worldFrequenciesState;
-		
+
 	public:
 		//! The frequencies state of this robot, mask of all frequencies
 		unsigned frequenciesState;
-		
+
 	public:
 		//! Constructor
 		SbotGlobalSound (Robot *me) { this->owner = me; }

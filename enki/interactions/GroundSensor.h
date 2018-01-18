@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -45,19 +45,19 @@ namespace Enki
 {
 	//! A ground infrared sensor
 	/*! \ingroup interaction
-	
+
 	This sensor scans the intensity of a 2x2 cm square on the ground.
 	It does 9x9 measurements, using a Gaussian model with a given spatialSd standard deviation,
 	and a noiseSd Gaussian measurement error.
-	
+
 	The resulted value v is transformed into a noiseless value finalNoiseless:
-	
+
 		finalNoiseless = sigm(v - cFactor, sFactor) * mFactor + aFactor
-	
+
 	where sigm(x, s) = 1 / (1 + e^(-x * s))
-	
+
 	Which is then transformed into a noise finalValue by applying Gaussian noise with noiseSd standard deviation.
-	 
+
 	*/
 	class GroundSensor : public LocalInteraction
 	{
@@ -74,16 +74,16 @@ namespace Enki
 		const double mFactor;
 		//! Additive factor applied after the sigmoid to compute finalValue
 		const double aFactor;
-		
+
 		//! Standard deviation of Gaussian noise in the response space
 		const double noiseSd;
-		
+
 		//! Pre-computed coefficient to filter ground image on a 2x2 cm square, with a 0.25 cm resolution
 		double filter[9][9];
-		
+
 		//! Final sensor value
 		double finalValue;
-		
+
 	public:
 		//! Constructor
 		/*!
@@ -99,11 +99,11 @@ namespace Enki
 		GroundSensor(Robot *owner, Vector pos, double cFactor, double sFactor, double mFactor, double aFactor, double spatialSd = 0.4, double noiseSd = 0.);
 		//! Compute absolute position
 		void init(double dt, World* w);
-		
+
 		//! Reset intensity value
 		//! Return the final sensor value
 		double getValue(void) const { return finalValue; }
-		
+
 		//! Return the absolute position of the ground sensor, updated at each time step on init()
 		Point getAbsolutePosition(void) const { return absPos; }
 	};

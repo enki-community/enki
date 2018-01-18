@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -54,13 +54,13 @@ namespace Enki
 		if (Lp < 0) return 0.0;
 		return Lp;
 	}
-	
+
 	void SbotMicrophone::objectStep(double dt, PhysicalObject *po, World *w)
 	{
 		// Get current object sound
 		double *currentSound = new double[noOfChannels];
 		assert(currentSound);
-		
+
 		SbotActiveSoundObject *so = dynamic_cast<SbotActiveSoundObject *>(po);
 		if (so)
 		{
@@ -82,8 +82,8 @@ namespace Enki
 				}
 			}
 		}
-		
-		// Current distance between the interacting physical object and 
+
+		// Current distance between the interacting physical object and
 		// the sensor (used later in sound filtering)
 		double current_dist;
 		double min_dist = 0xFFFFFFFF;
@@ -98,17 +98,17 @@ namespace Enki
 				min_dist_micNo = i;
 			}
 		}
-		
+
 		// Apply sensor model to acquisition
 		// Acquired sound is always the sum of all contributes after model filtering
 		for (size_t j=0; j<noOfChannels; j++)
 		{
 			acquiredSound[min_dist_micNo][j] += micModel(currentSound[j], min_dist);
 		}
-		
+
 		delete[] currentSound;
 	}
-	
+
 	Sbot::Sbot() :
 		DifferentialWheeled(5, 40, 0.02),
 		camera(this, 12, 64),
@@ -116,21 +116,21 @@ namespace Enki
 	{
 		addLocalInteraction(&camera);
 		//addGlobalInteraction(&globalSound);
-		
+
 		setCylindric(6, 15, 500);
 	}
-	
+
 	unsigned SbotGlobalSound::worldFrequenciesState = 0;
-	
+
 	unsigned SbotGlobalSound::getWorldFrequenciesState(void)
 	{
 		return worldFrequenciesState;
 	}
-		
+
 	void FeedableSbot::controlStep(double dt)
 	{
 		DifferentialWheeled::controlStep(dt);
-		
+
 		// clear dEnergy for next step
 		energy += dEnergy * dt;
 		lastDEnergy = dEnergy;

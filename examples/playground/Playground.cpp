@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -59,13 +59,13 @@ protected:
 	#endif
 	QVector<EPuck*> epucks;
 	QMap<PhysicalObject*, int> bullets;
-	
+
 public:
 	EnkiPlayground(World *world, QWidget *parent = 0) :
 		ViewerWidget(world, parent)
 	{
 		#define PROBLEM_CENTERED_THYMIO2
-		
+
 		#ifdef PROBLEM_CENTERED_THYMIO2
 		{
 			Thymio2 *thymio = new Thymio2;
@@ -111,7 +111,7 @@ public:
 		#define PROBLEM_GENERIC_TOY
 		#define PROBLEM_BALL_LINE
 		//#define PROBLEM_LONE_EPUCK
-		
+
 		#ifdef PROBLEM_GENERIC_TOY
 		{
 			const double amount = 9;
@@ -120,7 +120,7 @@ public:
 			Enki::Polygon p;
 			for (double a = 0; a < 2*M_PI; a += 2*M_PI/amount)
 				p.push_back(Point(radius * cos(a), radius * sin(a)));
-			
+
 			PhysicalObject* o = new PhysicalObject;
 			PhysicalObject::Hull hull(Enki::PhysicalObject::Part(p, height));
 			o->setCustomHull(hull, -1);
@@ -128,7 +128,7 @@ public:
 			o->pos = Point(100, 100);
 			world->addObject(o);
 		}
-		
+
 		for (int i = 0; i < 10; i++)
 		{
 			PhysicalObject* o = new PhysicalObject;
@@ -138,7 +138,7 @@ public:
 			o->dryFrictionCoefficient = 0.01;
 			world->addObject(o);
 		}
-		
+
 		Enki::Polygon p2;
 		p2.push_back(Point(5,1));
 		p2.push_back(Point(-5,1));
@@ -154,7 +154,7 @@ public:
 			o->pos = Point(UniformRand(20, 100)(), UniformRand(20, 100)());
 			world->addObject(o);
 		}
-		
+
 		// cross shape
 		{
 			PhysicalObject* o = new PhysicalObject;
@@ -168,7 +168,7 @@ public:
 			world->addObject(o);
 		}
 		#endif // PROBLEM_GENERIC_TOY
-		
+
 		#ifdef PROBLEM_BALL_LINE
 		for (double d = 40; d < 60; d += 8)
 		{
@@ -180,13 +180,13 @@ public:
 			world->addObject(o);
 		}
 		#endif // PROBLEM_BALL_LINE
-		
+
 		#ifdef PROBLEM_LONE_EPUCK
 		addDefaultsRobots(world);
 		#endif // PROBLEM_LONE_EPUCK
-		
+
 		#define PROBLEM_MARXBOT
-		
+
 		#ifdef PROBLEM_MARXBOT
 		Marxbot *marxbot = new Marxbot;
 		marxbot->pos = Point(60, 50);
@@ -194,7 +194,7 @@ public:
 		marxbot->rightSpeed = 2;
 		world->addObject(marxbot);
 		#endif // PROBLEM_MARXBOT
-		
+
 		#ifdef USE_SDL
 		if((SDL_Init(SDL_INIT_JOYSTICK)==-1))
 		{
@@ -202,7 +202,7 @@ public:
 			addDefaultsRobots(world);
 			return;
 		}
-		
+
 		int joystickCount = SDL_NumJoysticks();
 		for (int i = 0; i < joystickCount; ++i)
 		{
@@ -219,7 +219,7 @@ public:
 				continue;
 			}
 			joysticks.push_back(joystick);
-			
+
 			EPuck *epuck = new EPuck;
 			//epuck->pos = Point(UniformRand(20, 100)(), UniformRand(20, 100)());
 			epuck->pos = Point(20, 20);
@@ -231,7 +231,7 @@ public:
 		addDefaultsRobots(world);
 		#endif // USE_SDL
 	}
-	
+
 	void addDefaultsRobots(World *world)
 	{
 		EPuck *epuck = new EPuck;
@@ -239,7 +239,7 @@ public:
 		//epuck->leftSpeed = 5;
 		//epuck->rightSpeed = 5;
 		world->addObject(epuck);
-		
+
 		epuck = new EPuck;
 		epuck->pos = Point(40, 50);
 		epuck->leftSpeed = 5;
@@ -247,7 +247,7 @@ public:
 		epuck->setColor(Color(1, 0, 0));
 		//world->addObject(epuck);
 	}
-	
+
 	~EnkiPlayground()
 	{
 		#ifdef USE_SDL
@@ -256,7 +256,7 @@ public:
 		SDL_Quit();
 		#endif
 	}
-	
+
 	virtual void timerEvent(QTimerEvent * event)
 	{
 		static int fireCounter = 0;
@@ -266,13 +266,13 @@ public:
 		for (int i = 0; i < joysticks.size(); ++i)
 		{
 			EPuck* epuck = epucks[i];
-			
+
 			if (world->hasGroundTexture())
 				cout << "Robot " << i << " is on ground of colour " << world->getGroundColor(epuck->pos) << endl;
-			
+
 			#define SPEED_MAX 13.
 			//cout << "S " << epuck->infraredSensor2.getRayDist(0) << " " << epuck->infraredSensor2.getRayDist(1) << " " << epuck->infraredSensor2.getRayDist(2) << endl;
-			#if 0 
+			#if 0
 			epuck->leftSpeed = - SDL_JoystickGetAxis(joysticks[i], 1) / (32767. / SPEED_MAX);
 			epuck->rightSpeed = - SDL_JoystickGetAxis(joysticks[i], 4) / (32767. / SPEED_MAX);
 			#else
@@ -281,7 +281,7 @@ public:
 			epuck->leftSpeed = y + x;
 			epuck->rightSpeed = y - x;
 			#endif
-			
+
 			if ((SDL_JoystickGetButton(joysticks[i], 6) || SDL_JoystickGetButton(joysticks[i], 7)) &&
 				(++fireCounter % 2) == 0)
 			{
@@ -318,10 +318,10 @@ public:
 		}
 		ViewerWidget::timerEvent(event);
 	}
-	
+
 	virtual void sceneCompletedHook()
 	{
-		
+
 	}
 };
 
@@ -329,7 +329,7 @@ public:
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
-	
+
 	// Create the world and the viewer
 	bool igt(app.arguments().size() > 1);
 	QImage gt;
@@ -343,9 +343,9 @@ int main(int argc, char *argv[])
 	#endif
 	World world(120, Color(0.9, 0.9, 0.9), igt ? World::GroundTexture(gt.width(), gt.height(), bits) : World::GroundTexture());
 	EnkiPlayground viewer(&world);
-	
+
 	viewer.show();
-	
+
 	return app.exec();
 }
 

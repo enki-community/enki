@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -41,10 +41,10 @@
 /*!	\file Khepera.h
 	\brief Header of the Khepera robot
 */
-	
+
 namespace Enki
 {
-	//! A simple model of the Khepera robot. 
+	//! A simple model of the Khepera robot.
 	/*! \ingroup robot */
 	class Khepera : public DifferentialWheeled
 	{
@@ -67,7 +67,7 @@ namespace Enki
 		IRSensor infraredSensor7;
 		//! Linear camera
 		CircularCam camera;
-		
+
 	public:
 		//! The bot's capabilities. You can simply select a predefined set of sensors. These correspond to the different extension modules that exist for the Khepera.
 		enum Capabilities
@@ -79,7 +79,7 @@ namespace Enki
 			//! Camera: add a linear camera
 			CAPABILITY_CAMERA = 0x2
 		};
-	
+
 	public:
 		//! Create a Khepera with certain modules aka capabilities (basic)
 		Khepera(unsigned capabilities = CAPABILITIY_BASIC_SENSORS);

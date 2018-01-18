@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -68,13 +68,13 @@ namespace Enki
 		unsigned noOfChannels;
 		//! microphone input signal (array of size noOfChannels)
 		double* acquiredSound;
-		
-	public: 
+
+	public:
 		//! Constructor
 		//! e.g.: Microphone(this, Vector(0.5, 0.5), 5, micStepModel, 20);
 		//! meaning: the mic is (0.5, 0.5) away from robot center, can hear sounds up to
 		//! 5 units away, uses a step model to detect sounds and can distinguish 20 frequencies
-		Microphone(Robot *owner, Vector micRelPos, double range, 
+		Microphone(Robot *owner, Vector micRelPos, double range,
 				   MicrophoneResponseModel micModel, unsigned channels);
 		//! Destructor
 		~Microphone(void);
@@ -111,13 +111,13 @@ namespace Enki
 		unsigned noOfChannels;
 		//! Microphone input signal (array of size noOfChannels for 4 mics)
 		double* acquiredSound[4];
-		
-	public: 
+
+	public:
 		//! Constructor
 		//! e.g.: FourWayMic(this, 0.5, 5, micStepModel, 20);
 		//! meaning: each of the 4 mics is 0.5 away from robot center, can hear sounds up to
 		//! 5 units away, uses a step model to detect sounds and can distinguish 20 frequencies
-		FourWayMic(Robot *owner, double micDist, double range, 
+		FourWayMic(Robot *owner, double micDist, double range,
 				   MicrophoneResponseModel micModel, unsigned channels);
 		//! Destructor
 		~FourWayMic(void);

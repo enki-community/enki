@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -56,8 +56,8 @@ namespace Enki
 		//! Modify the pixel and depth buffer² for a given object color and distance²
 		virtual void operator()(double &zBuffer2, Color &pixelBuffer, const double &objectDist2, const Color &objectColor) = 0;
 	};
-	
-	
+
+
 	//! 1D Circular camera
 	/*!
 		The maximum aperture angle of this camera is PI, so this is not an omnicam.
@@ -85,14 +85,14 @@ namespace Enki
 		double halfFieldOfView;
 		//! Angular offset based on owner angle
 		double angleOffset;
-		
+
 		//! Fog switch, exponential decay of light with distance
 		bool useFog;
 		//! Density of fog, used to compute light attenuation with the function: light = light0 * exp(-fogDensity * distance)
 		double fogDensity;
 		//! Minimum incoming light, otherwise 0. Only used if useFog is true
 		Color lightThreshold;
-		
+
 		//! Pointer to active pixel operation
 		PixelOperationFunctor *pixelOperation;
 
@@ -113,22 +113,22 @@ namespace Enki
 		virtual void objectStep(double dt, World *w, PhysicalObject *po);
 		virtual void wallsStep(double dt, World* w);
 		virtual void finalize(double dt, World* w);
-		
+
 		//! Change the sight range of the camera
 		void setRange(double range);
 		//! Return the absolute position (world coordinates) of the camera, updated at each time step on init()
 		Point getAbsolutePosition(void) { return absPos; }
 		//! Return the absolute orientation (world coordinates) of the camera, updated at each time step on init()
 		double getAbsoluteOrientation(void) { return absOrientation; }
-		
+
 	protected:
 		//! Return linear interpolated value between d0 and d1, given a sensorvalue sv between s0 and s1
 		double interpolateLinear(double s0, double s1, double sv, double d0, double d1);
 		//! Draw a textured line from point p0 to p1 using texture - WTF are p0 and p1??
 		void drawTexturedLine(const Point &p0, const Point &p1, const Texture &texture);
 	};
-	
-	
+
+
 	//! 1D omnidirectional circular camera, based on 2 CircularCam
 	//! Pixels start at -PI and then follow mathematical orientation to PI
 	/*! \ingroup interaction */
@@ -139,7 +139,7 @@ namespace Enki
 		std::valarray<double> zbuffer;
 		//! Image (array of size pixelCount of Color)
 		std::valarray<Color> image;
-		
+
 	protected:
 		//! Cameras doing the real job, first part
 		CircularCam cam0;

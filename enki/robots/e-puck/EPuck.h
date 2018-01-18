@@ -7,8 +7,8 @@
     Copyright (C) 2006 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -42,11 +42,11 @@
 /*!	\file EPuck.h
 	\brief Header of the E-puck robot
 */
-	
+
 namespace Enki
 {
 	//! The rotating, long range distance sensor turret of the E-puck robot.
-	/*! \ingroup interaction 
+	/*! \ingroup interaction
 		The measured physical sensors response function is applied so zbuffer contains the simulated physical values
 		*/
 	class EPuckScannerTurret : public OmniCam
@@ -61,13 +61,13 @@ namespace Enki
 			\param maxDist maximum scanning distance
 		*/
 		EPuckScannerTurret(Robot *owner, double height, unsigned halfPixelCount);
-		
+
 		virtual void finalize(double dt, World* w);
-	
+
 	public:
 		std::valarray<double> scan;
 	};
-	
+
 	//! A simple model of the E-puck robot.
 	/*! \ingroup robot */
 	class EPuck : public DifferentialWheeled
@@ -95,7 +95,7 @@ namespace Enki
 		EPuckScannerTurret scannerTurret;
 		//! Bluetooth module
 		Bluetooth* bluetooth;
-		
+
 	public:
 		//! The bot's capabilities. You can simply select a predefined set of sensors. These correspond to the different extension modules that exist for the E-Puck.
 		enum Capabilities
@@ -117,8 +117,8 @@ namespace Enki
 		EPuck(unsigned capabilities = CAPABILITY_BASIC_SENSORS);
 		//! Destructor
 		~EPuck();
-		
-		//! Set ring color (true = red, false = black) 
+
+		//! Set ring color (true = red, false = black)
 		void setLedRing(bool status);
 	};
 }

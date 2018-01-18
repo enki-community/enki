@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -40,7 +40,7 @@
 
 namespace Enki
 {
-	
+
 	template<class T>
 	bool almost_equal(T x, T y, int ulp = 2)
 	{
@@ -56,20 +56,20 @@ namespace Enki
 		outs << "(" << vector.x << ", " << vector.y << ")";
 		return outs;
 	}
-	
+
 	std::ostream & operator << (std::ostream & outs, const Segment &segment)
 	{
 		outs << segment.a << "-" << segment.b;
 		return outs;
 	}
-	
+
 	std::ostream & operator << (std::ostream & outs, const Polygon &polygon)
 	{
 		for (Polygon::const_iterator it = polygon.begin(); it != polygon.end(); ++it)
 			outs << *it << " ";
 		return outs;
 	}
-	
+
 	double Segment::dist(const Point &p) const
 	{
 		const Vector n(a.y-b.y, b.x-a.x);
@@ -77,7 +77,7 @@ namespace Enki
 		const Vector ap = p-a;
 		return ap * u;
 	}
-	
+
 	bool Segment::doesIntersect(const Segment &that, Point* intersectionPoint) const
 	{
 		const Vector r(this->b - this->a);
@@ -152,14 +152,14 @@ namespace Enki
 			return false;
 		}
 	}
-	
+
 	Segment Polygon::getSegment(size_t i) const
 	{
 		if (size() < 2)
 			throw std::runtime_error("trying to get segment of a polygon with less than two points");
 		return Segment((*this)[i % size()], (*this)[(i + 1) % size()]);
 	}
-	
+
 	bool Polygon::isPointInside(const Point& p) const
 	{
 		for (size_t i = 0; i < size(); i++)
@@ -169,38 +169,38 @@ namespace Enki
 		}
 		return true;
 	}
-	
+
 	bool Polygon::getAxisAlignedBoundingBox(Point& bottomLeft, Point& topRight) const
 	{
 		if (empty())
 			return false;
-		
+
 		bottomLeft = (*this)[0];
 		topRight = (*this)[0];
-		
+
 		extendAxisAlignedBoundingBox(bottomLeft, topRight);
-		
+
 		return true;
 	}
-	
+
 	void Polygon::extendAxisAlignedBoundingBox(Point& bottomLeft, Point& topRight) const
 	{
 		for (const_iterator it = begin(); it != end(); ++it)
 		{
 			const Point& p = *it;
-			
+
 			if (p.x < bottomLeft.x)
 				bottomLeft.x = p.x;
 			else if (p.x > topRight.x)
 				topRight.x = p.x;
-			
+
 			if (p.y < bottomLeft.y)
 				bottomLeft.y = p.y;
 			else if (p.y > topRight.y)
 				topRight.y = p.y;
 		}
 	}
-	
+
 	double Polygon::getBoundingRadius() const
 	{
 		double radius = 0;
@@ -208,20 +208,20 @@ namespace Enki
 			radius = std::max<double>(radius, (*this)[i].norm());
 		return radius;
 	}
-	
+
 	void Polygon::translate(const Vector& delta)
 	{
 		for (iterator it = begin(); it != end(); ++it)
 			*it += delta;
 	}
-	
+
 	void Polygon::rotate(const double angle)
 	{
 		Matrix22 rot(angle);
 		for (iterator it = begin(); it != end(); ++it)
 			*it = rot * (*it);
 	}
-	
+
 	void Polygon::flipX()
 	{
 		for (size_t i = 0; i < size(); i++)
@@ -233,7 +233,7 @@ namespace Enki
 			(*this)[size() - i - 1] = p;
 		}
 	}
-	
+
 	void Polygon::flipY()
 	{
 		for (size_t i = 0; i < size(); i++)
@@ -245,16 +245,16 @@ namespace Enki
 			(*this)[size() - i - 1] = p;
 		}
 	}
-	
+
 	bool Polygon::doesIntersect(const Polygon& that, Vector& mtv, Point& intersectionPoint) const
 	{
 		// Note: does not handle optimally the case of full overlapping
-		
+
 		// Using the Separate Axis Theorem, see for instance: http://www.dyn4j.org/2010/01/sat/
 		double minMTVDist(std::numeric_limits<double>::max());
 		Vector minMTV;
 		Vector minCollisionPoint;
-		
+
 		// do points of that are inside this
 		for (size_t i = 0; i < this->size(); ++i)
 		{
@@ -282,7 +282,7 @@ namespace Enki
 				minCollisionPoint = that[maxJ];
 			}
 		}
-		
+
 		// do points of this are inside that
 		for (size_t i = 0; i < that.size(); ++i)
 		{
@@ -310,24 +310,24 @@ namespace Enki
 				minCollisionPoint = (*this)[maxJ] + minMTV;
 			}
 		}
-		
+
 		// there was no separate axis found, update collision variables...
 		mtv = minMTV;
 		intersectionPoint = minCollisionPoint;
-		
+
 		// ... and return true
 		return true;
 	}
-	
+
 	bool Polygon::doesIntersect(const Point& center, const double r, Vector& mtv, Point& intersectionPoint) const
 	{
 		// Note: does not handle optimally the case of full overlapping
-		
+
 		// Using the Separate Axis Theorem, see for instance: http://www.dyn4j.org/2010/01/sat/
 		double minMTVDist(std::numeric_limits<double>::max());
 		Vector minMTV;
 		Vector minCollisionPoint;
-		
+
 		// test if circle is inside a shape
 		for (size_t i = 0; i < size(); ++i)
 		{
@@ -355,7 +355,7 @@ namespace Enki
 				}
 			}
 		}
-		
+
 		// if found a solution so far, update collision variables and return it
 		if (minMTVDist != std::numeric_limits<double>::max())
 		{
@@ -363,10 +363,10 @@ namespace Enki
 			intersectionPoint = minCollisionPoint;
 			return true;
 		}
-		
+
 		// at this point if there is a collision, we know that there is a vertex inside the circle
 		double minPointCenterDist2(std::numeric_limits<double>::max());
-		
+
 		// test if there is vertex of shape is inside the circle. If so, take the closest to the center.
 		for (size_t i = 0; i < size(); ++i)
 		{
@@ -379,15 +379,15 @@ namespace Enki
 				minCollisionPoint = center + centerToPoint + minMTV;
 			}
 		}
-		
+
 		// no vertex inside the circle, no collision
 		if (minPointCenterDist2 == std::numeric_limits<double>::max())
 			return false;
-		
+
 		// collision, update collision variables...
 		mtv = minMTV;
 		intersectionPoint = minCollisionPoint;
-		
+
 		// ... and return true
 		return true;
 	}

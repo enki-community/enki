@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -54,7 +54,7 @@ namespace Enki
 		lists[0] = GenMarxbotBase();
 		lists[1] = GenMarxbotWheel();
 	}
-	
+
 	void MarxbotModel::cleanup(ViewerWidget* viewer)
 	{
 		for (int i = 0; i < textures.size(); i++)
@@ -62,24 +62,24 @@ namespace Enki
 		for (int i = 0; i < lists.size(); i++)
 			glDeleteLists(lists[i], 1);
 	}
-	
+
 	void MarxbotModel::draw(PhysicalObject* object) const
 	{
 		DifferentialWheeled* dw = polymorphic_downcast<DifferentialWheeled*>(object);
-		
+
 		const double wheelRadius = 2.9;
 		const double wheelCirc = 2 * M_PI * wheelRadius;
-		
+
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, textures[0]);
 		glColor3d(1, 1, 1);
-		
-		
+
+
 		// body
 		glPushMatrix();
 		glCallList(lists[0]);
 		glPopMatrix();
-		
+
 		// wheels
 		glPushMatrix();
 		glTranslatef(0,0,wheelRadius);
@@ -93,45 +93,45 @@ namespace Enki
 			glCallList(lists[1]);
 			glPopMatrix();
 		glPopMatrix();
-		
+
 		glDisable(GL_TEXTURE_2D);
-		
-		
+
+
 		/*const double radiosityScale = 1.01;
-		
+
 		glTranslated(0, 0, wheelRadius);
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, textures[0]);
-		
+
 		glColor3d(1, 1, 1);
-		
+
 		glCallList(lists[0]);
-		
+
 		glCallList(lists[1]);
-		
+
 		//glColor3d(1-object->getColor().components[0], 1+object->getColor().components[1], 1+object->getColor().components[2]);
 		glColor3d(0.6+object->getColor().components[0]-0.3*object->getColor().components[1]-0.3*object->getColor().components[2], 0.6+object->getColor().components[1]-0.3*object->getColor().components[0]-0.3*object->getColor().components[2], 0.6+object->getColor().components[2]-0.3*object->getColor().components[0]-0.3*object->getColor().components[1]);
 		glCallList(lists[2]);
-		
+
 		glColor3d(1, 1, 1);
-		
+
 		// wheels
 		glPushMatrix();
 		glRotated((fmod(dw->leftOdometry, wheelCirc) * 360) / wheelCirc, 0, 1, 0);
 		glCallList(lists[3]);
 		glPopMatrix();
-		
+
 		glPushMatrix();
 		glRotated((fmod(dw->rightOdometry, wheelCirc) * 360) / wheelCirc, 0, 1, 0);
 		glCallList(lists[4]);
 		glPopMatrix();
-		
+
 		// shadow
 		glBindTexture(GL_TEXTURE_2D, textures[1]);
 		glDisable(GL_LIGHTING);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ZERO, GL_SRC_COLOR);
-		
+
 		// bottom shadow
 		glPushMatrix();
 		// disable writing of z-buffer
@@ -152,24 +152,24 @@ namespace Enki
 		glDisable(GL_POLYGON_OFFSET_FILL);
 		glDepthMask( GL_TRUE );
 		glPopMatrix();
-		
+
 		// wheel shadow
 		glPushMatrix();
 		glScaled(radiosityScale, radiosityScale, radiosityScale);
 		glTranslated(0, -0.025, 0);
 		glCallList(lists[3]);
 		glPopMatrix();
-		
+
 		glPushMatrix();
 		glScaled(radiosityScale, radiosityScale, radiosityScale);
 		glTranslated(0, 0.025, 0);
 		glCallList(lists[4]);
 		glPopMatrix();
-		
+
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDisable(GL_BLEND);
 		glEnable(GL_LIGHTING);
-		
+
 		glDisable(GL_TEXTURE_2D);*/
 	}
 } // namespace Enki

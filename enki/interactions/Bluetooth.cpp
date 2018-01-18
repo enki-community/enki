@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -55,32 +55,32 @@ namespace Enki
 		this->disconnectionError=BT_NO_ERROR;
 		this->rxBufferSize=rxbuffersize;
 		this->txBufferSize=txbuffersize;
-		
+
 		initAllData();
-		
+
 		nbConnections=0;
-		
+
 	}
-	
+
 	Bluetooth::~Bluetooth()
 	{
 		cancelAllData();
 	}
-	
+
 	void Bluetooth::cancelRxBuffer()
 	{
 		for (unsigned i=0;i<maxConnections;++i)
 			delete[] rxBuffer[i];
 		delete[] rxBuffer;
 	}
-	
+
 	void Bluetooth::cancelTxBuffer()
 	{
 		for (unsigned i=0;i<maxConnections;++i)
 			delete[] txBuffer[i];
 		delete[] txBuffer;
 	}
-	
+
 	void Bluetooth::cancelAllData()
 	{
 		delete[] receptionFlags;
@@ -88,17 +88,17 @@ namespace Enki
 		delete[] sizeToSend;
 		delete[] sizeReceived;
 		delete[] transmissionError;
-		
+
 		for (unsigned i=0;i<maxConnections;++i)
 		{
 			delete[] rxBuffer[i];
 			delete[] txBuffer[i];
 		}
-		
+
 		delete[] rxBuffer;
 		delete[] txBuffer;
 	}
-	
+
 	void Bluetooth::initAllData()
 	{
 		sizeReceived=new unsigned[maxConnections];
@@ -119,34 +119,34 @@ namespace Enki
 			transmissionError[i]=BT_NO_ERROR;
 		}
 	}
-	
+
 	void Bluetooth::setAddress(unsigned address)
 	{
 		this->address = address;
 		updateAddress=true;
 		randomAddress=false;
 	}
-	
+
 	unsigned Bluetooth::getMaxConnections()
 	{
 		return maxConnections;
 	}
-	
+
 	unsigned Bluetooth::getAddress()
 	{
 		return this->address;
 	}
-	
+
 	unsigned Bluetooth::getNbConnections()
 	{
 		return nbConnections;
 	}
-	
+
 	unsigned* Bluetooth::getConnectedAddresses()
 	{
 		return destAddress;
 	}
-	
+
 	bool Bluetooth::didIReceive()
 	{
 		bool reception=false;
@@ -154,12 +154,12 @@ namespace Enki
 			reception=reception || receptionFlags[i];
 		return reception;
 	}
-	
+
 	bool Bluetooth::didIReceive(unsigned source)
 	{
 		if (source==UINT_MAX)
 			return false;
-			
+
 		unsigned index=0;
 		while (index<maxConnections && destAddress[index]!=source)
 			index++;
@@ -169,21 +169,21 @@ namespace Enki
 		else
 			return false;
 	}
-	
+
 	bool* Bluetooth::getReceptionFlags()
 	{
 		return receptionFlags;
 	}
-	
+
 	const char* Bluetooth::getRxBuffer(unsigned source)
 	{
 		if (source==UINT_MAX)
 			return NULL;
-			
+
 		unsigned index=0;
 		while (index<maxConnections && destAddress[index]!=source)
 			index++;
-		
+
 		if (index<maxConnections)
 		{
 			receptionFlags[index]=false;
@@ -192,16 +192,16 @@ namespace Enki
 		else
 			return NULL;
 	}
-	
+
 	unsigned Bluetooth::getSizeReceived(unsigned source)
 	{
 		if (source==UINT_MAX)
 			return 0;
-			
+
 		unsigned index=0;
 		while (index<maxConnections && destAddress[index]!=source)
 			index++;
-		
+
 		if (index<maxConnections)
 		{
 			return sizeReceived[index];
@@ -210,23 +210,23 @@ namespace Enki
 			return 0;
 	}
 
-	
+
 	void Bluetooth::connectTo(unsigned address)
 	{
 		connectToRobot.push(address);
 		// destAddress is updated by the base as it is the only one knowing if the connection succeeded
 	}
-	
+
 	bool Bluetooth::closeConnection(unsigned dest)
 	{
 		// First check if the connection exists
 		if (dest==UINT_MAX)
 			return false;
-			
+
 		unsigned index=0;
 		while (index<maxConnections && destAddress[index]!=dest)
 			index++;
-		
+
 		if (index==maxConnections)
 			return false;
 		else
@@ -235,17 +235,17 @@ namespace Enki
 			return true;
 		}
 	}
-	
+
 	bool Bluetooth::sendDataTo(unsigned dest,char* data,unsigned size)
 	{
 		// First, check if we are connected.
 		if (dest==UINT_MAX)
 			return false;
-			
+
 		unsigned index=0;
 		while (index<maxConnections && destAddress[index]!=dest)
 			index++;
-		
+
 		if (index==maxConnections)
 			return false;
 		else
@@ -257,12 +257,12 @@ namespace Enki
 			return true;
 		}
 	}
-	
+
 	unsigned* Bluetooth::getTransmissionError()
 	{
 		return transmissionError;
 	}
-	
+
 	bool Bluetooth::isThereTxError()
 	{
 		bool error=false;
@@ -270,7 +270,7 @@ namespace Enki
 			error=error || transmissionError[i];
 		return error;
 	}
-	
+
 
 
 	void Bluetooth::changeMaxConnections(unsigned size)
@@ -278,7 +278,7 @@ namespace Enki
 		cancelAllData();
 		maxConnections=size;
 		initAllData();
-		
+
 	}
 
 	unsigned Bluetooth::getRxBufferSize()
@@ -307,13 +307,13 @@ namespace Enki
 		txBuffer=new char*[maxConnections];
 		for (unsigned i=0;i<maxConnections;++i)
 			txBuffer[i]=new char[txBufferSize];
-		
+
 	}
 
 
 	void Bluetooth::step(double dt, World *w)
 	{
-	
+
 		BluetoothBase* bb=w->getBluetoothBase();
 		if (updateAddress)
 		{
@@ -324,7 +324,7 @@ namespace Enki
 				assert(bb->registerClient(this,address));
 			updateAddress=false;
 		}
-		
+
 		// Connection to another robot
 		connectionError=BT_NO_ERROR;
 		while (!connectToRobot.empty())
@@ -332,7 +332,7 @@ namespace Enki
 			bb->connectTo(this,connectToRobot.front());
 			connectToRobot.pop();
 		}
-		
+
 		// Disconnection from another robot
 		disconnectionError=BT_NO_ERROR;
 		while (!closeConnectionToRobot.empty())
@@ -340,7 +340,7 @@ namespace Enki
 			bb->closeConnection(this,closeConnectionToRobot.front());
 			closeConnectionToRobot.pop();
 		}
-		
+
 		// Check if we have something to send
 		for (unsigned i=0;i<maxConnections;++i)
 		{
@@ -352,7 +352,7 @@ namespace Enki
 			}
 		}
 	}
-	
+
 	unsigned Bluetooth::getConnectionError()
 	{
 		return (unsigned)connectionError;
