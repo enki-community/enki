@@ -18,7 +18,9 @@ if (Qt5Widgets_FOUND AND Qt5OpenGL_FOUND)
 	qt5_add_resources(viewer_lib_RCC_SRCS enki-viewer-textures.qrc)
 	
 	include_directories(${PROJECT_SOURCE_DIR})
-	
+
+	find_package(OpenGL REQUIRED)
+
 	add_library(enkiviewer ${viewer_lib_SRCS} ${viewer_lib_RCC_SRCS})
 	set_target_properties(enkiviewer PROPERTIES VERSION ${LIB_VERSION_STRING} 
                                         SOVERSION ${LIB_VERSION_MAJOR})

@@ -43,13 +43,14 @@ pipeline {
 						label 'macos'
 					}
 					steps {
-						CMake([label: 'macos'])
+						CMake([label: 'macos',
+							   getCmakeArgs: "-DCMAKE_PREFIX_PATH=/usr/local/opt/qt5"])
 						stash includes: 'dist/**', name: 'dist-macos'
 					}
 				}
 				stage("Compile on windows") {
 					agent {
-						label 'windows'
+						label 'windows-qt5'
 					}
 					steps {
 						CMake([label: 'windows'])
