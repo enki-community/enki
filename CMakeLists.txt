@@ -7,12 +7,6 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMakeModules)
 
 enable_testing()
 
-# check for Qt
-find_package(Qt5Core)
-find_package(Qt5Gui)
-find_package(Qt5Widgets)
-find_package(Qt5OpenGL)
-
 # check for SDL2
 find_package(SDL2)
 
