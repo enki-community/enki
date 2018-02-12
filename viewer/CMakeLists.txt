@@ -20,6 +20,7 @@ add_library(enkiviewer
 	Thymio2Model.cpp
 	objects/Thymio2Body.cpp
 	objects/Thymio2Wheel.cpp
+	enki-viewer-textures.qrc
 
 )
 
