@@ -17,11 +17,6 @@ find_package(Qt5Gui)
 find_package(Qt5Widgets)
 find_package(Qt5OpenGL)
 if (Qt5Widgets_FOUND AND Qt5OpenGL_FOUND)
-	
-	if (CMAKE_HOST_UNIX)
-		add_definitions("-fPIC")
-	endif (CMAKE_HOST_UNIX)
-	
 	find_library(enki_VIEWER_LIBRARY enkiviewer @PROJECT_BINARY_DIR@/viewer CMAKE_FIND_ROOT_PATH_BOTH)
 	set(enki_VIEWER_LIBRARIES ${enki_VIEWER_LIBRARY} Qt5::OpenGL Qt5::Widgets CACHE STRING "All libraries necessary to link Enki viewer")
 	find_package_handle_standard_args(enki_VIEWER DEFAULT_MSG enki_VIEWER_LIBRARIES)
