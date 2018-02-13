@@ -1,4 +1,3 @@
-include_directories (${PROJECT_SOURCE_DIR})
 add_library(enki
 	Geometry.cpp
 	Types.cpp
@@ -18,6 +17,8 @@ add_library(enki
 	robots/marxbot/Marxbot.cpp
 	robots/thymio2/Thymio2.cpp
 )
+
+target_include_directories (enki PUBLIC ${PROJECT_SOURCE_DIR})
 
 set_target_properties(enki PROPERTIES VERSION ${LIB_VERSION_STRING} 
                                         SOVERSION ${LIB_VERSION_MAJOR})
