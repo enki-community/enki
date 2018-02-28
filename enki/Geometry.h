@@ -47,10 +47,6 @@
 #include <ostream>
 #include <algorithm>
 
-#ifdef _MSC_VER
-#define round(x) floor((x) + 0.5)
-#endif
-
 /*!	\file Geometry.h
 	\brief The mathematic classes for 2D geometry
 */
