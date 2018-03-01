@@ -1,7 +1,3 @@
-if (CMAKE_HOST_UNIX)
-	add_definitions("-fPIC")
-endif (CMAKE_HOST_UNIX)
-
 add_library(enki
 	Geometry.cpp
 	Types.cpp
@@ -24,8 +20,9 @@ add_library(enki
 
 target_include_directories (enki PUBLIC ${PROJECT_SOURCE_DIR})
 
-set_target_properties(enki PROPERTIES VERSION ${LIB_VERSION_STRING} 
-                                        SOVERSION ${LIB_VERSION_MAJOR})
+set_target_properties(enki PROPERTIES VERSION ${LIB_VERSION_STRING}
+										SOVERSION ${LIB_VERSION_MAJOR}
+										POSITION_INDEPENDENT_CODE ON)
 
 install(DIRECTORY . 
 	DESTINATION include/enki/
