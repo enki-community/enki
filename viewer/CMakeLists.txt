@@ -1,9 +1,5 @@
-find_package(Qt5 5  COMPONENTS Core Gui Widgets OpenGL)
-find_package(OpenGL REQUIRED)
-
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
-
 
 
 add_library(enkiviewer
