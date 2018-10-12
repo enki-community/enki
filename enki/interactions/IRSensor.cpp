@@ -87,9 +87,9 @@ namespace Enki
 	void IRSensor::init(double dt, World* w)
 	{
 		// fill initial values with very large value; will be replaced if smaller distance is found
-		std::fill(&rayDists[0], &rayDists[rayCount], range);
-		std::fill(&rayValues[0], &rayValues[rayCount], 0);
-		
+		std::fill(rayDists.begin(), rayDists.end(), range);
+		std::fill(rayValues.end(), rayValues.end(), 0);
+
 		// compute absolute position and orientation
 		const Matrix22 rot(owner->angle);
 		absPos = owner->pos + rot * pos;
@@ -190,8 +190,8 @@ namespace Enki
 				// if sensor is inside a wall distance is 0
 				if ((absPos.x<0) || (absPos.x>w->w) || (absPos.y<0) || (absPos.y>w->h))
 				{
-					std::fill(&rayDists[0], &rayDists[rayCount], m);
-					std::fill(&rayValues[0], &rayValues[rayCount], 0);
+					std::fill(rayDists.begin(), rayDists.end(), m);
+					std::fill(rayValues.end(), rayValues.end(), 0);
 					return;
 				}
 		
