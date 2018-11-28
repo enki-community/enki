@@ -45,6 +45,12 @@
 #include <QImage>
 #include <QGLWidget>
 
+#if PY_MAJOR_VERSION >= 3
+#define INT_CHECK PyLong_Check
+#else
+#define INT_CHECK PyInt_Check
+#endif
+
 using namespace boost::python;
 using namespace Enki;
 
@@ -105,11 +111,11 @@ struct Vector_from_python
 			
 			PyObject* item0(PyTuple_GetItem(objPtr, 0));
 			assert (item0);
-			if (!(PyFloat_Check(item0) || PyInt_Check(item0)))
+			if (!(PyFloat_Check(item0) || INT_CHECK(item0)))
 				return 0;
 			PyObject* item1(PyTuple_GetItem(objPtr, 1));
 			assert (item1);
-			if (!(PyFloat_Check(item1) || PyInt_Check(item1)))
+			if (!(PyFloat_Check(item1) || INT_CHECK(item1)))
 				return 0;
 		}
 		else
@@ -120,11 +126,11 @@ struct Vector_from_python
 			
 			PyObject* item0(PyList_GetItem(objPtr, 0));
 			assert (item0);
-			if (!(PyFloat_Check(item0) || PyInt_Check(item0)))
+			if (!(PyFloat_Check(item0) || INT_CHECK(item0)))
 				return 0;
 			PyObject* item1(PyList_GetItem(objPtr, 1));
 			assert (item1);
-			if (!(PyFloat_Check(item1) || PyInt_Check(item1)))
+			if (!(PyFloat_Check(item1) || INT_CHECK(item1)))
 				return 0;
 		}
 		
