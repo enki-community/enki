@@ -546,7 +546,7 @@ BOOST_PYTHON_MODULE(pyenki)
 		.def("runInViewer", runInViewer, runInViewer_overloads(args("self", "camPos", "camAltitude", "camYaw", "camPitch", "wallsHeight")))
 	;
 	
-	class_<WorldWithTexturedGround, bases<World> >("WorldWithTexturedGround",
+	class_<WorldWithTexturedGround, bases<WorldWithoutObjectsOwnership> >("WorldWithTexturedGround",
 		init<double, double, const std::string&, optional<const Color&> >(args("width", "height", "ppmFileName", "wallsColor"))
 	)
 		.def(init<double, const std::string&, optional<const Color&> >(args("r", "ppmFileName", "wallsColor")))
