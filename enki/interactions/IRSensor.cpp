@@ -88,7 +88,7 @@ namespace Enki
 	{
 		// fill initial values with very large value; will be replaced if smaller distance is found
 		std::fill(rayDists.begin(), rayDists.end(), range);
-		std::fill(rayValues.end(), rayValues.end(), 0);
+		std::fill(rayValues.begin(), rayValues.end(), 0);
 
 		// compute absolute position and orientation
 		const Matrix22 rot(owner->angle);
@@ -191,7 +191,7 @@ namespace Enki
 				if ((absPos.x<0) || (absPos.x>w->w) || (absPos.y<0) || (absPos.y>w->h))
 				{
 					std::fill(rayDists.begin(), rayDists.end(), m);
-					std::fill(rayValues.end(), rayValues.end(), 0);
+					std::fill(rayValues.begin(), rayValues.end(), 0);
 					return;
 				}
 		
