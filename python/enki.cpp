@@ -369,6 +369,7 @@ struct PythonViewer: public ViewerWidget
 		wallsHeight = _wallsHeight;
 		
 		managedObjectsAliases[&typeid(EPuckWrap)] = &typeid(EPuck);
+		managedObjectsAliases[&typeid(Thymio2Wrap)] = &typeid(Thymio2);
 	}
 	
 	void timerEvent(QTimerEvent * event)
