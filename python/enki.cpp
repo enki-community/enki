@@ -351,6 +351,14 @@ struct Thymio2Wrap: Thymio2, wrapper<Thymio2>
 		l.append(groundSensor1.getValue());
 		return l;
 	}
+
+	void setLedIntensity(int index, double intensity) {
+		Thymio2::setLedIntensity((LedIndex)index, intensity);
+	}
+
+	void setLedColor(int index, const Color& color) {
+		Thymio2::setLedColor((LedIndex)index, color);
+	}
 };
 
 struct PythonViewer: public ViewerWidget
