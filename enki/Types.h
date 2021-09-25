@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -56,7 +56,7 @@ namespace Enki
 	{
 		//! RGBA values in range [0..1]
 		double components[4];
-		
+
 		//! Constructor from separated components
 		Color(double r = 0.0, double g = 0.0, double b = 0.0, double a = 1.0)
 		{
@@ -65,44 +65,44 @@ namespace Enki
 			components[2] = b;
 			components[3] = a;
 		}
-		
+
 		//! access component i
 		const double& operator[](size_t i) const { assert(i < 4); return components[i]; }
 		//! access component i
 		double& operator[](size_t i) { assert(i < 4); return components[i]; }
-		
+
 		// operations with scalar
 		//! Add d to each component
 		void operator +=(double d) { for (size_t i=0; i<3; i++) components[i] += d; }
 		//! Add d to each component and return result in a new color. I'm left unchanged
 		Color operator +(double d) const { Color c; for (size_t i=0; i<3; i++) c.components[i] = components[i] + d; return c; }
-		
+
 		//! Substract d from each component
 		void operator -=(double d) { for (size_t i=0; i<3; i++) components[i] -= d; }
 		//! Substract d from each component and return result in a new color. I'm left unchanged
 		Color operator -(double d) const { Color c; for (size_t i=0; i<3; i++) c.components[i] = components[i] - d; return c; }
-		
+
 		//! Multiply each component with d
 		void operator *=(double d) { for (size_t i=0; i<3; i++) components[i] *= d; }
 		//! Multiply each component with d and return result in a new color. I'm left unchanged
 		Color operator *(double d) const { Color c; for (size_t i=0; i<3; i++) c.components[i] = components[i] * d; return c; }
-		
+
 		//! Divide each component with d
 		void operator /=(double d) { for (size_t i=0; i<3; i++) components[i] /= d; }
 		//! Divide each component with d and return result in a new color. I'm left unchanged
 		Color operator /(double d) const { Color c; for (size_t i=0; i<3; i++) c.components[i] = components[i] / d; return c; }
-		
+
 		// operation with another color
 		//! Add oc's components to ours
 		void operator +=(const Color &oc) { for (size_t i=0; i<3; i++) components[i] += oc.components[i]; }
 		//! Add oc's components to ours and return result in a new color. I'm left unchanged
 		Color operator +(const Color &oc) const { Color c; for (size_t i=0; i<3; i++) c.components[i] = components[i] + oc.components[i]; return c; }
-		
+
 		//! Substract oc's components to ours
 		void operator -=(const Color &oc) { for (size_t i=0; i<3; i++) components[i] -= oc.components[i]; }
 		//! Substract oc's components to ours and return result in a new color. I'm left unchanged
 		Color operator -(const Color &oc) const { Color c; for (size_t i=0; i<3; i++) c.components[i] = components[i] - oc.components[i]; return c; }
-		
+
 		//! Compare all components and return true if they're the same.
 		bool operator ==(const Color &c) const { for (size_t i=0; i<4; i++) if (components[i] != c.components[i]) return false; return true; }
 		//! Compare all components and return false if they're the same.
@@ -111,60 +111,92 @@ namespace Enki
 		void threshold(const Color &limit) { for (size_t i=0; i<3; i++) components[i] = components[i] > limit.components[i] ? components[i] : 0; }
 		//! Return the grey level value
 		double toGray() const { return (components[0] + components[1] + components[2]) / 3; }
-		
+
 		//! Return a string describing this color
 		std::string toString() const { std::ostringstream oss; oss << *this; return oss.str(); }
-		
+
 		//! Red component value getter
 		double r() const { return components[0]; }
-		
+
 		//! Set the value of red component
 		void setR(double value) { components[0] = value; }
-		
+
 		//! Green component value getter
 		double g() const { return components[1]; }
-		
+
 		//! Set the value of green component
 		void setG(double value) { components[1] = value; }
-		
+
 		//! Blue component value getter
 		double b() const { return components[2]; }
-		
+
 		//! Set the value of blue component
 		void setB(double value) { components[2] = value; }
-		
+
 		//! Alpha component value getter
 		double a() const { return components[3]; }
-		
+
 		//! Set the value of alpha component
 		void setA(double value) { components[3] = value; }
-		
+
 		//! Build from an ARGB uint32_t (0xAARRGGBB in little endian)
 		static Color fromARGB(uint32_t color);
 		//! Build from an ABGR uint32_t (0xAABBGGRR in little endian)
 		static Color fromABGR(uint32_t color);
 		//! Pack into ABGR uint32_t (0xAABBGGRR in little endian)
 		static uint32_t toARGB(Color color);
-		
+
 		//! black (0, 0, 0)
 		static const Color black;
 		//! white (1, 1, 1)
 		static const Color white;
+		//! light_gray (0.3, 0.3, 0.3)
+		static const Color light_gray;
 		//! gray (0.5, 0.5, 0.5)
 		static const Color gray;
+		//! dark_gray (0.8, 0.8, 0.8)
+		static const Color dark_gray;
+		//! light_red (1, 0.4, 0.4)
+		static const Color light_red;
 		//! red (1, 0, 0)
 		static const Color red;
+		//! dark_red (0.4, 0, 0)
+		static const Color dark_red;
+		//! light_green (0.4, 1, 0.4)
+		static const Color light_green;
 		//! green (0, 1, 0)
 		static const Color green;
+		//! dark_green (0, 0.4, 0)
+		static const Color dark_green;
+		//! light_blue (0.4, 0.4, 1)
+		static const Color light_blue;
 		//! blue (0, 0, 1)
 		static const Color blue;
-		
+		//! dark_blue (0, 0, 0.4)
+		static const Color dark_blue;
+		//! light_yellow (1, 1, 0.6)
+		static const Color light_yellow;
+		//! yellow (1, 1, 0)
+		static const Color yellow;
+		//! dark_yellow (0.6, 0.6, 0)
+		static const Color dark_yellow;
+		//! orange (1, 0.5, 0)
+		static const Color orange;
+		//! violet (0.6, 0.2, 1)
+		static const Color violet;
+		//! purple (0.2, 0, 0.4)
+		static const Color purple;
+		//! pink (1, 0, 0.8)
+		static const Color pink;
+		//! cian (0, 1, 1)
+		static const Color cian;
+
 		friend std::ostream & operator<<(std::ostream &os, const Color& c);
 	};
-	
+
 	//! A texture
 	typedef std::vector<Color> Texture;
-	
+
 	//! Textures for all sides of an object
 	typedef std::vector<Texture> Textures;
 }

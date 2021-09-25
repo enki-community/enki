@@ -7,8 +7,8 @@
     Copyright (C) 2006-2008 Laboratory of Robotics Systems, EPFL, Lausanne
     See AUTHORS for details
 
-    This program is free software; the authors of any publication 
-    arising from research using this software are asked to add the 
+    This program is free software; the authors of any publication
+    arising from research using this software are asked to add the
     following reference:
     Enki - a fast 2D robot simulator
     http://home.gna.org/enki
@@ -47,7 +47,7 @@ namespace Enki
 		const unsigned b((color>>0)&0xff);
 		return Color(double(r)/255., double(g)/255., double(b)/255., double(a)/255.);
 	}
-	
+
 	Color Color::fromABGR(uint32_t color)
 	{
 		const unsigned r((color>>0)&0xff);
@@ -68,11 +68,27 @@ namespace Enki
 
 	const Color Color::black(0, 0, 0);
 	const Color Color::white(1, 1, 1);
+	const Color Color::light_gray(0.3, 0.3, 0.3);
 	const Color Color::gray(0.5, 0.5, 0.5);
+	const Color Color::dark_gray(0.8, 0.8, 0.8);
+	const Color Color::light_red(1, 0.4, 0.4);
 	const Color Color::red(1, 0, 0);
+	const Color Color::dark_red(0.4, 0, 0);
+	const Color Color::light_green(0.4, 1, 0.4);
 	const Color Color::green(0, 1, 0);
+	const Color Color::dark_green(0, 0.4, 0);
+	const Color Color::light_blue(0.4, 0.4, 1);
 	const Color Color::blue(0, 0, 1);
-	
+	const Color Color::dark_blue(0, 0, 0.4);
+	const Color Color::light_yellow(1, 1, 0.6);
+	const Color Color::yellow(1, 1, 0);
+	const Color Color::dark_yellow(0.6, 0.6, 0);
+	const Color Color::orange(1, 0.5, 0);
+	const Color Color::violet(0.6, 0.2, 1);
+	const Color Color::purple(0.2, 0, 0.4);
+	const Color Color::pink(1, 0, 0.8);
+	const Color Color::cian(0, 1, 1);
+
 	std::ostream & operator<<(std::ostream &os, const Color& c)
 	{
 		return os << "(r = " << c.components[0] << ", g = " << c.components[1] << ", b = " << c.components[2] << ", a = " << c.components[3] << ")";
