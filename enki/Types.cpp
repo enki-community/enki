@@ -87,7 +87,7 @@ namespace Enki
 	const Color Color::violet(0.6, 0.2, 1);
 	const Color Color::purple(0.2, 0, 0.4);
 	const Color Color::pink(1, 0, 0.8);
-	const Color Color::cian(0, 1, 1);
+	const Color Color::cyan(0, 1, 1);
 
 	std::ostream & operator<<(std::ostream &os, const Color& c)
 	{

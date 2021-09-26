@@ -188,8 +188,8 @@ namespace Enki
 		static const Color purple;
 		//! pink (1, 0, 0.8)
 		static const Color pink;
-		//! cian (0, 1, 1)
-		static const Color cian;
+		//! cyan (0, 1, 1)
+		static const Color cyan;
 
 		friend std::ostream & operator<<(std::ostream &os, const Color& c);
 	};
