@@ -150,15 +150,47 @@ namespace Enki
 		static const Color black;
 		//! white (1, 1, 1)
 		static const Color white;
+		//! lightGray (0.3, 0.3, 0.3)
+		static const Color lightGray;
 		//! gray (0.5, 0.5, 0.5)
 		static const Color gray;
+		//! darkGray (0.8, 0.8, 0.8)
+		static const Color darkGray;
+		//! lightRed (1, 0.4, 0.4)
+		static const Color lightRed;
 		//! red (1, 0, 0)
 		static const Color red;
+		//! darkRed (0.4, 0, 0)
+		static const Color darkRed;
+		//! lightGreen (0.4, 1, 0.4)
+		static const Color lightGreen;
 		//! green (0, 1, 0)
 		static const Color green;
+		//! darkGreen (0, 0.4, 0)
+		static const Color darkGreen;
+		//! lightBlue (0.4, 0.4, 1)
+		static const Color lightBlue;
 		//! blue (0, 0, 1)
 		static const Color blue;
-		
+		//! darkBlue (0, 0, 0.4)
+		static const Color darkBlue;
+		//! lightYellow (1, 1, 0.6)
+		static const Color lightYellow;
+		//! yellow (1, 1, 0)
+		static const Color yellow;
+		//! darkYellow (0.6, 0.6, 0)
+		static const Color darkYellow;
+		//! orange (1, 0.5, 0)
+		static const Color orange;
+		//! violet (0.6, 0.2, 1)
+		static const Color violet;
+		//! purple (0.2, 0, 0.4)
+		static const Color purple;
+		//! pink (1, 0, 0.8)
+		static const Color pink;
+		//! cyan (0, 1, 1)
+		static const Color cyan;
+
 		friend std::ostream & operator<<(std::ostream &os, const Color& c);
 	};
 	

@@ -68,11 +68,27 @@ namespace Enki
 
 	const Color Color::black(0, 0, 0);
 	const Color Color::white(1, 1, 1);
+	const Color Color::lightGray(0.3, 0.3, 0.3);
 	const Color Color::gray(0.5, 0.5, 0.5);
+	const Color Color::darkGray(0.8, 0.8, 0.8);
+	const Color Color::lightRed(1, 0.4, 0.4);
 	const Color Color::red(1, 0, 0);
+	const Color Color::darkRed(0.4, 0, 0);
+	const Color Color::lightGreen(0.4, 1, 0.4);
 	const Color Color::green(0, 1, 0);
+	const Color Color::darkGreen(0, 0.4, 0);
+	const Color Color::lightBlue(0.4, 0.4, 1);
 	const Color Color::blue(0, 0, 1);
-	
+	const Color Color::darkBlue(0, 0, 0.4);
+	const Color Color::lightYellow(1, 1, 0.6);
+	const Color Color::yellow(1, 1, 0);
+	const Color Color::darkYellow(0.6, 0.6, 0);
+	const Color Color::orange(1, 0.5, 0);
+	const Color Color::violet(0.6, 0.2, 1);
+	const Color Color::purple(0.2, 0, 0.4);
+	const Color Color::pink(1, 0, 0.8);
+	const Color Color::cyan(0, 1, 1);
+
 	std::ostream & operator<<(std::ostream &os, const Color& c)
 	{
 		return os << "(r = " << c.components[0] << ", g = " << c.components[1] << ", b = " << c.components[2] << ", a = " << c.components[3] << ")";
