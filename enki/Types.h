@@ -150,36 +150,36 @@ namespace Enki
 		static const Color black;
 		//! white (1, 1, 1)
 		static const Color white;
-		//! light_gray (0.3, 0.3, 0.3)
-		static const Color light_gray;
+		//! lightGray (0.3, 0.3, 0.3)
+		static const Color lightGray;
 		//! gray (0.5, 0.5, 0.5)
 		static const Color gray;
-		//! dark_gray (0.8, 0.8, 0.8)
-		static const Color dark_gray;
-		//! light_red (1, 0.4, 0.4)
-		static const Color light_red;
+		//! darkGray (0.8, 0.8, 0.8)
+		static const Color darkGray;
+		//! lightRed (1, 0.4, 0.4)
+		static const Color lightRed;
 		//! red (1, 0, 0)
 		static const Color red;
-		//! dark_red (0.4, 0, 0)
-		static const Color dark_red;
-		//! light_green (0.4, 1, 0.4)
-		static const Color light_green;
+		//! darkRed (0.4, 0, 0)
+		static const Color darkRed;
+		//! lightGreen (0.4, 1, 0.4)
+		static const Color lightGreen;
 		//! green (0, 1, 0)
 		static const Color green;
-		//! dark_green (0, 0.4, 0)
-		static const Color dark_green;
-		//! light_blue (0.4, 0.4, 1)
-		static const Color light_blue;
+		//! darkGreen (0, 0.4, 0)
+		static const Color darkGreen;
+		//! lightBlue (0.4, 0.4, 1)
+		static const Color lightBlue;
 		//! blue (0, 0, 1)
 		static const Color blue;
-		//! dark_blue (0, 0, 0.4)
-		static const Color dark_blue;
-		//! light_yellow (1, 1, 0.6)
-		static const Color light_yellow;
+		//! darkBlue (0, 0, 0.4)
+		static const Color darkBlue;
+		//! lightYellow (1, 1, 0.6)
+		static const Color lightYellow;
 		//! yellow (1, 1, 0)
 		static const Color yellow;
-		//! dark_yellow (0.6, 0.6, 0)
-		static const Color dark_yellow;
+		//! darkYellow (0.6, 0.6, 0)
+		static const Color darkYellow;
 		//! orange (1, 0.5, 0)
 		static const Color orange;
 		//! violet (0.6, 0.2, 1)
