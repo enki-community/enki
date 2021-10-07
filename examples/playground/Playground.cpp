@@ -334,7 +334,10 @@ int main(int argc, char *argv[])
 	bool igt(app.arguments().size() > 1);
 	QImage gt;
 	if (igt)
-		gt = QGLWidget::convertToGLFormat(QImage(app.arguments().last()));
+	{
+		QImage image(app.arguments().last());
+		gt = image.convertToFormat(QImage::Format_ARGB32);
+	}
 	igt = !gt.isNull();
 	#if QT_VERSION >= QT_VERSION_CHECK(4,7,0)
 	const uint32_t *bits = (const uint32_t*)gt.constBits();

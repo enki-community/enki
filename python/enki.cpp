@@ -192,7 +192,8 @@ static World::GroundTexture loadTexture(const std::string& fileName)
 	}
 	
 	return t;*/
-	QImage gt(QGLWidget::convertToGLFormat(QImage(fileName.c_str())));
+	QImage image(fileName.c_str());
+	QImage gt(image.convertToFormat(QImage::Format_ARGB32));
 	
 	#if QT_VERSION >= QT_VERSION_CHECK(4,7,0)
 	return World::GroundTexture(gt.width(), gt.height(), (const uint32_t*)gt.constBits());
