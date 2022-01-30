@@ -1,11 +1,10 @@
 # find Python, make sure we use the same version for interpreter and libraries
-find_package(PythonInterp)
-message(STATUS "Python version from interpreter is ${PYTHON_VERSION_STRING}")
-set(Python_ADDITIONAL_VERSIONS ${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR})
+find_package (Python3 COMPONENTS Interpreter Development)
+message(STATUS "Python version from interpreter is ${Python3_VERSION_MAJOR}")
 find_package(PythonLibs)
 
 # make sure we have the right modules
-if (PYTHONLIBS_FOUND AND PYTHONINTERP_FOUND AND Qt5Widgets_FOUND AND Qt5OpenGL_FOUND)
+if (Python3_FOUND AND Python3_Interpreter_FOUND AND Python3_EXECUTABLE AND Qt5Widgets_FOUND AND Qt5OpenGL_FOUND)
 	message(STATUS "Python libs and executable found, looking for boost::python")
 	find_package(Boost COMPONENTS python)
 	if (Boost_FOUND)
