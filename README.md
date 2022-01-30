@@ -72,9 +72,14 @@ Once you have downloaded and extracted the source distribution, you can create t
 
 	cmake .
 
-and then build Enki by running:
+then build Enki by running:
 
 	make
+
+and install it:
+
+	sudo make install
+
 
 You can also change the build options by running:
 
