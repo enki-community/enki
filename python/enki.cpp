@@ -31,6 +31,8 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#define INT_CHECK PyLong_Check
+
 #include <Python.h>
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
@@ -44,12 +46,6 @@
 #include <QApplication>
 #include <QImage>
 #include <QGLWidget>
-
-#if PY_MAJOR_VERSION >= 3
-#define INT_CHECK PyLong_Check
-#else
-#define INT_CHECK PyInt_Check
-#endif
 
 using namespace boost::python;
 using namespace Enki;
