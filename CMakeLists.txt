@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.12)
 
 project(Enki)
 
@@ -6,6 +6,8 @@ project(Enki)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMakeModules)
 
 enable_testing()
+
+set(OpenGL_GL_PREFERENCE GLVND)
 
 find_package(Qt5 COMPONENTS Core Gui Widgets OpenGL)
 find_package(OpenGL REQUIRED)
@@ -26,7 +28,7 @@ if (Qt5Widgets_FOUND AND Qt5OpenGL_FOUND)
 	add_subdirectory(viewer)
 endif()
 
-add_subdirectory(python)
+# add_subdirectory(python)
 add_subdirectory(tests)
 add_subdirectory(examples)
 

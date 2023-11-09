@@ -1,18 +1,17 @@
 # find Python, make sure we use the same version for interpreter and libraries
-find_package(PythonInterp)
-message(STATUS "Python version from interpreter is ${PYTHON_VERSION_STRING}")
-set(Python_ADDITIONAL_VERSIONS ${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR})
+find_package (Python3 COMPONENTS Interpreter Development)
+message(STATUS "Python version from interpreter is ${Python3_VERSION_MAJOR}")
 find_package(PythonLibs)
 
 # make sure we have the right modules
-if (PYTHONLIBS_FOUND AND PYTHONINTERP_FOUND AND Qt5Widgets_FOUND AND Qt5OpenGL_FOUND)
+if (Python3_FOUND AND Python3_Interpreter_FOUND AND Python3_EXECUTABLE AND Qt5Widgets_FOUND AND Qt5OpenGL_FOUND)
 	message(STATUS "Python libs and executable found, looking for boost::python")
 	find_package(Boost COMPONENTS python)
 	if (Boost_FOUND)
 		message(STATUS "boost::python found, generating python bindings")
 		include_directories(${PROJECT_SOURCE_DIR} ${PYTHON_INCLUDE_DIRS} ${Boost_INCLUDE_DIR})
 		python_add_module(pyenki enki.cpp)
-		target_link_libraries(pyenki enki enkiviewer Qt5::OpenGL Qt5::Widgets ${OPENGL_gl_LIBRARY} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+		target_link_libraries(pyenki enki enkiviewer Qt5::OpenGL Qt5::Widgets ${OPENGL_gl_LIBRARY} ${Boost_LIBRARIES} ${Python3_LIBRARIES})
 		# fix for old python_add_module
 		set_target_properties(pyenki PROPERTIES PREFIX "")
 		if (PYTHON_CUSTOM_TARGET)
@@ -23,8 +22,8 @@ if (PYTHONLIBS_FOUND AND PYTHONINTERP_FOUND AND Qt5Widgets_FOUND AND Qt5OpenGL_F
 			else (PYTHON_DEB_INSTALL_TARGET)
 				set(PYTHON_COMMAND "from distutils.sysconfig import get_python_lib; print(get_python_lib(1, prefix='${CMAKE_INSTALL_PREFIX}'))")
 			endif (PYTHON_DEB_INSTALL_TARGET)
-			execute_process(COMMAND "${PYTHON_EXECUTABLE}" "-c" "${PYTHON_COMMAND}" OUTPUT_VARIABLE PYTHON_SITE_MODULES OUTPUT_STRIP_TRAILING_WHITESPACE)
-			install(TARGETS pyenki LIBRARY DESTINATION ${PYTHON_SITE_MODULES})
+			execute_process(COMMAND "${Python3_EXECUTABLE}" "-c" "${PYTHON_COMMAND}" OUTPUT_VARIABLE PYTHON_SITE_MODULES OUTPUT_STRIP_TRAILING_WHITESPACE)
+			install(TARGETS pyenki LIBRARY DESTINATION ${Python3_SITEARCH})
 		endif (PYTHON_CUSTOM_TARGET)
 	else (Boost_FOUND)
 		message(WARNING "You need boost::python to generate Python bindings")
